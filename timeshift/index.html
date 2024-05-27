@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Time Progress Bar</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 400px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    progress {
+      width: 100%;
+      height: 20px;
+      appearance: none;
+      border: none;
+      background-color: #f3f3f3;
+      border-radius: 10px;
+    }
+
+    progress::-webkit-progress-bar {
+      background-color: #f3f3f3;
+      border-radius: 10px;
+    }
+
+    progress::-webkit-progress-value {
+      background-color: #4CAF50;
+      border-radius: 10px;
+    }
+
+    #progress-percentage {
+      font-size: 1.2rem;
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 id="heading"></h1>
+    <progress id="progress-bar" value="0" max="100"></progress>
+    <div id="progress-percentage">0.000%</div>
+  </div>
+
+  <script>
+    const heading = document.getElementById('heading');
+    const progressBar = document.getElementById('progress-bar');
+    const progressPercentage = document.getElementById('progress-percentage');
+
+    function updateProgressBar() {
+      const now = new Date();
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
+      const seconds = now.getSeconds();
+
+      let startTime, endTime;
+
+      if (hours >= 8 && hours < 12) {
+        heading.textContent = 'Morning';
+        startTime = new Date().setHours(8, 0, 0, 0);
+        endTime = new Date().setHours(12, 0, 0, 0);
+      } else if (hours >= 13 && hours < 19) {
+        heading.textContent = 'Afternoon';
+        startTime = new Date().setHours(13, 0, 0, 0);
+        endTime = new Date().setHours(19, 0, 0, 0);
+      } else if (hours >= 21 || hours < 0) {
+        heading.textContent = 'Night';
+        startTime = new Date().setHours(21, 0, 0, 0);
+        endTime = new Date().setHours(24, 0, 0, 0);
+      } else {      	
+        heading.textContent = 'Free Time';
+      }
+
+      const currentTime = now.getTime();
+      const totalTime = endTime - startTime;
+      const elapsedTime = currentTime - startTime;
+      const progress = (elapsedTime / totalTime) * 100;
+
+      progressBar.value = progress;
+      progressPercentage.textContent = progress.toFixed(3) + '%';
+    }
+
+    updateProgressBar();
+    setInterval(updateProgressBar, 1000);
+  </script>
+</body>
+</html>
