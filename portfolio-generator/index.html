@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card HTML Generator</title>
+    <style>:root {
+  --bg-color: #1a1a1a;
+  --text-color: #e0e0e0;
+  --primary-color: #3498db;
+  --secondary-color: #2ecc71;
+  --card-bg: #2c2c2c;
+  --input-bg: #333;
+  --input-border: #444;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  line-height: 1.6;
+  padding: 20px;
+  transition: background-color 0.3s ease;
+}
+
+h1 {
+  color: var(--primary-color);
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+#cardForm {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+input[type="text"],
+textarea {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid var(--input-border);
+  background-color: var(--input-bg);
+  color: var(--text-color);
+  transition: all 0.3s ease;
+}
+
+input[type="text"]:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+}
+
+button {
+  padding: 10px 15px;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+button:hover {
+  background-color: #2980b9;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+#generatedHtml {
+  width: 100%;
+  height: 200px;
+  margin-top: 20px;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid var(--input-border);
+  background-color: var(--input-bg);
+  color: var(--text-color);
+  font-family: monospace;
+  resize: vertical;
+}
+
+#copyButton {
+  margin-top: 10px;
+  background-color: var(--secondary-color);
+}
+
+#copyButton:hover {
+  background-color: #27ae60;
+}
+
+/* Preview styles for the generated card */
+.card {
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.card-content {
+  padding: 20px;
+}
+
+.card-title {
+  margin-top: 0;
+  color: var(--primary-color);
+}
+
+.card-title a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.card-title a:hover {
+  color: var(--secondary-color);
+}
+
+.card-text {
+  color: var(--text-color);
+  font-size: 0.9em;
+}
+
+@media (max-width: 600px) {
+  body {
+    padding: 10px;
+  }
+
+  #cardForm {
+    width: 100%;
+  }
+}
+    </style>
+</head>
+<body>
+    <h1>Card HTML Generator</h1>
+    
+    <form id="cardForm">
+        <input type="text" id="link" placeholder="Link URL" required>
+        <input type="text" id="image" placeholder="Image URL" required>
+        <input type="text" id="title" placeholder="Title" required>
+        <textarea id="text" placeholder="Text" required></textarea>
+        <button type="submit">Generate HTML</button>
+    </form>
+
+    <textarea id="generatedHtml" readonly></textarea>
+    <button id="copyButton">Copy HTML and Clear</button>
+
+    <script>
+        const cardForm = document.getElementById('cardForm');
+        const generatedHtml = document.getElementById('generatedHtml');
+        const copyButton = document.getElementById('copyButton');
+
+        cardForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const link = document.getElementById('link').value;
+            const image = document.getElementById('image').value;
+            const title = document.getElementById('title').value;
+            const text = document.getElementById('text').value;
+
+            const cardHTML = `
+        <div class="card">
+            <div class="card-image">
+                <a href="${link}"><img src="${image}" alt="${title}"></a>
+            </div>
+            <div class="card-content">
+                <h2 class="card-title"><a href="${link}">${title}</a></h2>
+                <p class="card-text">${text}</p>
+            </div>
+        </div>`;
+
+            generatedHtml.value = cardHTML;
+            cardForm.reset();
+        });
+
+        copyButton.addEventListener('click', function() {
+            generatedHtml.select();
+            document.execCommand('copy');
+            generatedHtml.value = '';
+            alert('HTML copied to clipboard and cleared!');
+        });
+    </script>
+</body>
+</html>
