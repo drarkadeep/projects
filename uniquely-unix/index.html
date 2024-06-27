@@ -4,153 +4,274 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Uniquely Unix</title>
+    <title>Uniquely Unix - Multiple Countdowns</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
             background-color: #1a1a1a;
             color: #ffffff;
             margin: 0;
-            padding: 0;
+            padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             text-align: center;
-            font-size: 18px;
+            font-size: 16px;
         }
 
         .container {
             background-color: #2a2a2a;
-            padding: 3rem;
+            padding: 2rem;
             border-radius: 15px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            max-width: 500px;
+            max-width: 600px;
             width: 100%;
+            margin-bottom: 20px;
         }
 
         #timeForm {
             display: flex;
             flex-direction: column;
-            gap: 1.5rem;
-            margin-bottom: 2rem;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .date-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
         }
 
         input[type="date"],
-        input[type="time"] {
+        input[type="time"],
+        input[type="text"] {
             background-color: #3a3a3a;
             border: none;
             border-radius: 8px;
             color: #ffffff;
             padding: 0.75rem;
-            font-size: 1.2rem;
+            font-size: 1rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
         }
 
         button {
             background-color: #4CAF50;
             color: white;
             border: none;
-            padding: 1rem;
-            font-size: 1.2rem;
+            padding: 0.75rem;
+            font-size: 1rem;
             border-radius: 8px;
             cursor: pointer;
             transition: background-color 0.3s ease;
+            flex-grow: 1;
         }
 
         button:hover {
             background-color: #45a049;
         }
 
-        #countdown {
-            font-size: 3rem;
-            font-weight: bold;
-            margin-top: 2rem;
+        #addDate {
+            background-color: #3498db;
         }
 
-        /* For Webkit browsers like Chrome/Safari */
+        #addDate:hover {
+            background-color: #2980b9;
+        }
+
+        .countdown {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-top: 1rem;
+        }
+
+        .countdown-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
         input[type="date"]::-webkit-calendar-picker-indicator,
         input[type="time"]::-webkit-calendar-picker-indicator {
             filter: invert(1);
             width: 1.5rem;
             height: 1.5rem;
         }
+
+        @media (min-width: 768px) {
+            body {
+                font-size: 18px;
+            }
+
+            .date-input-group {
+                flex-direction: row;
+            }
+
+            .countdown {
+                font-size: 2rem;
+            }
+        }
     </style>
 </head>
 
 <body>
-    <div id="inputSection">
+    <div class="container" id="inputSection">
         <form id="timeForm">
-            <input type="date" id="istDate" required>
-            <input type="time" id="istTime" required>
-            <button type="submit">Submit</button>
+            <div id="dateInputs">
+                <div class="date-input-group">
+                    <input type="date" class="date-input" required>
+                    <input type="time" class="time-input" required>
+                    <input type="text" class="title-input" placeholder="Enter title" required>
+                </div>
+            </div>
+            <div class="button-group">
+                <button type="button" id="addDate">Add Another Date</button>
+                <button type="submit">Start Countdowns</button>
+            </div>
         </form>
     </div>
-    <div id="countdown"></div>
+    <div id="countdowns"></div>
 
     <script>
-
         const inputSection = document.getElementById('inputSection');
         const form = document.getElementById('timeForm');
-        const countdownDiv = document.getElementById('countdown');
-        const istDateInput = document.getElementById('istDate');
-        const istTimeInput = document.getElementById('istTime');
+        const countdownsDiv = document.getElementById('countdowns');
+        const addDateBtn = document.getElementById('addDate');
 
-        function setDefaultDateTime() {
+        function setDefaultDateTime(dateInput, timeInput) {
             const now = new Date();
-            istDateInput.value = now.toISOString().split('T')[0];
-            istTimeInput.value = now.toTimeString().slice(0, 5);
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            dateInput.value = `${year}-${month}-${day}`;
+            timeInput.value = now.toTimeString().slice(0, 5);
         }
 
-        setDefaultDateTime();
+        setDefaultDateTime(document.querySelector('.date-input'), document.querySelector('.time-input'));
+
+        addDateBtn.addEventListener('click', function() {
+            const dateInputs = document.getElementById('dateInputs');
+            const newInputGroup = document.createElement('div');
+            newInputGroup.className = 'date-input-group';
+            newInputGroup.innerHTML = `
+                <input type="date" class="date-input" required>
+                <input type="time" class="time-input" required>
+                <input type="text" class="title-input" placeholder="Enter title" required>
+            `;
+            dateInputs.appendChild(newInputGroup);
+
+            const newDateInput = newInputGroup.querySelector('.date-input');
+            const newTimeInput = newInputGroup.querySelector('.time-input');
+            setDefaultDateTime(newDateInput, newTimeInput);
+        });
 
         form.addEventListener('submit', function (e) {
             e.preventDefault();
-            const istDate = istDateInput.value;
-            const istTime = istTimeInput.value;
-            const [year, month, day] = istDate.split('-');
-            const [hours, minutes] = istTime.split(':');
-            const istDateTime = new Date(year, month - 1, day, hours, minutes);
-            const unixTimestamp = Math.floor(istDateTime.getTime() / 1000);
-            window.location.href = `?time=${unixTimestamp}`;
+            const dates = [];
+            const dateInputs = document.querySelectorAll('.date-input');
+            const timeInputs = document.querySelectorAll('.time-input');
+            const titleInputs = document.querySelectorAll('.title-input');
+
+            for (let i = 0; i < dateInputs.length; i++) {
+                const [year, month, day] = dateInputs[i].value.split('-');
+                const [hours, minutes] = timeInputs[i].value.split(':');
+                const istDateTime = new Date(year, month - 1, day, hours, minutes);
+                const unixTimestamp = Math.floor(istDateTime.getTime() / 1000);
+                dates.push({
+                    timestamp: unixTimestamp,
+                    title: titleInputs[i].value
+                });
+            }
+
+            const base64EncodedDates = btoa(JSON.stringify(dates));
+            window.location.href = `?time=${base64EncodedDates}`;
         });
 
-        function startCountdown(unixTimestamp) {
+        function formatTimeLeft(timeLeft) {
+            const hours = Math.floor(timeLeft / 3600);
+            const minutes = Math.floor((timeLeft % 3600) / 60);
+
+            if (hours > 0) {
+                return `${hours} hour${hours > 1 ? 's' : ''} and ${minutes} minute${minutes !== 1 ? 's' : ''} left`;
+            } else {
+                return `${minutes} minute${minutes !== 1 ? 's' : ''} left`;
+            }
+        }
+
+        function formatTimeForTitle(timeLeft) {
+            const hours = Math.floor(timeLeft / 3600);
+            const minutes = Math.floor((timeLeft % 3600) / 60);
+            const seconds = timeLeft % 60;
+
+            let timeString = '';
+            if (hours > 0) {
+                timeString += `${String(hours).padStart(2, '0')}:`;
+            }
+            timeString += `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+            return timeString;
+        }
+
+        function startCountdowns(dates) {
             inputSection.style.display = 'none';
+            dates.forEach((date, index) => {
+                const countdownDiv = document.createElement('div');
+                countdownDiv.className = 'container';
+                countdownDiv.innerHTML = `
+                    <div class="countdown-title">${date.title}</div>
+                    <div class="countdown" id="countdown-${index}"></div>
+                `;
+                countdownsDiv.appendChild(countdownDiv);
+            });
+
             const countdownInterval = setInterval(function () {
                 const now = Math.floor(Date.now() / 1000);
-                const timeLeft = unixTimestamp - now;
+                let allFinished = true;
 
-                if (timeLeft <= 0) {
+                dates.forEach((date, index) => {
+                    const timeLeft = date.timestamp - now;
+                    const countdownElement = document.getElementById(`countdown-${index}`);
+
+                    if (timeLeft <= 0) {
+                        countdownElement.textContent = "Countdown finished!";
+                    } else {
+                        allFinished = false;
+                        countdownElement.textContent = formatTimeLeft(timeLeft);
+                    }
+                });
+
+                if (allFinished) {
                     clearInterval(countdownInterval);
-                    countdownDiv.textContent = "Countdown finished!";
-                } else {
-                    const hours = Math.floor(timeLeft / 3600);
-                    const minutes = Math.floor((timeLeft % 3600) / 60);
-                    const seconds = timeLeft % 60;
-                    countdownDiv.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
                 }
             }, 1000);
         }
 
-        function updateTitleWithCountdown(unixTimestamp) {
+        function updateTitleWithCountdowns(dates) {
             function updateTitle() {
                 const now = Math.floor(Date.now() / 1000);
-                const timeLeft = unixTimestamp - now;
+                let nextEvent = null;
+                let shortestTimeLeft = Infinity;
 
-                if (timeLeft <= 0) {
-                    document.title = "Countdown finished! - Uniquely Unix";
-                } else {
-                    const hours = Math.floor(timeLeft / 3600);
-                    const minutes = Math.floor((timeLeft % 3600) / 60);
-                    const seconds = timeLeft % 60;
-                    let countdownStr = '';
-
-                    if (hours > 0) {
-                        countdownStr += `${hours.toString().padStart(2, '0')}:`;
+                dates.forEach(date => {
+                    const timeLeft = date.timestamp - now;
+                    if (timeLeft > 0 && timeLeft < shortestTimeLeft) {
+                        shortestTimeLeft = timeLeft;
+                        nextEvent = { title: date.title, timeLeft: timeLeft };
                     }
-                    countdownStr += `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                });
 
-                    document.title = `${countdownStr} - Uniquely Unix`;
+                if (nextEvent) {
+                    const timeString = formatTimeForTitle(nextEvent.timeLeft);
+                    document.title = `${timeString} - ${nextEvent.title}`;
+                } else {
+                    document.title = "All Countdowns Finished - Uniquely Unix";
                 }
             }
 
@@ -161,9 +282,13 @@
         const urlParams = new URLSearchParams(window.location.search);
         const timeParam = urlParams.get('time');
         if (timeParam) {
-            const timestamp = parseInt(timeParam);
-            startCountdown(timestamp);
-            updateTitleWithCountdown(timestamp);
+            try {
+                const decodedDates = JSON.parse(atob(timeParam));
+                startCountdowns(decodedDates);
+                updateTitleWithCountdowns(decodedDates);
+            } catch (error) {
+                console.error("Error parsing the time parameter:", error);
+            }
         }
     </script>
 </body>
