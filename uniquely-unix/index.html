@@ -3,9 +3,10 @@
 
 <head>
     <meta charset="UTF-8">
-    <link rel="icon" type="image/x-icon" href="https://raw.githubusercontent.com/drarkadeep/purulent-personal-projects/main/uniquely-unix/uu.png">
+    <link rel="icon" type="image/x-icon"
+        href="https://raw.githubusercontent.com/drarkadeep/purulent-personal-projects/main/uniquely-unix/uu.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Uniquely Unix - Multiple Countdowns</title>
+    <title>Neuro Countdown - Multiple Timers</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -22,7 +23,7 @@
             font-size: 16px;
         }
 
-        .container {
+        .cerebrum {
             background-color: #2a2a2a;
             padding: 1rem;
             border-radius: 15px;
@@ -33,14 +34,14 @@
             box-sizing: border-box;
         }
 
-        #timeForm {
+        #hippocampus {
             display: flex;
             flex-direction: column;
             gap: 1rem;
             margin-bottom: 1rem;
         }
 
-        .date-input-group {
+        .synapse {
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
@@ -60,7 +61,7 @@
             box-sizing: border-box;
         }
 
-        .button-group {
+        .cortex {
             display: flex;
             flex-direction: column;
             gap: 0.5rem;
@@ -81,21 +82,21 @@
             background-color: #45a049;
         }
 
-        #addDate {
+        #axon {
             background-color: #3498db;
         }
 
-        #addDate:hover {
+        #axon:hover {
             background-color: #2980b9;
         }
 
-        .countdown {
+        .neurotransmitter {
             font-size: 1.5rem;
             font-weight: bold;
             margin-top: 1rem;
         }
 
-        .countdown-title {
+        .neuron {
             font-size: 1.2rem;
             margin-bottom: 0.5rem;
         }
@@ -107,7 +108,7 @@
             height: 1.5rem;
         }
 
-        #helpButton {
+        #amygdala {
             position: fixed;
             top: 10px;
             right: 10px;
@@ -123,9 +124,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            font-style: bold;
         }
 
-        .modal {
+        .thalamus {
             display: none;
             position: fixed;
             z-index: 1;
@@ -134,10 +136,10 @@
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgba(0,0,0,0.4);
+            background-color: rgba(0, 0, 0, 0.4);
         }
 
-        .modal-content {
+        .hypothalamus {
             background-color: #2a2a2a;
             margin: 15% auto;
             padding: 20px;
@@ -146,7 +148,11 @@
             max-width: 600px;
         }
 
-        .close {
+        .hypothalamus a {
+            color: white;
+        }
+
+        .meninges {
             color: #aaa;
             float: right;
             font-size: 28px;
@@ -154,19 +160,19 @@
             cursor: pointer;
         }
 
-        .close:hover,
-        .close:focus {
+        .meninges:hover,
+        .meninges:focus {
             color: #fff;
             text-decoration: none;
             cursor: pointer;
         }
 
-        #shareButton {
+        #dendrite {
             background-color: #3498db;
             margin-top: 1rem;
         }
 
-        #shareButton:hover {
+        #dendrite:hover {
             background-color: #2980b9;
         }
 
@@ -175,20 +181,20 @@
                 font-size: 18px;
             }
 
-            .container {
+            .cerebrum {
                 padding: 2rem;
                 max-width: 600px;
             }
 
-            .date-input-group {
+            .synapse {
                 flex-direction: row;
             }
 
-            .countdown {
+            .neurotransmitter {
                 font-size: 2rem;
             }
 
-            .button-group {
+            .cortex {
                 flex-direction: row;
             }
         }
@@ -196,100 +202,106 @@
 </head>
 
 <body>
-    <div class="container" id="inputSection">
-        <form id="timeForm">
-            <div id="dateInputs">
-                <div class="date-input-group">
-                    <input type="date" class="date-input" required>
-                    <input type="time" class="time-input" required>
-                    <input type="text" class="title-input" placeholder="Enter event name" required>
+    <div class="cerebrum" id="broca">
+        <form id="hippocampus">
+            <div id="wernicke">
+                <div class="synapse">
+                    <input type="date" class="myelin" required>
+                    <input type="time" class="schwann" required>
+                    <input type="text" class="glial" placeholder="Enter event name" required>
                 </div>
             </div>
-            <div class="button-group">
-                <button type="button" id="addDate">Add Another Event</button>
+            <div class="cortex">
+                <button type="button" id="axon">Add Another Event</button>
                 <button type="submit">Start Countdown(s)</button>
             </div>
         </form>
     </div>
-    <div id="countdowns"></div>
+    <div id="medulla"></div>
 
-    <button id="helpButton">?</button>
+    <button id="amygdala">?</button>
 
-    <div id="helpModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
+    <div id="thalamus" class="thalamus">
+        <div class="hypothalamus">
+            <span class="meninges">&times;</span>
             <h2>How to Use This App</h2>
             <p>1. Enter the date, time, and name for your event.</p>
             <p>2. Click "Add Another Event" if you want to add more events.</p>
             <p>3. Click "Start Countdown(s)" to begin the countdown.</p>
             <p>4. Use the "Share this countdown" button to copy the URL and share with others.</p>
+            <p>5. <b>Do remember to copy and share the URL. The URL contains the entire data of your countdowns.</b></p>
+            <p>6. This was built by Arkadeep <i>(in Antarctica at 3am with some Emperor Penguins)</i>.</p>
+            <p>7. If you have some time, do check out the variable names in the source.</p>
+            <p>8. Visit <a href="https://arkadeep.com">arkadeep.com</a> for more...</p>
+            <p></p>
         </div>
     </div>
 
     <script>
-        const inputSection = document.getElementById('inputSection');
-        const form = document.getElementById('timeForm');
-        const countdownsDiv = document.getElementById('countdowns');
-        const addDateBtn = document.getElementById('addDate');
-        const helpButton = document.getElementById('helpButton');
-        const helpModal = document.getElementById('helpModal');
-        const closeModal = document.querySelector('.close');
+        const broca = document.getElementById('broca');
+        const hippocampus = document.getElementById('hippocampus');
+        const medulla = document.getElementById('medulla');
+        const axon = document.getElementById('axon');
+        const amygdala = document.getElementById('amygdala');
+        const thalamus = document.getElementById('thalamus');
+        const meninges = document.querySelector('.meninges');
 
-        function setDefaultDateTime(dateInput, timeInput) {
+        function setDefaultDateTime(myelin, schwann) {
             const now = new Date();
             const year = now.getFullYear();
             const month = String(now.getMonth() + 1).padStart(2, '0');
             const day = String(now.getDate()).padStart(2, '0');
-            dateInput.value = `${year}-${month}-${day}`;
-            timeInput.value = now.toTimeString().slice(0, 5);
+            myelin.value = `${year}-${month}-${day}`;
+            schwann.value = now.toTimeString().slice(0, 5);
         }
 
-        setDefaultDateTime(document.querySelector('.date-input'), document.querySelector('.time-input'));
+        setDefaultDateTime(document.querySelector('.myelin'), document.querySelector('.schwann'));
 
-        addDateBtn.addEventListener('click', function() {
-            const dateInputs = document.getElementById('dateInputs');
-            const newInputGroup = document.createElement('div');
-            newInputGroup.className = 'date-input-group';
-            newInputGroup.innerHTML = `
-                <input type="date" class="date-input" required>
-                <input type="time" class="time-input" required>
-                <input type="text" class="title-input" placeholder="Enter title" required>
+        axon.addEventListener('click', function () {
+            const wernicke = document.getElementById('wernicke');
+            const newSynapse = document.createElement('div');
+            newSynapse.className = 'synapse';
+            newSynapse.innerHTML = `
+                <input type="date" class="myelin" required>
+                <input type="time" class="schwann" required>
+                <input type="text" class="glial" placeholder="Enter title" required>
             `;
-            dateInputs.appendChild(newInputGroup);
+            wernicke.appendChild(newSynapse);
 
-            const newDateInput = newInputGroup.querySelector('.date-input');
-            const newTimeInput = newInputGroup.querySelector('.time-input');
-            setDefaultDateTime(newDateInput, newTimeInput);
+            const newMyelin = newSynapse.querySelector('.myelin');
+            const newSchwann = newSynapse.querySelector('.schwann');
+            setDefaultDateTime(newMyelin, newSchwann);
         });
 
-        form.addEventListener('submit', function (e) {
+        hippocampus.addEventListener('submit', function (e) {
             e.preventDefault();
-            const dates = [];
-            const dateInputs = document.querySelectorAll('.date-input');
-            const timeInputs = document.querySelectorAll('.time-input');
-            const titleInputs = document.querySelectorAll('.title-input');
+            const dopamine = [];
+            const myelinInputs = document.querySelectorAll('.myelin');
+            const schwannInputs = document.querySelectorAll('.schwann');
+            const glialInputs = document.querySelectorAll('.glial');
 
-            for (let i = 0; i < dateInputs.length; i++) {
-                const [year, month, day] = dateInputs[i].value.split('-');
-                const [hours, minutes] = timeInputs[i].value.split(':');
-                const eventDateTime = new Date(year, month - 1, day, hours, minutes);
-                const unixTimestamp = Math.floor(eventDateTime.getTime() / 1000);
-                dates.push({
-                    timestamp: unixTimestamp,
-                    title: titleInputs[i].value
+            for (let i = 0; i < myelinInputs.length; i++) {
+                const [year, month, day] = myelinInputs[i].value.split('-');
+                const [hours, minutes] = schwannInputs[i].value.split(':');
+                const synapse = new Date(year, month - 1, day, hours, minutes);
+                const gaba = Math.floor(synapse.getTime() / 1000);
+                dopamine.push({
+                    gaba: gaba,
+                    neuron: glialInputs[i].value
                 });
             }
 
-            const base64EncodedDates = btoa(JSON.stringify(dates));
-            window.history.pushState(null, '', `?time=${base64EncodedDates}`);
-            startCountdowns(dates);
+            const serotonin = btoa(JSON.stringify(dopamine));
+            window.history.pushState(null, '', `?time=${serotonin}`);
+            startNeurotransmission(dopamine);
+            updateCerebellumWithNeurotransmission(dopamine);
         });
 
-        function formatTimeLeft(timeLeft) {
-            const days = Math.floor(timeLeft / 86400);
-            const hours = Math.floor((timeLeft % 86400) / 3600);
-            const minutes = Math.floor((timeLeft % 3600) / 60);
-            const seconds = timeLeft % 60;
+        function formatAcetylcholine(acetylcholine) {
+            const days = Math.floor(acetylcholine / 86400);
+            const hours = Math.floor((acetylcholine % 86400) / 3600);
+            const minutes = Math.floor((acetylcholine % 3600) / 60);
+            const seconds = acetylcholine % 60;
 
             let formattedTime = '';
             if (days > 0) formattedTime += `${days}d `;
@@ -300,10 +312,10 @@
             return formattedTime;
         }
 
-        function formatTimeForTitle(timeLeft) {
-            const hours = Math.floor(timeLeft / 3600);
-            const minutes = Math.floor((timeLeft % 3600) / 60);
-            const seconds = timeLeft % 60;
+        function formatAcetylcholineForCerebellum(acetylcholine) {
+            const hours = Math.floor(acetylcholine / 3600);
+            const minutes = Math.floor((acetylcholine % 3600) / 60);
+            const seconds = acetylcholine % 60;
 
             let timeString = '';
             if (hours > 0) {
@@ -314,102 +326,102 @@
             return timeString;
         }
 
-        function startCountdowns(dates) {
-            inputSection.style.display = 'none';
-            countdownsDiv.innerHTML = '';
-            dates.forEach((date, index) => {
-                const countdownDiv = document.createElement('div');
-                countdownDiv.className = 'container';
-                countdownDiv.innerHTML = `
-                    <div class="countdown-title">${date.title}</div>
-                    <div class="countdown" id="countdown-${index}"></div>
+        function startNeurotransmission(dopamine) {
+            broca.style.display = 'none';
+            medulla.innerHTML = '';
+            dopamine.forEach((date, index) => {
+                const synapseDiv = document.createElement('div');
+                synapseDiv.className = 'cerebrum';
+                synapseDiv.innerHTML = `
+                    <div class="neuron">${date.neuron}</div>
+                    <div class="neurotransmitter" id="neurotransmitter-${index}"></div>
                 `;
-                countdownsDiv.appendChild(countdownDiv);
+                medulla.appendChild(synapseDiv);
             });
 
-            const shareButton = document.createElement('button');
-            shareButton.id = 'shareButton';
-            shareButton.textContent = 'Share this countdown';
-            shareButton.addEventListener('click', function() {
+            const dendrite = document.createElement('button');
+            dendrite.id = 'dendrite';
+            dendrite.textContent = 'Share this countdown';
+            dendrite.addEventListener('click', function () {
                 navigator.clipboard.writeText(window.location.href).then(() => {
                     alert('Countdown URL copied to clipboard!');
                 }).catch(err => {
                     console.error('Failed to copy URL: ', err);
                 });
             });
-            countdownsDiv.appendChild(shareButton);
+            medulla.appendChild(dendrite);
 
-            const countdownInterval = setInterval(function () {
+            const cortisol = setInterval(function () {
                 const now = Math.floor(Date.now() / 1000);
                 let allFinished = true;
 
-                dates.forEach((date, index) => {
-                    const timeLeft = date.timestamp - now;
-                    const countdownElement = document.getElementById(`countdown-${index}`);
+                dopamine.forEach((date, index) => {
+                    const acetylcholine = date.gaba - now;
+                    const neurotransmitterElement = document.getElementById(`neurotransmitter-${index}`);
 
-                    if (timeLeft <= 0) {
-                        countdownElement.textContent = "Countdown finished!";
+                    if (acetylcholine <= 0) {
+                        neurotransmitterElement.textContent = "Countdown finished!";
                     } else {
                         allFinished = false;
-                        countdownElement.textContent = formatTimeLeft(timeLeft);
+                        neurotransmitterElement.textContent = formatAcetylcholine(acetylcholine);
                     }
                 });
 
                 if (allFinished) {
-                    clearInterval(countdownInterval);
+                    clearInterval(cortisol);
                 }
             }, 1000);
         }
 
-        function updateTitleWithCountdowns(dates) {
-            function updateTitle() {
+        function updateCerebellumWithNeurotransmission(dopamine) {
+            function updateCerebellum() {
                 const now = Math.floor(Date.now() / 1000);
                 let nextEvent = null;
-                let shortestTimeLeft = Infinity;
+                let shortestAcetylcholine = Infinity;
 
-                dates.forEach(date => {
-                    const timeLeft = date.timestamp - now;
-                    if (timeLeft > 0 && timeLeft < shortestTimeLeft) {
-                        shortestTimeLeft = timeLeft;
-                        nextEvent = { title: date.title, timeLeft: timeLeft };
+                dopamine.forEach(date => {
+                    const acetylcholine = date.gaba - now;
+                    if (acetylcholine > 0 && acetylcholine < shortestAcetylcholine) {
+                        shortestAcetylcholine = acetylcholine;
+                        nextEvent = { neuron: date.neuron, acetylcholine: acetylcholine };
                     }
                 });
 
                 if (nextEvent) {
-                    const timeString = formatTimeForTitle(nextEvent.timeLeft);
-                    document.title = `${timeString} - ${nextEvent.title}`;
+                    const timeString = formatAcetylcholineForCerebellum(nextEvent.acetylcholine);
+                    document.title = `${timeString} - ${nextEvent.neuron}`;
                 } else {
-                    document.title = "All Countdowns Finished - Uniquely Unix";
+                    document.title = "All Countdowns Finished - Neuro Countdown";
                 }
             }
 
-            updateTitle();
-            setInterval(updateTitle, 1000);
+            updateCerebellum();
+            setInterval(updateCerebellum, 1000);
         }
 
         const urlParams = new URLSearchParams(window.location.search);
         const timeParam = urlParams.get('time');
         if (timeParam) {
             try {
-                const decodedDates = JSON.parse(atob(timeParam));
-                startCountdowns(decodedDates);
-                updateTitleWithCountdowns(decodedDates);
+                const decodedDopamine = JSON.parse(atob(timeParam));
+                startNeurotransmission(decodedDopamine);
+                updateCerebellumWithNeurotransmission(decodedDopamine);
             } catch (error) {
                 console.error("Error parsing the time parameter:", error);
             }
         }
 
-        helpButton.onclick = function() {
-            helpModal.style.display = "block";
+        amygdala.onclick = function () {
+            thalamus.style.display = "block";
         }
 
-        closeModal.onclick = function() {
-            helpModal.style.display = "none";
+        meninges.onclick = function () {
+            thalamus.style.display = "none";
         }
 
-        window.onclick = function(event) {
-            if (event.target == helpModal) {
-                helpModal.style.display = "none";
+        window.onclick = function (event) {
+            if (event.target == thalamus) {
+                thalamus.style.display = "none";
             }
         }
     </script>
