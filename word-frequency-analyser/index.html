@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="https://texample.net/media/tikz/examples/PNG/complete-graph.png" type="image/x-icon">
+    <title>Word Frequency Analyser</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        .info {
+            background-color: #2a2a2a;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: none;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            background-color: #2a2a2a;
+            border: 1px solid #3a3a3a;
+            color: #e0e0e0;
+            border-radius: 4px;
+            resize: vertical;
+        }
+        button {
+            background-color: #4a4a4a;
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #5a5a5a;
+        }
+        .button-group {
+            display: flex;
+            justify-content: center;
+        }
+        ol {
+            list-style: none;
+        }
+        li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Word Frequency Analyser</h1>
+    <textarea placeholder="Paste your text here..." name="word" id="word" cols="30" rows="10"></textarea>
+    <div class="button-group">
+        <button onclick="clearText()">Clear</button>
+        <button onclick="counter()">Calculate</button>
+        <button onclick="copyAnalysis()">Copy Analysis</button>
+    </div>
+    <ol class="info"></ol>
+    <script>
+        const countUniqueItems = arr => {
+            return arr.reduce((counts, item) => {
+                counts[item] = (counts[item] || 0) + 1;
+                return counts;
+            }, {});
+        }
+
+        const sortDictionaryByValue = dict => {
+            const sortedPairs = Object.entries(dict).sort((a, b) => b[1] - a[1]);
+            return Object.fromEntries(sortedPairs);
+        }
+
+        const counter = () => {
+            const infoElement = document.querySelector(".info");
+            infoElement.innerHTML = "";
+            let text = document.getElementById("word").value;
+            let niceText = text.replace(/[^a-zA-Z0-9 ]/g, "").split(" ").filter(word => word);
+            niceText = sortDictionaryByValue(countUniqueItems(niceText));
+            for (let key in niceText) {
+                let li = document.createElement("li");
+                li.textContent = key + " = " + niceText[key];
+                infoElement.append(li);
+            }
+            if (infoElement.innerHTML) {
+                infoElement.style.display = "block";
+            } else {
+                infoElement.style.display = "none";
+            }
+        }
+
+        const clearText = () => {
+            document.getElementById("word").value = "";
+            const infoElement = document.querySelector(".info");
+            infoElement.innerHTML = "";
+            infoElement.style.display = "none";
+        }
+
+        const copyAnalysis = () => {
+            const infoElement = document.querySelector(".info");
+            const textToCopy = Array.from(infoElement.querySelectorAll('li'))
+                                    .map(li => li.textContent)
+                                    .join('\n');
+            navigator.clipboard.writeText(textToCopy)
+                .then(() => alert("Analysis copied to clipboard"))
+                .catch(err => alert("Failed to copy: " + err));
+        }
+    </script>
+</body>
+</html>
