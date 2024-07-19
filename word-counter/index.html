@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="https://pixabay.com/static/uploads/photo/2012/04/23/17/07/three-39116_960_720.png" type="image/x-icon">
+    <title>Word Counter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: #ffffff;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .info {
+            margin-bottom: 15px;
+            font-weight: normal;
+            color: #b0b0b0;
+            text-align: center;
+        }
+
+        textarea {
+            width: 100%;
+            max-width: 500px;
+            height: 200px;
+            padding: 10px;
+            margin-bottom: 15px;
+            background-color: #2a2a2a;
+            border: 1px solid #3a3a3a;
+            color: #e0e0e0;
+            border-radius: 5px;
+            resize: vertical;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #4a4a4a;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #5a5a5a;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 24px;
+            }
+
+            textarea {
+                height: 150px;
+            }
+
+            .button-group {
+                flex-direction: column;
+                width: 100%;
+                max-width: 500px;
+            }
+
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Word Counter</h1>
+    <h3 class="info"></h3>
+    <textarea placeholder="Paste your text here..." name="word" id="word"></textarea>
+    <div class="button-group">
+        <button onclick="clearText()">Clear</button>
+        <button onclick="counter()">Count</button>
+        <button onclick="copyText()">Copy</button>
+    </div>
+
+    <script>
+        const counter = () => {
+            let text = document.getElementById("word").value;
+            document.querySelector(".info").innerHTML = "The word count is " + (text.trim() === "" ? 0 : text.trim().split(/\s+/).length);
+        }
+
+        const clearText = () => {
+            document.getElementById("word").value = "";
+            document.querySelector(".info").innerHTML = "";
+        }
+
+        const copyText = () => {
+            let textarea = document.getElementById("word");
+            textarea.select();
+            document.execCommand("copy");
+            alert("Text copied to clipboard!");
+        }
+    </script>
+</body>
+</html>
