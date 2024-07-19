@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="https://live.staticflickr.com/1021/536362686_e46ab87bc3_n.jpg" type="image/x-icon">
+    <title>Antarctic Timer Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+        }
+        .card {
+            transition: all 0.3s;
+            background-color: #2a2a2a;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 6px rgba(255, 255, 255, 0.1);
+        }
+        input, button {
+            background-color: #3a3a3a;
+            color: #e0e0e0;
+            border: 1px solid #4a4a4a;
+        }
+        button {
+            transition: all 0.3s;
+        }
+        button:hover {
+            background-color: #4a4a4a;
+        }
+        .reset-btn {
+            background-color: #5a5a5a;
+        }
+        .reset-btn:hover {
+            background-color: #6a6a6a;
+        }
+        .delete-btn {
+            background-color: #4a4a4a;
+        }
+        .delete-btn:hover {
+            background-color: #5a5a5a;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-8">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8 text-center">Antarctic Timer Tracker</h1>
+        
+        <div class="mb-8 p-6 rounded-lg shadow-md card">
+            <input type="text" id="eventName" placeholder="Enter event name" class="w-full p-2 mb-4 rounded">
+            <button onclick="startEvent()" class="px-4 py-2 rounded">Start Event</button>
+        </div>
+        
+        <div id="eventList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </div>
+
+    <script>
+        let events = JSON.parse(localStorage.getItem('events')) || {};
+
+        function startEvent() {
+            const eventName = document.getElementById('eventName').value.trim();
+            if (eventName) {
+                events[eventName] = Date.now();
+                saveEvents();
+                renderEvents();
+                document.getElementById('eventName').value = '';
+            }
+        }
+
+        function resetEvent(eventName) {
+            events[eventName] = Date.now();
+            saveEvents();
+            renderEvents();
+        }
+
+        function deleteEvent(eventName) {
+            delete events[eventName];
+            saveEvents();
+            renderEvents();
+        }
+
+        function saveEvents() {
+            localStorage.setItem('events', JSON.stringify(events));
+        }
+
+        function renderEvents() {
+            const eventList = document.getElementById('eventList');
+            eventList.innerHTML = '';
+            
+            for (const [name, startTime] of Object.entries(events)) {
+                const card = document.createElement('div');
+                card.className = 'card p-6 rounded-lg shadow-md';
+                card.innerHTML = `
+                    <h2 class="text-xl font-semibold mb-4">${name}</h2>
+                    <p class="mb-4 text-gray-400" id="time-${name}"></p>
+                    <div class="flex justify-between">
+                        <button onclick="resetEvent('${name}')" class="reset-btn px-3 py-1 rounded">Reset</button>
+                        <button onclick="deleteEvent('${name}')" class="delete-btn px-3 py-1 rounded">Delete</button>
+                    </div>
+                `;
+                eventList.appendChild(card);
+            }
+        }
+
+        function updateTimes() {
+            for (const [name, startTime] of Object.entries(events)) {
+                const timePassed = Math.floor((Date.now() - startTime) / 1000);
+                const days = Math.floor(timePassed / 86400);
+                const hours = Math.floor((timePassed % 86400) / 3600);
+                const minutes = Math.floor((timePassed % 3600) / 60);
+                const seconds = timePassed % 60;
+
+                let timeString = '';
+                if (days > 0) timeString += `${days}d `;
+                if (hours > 0) timeString += `${hours}h `;
+                if (minutes > 0) timeString += `${minutes}m `;
+                if (seconds > 0 || timeString === '') timeString += `${seconds}s`;
+
+                document.getElementById(`time-${name}`).textContent = timeString.trim();
+            }
+        }
+
+        renderEvents();
+        setInterval(updateTimes, 1000);
+    </script>
+</body>
+</html>
