@@ -1,59 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="https://live.staticflickr.com/1021/536362686_e46ab87bc3_n.jpg" type="image/x-icon">
-    <title>Antarctic Timer Tracker</title>
+    <title>ATT Pro✨</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <style>
         body {
             transition: background-color 0.3s, color 0.3s;
         }
+
         .card {
             transition: all 0.3s;
         }
+
         .card:hover {
             transform: translateY(-5px);
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
+
         .btn {
             transition: all 0.3s;
+            margin: 10px 0px;
         }
+
         .btn:hover {
             filter: brightness(110%);
         }
+
         .dark-mode {
             background-color: #1a1a1a;
             color: #e0e0e0;
         }
+
+        .dark-mode input,
+        .dark-mode select {
+            background-color: #2a2a2a;
+            color: #e0e0e0;
+            border: 1px solid #4a4a4a;
+        }
+
         .light-mode {
             background-color: #f0f0f0;
             color: #333333;
         }
+
         .dark-mode .card {
             background-color: #2a2a2a;
         }
+
         .light-mode .card {
             background-color: #ffffff;
         }
+
         .dark-mode .btn {
             background-color: #3a3a3a;
             color: #e0e0e0;
         }
+
         .light-mode .btn {
             background-color: #e0e0e0;
             color: #333333;
         }
+
         .progress-bar {
             transition: width 0.5s ease-in-out;
         }
     </style>
 </head>
+
 <body class="min-h-screen p-8 dark-mode">
     <div class="max-w-6xl mx-auto">
-        <h1 class="text-4xl font-bold mb-8 text-center">Antarctic Timer Tracker</h1>
+        <h1 class="text-4xl font-bold mb-8 text-center">Antarctic Time Tracker Pro✨</h1>
 
         <div class="mb-8 p-6 rounded-lg shadow-md card">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -64,14 +85,17 @@
                 <input type="datetime-local" id="eventDeadline" class="w-full p-2 rounded">
                 <input type="color" id="eventColor" class="w-full p-2 rounded">
             </div>
-            <div class="flex flex-wrap justify-between items-center">
-                <button onclick="startEvent()" class="btn px-4 py-2 rounded"><i class="fas fa-play mr-2"></i>Start Event</button>
-                <button onclick="exportEvents()" class="btn px-4 py-2 rounded"><i class="fas fa-file-export mr-2"></i>Export Events</button>
+            <div class="flex flex-wrap justify-evenly items-center">
+                <button onclick="startEvent()" class="btn px-4 py-2 rounded"><i class="fas fa-play mr-2"></i>Start
+                    Event</button>
+                <button onclick="exportEvents()" class="btn px-4 py-2 rounded"><i
+                        class="fas fa-file-export mr-2"></i>Export Events</button>
                 <label for="importFile" class="btn px-4 py-2 rounded cursor-pointer">
                     <i class="fas fa-file-import mr-2"></i>Import Events
                     <input type="file" id="importFile" class="hidden" onchange="importEvents()">
                 </label>
-                <button onclick="toggleTheme()" class="btn px-4 py-2 rounded"><i class="fas fa-adjust mr-2"></i>Toggle Theme</button>
+                <button onclick="toggleTheme()" class="btn px-4 py-2 rounded"><i class="fas fa-adjust mr-2"></i>Toggle
+                    Theme</button>
                 <select id="timeFormat" class="btn px-4 py-2 rounded" onchange="updateAllTimes()">
                     <option value="full">Days Hours Minutes Seconds</option>
                     <option value="hours">Total Hours</option>
@@ -86,7 +110,8 @@
         </div>
 
         <div class="mb-4 flex items-center">
-            <input type="text" id="searchInput" placeholder="Search events" class="w-full p-2 rounded mr-2" oninput="searchAndFilterEvents()">
+            <input type="text" id="searchInput" placeholder="Search events" class="w-full p-2 rounded mr-2"
+                oninput="searchAndFilterEvents()">
             <select id="categoryFilter" class="btn px-4 py-2 rounded" onchange="searchAndFilterEvents()">
                 <option value="">All Categories</option>
             </select>
@@ -113,7 +138,7 @@
                     paused: false,
                     pausedTime: 0,
                     totalPausedTime: 0,
-                    history: [{action: 'start', time: Date.now()}]
+                    history: [{ action: 'start', time: Date.now() }]
                 };
                 saveEvents();
                 renderEvents();
@@ -194,11 +219,11 @@
                 const card = document.createElement('div');
                 card.className = 'card p-6 rounded-lg shadow-md';
                 card.style.borderLeft = `4px solid ${data.color}`;
-                
+
                 const now = Date.now();
                 let elapsedTime = data.paused ? data.pausedTime - data.startTime : now - data.startTime;
                 elapsedTime -= data.totalPausedTime;
-                
+
                 let progress = 0;
                 if (data.deadline) {
                     const totalTime = data.deadline - data.startTime;
@@ -305,9 +330,9 @@
         function importEvents() {
             const file = document.getElementById('importFile').files[0];
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = function (e) {
                 const importedEvents = JSON.parse(e.target.result);
-                events = {...events, ...importedEvents};
+                events = { ...events, ...importedEvents };
                 saveEvents();
                 renderEvents();
                 updateCategoryFilter();
@@ -325,8 +350,8 @@
             const categoryFilter = document.getElementById('categoryFilter').value.toLowerCase();
             const eventCards = document.querySelectorAll('.card');
             eventCards.forEach(card => {
-                const eventName = card.querySelector('h2').textContent.toLowerCase();
-                const eventCategory = card.querySelector('span').textContent.toLowerCase();
+                const eventName = card.querySelector('h2')?.textContent.toLowerCase() || '';
+                const eventCategory = card.querySelector('span')?.textContent.toLowerCase() || '';
                 const matchesSearch = eventName.includes(searchTerm) || eventCategory.includes(searchTerm);
                 const matchesCategory = categoryFilter === '' || eventCategory === categoryFilter;
                 card.style.display = matchesSearch && matchesCategory ? '' : 'none';
@@ -370,7 +395,7 @@
         function sortEvents(criteria) {
             const eventList = document.getElementById('eventList');
             const eventCards = Array.from(eventList.children);
-            
+
             eventCards.sort((a, b) => {
                 const aValue = getEventValue(a, criteria);
                 const bValue = getEventValue(b, criteria);
@@ -383,8 +408,8 @@
         function getEventValue(card, criteria) {
             const eventName = card.querySelector('h2').textContent;
             const event = events[eventName];
-            
-            switch(criteria) {
+
+            switch (criteria) {
                 case 'name':
                     return eventName.toLowerCase();
                 case 'category':
@@ -399,11 +424,11 @@
         }
 
         // Add event listeners
-        document.getElementById('eventName').addEventListener('keypress', function(e) {
+        document.getElementById('eventName').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') startEvent();
         });
 
-        document.getElementById('eventCategory').addEventListener('keypress', function(e) {
+        document.getElementById('eventCategory').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') startEvent();
         });
 
@@ -418,4 +443,5 @@
         }
     </script>
 </body>
+
 </html>
