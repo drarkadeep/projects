@@ -3,118 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" href="https://pixabay.com/static/uploads/photo/2012/04/23/17/07/three-39116_960_720.png" type="image/x-icon">
     <title>Word Counter</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #1a1a1a;
-            color: #e0e0e0;
+            background: linear-gradient(135deg, #71b7e6, #9b59b6);
+            font-family: 'Arial', sans-serif;
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
-            min-height: 100vh;
+            align-items: center;
+            height: 100vh;
             margin: 0;
+            overflow: hidden;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
             padding: 20px;
-            box-sizing: border-box;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            animation: fadeIn 2s ease-in-out;
+            max-width: 90%;
+            width: 80vw;
         }
 
-        h1 {
-            color: #ffffff;
+        .title {
+            font-size: 2em;
             margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .info {
-            margin-bottom: 15px;
-            font-weight: normal;
-            color: #b0b0b0;
-            text-align: center;
+            color: #333;
+            animation: slideIn 1s ease-out;
         }
 
         textarea {
-            width: 100%;
-            max-width: 500px;
-            height: 200px;
+            width: 90%;
+            height: 150px;
+            border: 2px solid #9b59b6;
+            border-radius: 10px;
             padding: 10px;
-            margin-bottom: 15px;
-            background-color: #2a2a2a;
-            border: 1px solid #3a3a3a;
-            color: #e0e0e0;
-            border-radius: 5px;
-            resize: vertical;
+            font-size: 1em;
+            resize: none;
+            transition: transform 0.3s;
         }
 
-        .button-group {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
+        textarea:focus {
+            outline: none;
+            border-color: #71b7e6;
+            transform: scale(1.05);
         }
 
-        button {
-            padding: 10px 20px;
-            background-color: #4a4a4a;
-            color: #ffffff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
+        .output {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: #333;
+            animation: bounceIn 1s ease;
         }
 
-        button:hover {
-            background-color: #5a5a5a;
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        @media (max-width: 600px) {
-            h1 {
-                font-size: 24px;
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-100%);
             }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
 
-            textarea {
-                height: 150px;
+        @keyframes bounceIn {
+            0%, 20%, 40%, 60%, 80%, 100% {
+                transform: translateY(0);
             }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
 
-            .button-group {
-                flex-direction: column;
-                width: 100%;
-                max-width: 500px;
-            }
-
-            button {
-                width: 100%;
-            }
+        #word-count, #char-count {
+            margin: 5px 0;
         }
     </style>
 </head>
 <body>
-    <h1>Word Counter</h1>
-    <h3 class="info"></h3>
-    <textarea placeholder="Paste your text here..." name="word" id="word"></textarea>
-    <div class="button-group">
-        <button onclick="clearText()">Clear</button>
-        <button onclick="counter()">Count</button>
-        <button onclick="copyText()">Copy</button>
+    <div class="container">
+        <h1 class="title">Word Counter</h1>
+        <textarea id="text-input" placeholder="Type or paste your text here..."></textarea>
+        <div class="output">
+            <p id="word-count">Words: 0</p>
+            <p id="char-count">Characters: 0</p>
+        </div>
     </div>
-
     <script>
-        const counter = () => {
-            let text = document.getElementById("word").value;
-            document.querySelector(".info").innerHTML = "The word count is " + (text.trim() === "" ? 0 : text.trim().split(/\s+/).length);
-        }
+        document.getElementById('text-input').addEventListener('input', function() {
+            let text = this.value.trim();
+            let words = text === '' ? 0 : text.split(/\s+/).length;
+            let characters = text.length;
 
-        const clearText = () => {
-            document.getElementById("word").value = "";
-            document.querySelector(".info").innerHTML = "";
-        }
-
-        const copyText = () => {
-            let textarea = document.getElementById("word");
-            textarea.select();
-            document.execCommand("copy");
-            alert("Text copied to clipboard!");
-        }
+            document.getElementById('word-count').textContent = `Words: ${words}`;
+            document.getElementById('char-count').textContent = `Characters: ${characters}`;
+        });
     </script>
 </body>
 </html>
