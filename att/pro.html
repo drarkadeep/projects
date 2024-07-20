@@ -6,77 +6,92 @@
     <link rel="shortcut icon" href="https://live.staticflickr.com/1021/536362686_e46ab87bc3_n.jpg" type="image/x-icon">
     <title>Antarctic Timer Tracker</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <style>
         body {
-            background-color: #1a1a1a;
-            color: #e0e0e0;
+            transition: background-color 0.3s, color 0.3s;
         }
         .card {
             transition: all 0.3s;
-            background-color: #2a2a2a;
         }
         .card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 4px 6px rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
-        input, button, select {
-            background-color: #3a3a3a;
-            color: #e0e0e0;
-            border: 1px solid #4a4a4a;
-        }
-        button {
+        .btn {
             transition: all 0.3s;
         }
-        button:hover {
-            background-color: #4a4a4a;
-        }
-        .reset-btn, .delete-btn, .pause-btn, .resume-btn, .edit-btn, .export-btn, .import-btn, .category-btn {
-            background-color: #4a4a4a;
-        }
-        .reset-btn:hover, .delete-btn:hover, .pause-btn:hover, .resume-btn:hover, .edit-btn:hover, .export-btn:hover, .import-btn:hover, .category-btn:hover {
-            background-color: #5a5a5a;
-        }
-        .collapsible {
-            cursor: pointer;
-        }
-        .content {
-            display: none;
-            overflow: hidden;
+        .btn:hover {
+            filter: brightness(110%);
         }
         .dark-mode {
             background-color: #1a1a1a;
             color: #e0e0e0;
         }
         .light-mode {
+            background-color: #f0f0f0;
+            color: #333333;
+        }
+        .dark-mode .card {
+            background-color: #2a2a2a;
+        }
+        .light-mode .card {
             background-color: #ffffff;
-            color: #000000;
+        }
+        .dark-mode .btn {
+            background-color: #3a3a3a;
+            color: #e0e0e0;
+        }
+        .light-mode .btn {
+            background-color: #e0e0e0;
+            color: #333333;
+        }
+        .progress-bar {
+            transition: width 0.5s ease-in-out;
         }
     </style>
 </head>
 <body class="min-h-screen p-8 dark-mode">
-    <div class="max-w-4xl mx-auto">
-        <h1 class="text-3xl font-bold mb-8 text-center">Antarctic Timer Tracker</h1>
+    <div class="max-w-6xl mx-auto">
+        <h1 class="text-4xl font-bold mb-8 text-center">Antarctic Timer Tracker</h1>
 
         <div class="mb-8 p-6 rounded-lg shadow-md card">
-            <input type="text" id="eventName" placeholder="Enter event name" class="w-full p-2 mb-4 rounded">
-            <input type="text" id="eventCategory" placeholder="Enter event category" class="w-full p-2 mb-4 rounded">
-            <button onclick="startEvent()" class="px-4 py-2 rounded">Start Event</button>
-            <button onclick="exportEvents()" class="export-btn px-4 py-2 rounded">Export Events</button>
-            <input type="file" id="importFile" class="import-btn px-4 py-2 rounded" onchange="importEvents()">
-            <button onclick="toggleTheme()" class="px-4 py-2 rounded">Toggle Dark/Light Mode</button>
-            <select id="timeFormat" class="px-4 py-2 rounded" onchange="updateAllTimes()">
-                <option value="full">Days Hours Minutes Seconds</option>
-                <option value="hours">Total Hours</option>
-                <option value="minutes">Total Minutes</option>
-                <option value="seconds">Total Seconds</option>
-            </select>
-            <select id="timeDisplay" class="px-4 py-2 rounded" onchange="updateAllTimes()">
-                <option value="elapsed">Elapsed Time</option>
-                <option value="remaining">Time Remaining</option>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <input type="text" id="eventName" placeholder="Enter event name" class="w-full p-2 rounded">
+                <input type="text" id="eventCategory" placeholder="Enter event category" class="w-full p-2 rounded">
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <input type="datetime-local" id="eventDeadline" class="w-full p-2 rounded">
+                <input type="color" id="eventColor" class="w-full p-2 rounded">
+            </div>
+            <div class="flex flex-wrap justify-between items-center">
+                <button onclick="startEvent()" class="btn px-4 py-2 rounded"><i class="fas fa-play mr-2"></i>Start Event</button>
+                <button onclick="exportEvents()" class="btn px-4 py-2 rounded"><i class="fas fa-file-export mr-2"></i>Export Events</button>
+                <label for="importFile" class="btn px-4 py-2 rounded cursor-pointer">
+                    <i class="fas fa-file-import mr-2"></i>Import Events
+                    <input type="file" id="importFile" class="hidden" onchange="importEvents()">
+                </label>
+                <button onclick="toggleTheme()" class="btn px-4 py-2 rounded"><i class="fas fa-adjust mr-2"></i>Toggle Theme</button>
+                <select id="timeFormat" class="btn px-4 py-2 rounded" onchange="updateAllTimes()">
+                    <option value="full">Days Hours Minutes Seconds</option>
+                    <option value="hours">Total Hours</option>
+                    <option value="minutes">Total Minutes</option>
+                    <option value="seconds">Total Seconds</option>
+                </select>
+                <select id="timeDisplay" class="btn px-4 py-2 rounded" onchange="updateAllTimes()">
+                    <option value="elapsed">Elapsed Time</option>
+                    <option value="remaining">Time Remaining</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="mb-4 flex items-center">
+            <input type="text" id="searchInput" placeholder="Search events" class="w-full p-2 rounded mr-2" oninput="searchAndFilterEvents()">
+            <select id="categoryFilter" class="btn px-4 py-2 rounded" onchange="searchAndFilterEvents()">
+                <option value="">All Categories</option>
             </select>
         </div>
 
-        <input type="text" id="searchInput" placeholder="Search events" class="w-full p-2 mb-4 rounded" onkeyup="searchEvents()">
         <div id="eventList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
     </div>
 
@@ -86,20 +101,33 @@
         function startEvent() {
             const eventName = document.getElementById('eventName').value.trim();
             const eventCategory = document.getElementById('eventCategory').value.trim();
+            const eventDeadline = document.getElementById('eventDeadline').value;
+            const eventColor = document.getElementById('eventColor').value;
+
             if (eventName) {
                 events[eventName] = {
                     startTime: Date.now(),
                     category: eventCategory,
+                    deadline: eventDeadline ? new Date(eventDeadline).getTime() : null,
+                    color: eventColor,
                     paused: false,
                     pausedTime: 0,
+                    totalPausedTime: 0,
                     history: [{action: 'start', time: Date.now()}]
                 };
                 saveEvents();
                 renderEvents();
-                document.getElementById('eventName').value = '';
-                document.getElementById('eventCategory').value = '';
+                updateCategoryFilter();
+                clearForm();
                 scheduleNotification(eventName);
             }
+        }
+
+        function clearForm() {
+            document.getElementById('eventName').value = '';
+            document.getElementById('eventCategory').value = '';
+            document.getElementById('eventDeadline').value = '';
+            document.getElementById('eventColor').value = '#000000';
         }
 
         function resetEvent(eventName) {
@@ -107,16 +135,20 @@
             events[eventName].startTime = Date.now();
             events[eventName].paused = false;
             events[eventName].pausedTime = 0;
+            events[eventName].totalPausedTime = 0;
             saveEvents();
             renderEvents();
             scheduleNotification(eventName);
         }
 
         function deleteEvent(eventName) {
-            events[eventName].history.push({ action: 'delete', time: Date.now() });
-            delete events[eventName];
-            saveEvents();
-            renderEvents();
+            if (confirm(`Are you sure you want to delete the event "${eventName}"?`)) {
+                events[eventName].history.push({ action: 'delete', time: Date.now() });
+                delete events[eventName];
+                saveEvents();
+                renderEvents();
+                updateCategoryFilter();
+            }
         }
 
         function pauseEvent(eventName) {
@@ -128,9 +160,10 @@
         }
 
         function resumeEvent(eventName) {
-            events[eventName].history.push({ action: 'resume', time: Date.now() });
+            const now = Date.now();
+            events[eventName].history.push({ action: 'resume', time: now });
             events[eventName].paused = false;
-            events[eventName].startTime += (Date.now() - events[eventName].pausedTime);
+            events[eventName].totalPausedTime += now - events[eventName].pausedTime;
             events[eventName].pausedTime = 0;
             saveEvents();
             renderEvents();
@@ -145,6 +178,7 @@
                 delete events[eventName];
                 saveEvents();
                 renderEvents();
+                updateCategoryFilter();
             }
         }
 
@@ -159,21 +193,45 @@
             for (const [name, data] of Object.entries(events)) {
                 const card = document.createElement('div');
                 card.className = 'card p-6 rounded-lg shadow-md';
+                card.style.borderLeft = `4px solid ${data.color}`;
+                
+                const now = Date.now();
+                let elapsedTime = data.paused ? data.pausedTime - data.startTime : now - data.startTime;
+                elapsedTime -= data.totalPausedTime;
+                
+                let progress = 0;
+                if (data.deadline) {
+                    const totalTime = data.deadline - data.startTime;
+                    progress = Math.min(100, (elapsedTime / totalTime) * 100);
+                }
+
                 card.innerHTML = `
-                    <h2 class="text-xl font-semibold mb-4 collapsible" onclick="toggleContent('${name}')">${name}</h2>
-                    <div class="content" id="content-${name}">
-                        <p class="mb-2">Category: ${data.category}</p>
-                        <p class="mb-4 text-gray-400" id="time-${name}"></p>
-                        <div class="flex flex-wrap justify-between mb-4">
-                            <button onclick="resetEvent('${name}')" class="reset-btn px-3 py-1 rounded mb-2">Reset</button>
-                            <button onclick="deleteEvent('${name}')" class="delete-btn px-3 py-1 rounded mb-2">Delete</button>
-                            <button onclick="${data.paused ? 'resumeEvent' : 'pauseEvent'}('${name}')" class="${data.paused ? 'resume-btn' : 'pause-btn'} px-3 py-1 rounded mb-2">${data.paused ? 'Resume' : 'Pause'}</button>
-                            <button onclick="editEvent('${name}')" class="edit-btn px-3 py-1 rounded mb-2">Edit</button>
-                        </div>
-                        <div class="text-sm text-gray-500">
-                            <p>History:</p>
-                            ${data.history.map(h => `<p>${new Date(h.time).toLocaleString()}: ${h.action}${h.oldName ? ` from ${h.oldName} to ${h.newName}` : ''}</p>`).join('')}
-                        </div>
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold">${name}</h2>
+                        <span class="text-sm">${data.category}</span>
+                    </div>
+                    <p class="mb-2 text-gray-500" id="time-${name}"></p>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5 mb-4 dark:bg-gray-700">
+                        <div class="bg-blue-600 h-2.5 rounded-full progress-bar" style="width: ${progress}%"></div>
+                    </div>
+                    <div class="flex flex-wrap justify-between mb-4">
+                        <button onclick="${data.paused ? 'resumeEvent' : 'pauseEvent'}('${name}')" class="btn px-3 py-1 rounded mb-2">
+                            <i class="fas fa-${data.paused ? 'play' : 'pause'} mr-2"></i>${data.paused ? 'Resume' : 'Pause'}
+                        </button>
+                        <button onclick="resetEvent('${name}')" class="btn px-3 py-1 rounded mb-2">
+                            <i class="fas fa-redo mr-2"></i>Reset
+                        </button>
+                        <button onclick="editEvent('${name}')" class="btn px-3 py-1 rounded mb-2">
+                            <i class="fas fa-edit mr-2"></i>Edit
+                        </button>
+                        <button onclick="deleteEvent('${name}')" class="btn px-3 py-1 rounded mb-2">
+                            <i class="fas fa-trash mr-2"></i>Delete
+                        </button>
+                    </div>
+                    <div class="text-sm text-gray-500">
+                        <p>History:</p>
+                        ${data.history.slice(-3).map(h => `<p>${new Date(h.time).toLocaleString()}: ${h.action}${h.oldName ? ` from ${h.oldName} to ${h.newName}` : ''}</p>`).join('')}
+                        ${data.history.length > 3 ? `<p>... and ${data.history.length - 3} more actions</p>` : ''}
                     </div>
                 `;
                 eventList.appendChild(card);
@@ -193,6 +251,7 @@
 
             const now = Date.now();
             let elapsedTime = data.paused ? data.pausedTime - data.startTime : now - data.startTime;
+            elapsedTime -= data.totalPausedTime;
 
             const timeFormat = document.getElementById('timeFormat').value;
             const timeDisplay = document.getElementById('timeDisplay').value;
@@ -208,11 +267,13 @@
                 formattedTime = `${Math.floor(elapsedTime / 1000)} seconds`;
             }
 
-            if (timeDisplay === 'remaining') {
-                const totalTime = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-                elapsedTime = totalTime - elapsedTime;
-                if (elapsedTime < 0) elapsedTime = 0;
-                formattedTime = `Time Remaining: ${formattedTime}`;
+            if (timeDisplay === 'remaining' && data.deadline) {
+                const remainingTime = data.deadline - now + data.totalPausedTime;
+                if (remainingTime > 0) {
+                    formattedTime = `Time Remaining: ${formatTime(remainingTime)}`;
+                } else {
+                    formattedTime = 'Deadline passed';
+                }
             } else {
                 formattedTime = `Elapsed Time: ${formattedTime}`;
             }
@@ -229,11 +290,6 @@
             ms -= minutes * 60 * 1000;
             const seconds = Math.floor(ms / 1000);
             return `${days}d ${hours}h ${minutes}m ${seconds}s`;
-        }
-
-        function toggleContent(name) {
-            const content = document.getElementById(`content-${name}`);
-            content.style.display = content.style.display === 'none' ? 'block' : 'none';
         }
 
         function exportEvents() {
@@ -254,6 +310,7 @@
                 events = {...events, ...importedEvents};
                 saveEvents();
                 renderEvents();
+                updateCategoryFilter();
             };
             reader.readAsText(file);
         }
@@ -263,23 +320,34 @@
             document.body.classList.toggle('light-mode');
         }
 
-        function searchEvents() {
+        function searchAndFilterEvents() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const categoryFilter = document.getElementById('categoryFilter').value.toLowerCase();
             const eventCards = document.querySelectorAll('.card');
             eventCards.forEach(card => {
                 const eventName = card.querySelector('h2').textContent.toLowerCase();
-                const eventCategory = card.querySelector('p').textContent.toLowerCase();
-                if (eventName.includes(searchTerm) || eventCategory.includes(searchTerm)) {
-                    card.style.display = '';
-                } else {
-                    card.style.display = 'none';
-                }
+                const eventCategory = card.querySelector('span').textContent.toLowerCase();
+                const matchesSearch = eventName.includes(searchTerm) || eventCategory.includes(searchTerm);
+                const matchesCategory = categoryFilter === '' || eventCategory === categoryFilter;
+                card.style.display = matchesSearch && matchesCategory ? '' : 'none';
+            });
+        }
+
+        function updateCategoryFilter() {
+            const categoryFilter = document.getElementById('categoryFilter');
+            const categories = new Set(Object.values(events).map(event => event.category));
+            categoryFilter.innerHTML = '<option value="">All Categories</option>';
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                categoryFilter.appendChild(option);
             });
         }
 
         function scheduleNotification(eventName) {
             if (!("Notification" in window)) {
-                alert("This browser does not support desktop notification");
+                console.log("This browser does not support desktop notification");
                 return;
             }
 
@@ -287,6 +355,7 @@
                 setTimeout(() => {
                     new Notification("Antarctic Timer Alert", {
                         body: `Your event "${eventName}" has been running for 1 hour!`,
+                        icon: "https://live.staticflickr.com/1021/536362686_e46ab87bc3_n.jpg"
                     });
                 }, 60 * 60 * 1000); // 1 hour
             } else if (Notification.permission !== "denied") {
@@ -298,8 +367,55 @@
             }
         }
 
-        setInterval(updateAllTimes, 1000);
+        function sortEvents(criteria) {
+            const eventList = document.getElementById('eventList');
+            const eventCards = Array.from(eventList.children);
+            
+            eventCards.sort((a, b) => {
+                const aValue = getEventValue(a, criteria);
+                const bValue = getEventValue(b, criteria);
+                return aValue > bValue ? 1 : -1;
+            });
+
+            eventCards.forEach(card => eventList.appendChild(card));
+        }
+
+        function getEventValue(card, criteria) {
+            const eventName = card.querySelector('h2').textContent;
+            const event = events[eventName];
+            
+            switch(criteria) {
+                case 'name':
+                    return eventName.toLowerCase();
+                case 'category':
+                    return event.category.toLowerCase();
+                case 'duration':
+                    return Date.now() - event.startTime - event.totalPausedTime;
+                case 'deadline':
+                    return event.deadline || Infinity;
+                default:
+                    return 0;
+            }
+        }
+
+        // Add event listeners
+        document.getElementById('eventName').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') startEvent();
+        });
+
+        document.getElementById('eventCategory').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') startEvent();
+        });
+
+        // Initialize
+        updateCategoryFilter();
         renderEvents();
+        setInterval(updateAllTimes, 1000);
+
+        // Request notification permission
+        if ("Notification" in window) {
+            Notification.requestPermission();
+        }
     </script>
 </body>
 </html>
