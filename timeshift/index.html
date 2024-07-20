@@ -1,101 +1,240 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TimeShift</title>
-  <style>
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      font-family: Arial, sans-serif;
-      text-align: center;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="https://s3-us-west-2.amazonaws.com/candimgs/WgOctR/Sun920607.jpg" type="image/x-icon">
+    <title>TimeShift Pro✨</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        progress {
+            border-radius: 20px;
+        }
 
-    .container {
-      max-width: 400px;
-    }
+        progress::-webkit-progress-bar {
+            border-radius: 20px;
+        }
 
-    h1 {
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
-    }
+        progress::-webkit-progress-value {
+            border-radius: 20px;
+        }
 
-    progress {
-      width: 100%;
-      height: 20px;
-      appearance: none;
-      border: none;
-      background-color: #f3f3f3;
-      border-radius: 10px;
-    }
+        progress::-moz-progress-bar {
+            border-radius: 20px;
+        }
 
-    progress::-webkit-progress-bar {
-      background-color: #f3f3f3;
-      border-radius: 10px;
-    }
+        button, div, input{
+            border-radius: 20px!important;
+        }
 
-    progress::-webkit-progress-value {
-      background-color: #4CAF50;
-      border-radius: 10px;
-    }
+        @keyframes gradient {
+            0% {
+                background-position: 0% 50%;
+            }
 
-    #progress-percentage {
-      font-size: 1.2rem;
-      margin-top: 0.5rem;
-    }
-  </style>
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .gradient-bg {
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+
+        .custom-progress::-webkit-progress-value {
+            transition: width 0.5s ease;
+        }
+    </style>
 </head>
-<body>
-  <div class="container">
-    <h1 id="heading"></h1>
-    <progress id="progress-bar" value="0" max="100"></progress>
-    <div id="progress-percentage">0.000%</div>
-  </div>
 
-  <script>
-    const heading = document.getElementById('heading');
-    const progressBar = document.getElementById('progress-bar');
-    const progressPercentage = document.getElementById('progress-percentage');
+<body class="gradient-bg min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-2xl p-8 max-w-md w-full">
+        <div id="shift-display">
+            <h1 id="heading" class="text-4xl font-bold mb-6 text-center text-gray-800"></h1>
+            <div class="mb-4">
+                <progress id="progress-bar" class="custom-progress w-full h-4 rounded-full appearance-none" value="0"
+                    max="100"></progress>
+                <div id="progress-percentage" class="text-xl font-semibold mt-2 text-center text-gray-700">0.000%</div>
+            </div>
+            <div class="flex justify-between text-sm text-gray-600 mb-6">
+                <span id="start-time"></span>
+                <span id="end-time"></span>
+            </div>
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-700">Current Time:</span>
+                    <span id="current-time" class="font-mono text-lg"></span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-gray-700">Time Remaining:</span>
+                    <span id="time-remaining" class="font-mono text-lg"></span>
+                </div>
+            </div>
+        </div>
+        <div id="shift-editor" class="hidden">
+            <h2 class="text-2xl font-bold mb-4 text-center text-gray-800">Edit Shifts</h2>
+            <div id="shifts-container"></div>
+            <button id="add-shift"
+                class="mt-4 w-full bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition duration-300">➕
+                Add Shift</button>
+        </div>
+        <div class="mt-6">
+            <button id="toggle-edit"
+                class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-300">Edit
+                Shifts</button>
+        </div>
+    </div>
 
-    function updateProgressBar() {
-      const now = new Date();
-      const hours = now.getHours();
-      const minutes = now.getMinutes();
-      const seconds = now.getSeconds();
+    <script>
+        const shiftDisplay = document.getElementById('shift-display');
+        const shiftEditor = document.getElementById('shift-editor');
+        const heading = document.getElementById('heading');
+        const progressBar = document.getElementById('progress-bar');
+        const progressPercentage = document.getElementById('progress-percentage');
+        const startTimeEl = document.getElementById('start-time');
+        const endTimeEl = document.getElementById('end-time');
+        const currentTimeEl = document.getElementById('current-time');
+        const timeRemainingEl = document.getElementById('time-remaining');
+        const toggleEditBtn = document.getElementById('toggle-edit');
+        const addShiftBtn = document.getElementById('add-shift');
+        const shiftsContainer = document.getElementById('shifts-container');
 
-      let startTime, endTime;
+        let shifts = JSON.parse(localStorage.getItem('shifts')) || [];
 
-      if (hours >= 8 && hours < 12) {
-        heading.textContent = 'Morning';
-        startTime = new Date().setHours(8, 0, 0, 0);
-        endTime = new Date().setHours(12, 0, 0, 0);
-      } else if (hours >= 13 && hours < 19) {
-        heading.textContent = 'Afternoon';
-        startTime = new Date().setHours(13, 0, 0, 0);
-        endTime = new Date().setHours(19, 0, 0, 0);
-      } else if (hours >= 21 || hours < 0) {
-        heading.textContent = 'Night';
-        startTime = new Date().setHours(21, 0, 0, 0);
-        endTime = new Date().setHours(24, 0, 0, 0);
-      } else {      	
-        heading.textContent = 'Free Time';
-      }
+        function saveShifts() {
+            localStorage.setItem('shifts', JSON.stringify(shifts));
+        }
 
-      const currentTime = now.getTime();
-      const totalTime = endTime - startTime;
-      const elapsedTime = currentTime - startTime;
-      const progress = (elapsedTime / totalTime) * 100;
+        function formatTime(date) {
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
 
-      progressBar.value = progress;
-      progressPercentage.textContent = progress.toFixed(3) + '%';
-    }
+        function getCurrentShift() {
+            const now = new Date();
+            const currentTime = now.getHours() * 60 + now.getMinutes();
+            return shifts.find(shift => {
+                const start = parseInt(shift.start.split(':')[0]) * 60 + parseInt(shift.start.split(':')[1]);
+                const end = parseInt(shift.end.split(':')[0]) * 60 + parseInt(shift.end.split(':')[1]);
+                return currentTime >= start && currentTime < end;
+            });
+        }
 
-    updateProgressBar();
-    setInterval(updateProgressBar, 1000);
-  </script>
+        function updateProgressBar() {
+            const now = new Date();
+            const currentShift = getCurrentShift();
+
+            if (!currentShift) {
+                heading.textContent = 'No active shift';
+                progressBar.value = 0;
+                progressPercentage.textContent = '0.000%';
+                startTimeEl.textContent = '-';
+                endTimeEl.textContent = '-';
+                timeRemainingEl.textContent = '-';
+                return;
+            }
+
+            heading.textContent = currentShift.name;
+
+            const startTime = new Date(now);
+            startTime.setHours(currentShift.start.split(':')[0], currentShift.start.split(':')[1], 0, 0);
+            const endTime = new Date(now);
+            endTime.setHours(currentShift.end.split(':')[0], currentShift.end.split(':')[1], 0, 0);
+
+            if (endTime < startTime) {
+                endTime.setDate(endTime.getDate() + 1);
+            }
+
+            startTimeEl.textContent = formatTime(startTime);
+            endTimeEl.textContent = formatTime(endTime);
+
+            const totalTime = endTime - startTime;
+            const elapsedTime = now - startTime;
+            const progress = (elapsedTime / totalTime) * 100;
+
+            progressBar.value = progress;
+            progressPercentage.textContent = progress.toFixed(3) + '%';
+
+            currentTimeEl.textContent = formatTime(now);
+
+            const remaining = endTime - now;
+            const hours_remaining = Math.floor(remaining / 3600000);
+            const minutes_remaining = Math.floor((remaining % 3600000) / 60000);
+            timeRemainingEl.textContent = `${hours_remaining}h ${minutes_remaining}m`;
+        }
+
+        function renderShiftEditor() {
+            shiftsContainer.innerHTML = '';
+            shifts.forEach((shift, index) => {
+                const shiftEl = document.createElement('div');
+                shiftEl.className = 'mb-4 p-4 border rounded';
+                shiftEl.innerHTML = `
+                    <input type="text" value="${shift.name}" class="w-full mb-2 p-2 border rounded" placeholder="Shift Name">
+                    <div class="flex justify-between">
+                        <input type="time" value="${shift.start}" class="p-2 border rounded">
+                        <input type="time" value="${shift.end}" class="p-2 border rounded">
+                    </div>
+                    <button class="mt-2 bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-2 rounded">Delete</button>
+                `;
+                const inputs = shiftEl.querySelectorAll('input');
+                inputs[0].addEventListener('change', (e) => {
+                    shifts[index].name = e.target.value;
+                    saveShifts();
+                });
+                inputs[1].addEventListener('change', (e) => {
+                    shifts[index].start = e.target.value;
+                    saveShifts();
+                });
+                inputs[2].addEventListener('change', (e) => {
+                    shifts[index].end = e.target.value;
+                    saveShifts();
+                });
+                shiftEl.querySelector('button').addEventListener('click', () => {
+                    shifts.splice(index, 1);
+                    saveShifts();
+                    renderShiftEditor();
+                });
+                shiftsContainer.appendChild(shiftEl);
+            });
+        }
+
+        function toggleEdit() {
+            const isEditing = shiftDisplay.classList.toggle('hidden');
+            shiftEditor.classList.toggle('hidden');
+            toggleEditBtn.textContent = isEditing ? 'View Shifts' : 'Edit Shifts';
+            if (isEditing) {
+                renderShiftEditor();
+            } else {
+                updateProgressBar();
+                setInterval(updateProgressBar, 1000);
+            }
+        }
+
+
+        function addShift() {
+            shifts.push({ name: 'New Shift', start: '09:00', end: '17:00' });
+            saveShifts();
+            renderShiftEditor();
+            updateProgressBar();  // Add this line to ensure the progress bar updates after adding a shift
+        }
+
+
+        toggleEditBtn.addEventListener('click', toggleEdit);
+        addShiftBtn.addEventListener('click', addShift);
+
+        if (shifts.length === 0) {
+            toggleEdit();
+        } else {
+            updateProgressBar();
+            setInterval(updateProgressBar, 1000);
+        }
+    </script>
 </body>
+
 </html>
