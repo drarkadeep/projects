@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="https://live.staticflickr.com/1021/536362686_e46ab87bc3_n.jpg" type="image/x-icon">
+    <title>Antarctic Timer Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+        }
+        .card {
+            transition: all 0.3s;
+            background-color: #2a2a2a;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 6px rgba(255, 255, 255, 0.1);
+        }
+        input, button, select {
+            background-color: #3a3a3a;
+            color: #e0e0e0;
+            border: 1px solid #4a4a4a;
+        }
+        button {
+            transition: all 0.3s;
+        }
+        button:hover {
+            background-color: #4a4a4a;
+        }
+        .reset-btn, .delete-btn, .pause-btn, .resume-btn, .edit-btn, .export-btn, .import-btn, .category-btn {
+            background-color: #4a4a4a;
+        }
+        .reset-btn:hover, .delete-btn:hover, .pause-btn:hover, .resume-btn:hover, .edit-btn:hover, .export-btn:hover, .import-btn:hover, .category-btn:hover {
+            background-color: #5a5a5a;
+        }
+        .collapsible {
+            cursor: pointer;
+        }
+        .content {
+            display: none;
+            overflow: hidden;
+        }
+        .dark-mode {
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+        }
+        .light-mode {
+            background-color: #ffffff;
+            color: #000000;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-8 dark-mode">
+    <div class="max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold mb-8 text-center">Antarctic Timer Tracker</h1>
+
+        <div class="mb-8 p-6 rounded-lg shadow-md card">
+            <input type="text" id="eventName" placeholder="Enter event name" class="w-full p-2 mb-4 rounded">
+            <input type="text" id="eventCategory" placeholder="Enter event category" class="w-full p-2 mb-4 rounded">
+            <button onclick="startEvent()" class="px-4 py-2 rounded">Start Event</button>
+            <button onclick="exportEvents()" class="export-btn px-4 py-2 rounded">Export Events</button>
+            <input type="file" id="importFile" class="import-btn px-4 py-2 rounded" onchange="importEvents()">
+            <button onclick="toggleTheme()" class="px-4 py-2 rounded">Toggle Dark/Light Mode</button>
+            <select id="timeFormat" class="px-4 py-2 rounded" onchange="updateAllTimes()">
+                <option value="full">Days Hours Minutes Seconds</option>
+                <option value="hours">Total Hours</option>
+                <option value="minutes">Total Minutes</option>
+                <option value="seconds">Total Seconds</option>
+            </select>
+            <select id="timeDisplay" class="px-4 py-2 rounded" onchange="updateAllTimes()">
+                <option value="elapsed">Elapsed Time</option>
+                <option value="remaining">Time Remaining</option>
+            </select>
+        </div>
+
+        <input type="text" id="searchInput" placeholder="Search events" class="w-full p-2 mb-4 rounded" onkeyup="searchEvents()">
+        <div id="eventList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </div>
+
+    <script>
+        let events = JSON.parse(localStorage.getItem('events')) || {};
+
+        function startEvent() {
+            const eventName = document.getElementById('eventName').value.trim();
+            const eventCategory = document.getElementById('eventCategory').value.trim();
+            if (eventName) {
+                events[eventName] = {
+                    startTime: Date.now(),
+                    category: eventCategory,
+                    paused: false,
+                    pausedTime: 0,
+                    history: [{action: 'start', time: Date.now()}]
+                };
+                saveEvents();
+                renderEvents();
+                document.getElementById('eventName').value = '';
+                document.getElementById('eventCategory').value = '';
+                scheduleNotification(eventName);
+            }
+        }
+
+        function resetEvent(eventName) {
+            events[eventName].history.push({ action: 'reset', time: Date.now() });
+            events[eventName].startTime = Date.now();
+            events[eventName].paused = false;
+            events[eventName].pausedTime = 0;
+            saveEvents();
+            renderEvents();
+            scheduleNotification(eventName);
+        }
+
+        function deleteEvent(eventName) {
+            events[eventName].history.push({ action: 'delete', time: Date.now() });
+            delete events[eventName];
+            saveEvents();
+            renderEvents();
+        }
+
+        function pauseEvent(eventName) {
+            events[eventName].history.push({ action: 'pause', time: Date.now() });
+            events[eventName].paused = true;
+            events[eventName].pausedTime = Date.now();
+            saveEvents();
+            renderEvents();
+        }
+
+        function resumeEvent(eventName) {
+            events[eventName].history.push({ action: 'resume', time: Date.now() });
+            events[eventName].paused = false;
+            events[eventName].startTime += (Date.now() - events[eventName].pausedTime);
+            events[eventName].pausedTime = 0;
+            saveEvents();
+            renderEvents();
+            scheduleNotification(eventName);
+        }
+
+        function editEvent(eventName) {
+            const newEventName = prompt("Enter new event name:", eventName);
+            if (newEventName && newEventName !== eventName) {
+                events[newEventName] = events[eventName];
+                events[newEventName].history.push({ action: 'rename', time: Date.now(), oldName: eventName, newName: newEventName });
+                delete events[eventName];
+                saveEvents();
+                renderEvents();
+            }
+        }
+
+        function saveEvents() {
+            localStorage.setItem('events', JSON.stringify(events));
+        }
+
+        function renderEvents() {
+            const eventList = document.getElementById('eventList');
+            eventList.innerHTML = '';
+
+            for (const [name, data] of Object.entries(events)) {
+                const card = document.createElement('div');
+                card.className = 'card p-6 rounded-lg shadow-md';
+                card.innerHTML = `
+                    <h2 class="text-xl font-semibold mb-4 collapsible" onclick="toggleContent('${name}')">${name}</h2>
+                    <div class="content" id="content-${name}">
+                        <p class="mb-2">Category: ${data.category}</p>
+                        <p class="mb-4 text-gray-400" id="time-${name}"></p>
+                        <div class="flex flex-wrap justify-between mb-4">
+                            <button onclick="resetEvent('${name}')" class="reset-btn px-3 py-1 rounded mb-2">Reset</button>
+                            <button onclick="deleteEvent('${name}')" class="delete-btn px-3 py-1 rounded mb-2">Delete</button>
+                            <button onclick="${data.paused ? 'resumeEvent' : 'pauseEvent'}('${name}')" class="${data.paused ? 'resume-btn' : 'pause-btn'} px-3 py-1 rounded mb-2">${data.paused ? 'Resume' : 'Pause'}</button>
+                            <button onclick="editEvent('${name}')" class="edit-btn px-3 py-1 rounded mb-2">Edit</button>
+                        </div>
+                        <div class="text-sm text-gray-500">
+                            <p>History:</p>
+                            ${data.history.map(h => `<p>${new Date(h.time).toLocaleString()}: ${h.action}${h.oldName ? ` from ${h.oldName} to ${h.newName}` : ''}</p>`).join('')}
+                        </div>
+                    </div>
+                `;
+                eventList.appendChild(card);
+            }
+            updateAllTimes();
+        }
+
+        function updateAllTimes() {
+            for (const [name, data] of Object.entries(events)) {
+                updateTime(name, data);
+            }
+        }
+
+        function updateTime(name, data) {
+            const timeElement = document.getElementById(`time-${name}`);
+            if (!timeElement) return;
+
+            const now = Date.now();
+            let elapsedTime = data.paused ? data.pausedTime - data.startTime : now - data.startTime;
+
+            const timeFormat = document.getElementById('timeFormat').value;
+            const timeDisplay = document.getElementById('timeDisplay').value;
+
+            let formattedTime;
+            if (timeFormat === 'full') {
+                formattedTime = formatTime(elapsedTime);
+            } else if (timeFormat === 'hours') {
+                formattedTime = `${Math.floor(elapsedTime / 3600000)} hours`;
+            } else if (timeFormat === 'minutes') {
+                formattedTime = `${Math.floor(elapsedTime / 60000)} minutes`;
+            } else if (timeFormat === 'seconds') {
+                formattedTime = `${Math.floor(elapsedTime / 1000)} seconds`;
+            }
+
+            if (timeDisplay === 'remaining') {
+                const totalTime = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+                elapsedTime = totalTime - elapsedTime;
+                if (elapsedTime < 0) elapsedTime = 0;
+                formattedTime = `Time Remaining: ${formattedTime}`;
+            } else {
+                formattedTime = `Elapsed Time: ${formattedTime}`;
+            }
+
+            timeElement.textContent = formattedTime;
+        }
+
+        function formatTime(ms) {
+            const days = Math.floor(ms / (24 * 60 * 60 * 1000));
+            ms -= days * 24 * 60 * 60 * 1000;
+            const hours = Math.floor(ms / (60 * 60 * 1000));
+            ms -= hours * 60 * 60 * 1000;
+            const minutes = Math.floor(ms / (60 * 1000));
+            ms -= minutes * 60 * 1000;
+            const seconds = Math.floor(ms / 1000);
+            return `${days}d ${hours}h ${minutes}m ${seconds}s`;
+        }
+
+        function toggleContent(name) {
+            const content = document.getElementById(`content-${name}`);
+            content.style.display = content.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function exportEvents() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(events));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", "antarctic_timer_events.json");
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        }
+
+        function importEvents() {
+            const file = document.getElementById('importFile').files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const importedEvents = JSON.parse(e.target.result);
+                events = {...events, ...importedEvents};
+                saveEvents();
+                renderEvents();
+            };
+            reader.readAsText(file);
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            document.body.classList.toggle('light-mode');
+        }
+
+        function searchEvents() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const eventCards = document.querySelectorAll('.card');
+            eventCards.forEach(card => {
+                const eventName = card.querySelector('h2').textContent.toLowerCase();
+                const eventCategory = card.querySelector('p').textContent.toLowerCase();
+                if (eventName.includes(searchTerm) || eventCategory.includes(searchTerm)) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function scheduleNotification(eventName) {
+            if (!("Notification" in window)) {
+                alert("This browser does not support desktop notification");
+                return;
+            }
+
+            if (Notification.permission === "granted") {
+                setTimeout(() => {
+                    new Notification("Antarctic Timer Alert", {
+                        body: `Your event "${eventName}" has been running for 1 hour!`,
+                    });
+                }, 60 * 60 * 1000); // 1 hour
+            } else if (Notification.permission !== "denied") {
+                Notification.requestPermission().then(function (permission) {
+                    if (permission === "granted") {
+                        scheduleNotification(eventName);
+                    }
+                });
+            }
+        }
+
+        setInterval(updateAllTimes, 1000);
+        renderEvents();
+    </script>
+</body>
+</html>
