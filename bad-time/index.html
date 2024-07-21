@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Map with City Times</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+    <style>
+        body,
+        html {
+            height: 100%;
+            margin: 0;
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+        .city-label {
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: bold;
+            color: black;
+            background-color: aqua;
+            width: 300%;
+            border: 2px solid black;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/luxon/2.0.2/luxon.min.js"></script>
+    <script>
+        const cities = [
+            { name: "Tokyo", lat: 35.6895, lon: 139.6917, tz: "Asia/Tokyo" },
+            { name: "New York", lat: 40.7128, lon: -74.0060, tz: "America/New_York" },
+            { name: "Lagos", lat: 6.5244, lon: 3.3792, tz: "Africa/Lagos" },
+            { name: "Sydney", lat: -33.8688, lon: 151.2093, tz: "Australia/Sydney" },
+            { name: "Rio de Janeiro", lat: -22.9068, lon: -43.1729, tz: "America/Sao_Paulo" },
+            { name: "Moscow", lat: 55.7558, lon: 37.6176, tz: "Europe/Moscow" },
+            { name: "Dubai", lat: 25.2048, lon: 55.2708, tz: "Asia/Dubai" },
+            { name: "Los Angeles", lat: 34.0522, lon: -118.2437, tz: "America/Los_Angeles" },
+            { name: "Cape Town", lat: -33.9249, lon: 18.4241, tz: "Africa/Johannesburg" },
+            { name: "Bangkok", lat: 13.7563, lon: 100.5018, tz: "Asia/Bangkok" }
+        ];
+
+        const map = L.map('map', {
+            zoomControl: false,
+            scrollWheelZoom: false,
+            touchZoom: false
+        }).setView([20, 0], 2);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        function updateCityLabels() {
+            cities.forEach(city => {
+                const tz = city.tz;
+                const dt = luxon.DateTime.now().setZone(tz);
+                const timeString = dt.toFormat('HH:mm');
+                const labelHtml = `<div class="city-label"><b>${city.name}</b><br>${timeString}</div>`;
+                const labelIcon = L.divIcon({
+                    className: 'custom-div-icon',
+                    html: labelHtml
+                });
+                L.marker([city.lat, city.lon], { icon: labelIcon }).addTo(map);
+            });
+        }
+
+        updateCityLabels();
+        setInterval(updateCityLabels, 60000);
+    </script>
+</body>
+
+</html>
