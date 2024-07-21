@@ -7,6 +7,7 @@ these are those kinda projects. you know, the ones you make for yourself. and th
 - [Antarctic Time Tracker](https://drarkadeep.github.io/purulent-personal-projects/att/index.html) - Countsup from significant events. Has reset event and delete feature. I also added a bunch of extra features in [**ATTPro™️**](https://drarkadeep.github.io/purulent-personal-projects/att/pro.html)
 - [Uniquely Unix](https://drarkadeep.github.io/purulent-personal-projects/uniquely-unix/index.html) - I made this to resolve timezone issues I face while conducting sessions for [Neuromatch Academy](https://compneuro.neuromatch.io/).
 - [Portfolio Generator](https://drarkadeep.github.io/purulent-personal-projects/portfolio-generator/index.html) - Simple. I made a generator that helps me add new cards to my portfolio. I have no idea how this could be useful for anyone else.
+- [Bad Time](https://drarkadeep.github.io/purulent-personal-projects/bad-time/index.html) - A quick way to check the time in a few cities across the globe. This is a bad project. I am not proud of this.
 - [TimeShift](https://drarkadeep.github.io/purulent-personal-projects/timeshift/index.html) - I made this to calibrate my postgraduate entrance revision slots. This worked in tandem with a buncha other local stuff I used to run. This can be helpful for you if you are dedicating an entire day for any goal. Feel free to alter the description and number of the shifts...
 
 ## Why do I make these?
