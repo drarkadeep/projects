@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Tracker</title>
+    <link rel="shortcut icon" href="https://svgsilh.com/svg/1294349-2196f3.svg" type="image/x-icon">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --surface-color: #1e1e1e;
+            --primary-color: #bb86fc;
+            --text-color: #e0e0e0;
+            --secondary-color: #03dac6;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .container {
+            background-color: var(--surface-color);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+        }
+
+        .input-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        input {
+            width: 80px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        input,
+        button {
+            font-size: 16px;
+            padding: 5px 10px;
+            margin: 5px;
+        }
+
+        #startButton {
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+            border: none;
+            cursor: pointer;
+            padding: 10px 20px;
+            border-radius: 5px;
+        }
+
+        #startButton:hover {
+            opacity: 0.8;
+        }
+
+        .page-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .page-controls button {
+            font-size: 20px;
+            width: 40px;
+            height: 40px;
+            margin: 0 10px;
+            background-color: var(--secondary-color);
+            color: var(--bg-color);
+            border: none;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        .info-box {
+            background-color: var(--surface-color);
+            border: 1px solid var(--primary-color);
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            background-color: var(--bg-color);
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .progress {
+            width: 0;
+            height: 20px;
+            background-color: var(--primary-color);
+            border-radius: 5px;
+            transition: width 0.5s ease-in-out;
+        }
+
+        #pageChart {
+            margin-top: 20px;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 10px;
+            }
+
+            .input-group {
+                flex-direction: column;
+            }
+
+            input {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Page Tracker</h1>
+        <div class="input-group">
+            <label for="totalPages">Total Pages:</label>
+            <input type="number" id="totalPages" min="1" value="10">
+            <button id="startButton">Start</button>
+        </div>
+        <div class="page-controls" style="display:none;">
+            <button id="minusButton">-</button>
+            <span id="completedPages">0</span>
+            <button id="plusButton">+</button>
+        </div>
+        <div class="info-box">
+            <p><span id="timeLabel">Predicted finish time</span>: <span id="predictedFinish"></span></p>
+            <p><span id="countdownLabel">Countdown</span>: <span id="countdown"></span></p>
+            <p>Rate: <span id="rate"></span></p>
+        </div>
+        <div class="progress-bar">
+            <div class="progress" id="progressBar"></div>
+        </div>
+        <canvas id="pageChart"></canvas>
+    </div>
+
+    <script>
+        let startTime, endTime, totalPages, completedPages = 0, pageTimes = [];
+        const startButton = document.getElementById('startButton');
+        const minusButton = document.getElementById('minusButton');
+        const plusButton = document.getElementById('plusButton');
+        const completedPagesSpan = document.getElementById('completedPages');
+        const predictedFinishSpan = document.getElementById('predictedFinish');
+        const countdownSpan = document.getElementById('countdown');
+        const rateSpan = document.getElementById('rate');
+        const progressBar = document.getElementById('progressBar');
+        const timeLabel = document.getElementById('timeLabel');
+        const countdownLabel = document.getElementById('countdownLabel');
+        let chart;
+
+        startButton.addEventListener('click', startTracking);
+        minusButton.addEventListener('click', () => updatePages(-1));
+        plusButton.addEventListener('click', () => updatePages(1));
+
+        function startTracking() {
+            startTime = new Date();
+            endTime = null; // Initialize endTime as null
+            totalPages = parseInt(document.getElementById('totalPages').value);
+            document.querySelector('.page-controls').style.display = 'flex';
+            startButton.disabled = true;
+            updateInfo();
+            initChart();
+        }
+
+        function updatePages(change) {
+            completedPages = Math.max(0, Math.min(completedPages + change, totalPages));
+            completedPagesSpan.textContent = completedPages;
+            pageTimes.push((new Date() - startTime) / 1000);
+
+            if (completedPages === totalPages) {
+                endTime = new Date();
+            }
+
+            updateInfo();
+            updateChart();
+        }
+
+        function updateInfo() {
+            const currentTime = new Date();
+            const elapsedTime = (endTime || currentTime) - startTime;
+            const avgPageTime = completedPages > 0 ? elapsedTime / completedPages / 1000 : 0;
+            const remainingPages = totalPages - completedPages;
+            const predictedTotalTime = avgPageTime * totalPages;
+
+            if (completedPages === totalPages) {
+                timeLabel.textContent = "Time Period";
+                predictedFinishSpan.textContent = `${startTime.toLocaleTimeString()} - ${endTime.toLocaleTimeString()}`;
+                countdownLabel.textContent = "Total Time Taken";
+                countdownSpan.textContent = formatTime(elapsedTime / 1000);
+            } else {
+                const predictedFinishTime = new Date(startTime.getTime() + predictedTotalTime * 1000);
+                timeLabel.textContent = "Predicted finish time";
+                predictedFinishSpan.textContent = predictedFinishTime.toLocaleTimeString();
+                countdownLabel.textContent = "Countdown";
+                const remainingTime = Math.max(0, predictedTotalTime - elapsedTime / 1000);
+                countdownSpan.textContent = formatTime(remainingTime);
+            }
+
+            const pagesPerMinute = completedPages > 0 ? (completedPages / (elapsedTime / 60000)).toFixed(2) : '0.00';
+            const minutesPerPage = completedPages > 0 ? (elapsedTime / 60000 / completedPages).toFixed(2) : '0.00';
+            rateSpan.textContent = `${pagesPerMinute} pages/minute (${minutesPerPage} minutes/page)`;
+
+            const progress = (completedPages / totalPages) * 100;
+            progressBar.style.width = `${progress}%`;
+
+            if (completedPages < totalPages) {
+                requestAnimationFrame(updateInfo);
+            }
+        }
+
+        function formatTime(seconds) {
+            const hrs = Math.floor(seconds / 3600);
+            const mins = Math.floor((seconds % 3600) / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('pageChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Page Completion Time',
+                        data: [],
+                        borderColor: 'rgb(187, 134, 252)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Time (seconds)',
+                                color: '#e0e0e0'
+                            },
+                            ticks: {
+                                color: '#e0e0e0'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Page Number',
+                                color: '#e0e0e0'
+                            },
+                            ticks: {
+                                color: '#e0e0e0'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#e0e0e0'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateChart() {
+            chart.data.labels.push(completedPages);
+            chart.data.datasets[0].data.push(pageTimes[pageTimes.length - 1] - (pageTimes[pageTimes.length - 2] || 0));
+            chart.update();
+        }
+
+        function finishTracking() {
+            const totalTime = (endTime - startTime) / 1000;
+            timeLabel.textContent = "Time Period";
+            countdownLabel.textContent = "Total Time Taken";
+            countdownSpan.textContent = formatTime(totalTime);
+        }
+    </script>
+</body>
+
+</html>
