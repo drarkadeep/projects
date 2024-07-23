@@ -1,3 +1,126 @@
+<head>
+    <style>
+        /* Some cool css stylings for the README.md */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: #e0e0e0;
+            background-color: #1a1a1a;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            color: #bb86fc;
+            margin-top: 24px;
+            margin-bottom: 16px;
+            font-weight: 600;
+            line-height: 1.25;
+        }
+
+        h1 {
+            font-size: 2em;
+            border-bottom: 1px solid #333;
+            padding-bottom: 0.3em;
+        }
+
+        h2 {
+            font-size: 1.5em;
+            border-bottom: 1px solid #333;
+            padding-bottom: 0.3em;
+        }
+
+        a {
+            color: #bb86fc;
+            text-decoration: none;
+            transition: color 0.2s ease-in-out;
+        }
+
+        a:hover {
+            color: #9965f4;
+            text-decoration: underline;
+        }
+
+        ul,
+        ol {
+            padding-left: 2em;
+            margin-bottom: 16px;
+        }
+
+        li {
+            margin-bottom: 4px;
+        }
+
+        blockquote {
+            margin: 0;
+            padding: 0 1em;
+            color: #b0b0b0;
+            border-left: 0.25em solid #bb86fc;
+        }
+
+        code {
+            font-family: SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+            font-size: 85%;
+            background-color: #2a2a2a;
+            border-radius: 3px;
+            padding: 0.2em 0.4em;
+        }
+
+        pre {
+            background-color: #2a2a2a;
+            border-radius: 3px;
+            padding: 16px;
+            overflow: auto;
+        }
+
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+
+        hr {
+            height: 0.25em;
+            padding: 0;
+            margin: 24px 0;
+            background-color: #333;
+            border: 0;
+        }
+
+        img {
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        table {
+            border-collapse: collapse;
+            margin-bottom: 16px;
+            width: 100%;
+        }
+
+        th,
+        td {
+            border: 1px solid #333;
+            padding: 6px 13px;
+        }
+
+        th {
+            font-weight: 600;
+            background-color: #2a2a2a;
+        }
+
+        tr:nth-child(even) {
+            background-color: #222;
+        }
+    </style>
+
+</head>
+
 # purulent-personal-projects
 these are those kinda projects. you know, the ones you make for yourself. and these are all in js. [js kidding these are standalone index.html files, but yeah, basically js]
 > Browse the source code here - [GitHub Repo](https://github.com/drarkadeep/purulent-personal-projects)
@@ -20,116 +143,3 @@ I type the code (usually with fingers) onto a keyboard. The keyboard driver duti
 
 ## When do I make these?
 Pretty much always. In fact, right now I'm probably working on something that'll be added to the repo soon. Keep checking it out...
-
-<style>
-/* Some cool css stylings for the README.md */
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-    line-height: 1.6;
-    color: #e0e0e0;
-    background-color: #1a1a1a;
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-h1, h2, h3, h4, h5, h6 {
-    color: #bb86fc;
-    margin-top: 24px;
-    margin-bottom: 16px;
-    font-weight: 600;
-    line-height: 1.25;
-}
-
-h1 {
-    font-size: 2em;
-    border-bottom: 1px solid #333;
-    padding-bottom: 0.3em;
-}
-
-h2 {
-    font-size: 1.5em;
-    border-bottom: 1px solid #333;
-    padding-bottom: 0.3em;
-}
-
-a {
-    color: #bb86fc;
-    text-decoration: none;
-    transition: color 0.2s ease-in-out;
-}
-
-a:hover {
-    color: #9965f4;
-    text-decoration: underline;
-}
-
-ul, ol {
-    padding-left: 2em;
-    margin-bottom: 16px;
-}
-
-li {
-    margin-bottom: 4px;
-}
-
-blockquote {
-    margin: 0;
-    padding: 0 1em;
-    color: #b0b0b0;
-    border-left: 0.25em solid #bb86fc;
-}
-
-code {
-    font-family: SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
-    font-size: 85%;
-    background-color: #2a2a2a;
-    border-radius: 3px;
-    padding: 0.2em 0.4em;
-}
-
-pre {
-    background-color: #2a2a2a;
-    border-radius: 3px;
-    padding: 16px;
-    overflow: auto;
-}
-
-pre code {
-    background-color: transparent;
-    padding: 0;
-}
-
-hr {
-    height: 0.25em;
-    padding: 0;
-    margin: 24px 0;
-    background-color: #333;
-    border: 0;
-}
-
-img {
-    max-width: 100%;
-    box-sizing: border-box;
-}
-
-table {
-    border-collapse: collapse;
-    margin-bottom: 16px;
-    width: 100%;
-}
-
-th, td {
-    border: 1px solid #333;
-    padding: 6px 13px;
-}
-
-th {
-    font-weight: 600;
-    background-color: #2a2a2a;
-}
-
-tr:nth-child(even) {
-    background-color: #222;
-}
-</style>
