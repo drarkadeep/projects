@@ -14,3 +14,9 @@ these are those kinda projects. you know, the ones you make for yourself. and th
 
 ## Why do I make these?
 These? There are a lot more of these. These are just the ones that I share. A more fundamental question would be - why did I make those, that is, those which are not these, when I'm not even sharing them with you. As for the question you asked, I make these for sharing with you.
+
+## How do I make these?
+I type the code (usually with fingers) onto a keyboard. The keyboard driver dutifully deposits the inputs onto some file which is effortlessly transported to my IDE-of-choice Visual Studio Code following which I sync my local folders with GitHub. LLMs often play silent but violent parts in this data pipeline.
+
+## When do I make these?
+Pretty much always. In fact, right now I'm probably working on something that'll be added to the repo soon. Keep checking it out...
