@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Antarctic Page Tracker</title>
+    <link rel="shortcut icon" href="https://svgsilh.com/svg/1294349-2196f3.svg" type="image/x-icon">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #000000;
+            --surface-color: #0a0a2a;
+            --primary-color: #00ffff;
+            --text-color: #ffffff;
+            --secondary-color: #ff00ff;
+            --tertiary-color: #ffff00;
+        }
+
+        @keyframes neonGlow {
+            0% {
+                text-shadow: 0 0 10px var(--primary-color), 0 0 20px var(--primary-color), 0 0 30px var(--primary-color);
+            }
+
+            100% {
+                text-shadow: 0 0 20px var(--primary-color), 0 0 30px var(--primary-color), 0 0 40px var(--primary-color);
+            }
+        }
+
+        @keyframes quantumFlux {
+            0% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+
+            50% {
+                transform: scale(1.05);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+        }
+
+        body {
+            font-family: 'Orbitron', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(0, 255, 255, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(255, 0, 255, 0.1) 0%, transparent 20%);
+            background-attachment: fixed;
+        }
+
+        .container {
+            background-color: rgba(10, 10, 42, 0.8);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3), 0 0 40px rgba(255, 0, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            font-size: 2.5em;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            animation: neonGlow 1.5s ease-in-out infinite alternate;
+        }
+
+        .input-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        input {
+            width: 100px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: var(--text-color);
+            border: 2px solid var(--primary-color);
+            border-radius: 5px;
+            padding: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            box-shadow: 0 0 10px var(--primary-color);
+        }
+
+        button {
+            font-size: 16px;
+            padding: 10px 20px;
+            margin: 10px;
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: var(--secondary-color);
+            transform: scale(1.05);
+            box-shadow: 0 0 15px var(--secondary-color);
+        }
+
+        .page-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .page-controls button {
+            font-size: 24px;
+            width: 50px;
+            height: 50px;
+            margin: 0 15px;
+            background-color: var(--secondary-color);
+            color: var(--bg-color);
+            border: none;
+            cursor: pointer;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .info-box {
+            background-color: rgba(10, 10, 42, 0.6);
+            border: 2px solid var(--primary-color);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 10px var(--primary-color);
+        }
+
+        .progress-container {
+            position: relative;
+            width: 100%;
+            height: 30px;
+            margin-bottom: 30px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .progress {
+            width: 0;
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--tertiary-color));
+            background-size: 200% 100%;
+            animation: gradientShift 5s ease infinite;
+            transition: width 0.5s ease-in-out;
+        }
+
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .progress-glow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 15px;
+            box-shadow: 0 0 20px var(--primary-color);
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        #pageChart {
+            margin-top: 30px;
+            background-color: rgba(10, 10, 42, 0.6);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+        }
+
+        .ai-assistant {
+            background-color: rgba(10, 10, 42, 0.6);
+            border: 2px solid var(--secondary-color);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            margin-bottom: 100px;
+            /* Added margin to prevent overlap with help button */
+            box-shadow: 0 0 15px var(--secondary-color);
+            animation: quantumFlux 3s ease-in-out infinite;
+        }
+
+        .ai-assistant h3 {
+            color: var(--secondary-color);
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .help-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--tertiary-color);
+            color: var(--bg-color);
+            font-size: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--tertiary-color);
+            z-index: 1000;
+            /* Ensure it's above other elements */
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            /* Above the help button */
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: var(--surface-color);
+            margin: 15% auto;
+            padding: 20px;
+            border: 2px solid var(--primary-color);
+            border-radius: 10px;
+            width: 80%;
+            max-width: 600px;
+            box-shadow: 0 0 20px var(--primary-color);
+        }
+
+        .close {
+            color: var(--text-color);
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: var(--primary-color);
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            .input-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            #totalPages {
+                width: 80%;
+                margin: 10px;
+                align-self: center;
+                box-sizing: border-box;
+            }
+
+            #startButton {
+                width: 80%;
+                align-self: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Antarctic Page Tracker</h1>
+        <div class="input-group">
+            <label for="totalPages" style="align-self: center;margin: 10px;">Total Pages:</label>
+            <input type="number" id="totalPages" min="1" value="10">
+            <button id="startButton">Initiate Antarctic Tracking</button>
+        </div>
+        <div class="page-controls" style="display:none;">
+            <button id="minusButton">-</button>
+            <span id="completedPages">0</span>
+            <button id="plusButton">+</button>
+        </div>
+        <div class="info-box">
+            <p><span id="timeLabel">Predicted finish time</span>: <span id="predictedFinish"></span></p>
+            <p><span id="countdownLabel">Countdown</span>: <span id="countdown"></span></p>
+            <p>Antarctic Reading Rate: <span id="rate"></span></p>
+        </div>
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress" id="progressBar"></div>
+            </div>
+            <div class="progress-glow"></div>
+        </div>
+        <canvas id="pageChart"></canvas>
+        <div id="aiAssistant" class="ai-assistant">
+            <h3>AI Reading Assistant</h3>
+            <div id="aiMessage"></div>
+        </div>
+        <button id="helpButton" class="help-button">?</button>
+        <div id="helpModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>How to Use Antarctic Page Tracker</h2>
+                <ol>
+                    <li>Enter the total number of pages in your book.</li>
+                    <li>Click "Initiate Antarctic Tracking" to begin.</li>
+                    <li>Use the + and - buttons to update your progress.</li>
+                    <li>Watch as the AI Assistant provides real-time feedback.</li>
+                    <li>Analyze your reading patterns with the dynamic chart.</li>
+                    <li>Experience the thrill of the Antarctic progress bar!</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <script>
+        let startTime, endTime, totalPages, completedPages = 0, pageTimes = [];
+        const startButton = document.getElementById('startButton');
+        const minusButton = document.getElementById('minusButton');
+        const plusButton = document.getElementById('plusButton');
+        const completedPagesSpan = document.getElementById('completedPages');
+        const predictedFinishSpan = document.getElementById('predictedFinish');
+        const countdownSpan = document.getElementById('countdown');
+        const rateSpan = document.getElementById('rate');
+        const progressBar = document.getElementById('progressBar');
+        const timeLabel = document.getElementById('timeLabel');
+        const countdownLabel = document.getElementById('countdownLabel');
+        const aiMessage = document.getElementById('aiMessage');
+        const helpButton = document.getElementById('helpButton');
+        const helpModal = document.getElementById('helpModal');
+        const closeButton = document.getElementsByClassName('close')[0];
+        let chart;
+
+        startButton.addEventListener('click', startTracking);
+        minusButton.addEventListener('click', () => updatePages(-1));
+        plusButton.addEventListener('click', () => updatePages(1));
+        helpButton.addEventListener('click', () => helpModal.style.display = 'block');
+        closeButton.addEventListener('click', () => helpModal.style.display = 'none');
+        window.addEventListener('click', (event) => {
+            if (event.target === helpModal) {
+                helpModal.style.display = 'none';
+            }
+        });
+
+        function startTracking() {
+            startTime = new Date();
+            endTime = null;
+            totalPages = parseInt(document.getElementById('totalPages').value);
+            document.querySelector('.page-controls').style.display = 'flex';
+            startButton.disabled = true;
+            updateInfo();
+            initChart();
+            updateAIAssistant();
+        }
+
+        function updatePages(change) {
+            completedPages = Math.max(0, Math.min(completedPages + change, totalPages));
+            completedPagesSpan.textContent = completedPages;
+            pageTimes.push((new Date() - startTime) / 1000);
+
+            if (completedPages === totalPages) {
+                endTime = new Date();
+            }
+
+            updateInfo();
+            updateChart();
+            updateAIAssistant();
+        }
+
+        function updateInfo() {
+            const currentTime = new Date();
+            const elapsedTime = (endTime || currentTime) - startTime;
+            const avgPageTime = completedPages > 0 ? elapsedTime / completedPages / 1000 : 0;
+            const remainingPages = totalPages - completedPages;
+            const predictedTotalTime = avgPageTime * totalPages;
+
+            if (completedPages === totalPages) {
+                timeLabel.textContent = "Time Period";
+                predictedFinishSpan.textContent = `${startTime.toLocaleTimeString()} - ${endTime.toLocaleTimeString()}`;
+                countdownLabel.textContent = "Total Time Taken";
+                countdownSpan.textContent = formatTime(elapsedTime / 1000);
+            } else {
+                const predictedFinishTime = new Date(startTime.getTime() + predictedTotalTime * 1000);
+                timeLabel.textContent = "Predicted finish time";
+                predictedFinishSpan.textContent = predictedFinishTime.toLocaleTimeString();
+                countdownLabel.textContent = "Countdown";
+                const remainingTime = Math.max(0, predictedTotalTime - elapsedTime / 1000);
+                countdownSpan.textContent = formatTime(remainingTime);
+            }
+
+            const pagesPerMinute = completedPages > 0 ? (completedPages / (elapsedTime / 60000)).toFixed(2) : '0.00';
+            const minutesPerPage = completedPages > 0 ? (elapsedTime / 60000 / completedPages).toFixed(2) : '0.00';
+            rateSpan.textContent = `${pagesPerMinute} pages/minute (${minutesPerPage} minutes/page)`;
+
+            const progress = (completedPages / totalPages) * 100;
+            progressBar.style.width = `${progress}%`;
+
+            if (completedPages < totalPages) {
+                requestAnimationFrame(updateInfo);
+            }
+        }
+
+        function formatTime(seconds) {
+            const hrs = Math.floor(seconds / 3600);
+            const mins = Math.floor((seconds % 3600) / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('pageChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Page Completion Time',
+                        data: [],
+                        borderColor: 'rgb(0, 255, 255)',
+                        backgroundColor: 'rgba(0, 255, 255, 0.1)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Time (seconds)',
+                                color: '#ffffff'
+                            },
+                            ticks: {
+                                color: '#ffffff'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Page Number',
+                                color: '#ffffff'
+                            },
+                            ticks: {
+                                color: '#ffffff'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#ffffff'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateChart() {
+            chart.data.labels.push(completedPages);
+            chart.data.datasets[0].data.push(pageTimes[pageTimes.length - 1] - (pageTimes[pageTimes.length - 2] || 0));
+            chart.update();
+        }
+
+        function updateAIAssistant() {
+            const currentTime = new Date();
+            const elapsedTime = (currentTime - startTime) / 1000;
+            const avgPageTime = completedPages > 0 ? elapsedTime / completedPages : 0;
+            const pagesPerHour = (completedPages / elapsedTime) * 3600;
+
+            let message = '';
+
+            if (completedPages === 0) {
+                message = "Greetings, Antarctic reader! I'm your AI assistant. Let's embark on this reading journey together!";
+            } else if (completedPages === totalPages) {
+                message = `Congratulations! You've completed your Antarctic reading session. Your average reading speed was ${pagesPerHour.toFixed(2)} pages per hour. Impressive!`;
+            } else {
+                if (pagesPerHour > 50) {
+                    message = `Wow! You're reading at ${pagesPerHour.toFixed(2)} pages per hour. You're in the Antarctic speed reading zone!`;
+                } else if (pagesPerHour > 30) {
+                    message = `Great pace! You're reading at ${pagesPerHour.toFixed(2)} pages per hour. Keep up the Antarctic momentum!`;
+                } else {
+                    message = `You're reading at a steady pace of ${pagesPerHour.toFixed(2)} pages per hour. Remember, Antarctic reading is about quality, not just speed!`;
+                }
+
+                if (completedPages / totalPages > 0.5) {
+                    message += " You're over halfway there. The Antarctic finish line is in sight!";
+                }
+            }
+
+            aiMessage.textContent = message;
+        }
+
+        function finishTracking() {
+            const totalTime = (endTime - startTime) / 1000;
+            timeLabel.textContent = "Time Period";
+            countdownLabel.textContent = "Total Time Taken";
+            countdownSpan.textContent = formatTime(totalTime);
+            updateAIAssistant();
+        }
+    </script>
+</body>
+
+</html>
