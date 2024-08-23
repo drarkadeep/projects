@@ -1,0 +1,95 @@
+@font-face {
+    font-family: "demon";
+    src: url(demon.otf);
+}
+
+html,
+body {
+    margin: 0px;
+    padding: 0px;
+}
+
+.flash {
+    font-family: "demon";
+    width: 100vw;
+    height: 100vh;
+    background-color: rgb(69, 69, 69);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+    box-shadow: 0rem -2rem 2rem rgba(69, 0, 0, 0.2) inset, 2rem 0rem 2rem rgba(69, 0, 0, 0.2) inset, 0rem 2rem 2rem rgba(69, 0, 0, 0.2) inset, -2rem 0rem 2rem rgba(69, 0, 0, 0.2) inset;
+    animation: shadow-pulse 1s ease-in-out infinite alternate, flicker 3s ease-in-out infinite;
+    animation-delay: 1.5s;
+}
+
+@keyframes flicker {
+
+    50% {
+        background-color: rgb(69, 69, 69);
+    }
+
+    57% {
+        background-color: rgb(22, 22, 22);
+    }
+
+    69% {
+        background-color: rgb(69, 69, 69);
+    }
+
+    73% {
+        background-color: rgb(69, 69, 69);
+    }
+
+    74.5% {
+        background-color: rgb(22, 22, 22);
+    }
+
+    75% {
+        background-color: rgb(69, 69, 69);
+    }
+}
+
+@keyframes shadow-pulse {
+    from {
+        color: white;
+    }
+
+    to {
+        color: rgb(220, 184, 184);
+    }
+
+}
+
+.declaration {
+    font-size: 3.5rem;
+    padding: 2rem;
+    text-shadow: 0rem 0rem 1rem rgb(69, 0, 0);
+}
+
+.light {
+    color: rgb(72, 72, 72);
+}
+
+.face {
+    height: 100vh;
+    position: absolute;
+    opacity: 0.0125;
+    filter: blur(100);
+    animation: closer 5s ease-in;
+    animation-delay: 3s;
+}
+
+@keyframes closer {
+    50% {
+        opacity: 0.1;
+        transform: scale(2);
+    }
+
+    60% {
+        opacity: 0.25;
+        transform: scale(2);
+    }
+}
