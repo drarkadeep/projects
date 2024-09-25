@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="image/svg+xml" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvsWVO_waMtFwWFO2bD_mbdqABnrtn0DoyIw&s">
+    <title>100 second Zen</title>
+    <style>
+        html {
+            height: 100%;
+            width: 100%;
+        }
+        body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f4f8;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+        .container {
+            text-align: center;
+            z-index: 1;
+        }
+        .breathing-circle {
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            background-color: #88b8c9;
+            margin: 0 auto 20px;
+            animation: breathe 13s infinite ease-in-out;
+            animation-delay: 2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .breathing-circle:hover {
+            background-color: #7ba5b4;
+        }
+        @keyframes breathe {
+            0%, 100% { transform: scale(1); }
+            31% { transform: scale(1.475); opacity: 50%; }
+            62% { transform: scale(1.5); }
+            92% { transform: scale(1.005); }
+        }
+        .background-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 0%;
+            background-color: #90EE90;
+            animation: fillBackground 100s linear forwards;
+            animation-delay: 2s;
+            z-index: -1;
+        }
+        @keyframes fillBackground {
+            0% { height: 0%; }
+            95% { 
+                height: 100%; 
+                background-color: #90EE90;
+            }
+            100% {
+                height: 100%;
+                background-color: #103c10;
+            }
+        }
+        ul {
+            list-style: none;
+            padding-inline-start: 0px;
+            color: #35484f;
+            animation: vanish 10s linear forwards;
+            animation-delay: 1s;
+            line-height: 2;
+        }
+        @keyframes vanish {
+            90% {
+                opacity: 75%;
+            }
+            100%{
+                opacity: 0%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-progress"></div>
+    <div class="container">
+        <div class="breathing-circle">
+            <ul>
+                <li><b>breathe</b> when it <b>expands</b></li>
+                <li><b>exhale</b> when it <b>shrinks</b></li>
+                <li><b>continue</b> till its all <b>green</b></li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
