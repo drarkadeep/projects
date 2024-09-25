@@ -3,6 +3,7 @@ These are those kinda projects, you know, the ones you make for yourself. And th
 > Browse the source code here - [GitHub Repo](https://github.com/drarkadeep/purulent-personal-projects)
 
 ## List of Projects
+- [100 second Zen](https://drarkadeep.github.io/purulent-personal-projects/100-second-zen/index.html) - Life is stressful. Breathe slowly for the next 100 seconds. You've earned it 😌
 - [Page Tracker](https://drarkadeep.github.io/purulent-personal-projects/page-tracker/index.html) - A simple page tracker (fact: can also be used as task tracker) that shows your progress in each iteration while giving a **dynamic deadline estimate**. And as always, here is a [branded "pro" spin-off](https://drarkadeep.github.io/purulent-personal-projects/page-tracker/pro.html).
 - [Word Frequency Analyser](https://drarkadeep.github.io/purulent-personal-projects/word-frequency-analyser/index.html) - List out all the unique words and find out how many times you have used them?
 - [Word Counter](https://drarkadeep.github.io/purulent-personal-projects/word-counter/index.html) - It counts how many words you wrote. So, how many did you write?
