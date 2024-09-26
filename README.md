@@ -1,6 +1,6 @@
 # Projects
 
-> Source code - [GitHub Repo](https://github.com/drarkadeep/projects)
+> Source code - [GitHub Repo](https://github.com/drarkadeep/projects) <br>
 > Hosted - [Arkadeep.com](https://drarkadeep.github.io/projects)
 
 ## List of Projects
