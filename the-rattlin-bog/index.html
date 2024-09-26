@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Dynamic Rattlin' Bog Song Generator</title>
+      <style>
+         body {
+         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+         background-color: #121212; 
+         color: #E0E0E0; 
+         margin-top: 50px;
+         text-align: center;
+         line-height: 1.6;
+         padding: 0 10px;
+         transition: background-color 0.3s ease, color 0.3s ease;
+         }
+         button {
+         padding: 12px 25px;
+         font-size: 18px;
+         background-color: #1DB954; 
+         color: #FFF;
+         border: none;
+         border-radius: 8px;
+         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); 
+         cursor: pointer;
+         transition: background-color 0.3s ease, transform 0.2s ease;
+         }
+         button:hover {
+         background-color: #17a54a; 
+         transform: translateY(-3px); 
+         }
+         .song {
+         margin-top: 20px;
+         white-space: pre-line;
+         font-size: 20px; 
+         color: #B0B0B0; 
+         padding: 10px;
+         border-radius: 10px;
+         background-color: #1E1E1E; 
+         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); 
+         max-width: 90%;
+         margin-left: auto;
+         margin-right: auto;
+         transition: background-color 0.3s ease, color 0.3s ease;
+         }
+         @media (max-width: 768px) {
+         body {
+         margin-top: 30px;
+         font-size: 16px;
+         }
+         button {
+         font-size: 16px;
+         padding: 10px 20px;
+         }
+         .song {
+         font-size: 18px;
+         padding: 8px;
+         }
+         }
+      </style>
+   </head>
+   <body>
+      <h1>The Rattlin' Bog</h1>
+      <button onclick="addVerse()">Next Verse</button>
+      <div class="song" id="songArea">Oh-ro, the rattlin' bog,<br>And the bog down in the valley-o,
+         Rare bog, and a rattlin' bog,<br>And the bog down in the valley-o
+      </div>
+      <script>
+         const songArea = document.getElementById('songArea');
+         
+         const elements = [
+             "subatomic particle",
+             "virus",
+             "paramecium",
+             "amoeba",
+             "germ",
+             "speck",
+             "eye",
+             "flea",
+             "feather",
+             "wing",
+             "chick",
+             "yolk",
+             "egg",
+             "bird",
+             "nest",
+             "leaf",
+             "twig",
+             "branch",
+             "limb",
+             "bough",
+             "tree",
+             "hole"
+         ];
+         
+         elements.reverse();
+         
+         let verseIndex = 0;
+         
+         function constructVerse() {
+             let currentVerse = `Now in the ${elements[verseIndex-1]||'bog'} there was a ${elements[verseIndex]},\nA rare ${elements[verseIndex]}, a rattlin' ${elements[verseIndex]},\n`;
+             
+             for (let i = verseIndex; i >= 0; i--) {
+             	if (i == verseIndex) {
+                 	currentVerse += `The ${elements[i]} in the ${elements[i - 1] || 'bog'},\n`;
+                 } else {
+                     currentVerse += `and the ${elements[i]} in the ${elements[i - 1] || 'bog'},\n`;
+                 }
+             }
+             
+             currentVerse += "And the bog down in the valley-o.";
+             return currentVerse;
+         }
+         
+         function addVerse() {
+             if (verseIndex < elements.length) {
+                 songArea.innerHTML = constructVerse();
+                 
+                 songArea.innerHTML += `<br><br>Oh-ro, the rattlin' bog,<br>And the bog down in the valley-o,
+                 Rare bog, and a rattlin' bog,<br>And the bog down in the valley-o<br>`;
+                 
+                 verseIndex++;
+             } else {
+                 alert('The song is complete!');
+             }
+         }
+      </script>
+   </body>
+</html>
