@@ -1,6 +1,7 @@
 # Projects
 
-> Browse the source code here - [GitHub Repo](https://github.com/drarkadeep/projects)
+> Source code - [GitHub Repo](https://github.com/drarkadeep/projects)
+> Hosted - [Arkadeep.com](https://drarkadeep.github.io/projects)
 
 ## List of Projects
 - [The Rattlin' Bog](https://drarkadeep.github.io/projects/the-rattlin-bog/index.html) - Oh-ro the rattli' lyrics generator for your Irish friends chillin' with a pint of Guiness!
