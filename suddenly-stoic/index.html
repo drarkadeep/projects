@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Random Stoic Quotes</title>
+    <title>Suddenly Stoic</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -56,12 +56,24 @@
             padding: 10px;
             margin-bottom: 10px;
             border-radius: 4px;
+            position: relative;
+        }
+        .remove-favorite {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            cursor: pointer;
+            font-size: 18px;
+            color: #888;
+        }
+        .remove-favorite:hover {
+            color: #f44336;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Random Stoic Quotes</h1>
+        <h1>Suddenly Stoic</h1>
         <div class="quote-box">
             <p id="quote" class="quote"></p>
             <p id="author" class="author"></p>
@@ -116,15 +128,29 @@
         function displayFavorites() {
             const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
             favoritesList.innerHTML = '';
-            favorites.forEach(fav => {
+            favorites.forEach((fav, index) => {
                 const quoteDiv = document.createElement('div');
                 quoteDiv.classList.add('favorite-quote');
                 quoteDiv.innerHTML = `
+                    <span class="remove-favorite" data-index="${index}">&times;</span>
                     <p>${fav.quote}</p>
                     <p><em>- ${fav.author}</em></p>
                 `;
                 favoritesList.appendChild(quoteDiv);
             });
+
+            // Add event listeners for remove buttons
+            document.querySelectorAll('.remove-favorite').forEach(button => {
+                button.addEventListener('click', removeFavorite);
+            });
+        }
+
+        function removeFavorite(event) {
+            const index = event.target.dataset.index;
+            let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+            favorites.splice(index, 1);
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+            displayFavorites();
         }
 
         newQuoteButton.addEventListener('click', displayRandomQuote);
