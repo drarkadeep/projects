@@ -4,6 +4,7 @@
 > Hosted - [Arkadeep.com](https://arkadeep.com/projects)
 
 ## List of Projects
+- [Suddenly Stoic](https://arkadeep.com/projects/suddenly-stoic/index.html) - Read stoic quotes collected by [awesome-stoicism](https://github.com/DavidWells/awesome-stoicism/tree/master) and save your favorites for sudden stoic needs.
 - [The Rattlin' Bog](https://arkadeep.com/projects/the-rattlin-bog/index.html) - Oh-ro the rattli' lyrics generator for your Irish friends chillin' with a pint of Guiness!
 - [100 second Zen](https://arkadeep.com/projects/100-second-zen/index.html) - Life is stressful. Breathe slowly for the next 100 seconds. You've earned it 😌
 - [Page Tracker](https://arkadeep.com/projects/page-tracker/index.html) - A simple page tracker (fact: can also be used as task tracker) that shows your progress in each iteration while giving a **dynamic deadline estimate**. And as always, here is a [branded "pro" spin-off](https://arkadeep.com/projects/page-tracker/pro.html).
