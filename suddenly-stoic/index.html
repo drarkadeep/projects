@@ -1,76 +1,189 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="https://arkadeep.com/assets/media/A_thumbnail.png">
     <title>Suddenly Stoic</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #121212;
-            color: #e0e0e0;
-            transition: background-color 0.3s, color 0.3s;
+        :root {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --accent-color: #bb86fc;
+            --button-color: #2c2c2c;
+            --quote-bg: #1e1e1e;
+            --shadow-color: rgba(0, 0, 0, 0.2);
         }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
         .container {
             max-width: 800px;
+            width: 100%;
             margin: 0 auto;
+            flex-grow: 1;
         }
+
+        h1,
+        h2 {
+            text-align: center;
+            margin-bottom: 1rem;
+            color: var(--accent-color);
+        }
+
         .quote-box {
-            background-color: #1e1e1e;
-            padding: 20px;
+            background-color: var(--quote-bg);
+            padding: 1.5rem;
             border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px var(--shadow-color);
         }
+
         .quote {
-            font-size: 1.2em;
-            margin-bottom: 10px;
+            font-size: 1.1em;
+            margin-bottom: 0.5rem;
         }
+
         .author {
-            font-style: italic;
             text-align: right;
+            font-style: italic;
+            color: var(--accent-color);
         }
+
         button {
-            background-color: #4CAF50;
+            background-color: var(--button-color);
             border: none;
-            color: white;
-            padding: 10px 20px;
+            color: var(--text-color);
+            padding: 0.5rem 1rem;
             text-align: center;
             text-decoration: none;
             display: inline-block;
-            font-size: 16px;
-            margin: 4px 2px;
+            font-size: 1rem;
+            margin: 0.25rem;
             cursor: pointer;
             border-radius: 4px;
+            transition: all 0.3s ease;
+            box-shadow:
+                inset 1px 1px 0px rgba(255, 255, 255, 0.1),
+                inset -1px -1px 0px rgba(0, 0, 0, 0.3),
+                2px 2px 5px var(--shadow-color);
         }
+
         button:hover {
-            background-color: #45a049;
+            background-color: #3c3c3c;
         }
+
+        button:active {
+            box-shadow:
+                inset -1px -1px 0px rgba(255, 255, 255, 0.1),
+                inset 1px 1px 0px rgba(0, 0, 0, 0.3);
+            transform: translateY(1px);
+        }
+
         .favorites {
-            margin-top: 20px;
+            margin-top: 1.5rem;
         }
+
+        .favorites-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .favorites-toggle {
+            margin-left: 10px;
+            margin-bottom: 1rem;
+            transition: transform 0.3s ease;
+        }
+
+        .favorites-toggle.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        #favoritesList {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+        }
+
+        #favoritesList.expanded {
+            max-height: 1000px;
+        }
+
         .favorite-quote {
-            background-color: #2e2e2e;
-            padding: 10px;
-            margin-bottom: 10px;
+            background-color: var(--quote-bg);
+            padding: 1rem;
+            margin-bottom: 1rem;
             border-radius: 4px;
             position: relative;
+            box-shadow: 0 1px 3px var(--shadow-color);
         }
+
         .remove-favorite {
             position: absolute;
             top: 5px;
             right: 5px;
             cursor: pointer;
-            font-size: 18px;
+            font-size: 1.2rem;
             color: #888;
+            transition: color 0.3s ease;
         }
+
         .remove-favorite:hover {
-            color: #f44336;
+            color: var(--accent-color);
+        }
+
+        footer {
+            text-align: center;
+            padding: 1rem 0;
+            font-size: 0.9rem;
+            color: var(--text-color);
+        }
+
+        footer a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .quote-box,
+            .favorite-quote {
+                padding: 1rem;
+            }
+
+            button {
+                width: 100%;
+                margin: 0.25rem 0;
+            }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>Suddenly Stoic</h1>
@@ -81,10 +194,16 @@
         <button id="newQuote">New Quote</button>
         <button id="favorite">Add to Favorites</button>
         <div class="favorites">
-            <h2>Favorites</h2>
+            <div class="favorites-header" id="favoritesHeader">
+                <h2>Favorites</h2>
+                <span class="favorites-toggle">▼</span>
+            </div>
             <div id="favoritesList"></div>
         </div>
     </div>
+    <footer>
+        Built with ❤️ by <a href="https://www.arkadeep.com" target="_blank">Arkadeep</a>
+    </footer>
 
     <script>
         const quoteElement = document.getElementById('quote');
@@ -92,6 +211,8 @@
         const newQuoteButton = document.getElementById('newQuote');
         const favoriteButton = document.getElementById('favorite');
         const favoritesList = document.getElementById('favoritesList');
+        const favoritesHeader = document.getElementById('favoritesHeader');
+        const favoritesToggle = favoritesHeader.querySelector('.favorites-toggle');
 
         let quotes = [];
         let currentQuote = null;
@@ -153,11 +274,18 @@
             displayFavorites();
         }
 
+        function toggleFavorites() {
+            favoritesList.classList.toggle('expanded');
+            favoritesToggle.classList.toggle('collapsed');
+        }
+
         newQuoteButton.addEventListener('click', displayRandomQuote);
         favoriteButton.addEventListener('click', addToFavorites);
+        favoritesHeader.addEventListener('click', toggleFavorites);
 
         // Initial display
         displayFavorites();
     </script>
 </body>
+
 </html>
