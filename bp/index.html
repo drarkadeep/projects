@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/x-icon" href="assets/media/A_thumbnail.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BP Tracker</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --text-primary: #ffffff;
+            --text-secondary: #b3b3b3;
+            --accent: #3498db;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background-color: var(--accent);
+            color: var(--text-primary);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--text-secondary);
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--text-secondary);
+            border-radius: 4px;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 70vh;
+            width: 100%;
+            background-color: var(--bg-secondary);
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .data-table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid var(--text-secondary);
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .chart-container {
+                height: 50vh;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Antarctic BP Tracker</h1>
+            <div>
+                <button onclick="showAddModal()">Add Reading</button>
+                <button onclick="exportData()">Export Data</button>
+                <button onclick="exportImage()">Export Graph</button>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="bpChart"></canvas>
+        </div>
+
+        <div class="data-container">
+            <h2>Readings</h2>
+            <div id="tableContainer"></div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div id="bpModal" class="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Add BP Reading</h2>
+            <form id="bpForm">
+                <input type="hidden" id="editIndex" value="">
+                <div class="form-group">
+                    <label for="systolic">Systolic (mmHg)</label>
+                    <input type="number" id="systolic" required min="70" max="200">
+                </div>
+                <div class="form-group">
+                    <label for="diastolic">Diastolic (mmHg)</label>
+                    <input type="number" id="diastolic" required min="40" max="130">
+                </div>
+                <div class="form-group">
+                    <button type="submit">Save</button>
+                    <button type="button" onclick="closeModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let bpData = JSON.parse(localStorage.getItem('bpReadings')) || [];
+        let bpChart;
+
+        function getTimeOfDay() {
+            const hour = new Date().getHours();
+            if (hour >= 6 && hour < 12) return 'morning';
+            if (hour >= 12 && hour < 18) return 'afternoon';
+            if (hour >= 18 && hour < 24) return 'evening';
+            return 'night';
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('bpChart').getContext('2d');
+
+            // Custom plugin to draw zones for hypertension stages
+            const hypertensionZonesPlugin = {
+                id: 'hypertensionZones',
+                beforeDraw(chart) {
+                    const ctx = chart.ctx;
+                    const xScale = chart.scales.x;
+                    const yScale = chart.scales.y;
+
+                    const zones = [
+                        {
+                            label: 'Stage 2 Hypertension',
+                            xStart: 90,
+                            xEnd: 130,
+                            yStart: 140,
+                            yEnd: 200,
+                            color: 'rgba(231, 76, 60, 0.5)'
+                        },
+                        {
+                            label: 'Stage 2 Hypertension',
+                            xStart: 90,
+                            xEnd: 130,
+                            yStart: 70,
+                            yEnd: 140,
+                            color: 'rgba(231, 76, 60, 0.5)'
+                        },
+                        {
+                            label: 'Stage 2 Hypertension',
+                            xStart: 40,
+                            xEnd: 90,
+                            yStart: 140,
+                            yEnd: 200,
+                            color: 'rgba(231, 76, 60, 0.5)'
+                        },
+                        {
+                            label: 'Stage 1 Hypertension',
+                            xStart: 40,
+                            xEnd: 80,
+                            yStart: 130,
+                            yEnd: 140,
+                            color: 'rgba(230, 126, 34, 0.5)'
+                        },
+                        {
+                            label: 'Stage 1 Hypertension',
+                            xStart: 80,
+                            xEnd: 90,
+                            yStart: 70,
+                            yEnd: 130,
+                            color: 'rgba(230, 126, 34, 0.5)'
+                        },
+                        {
+                            label: 'Stage 1 Hypertension',
+                            xStart: 80,
+                            xEnd: 90,
+                            yStart: 130,
+                            yEnd: 140,
+                            color: 'rgba(230, 126, 34, 0.5)'
+                        },
+                        {
+                            label: 'Elevated',
+                            xStart: 40,
+                            xEnd: 80,
+                            yStart: 120,
+                            yEnd: 130,
+                            color: 'rgba(241, 196, 15, 0.5)'
+                        },
+                        {
+                            label: 'Normal',
+                            xStart: 40,
+                            xEnd: 80,
+                            yStart: 70,
+                            yEnd: 120,
+                            color: 'rgba(46, 204, 113, 0.5)'
+                        }
+                    ];
+
+                    zones.forEach(zone => {
+                        // Convert data values to pixel values
+                        const xStartPixel = xScale.getPixelForValue(zone.xStart);
+                        const xEndPixel = xScale.getPixelForValue(zone.xEnd);
+                        const yStartPixel = yScale.getPixelForValue(zone.yStart);
+                        const yEndPixel = yScale.getPixelForValue(zone.yEnd);
+
+                        // Set the fill color and draw the rectangle
+                        ctx.fillStyle = zone.color;
+                        ctx.fillRect(xStartPixel, yEndPixel, xEndPixel - xStartPixel, yStartPixel - yEndPixel);
+                    });
+                }
+            };
+
+            // Register the plugin with Chart.js
+            Chart.register(hypertensionZonesPlugin);
+
+            // Create the chart with sample data
+            bpChart = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [
+                        {
+                            label: 'BP Readings',
+                            data: bpData.map(reading => ({
+                                x: reading.diastolic,
+                                y: reading.systolic
+                            })),
+                            backgroundColor: 'rgba(52, 152, 219, 1)',
+                            pointRadius: 6,
+                            showLine: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Diastolic (mmHg)',
+                                color: 'white'
+                            },
+                            min: 40,
+                            max: 130,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'white'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Systolic (mmHg)',
+                                color: 'white'
+                            },
+                            min: 70,
+                            max: 200,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'white'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'white'
+                            }
+                        },
+                        hypertensionZones: {} // Enable the custom plugin
+                    }
+                }
+            });
+        }
+
+        function updateTable() {
+            const container = document.getElementById('tableContainer');
+            let html = `
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Systolic</th>
+                            <th>Diastolic</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            bpData.forEach((reading, index) => {
+                html += `
+                    <tr>
+                        <td>${new Date(reading.timestamp).toLocaleDateString('en-US', { day: '2-digit', month: 'short' })}</td>
+                        <td>${reading.timeOfDay}</td>
+                        <td>${reading.systolic}</td>
+                        <td>${reading.diastolic}</td>
+                        <td>
+                            <button onclick="editReading(${index})">Edit</button>
+                            <button onclick="deleteReading(${index})">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function showAddModal() {
+            document.getElementById('modalTitle').textContent = 'Add BP Reading';
+            document.getElementById('editIndex').value = '';
+            document.getElementById('systolic').value = '';
+            document.getElementById('diastolic').value = '';
+            document.getElementById('bpModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('bpModal').style.display = 'none';
+        }
+
+        function editReading(index) {
+            const reading = bpData[index];
+            document.getElementById('modalTitle').textContent = 'Edit BP Reading';
+            document.getElementById('editIndex').value = index;
+            document.getElementById('systolic').value = reading.systolic;
+            document.getElementById('diastolic').value = reading.diastolic;
+            document.getElementById('bpModal').style.display = 'flex';
+        }
+
+        function deleteReading(index) {
+            if (confirm('Are you sure you want to delete this reading?')) {
+                bpData.splice(index, 1);
+                localStorage.setItem('bpReadings', JSON.stringify(bpData));
+                updateChart();
+                updateTable();
+            }
+        }
+
+        function updateChart() {
+            bpChart.data.datasets[3].data = bpData.map(reading => ({
+                x: reading.diastolic,
+                y: reading.systolic
+            }));
+            bpChart.update();
+        }
+
+        function exportData() {
+            const dataStr = JSON.stringify(bpData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'bp-readings.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function exportImage() {
+            html2canvas(document.querySelector('.chart-container')).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'bp-chart.png';
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+        }
+
+        document.getElementById('bpForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const editIndex = document.getElementById('editIndex').value;
+            const reading = {
+                systolic: parseInt(document.getElementById('systolic').value),
+                diastolic: parseInt(document.getElementById('diastolic').value),
+                timestamp: new Date().toISOString(),
+                timeOfDay: getTimeOfDay()
+            };
+
+            if (editIndex === '') {
+                bpData.push(reading);
+            } else {
+                bpData[parseInt(editIndex)] = reading;
+            }
+
+            localStorage.setItem('bpReadings', JSON.stringify(bpData));
+            updateChart();
+            updateTable();
+            closeModal();
+        });
+
+        // Initialize the app
+        initChart();
+        updateTable();
+    </script>
+</body>
+
+</html>
