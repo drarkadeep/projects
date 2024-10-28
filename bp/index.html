@@ -412,7 +412,7 @@
         }
 
         function updateChart() {
-            bpChart.data.datasets[3].data = bpData.map(reading => ({
+            bpChart.data.datasets[0].data = bpData.map(reading => ({
                 x: reading.diastolic,
                 y: reading.systolic
             }));
