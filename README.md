@@ -4,6 +4,7 @@
 > Hosted - [Arkadeep.com](https://arkadeep.com/projects)
 
 ## List of Projects
+- [Antarctic BP Tracker](https://arkadeep.com/projects/bp/index.html) - A cool app to reliably track your BP **worry-free** so that your BP remains even lower.
 - [Suddenly Stoic](https://arkadeep.com/projects/suddenly-stoic/index.html) - Read stoic quotes collected by [awesome-stoicism](https://github.com/DavidWells/awesome-stoicism/tree/master) and save your favorites for sudden stoic needs.
 - [The Rattlin' Bog](https://arkadeep.com/projects/the-rattlin-bog/index.html) - Oh-ro the rattli' lyrics generator for your Irish friends chillin' with a pint of Guiness!
 - [100 second Zen](https://arkadeep.com/projects/100-second-zen/index.html) - Life is stressful. Breathe slowly for the next 100 seconds. You've earned it 😌
