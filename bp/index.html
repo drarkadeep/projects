@@ -8,6 +8,7 @@
     <title>BP Tracker</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
             --bg-primary: #1a1a1a;
@@ -15,6 +16,7 @@
             --text-primary: #ffffff;
             --text-secondary: #b3b3b3;
             --accent: #3498db;
+            --success: #2ecc71;
         }
 
         * {
@@ -55,6 +57,10 @@
 
         button:hover {
             opacity: 0.9;
+        }
+
+        button.add-reading {
+            background-color: var(--success);
         }
 
         .modal {
@@ -106,10 +112,33 @@
             border-radius: 8px;
         }
 
+        .readings-header {
+            display: flex;
+            align-items: center;
+            margin: 40px 0 20px;
+            cursor: pointer;
+        }
+
+        .readings-header h2 {
+            margin-right: 10px;
+        }
+
+        .readings-header i {
+            transition: transform 0.3s ease;
+        }
+
+        .readings-header.collapsed i {
+            transform: rotate(-90deg);
+        }
+
         .data-table {
             width: 100%;
-            margin-top: 20px;
             border-collapse: collapse;
+            display: none;
+        }
+
+        .data-table.visible {
+            display: table;
         }
 
         .data-table th,
@@ -117,6 +146,20 @@
             padding: 8px;
             text-align: left;
             border-bottom: 1px solid var(--text-secondary);
+        }
+
+        .action-icons i {
+            cursor: pointer;
+            margin-right: 10px;
+            transition: color 0.2s;
+        }
+
+        .action-icons i.fa-edit:hover {
+            color: var(--accent);
+        }
+
+        .action-icons i.fa-trash:hover {
+            color: #e74c3c;
         }
 
         @media (max-width: 768px) {
@@ -137,7 +180,7 @@
         <div class="header">
             <h1>Antarctic BP Tracker</h1>
             <div>
-                <button onclick="showAddModal()">Add Reading</button>
+                <button class="add-reading" onclick="showAddModal()">Add Reading</button>
                 <button onclick="exportData()">Export Data</button>
                 <button onclick="exportImage()">Export Graph</button>
             </div>
@@ -147,8 +190,11 @@
             <canvas id="bpChart"></canvas>
         </div>
 
-        <div class="data-container">
+        <div class="readings-header" onclick="toggleReadings()">
             <h2>Readings</h2>
+            <i class="fas fa-chevron-down"></i>
+        </div>
+        <div class="data-container">
             <div id="tableContainer"></div>
         </div>
     </div>
@@ -168,6 +214,10 @@
                     <input type="number" id="diastolic" required min="40" max="130">
                 </div>
                 <div class="form-group">
+                    <label for="pulse">Pulse (bpm)</label>
+                    <input type="number" id="pulse" required min="40" max="200">
+                </div>
+                <div class="form-group">
                     <button type="submit">Save</button>
                     <button type="button" onclick="closeModal()">Cancel</button>
                 </div>
@@ -179,12 +229,13 @@
         let bpData = JSON.parse(localStorage.getItem('bpReadings')) || [];
         let bpChart;
 
-        function getTimeOfDay() {
-            const hour = new Date().getHours();
-            if (hour >= 6 && hour < 12) return 'morning';
-            if (hour >= 12 && hour < 18) return 'afternoon';
-            if (hour >= 18 && hour < 24) return 'evening';
-            return 'night';
+        function getCurrentTime() {
+            const now = new Date();
+            return now.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
         }
 
         function initChart() {
@@ -266,23 +317,19 @@
                     ];
 
                     zones.forEach(zone => {
-                        // Convert data values to pixel values
                         const xStartPixel = xScale.getPixelForValue(zone.xStart);
                         const xEndPixel = xScale.getPixelForValue(zone.xEnd);
                         const yStartPixel = yScale.getPixelForValue(zone.yStart);
                         const yEndPixel = yScale.getPixelForValue(zone.yEnd);
 
-                        // Set the fill color and draw the rectangle
                         ctx.fillStyle = zone.color;
                         ctx.fillRect(xStartPixel, yEndPixel, xEndPixel - xStartPixel, yStartPixel - yEndPixel);
                     });
                 }
             };
 
-            // Register the plugin with Chart.js
             Chart.register(hypertensionZonesPlugin);
 
-            // Create the chart with sample data
             bpChart = new Chart(ctx, {
                 type: 'scatter',
                 data: {
@@ -340,7 +387,7 @@
                                 color: 'white'
                             }
                         },
-                        hypertensionZones: {} // Enable the custom plugin
+                        hypertensionZones: {}
                     }
                 }
             });
@@ -356,6 +403,7 @@
                             <th>Time</th>
                             <th>Systolic</th>
                             <th>Diastolic</th>
+                            <th>Pulse</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -363,15 +411,17 @@
             `;
 
             bpData.forEach((reading, index) => {
+                const date = new Date(reading.timestamp);
                 html += `
                     <tr>
-                        <td>${new Date(reading.timestamp).toLocaleDateString('en-US', { day: '2-digit', month: 'short' })}</td>
-                        <td>${reading.timeOfDay}</td>
+                        <td>${date.toLocaleDateString('en-US', { day: '2-digit', month: 'short' })}</td>
+                        <td>${date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}</td>
                         <td>${reading.systolic}</td>
                         <td>${reading.diastolic}</td>
-                        <td>
-                            <button onclick="editReading(${index})">Edit</button>
-                            <button onclick="deleteReading(${index})">Delete</button>
+                        <td>${reading.pulse}</td>
+                        <td class="action-icons">
+                            <i class="fas fa-edit" onclick="editReading(${index})"></i>
+                            <i class="fas fa-trash" onclick="deleteReading(${index})"></i>
                         </td>
                     </tr>
                 `;
@@ -381,11 +431,19 @@
             container.innerHTML = html;
         }
 
+        function toggleReadings() {
+            const header = document.querySelector('.readings-header');
+            const table = document.querySelector('.data-table');
+            header.classList.toggle('collapsed');
+            table.classList.toggle('visible');
+        }
+
         function showAddModal() {
             document.getElementById('modalTitle').textContent = 'Add BP Reading';
             document.getElementById('editIndex').value = '';
             document.getElementById('systolic').value = '';
             document.getElementById('diastolic').value = '';
+            document.getElementById('pulse').value = '';
             document.getElementById('bpModal').style.display = 'flex';
         }
 
@@ -399,6 +457,7 @@
             document.getElementById('editIndex').value = index;
             document.getElementById('systolic').value = reading.systolic;
             document.getElementById('diastolic').value = reading.diastolic;
+            document.getElementById('pulse').value = reading.pulse;
             document.getElementById('bpModal').style.display = 'flex';
         }
 
@@ -420,12 +479,27 @@
         }
 
         function exportData() {
-            const dataStr = JSON.stringify(bpData, null, 2);
-            const blob = new Blob([dataStr], { type: 'application/json' });
+            let exportText = '';
+            bpData.forEach(reading => {
+                const date = new Date(reading.timestamp);
+                const formattedDate = date.toLocaleDateString('en-GB', {
+                    day: '2-digit',
+                    month: '2-digit'
+                });
+                const formattedTime = date.toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                });
+
+                exportText += `${formattedDate} ${formattedTime} - ${reading.systolic}/${reading.diastolic} - ${reading.pulse}bpm\n`;
+            });
+
+            const blob = new Blob([exportText], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'bp-readings.json';
+            a.download = 'bp-readings.txt';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -447,8 +521,8 @@
             const reading = {
                 systolic: parseInt(document.getElementById('systolic').value),
                 diastolic: parseInt(document.getElementById('diastolic').value),
-                timestamp: new Date().toISOString(),
-                timeOfDay: getTimeOfDay()
+                pulse: parseInt(document.getElementById('pulse').value),
+                timestamp: new Date().toISOString()
             };
 
             if (editIndex === '') {
@@ -466,6 +540,9 @@
         // Initialize the app
         initChart();
         updateTable();
+
+        // Initially hide the table
+        document.querySelector('.data-table').classList.remove('visible');
     </script>
 </body>
 
