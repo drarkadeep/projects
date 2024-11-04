@@ -241,7 +241,6 @@
         function initChart() {
             const ctx = document.getElementById('bpChart').getContext('2d');
 
-            // Custom plugin to draw zones for hypertension stages
             const hypertensionZonesPlugin = {
                 id: 'hypertensionZones',
                 beforeDraw(chart) {
@@ -537,11 +536,9 @@
             closeModal();
         });
 
-        // Initialize the app
         initChart();
         updateTable();
 
-        // Initially hide the table
         document.querySelector('.data-table').classList.remove('visible');
     </script>
 </body>
