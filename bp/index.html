@@ -514,27 +514,30 @@
             });
         }
 
-            document.getElementById('bpForm').addEventListener('submit', function (e) {
-                e.preventDefault();
-                const editIndex = document.getElementById('editIndex').value;
-                const reading = {
-                    systolic: parseInt(document.getElementById('systolic').value),
-                    diastolic: parseInt(document.getElementById('diastolic').value),
-                    pulse: parseInt(document.getElementById('pulse').value),
-                    timestamp: editIndex === '' ? new Date().toISOString() : bpData[parseInt(editIndex)].timestamp
-                };
-    
-                if (editIndex === '') {
-                    bpData.push(reading);
-                } else {
-                    bpData[parseInt(editIndex)] = reading;
-                }
-    
-                localStorage.setItem('bpReadings', JSON.stringify(bpData));
-                updateChart();
-                updateTable();
-                closeModal();
-            });
+        document.getElementById('bpForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const editIndex = document.getElementById('editIndex').value;
+            const reading = {
+                systolic: parseInt(document.getElementById('systolic').value),
+                diastolic: parseInt(document.getElementById('diastolic').value),
+                pulse: parseInt(document.getElementById('pulse').value),
+                timestamp: editIndex === '' ? new Date().toISOString() : bpData[parseInt(editIndex)].timestamp
+            };
+
+            if (editIndex === '') {
+                bpData.push(reading);
+            } else {
+                bpData[parseInt(editIndex)] = reading;
+            }
+
+            localStorage.setItem('bpReadings', JSON.stringify(bpData));
+            updateChart();
+            updateTable();
+            closeModal();
+        });
+
+        initChart();
+        updateTable();
 
         document.querySelector('.data-table').classList.remove('visible');
     </script>
