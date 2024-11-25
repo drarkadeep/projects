@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Far Am I?</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --bg: #111827;
+            --card-bg: #1f2937;
+            --text: #e5e7eb;
+            --text-secondary: #9ca3af;
+            --border: #374151;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 1.5rem 1rem;
+            line-height: 1.6;
+            color: var(--text);
+            background: var(--bg);
+            min-height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+        }
+
+        .distance-card {
+            text-align: center;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin: 0 0 1rem;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.025em;
+        }
+
+        .button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.875rem 1.75rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .button-secondary {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        .button-secondary:hover {
+            background: rgba(99, 102, 241, 0.2);
+        }
+
+        .input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            color: var(--text);
+            font-size: 1rem;
+        }
+
+        .input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .result {
+            margin-top: 1.5rem;
+            display: none;
+        }
+
+        .share-link {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1rem;
+            border-radius: 6px;
+            word-break: break-all;
+            margin: 1rem 0;
+            border: 1px solid var(--border);
+            font-family: monospace;
+            font-size: 0.875rem;
+        }
+
+        .error {
+            color: #ef4444;
+            margin-top: 1rem;
+            display: none;
+            padding: 1rem;
+            background: rgba(239, 68, 68, 0.1);
+            border-radius: 6px;
+        }
+
+        .distance-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 1rem 0;
+            color: white;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .fun-fact {
+            font-style: italic;
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            opacity: 0.9;
+            color: var(--text-secondary);
+        }
+
+        .instructions {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            border-top: 1px solid var(--border);
+            margin-top: 2rem;
+            padding-top: 1rem;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .bounce-animation {
+            animation: bounce 2s infinite;
+        }
+
+        #createOwnLink {
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 2rem 0;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div id="initialView" class="card">
+            <h1>How Far Am I? 🌍</h1>
+            <input type="text" id="nameInput" placeholder="Enter your name" class="input">
+            <button onclick="getAndShareLocation()" class="button">
+                <i class="fas fa-location-dot"></i>
+                Create Shareable Link
+            </button>
+            <div id="result" class="result">
+                <p>Your magical link is ready! Share it with friends:</p>
+                <div id="shareLink" class="share-link"></div>
+            </div>
+        </div>
+
+        <div id="compareView" style="display: none;">
+            <div id="distance" class="card distance-card">
+                <div id="distanceContent"></div>
+                <div class="action-buttons">
+                    <button onclick="copyToClipboard()" class="button button-secondary">
+                        <i class="fas fa-copy"></i>
+                        Copy
+                    </button>
+                    <button onclick="shareResult()" class="button button-secondary">
+                        <i class="fas fa-share-nodes"></i>
+                        Share
+                    </button>
+                </div>
+                <div id="createOwnLink">
+                    <div class="divider">or</div>
+                    <button onclick="showInitialView()" class="button">
+                        <i class="fas fa-magic"></i>
+                        Create Your Own Link
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="error" class="error"></div>
+    </div>
+
+    <div class="instructions card">
+        <h3>📱 How it works</h3>
+        <p>1. Enter your name and share your location</p>
+        <p>2. Share the generated link with friends</p>
+        <p>3. When they open it, they'll see their distance from you in fun units!</p>
+        <p><br>🔒 Your location is only shared through the link you create - we don't store anything.</p>
+    </div>
+
+    <script>
+        const funUnits = [
+            { name: 'bananas', conversion: 0.2, fact: 'That\'s a lot of potassium!' },
+            { name: 'average humans lying down', conversion: 1.7, fact: 'Hope they\'re comfortable!' },
+            { name: 'giraffes stacked head-to-toe', conversion: 5.5, fact: 'Quite a tall order!' },
+            { name: 'pizza boxes', conversion: 0.4, fact: 'Now that\'s a tasty distance!' },
+            { name: 'washing machines', conversion: 0.6, fact: 'That\'s a clean measurement!' },
+            { name: 'grand pianos', conversion: 2.2, fact: 'Music to my ears!' },
+            { name: 'blue whales', conversion: 30, fact: 'What a whale of a distance!' },
+            { name: 'double-decker buses', conversion: 11.3, fact: 'Mind the gap!' },
+            { name: 'football fields', conversion: 91.44, fact: 'Touchdown!' },
+            { name: 'Olympic swimming pools', conversion: 50, fact: 'Splash!' }
+        ];
+
+        function encodeMultipleTimes(str, times) {
+            let result = str;
+            for (let i = 0; i < times; i++) {
+                result = btoa(result);
+            }
+            return result + times;
+        }
+
+        function decodeMultipleTimes(str) {
+            const times = parseInt(str.slice(-1));
+            let result = str.slice(0, -1);
+            for (let i = 0; i < times; i++) {
+                result = atob(result);
+            }
+            return result;
+        }
+
+        function showInitialView() {
+            document.getElementById('compareView').style.display = 'none';
+            document.getElementById('initialView').style.display = 'block';
+            window.history.pushState({}, '', window.location.pathname);
+        }
+
+        function getAndShareLocation() {
+            const name = document.getElementById('nameInput').value.trim();
+            if (!name) {
+                showError("Please enter your name first!");
+                return;
+            }
+
+            if (!navigator.geolocation) {
+                showError("Geolocation is not supported by your browser");
+                return;
+            }
+
+            const options = {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            };
+
+            navigator.geolocation.getCurrentPosition(position => {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                const locationData = `${name}|${lat}|${lon}`;
+                const encodeTimes = Math.floor(Math.random() * 8) + 2; // 2-9 times
+                const encodedData = encodeMultipleTimes(locationData, encodeTimes);
+                const shareUrl = `${window.location.href}?data=${encodedData}`;
+
+                document.getElementById('shareLink').textContent = shareUrl;
+                document.getElementById('result').style.display = 'block';
+            }, (error) => {
+                let errorMsg = "Unable to get your location";
+                if (error.code === 1) {
+                    errorMsg = "Please allow location access to create a shareable link";
+                } else if (error.code === 2) {
+                    errorMsg = "Location unavailable. Please try again";
+                } else if (error.code === 3) {
+                    errorMsg = "Location request timed out. Please try again";
+                }
+                showError(errorMsg);
+            }, options);
+        }
+
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371;
+            const dLat = toRad(lat2 - lat1);
+            const dLon = toRad(lon2 - lon1);
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
+        function toRad(deg) {
+            return deg * (Math.PI / 180);
+        }
+
+        function getRandomUnit() {
+            return funUnits[Math.floor(Math.random() * funUnits.length)];
+        }
+
+        function formatDistance(distance, name) {
+            const unit = getRandomUnit();
+            const count = (distance * 1000 / unit.conversion).toFixed(1);
+            return {
+                text: `You are ${count} ${unit.name} away from ${name}!`,
+                fact: unit.fact
+            };
+        }
+
+        async function copyToClipboard() {
+            const distanceText = document.getElementById('distanceContent').textContent;
+            try {
+                await navigator.clipboard.writeText(distanceText);
+                alert('Copied to clipboard!');
+            } catch (err) {
+                console.error('Failed to copy:', err);
+            }
+        }
+
+        async function shareResult() {
+            const distanceText = document.getElementById('distanceContent').textContent;
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'How Far Am I?',
+                        text: distanceText
+                    });
+                } catch (err) {
+                    if (err.name !== 'AbortError') {
+                        console.error('Share failed:', err);
+                    }
+                }
+            } else {
+                copyToClipboard();
+            }
+        }
+
+        window.onload = function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const encodedData = urlParams.get('data');
+
+            if (encodedData) {
+                document.getElementById('initialView').style.display = 'none';
+                document.getElementById('compareView').style.display = 'block';
+
+                try {
+                    const decodedData = decodeMultipleTimes(encodedData);
+                    const [name, sharedLat, sharedLon] = decodedData.split('|');
+
+                    const options = {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    };
+
+                    navigator.geolocation.getCurrentPosition(position => {
+                        const distance = calculateDistance(
+                            position.coords.latitude,
+                            position.coords.longitude,
+                            parseFloat(sharedLat),
+                            parseFloat(sharedLon)
+                        );
+
+                        const formattedDistance = formatDistance(distance, name);
+                        document.getElementById('distanceContent').innerHTML = `
+                            <div class="distance-value bounce-animation">${formattedDistance.text}</div>
+                            <div class="fun-fact">${formattedDistance.fact}</div>
+                        `;
+                    }, (error) => {
+                        let errorMsg = "Unable to get your location";
+                        if (error.code === 1) {
+                            errorMsg = "Please allow location access to see the distance";
+                        } else if (error.code === 2) {
+                            errorMsg = "Location unavailable. Please try again or check your device settings";
+                        } else if (error.code === 3) {
+                            errorMsg = "Location request timed out. Please check your connection and try again";
+                        }
+                        showError(errorMsg);
+                    }, options);
+                } catch (e) {
+                    showError("Invalid or expired link");
+                }
+            }
+        };
+
+        function showError(message) {
+            const error = document.getElementById('error');
+            error.textContent = message;
+            error.style.display = 'block';
+            setTimeout(() => {
+                error.style.opacity = '0';
+                setTimeout(() => {
+                    error.style.display = 'none';
+                    error.style.opacity = '1';
+                }, 300);
+            }, 5000);
+        }
+    </script>
+</body>
+
+</html>
