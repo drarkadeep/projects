@@ -4,6 +4,7 @@
 > Hosted - [Arkadeep.com](https://arkadeep.com/projects)
 
 ## List of Projects
+- [How far am I?](https://arkadeep.com/projects/far/index.html) - An app that reminds you how far you are from somebody...
 - [Antarctic BP Tracker](https://arkadeep.com/projects/bp/index.html) - A **stress-free way** to track your BP, which in turn, helps lower your BP!
 - [Suddenly Stoic](https://arkadeep.com/projects/suddenly-stoic/index.html) - Read stoic quotes collected by [awesome-stoicism](https://github.com/DavidWells/awesome-stoicism/tree/master) and save your favorites for sudden stoic needs.
 - [The Rattlin' Bog](https://arkadeep.com/projects/the-rattlin-bog/index.html) - Oh-ro the rattli' lyrics generator for your Irish friends chillin' with a pint of Guiness!
