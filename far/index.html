@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>How Far Am I?</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         :root {
             --primary: #6366f1;
@@ -203,6 +204,65 @@
             height: 1px;
             background: var(--border);
         }
+
+        .share-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .share-button {
+            flex: 1;
+            padding: 0.5rem;
+            border-radius: 6px;
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .copy-button {
+            background: #4b5563;
+        }
+
+        .twitter-button {
+            background: #1da1f2;
+        }
+
+        .facebook-button {
+            background: #1877f2;
+        }
+
+        .watermark {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 0.75rem;
+            opacity: 0.5;
+            color: var(--text-secondary);
+            pointer-events: none;
+        }
+
+        .image-preview {
+            margin-top: 1rem;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Style for the distance card when being captured */
+        .capture-card {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 16px;
+            text-align: center;
+            position: relative;
+            min-height: 200px;
+        }
     </style>
 </head>
 
@@ -218,20 +278,35 @@
             <div id="result" class="result">
                 <p>Your magical link is ready! Share it with friends:</p>
                 <div id="shareLink" class="share-link"></div>
+                <div class="share-buttons">
+                    <button onclick="copyLink()" class="share-button copy-button">
+                        <i class="fas fa-copy"></i>
+                        Copy Link
+                    </button>
+                    <button onclick="shareTwitter()" class="share-button twitter-button">
+                        <i class="fab fa-twitter"></i>
+                        Twitter
+                    </button>
+                    <button onclick="shareFacebook()" class="share-button facebook-button">
+                        <i class="fab fa-facebook"></i>
+                        Facebook
+                    </button>
+                </div>
             </div>
+
         </div>
 
         <div id="compareView" style="display: none;">
             <div id="distance" class="card distance-card">
                 <div id="distanceContent"></div>
                 <div class="action-buttons">
-                    <button onclick="copyToClipboard()" class="button button-secondary">
-                        <i class="fas fa-copy"></i>
-                        Copy
+                    <button onclick="generateAndDownloadImage()" class="button button-secondary">
+                        <i class="fas fa-image"></i>
+                        Save as Image
                     </button>
-                    <button onclick="shareResult()" class="button button-secondary">
+                    <button onclick="shareImage()" class="button button-secondary">
                         <i class="fas fa-share-nodes"></i>
-                        Share
+                        Share Image
                     </button>
                 </div>
                 <div id="createOwnLink">
@@ -448,6 +523,98 @@
                     error.style.opacity = '1';
                 }, 300);
             }, 5000);
+        }
+
+        async function copyLink() {
+            const shareUrl = document.getElementById('shareLink').textContent;
+            try {
+                await navigator.clipboard.writeText(shareUrl);
+                alert('Link copied to clipboard!');
+            } catch (err) {
+                console.error('Failed to copy:', err);
+            }
+        }
+
+        function shareTwitter() {
+            const shareUrl = document.getElementById('shareLink').textContent;
+            const text = encodeURIComponent("Check out how far you are from me!");
+            window.open(`https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(shareUrl)}`);
+        }
+
+        function shareFacebook() {
+            const shareUrl = document.getElementById('shareLink').textContent;
+            window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`);
+        }
+
+        async function generateImage() {
+            const content = document.getElementById('distanceContent');
+            const captureDiv = document.createElement('div');
+            captureDiv.className = 'capture-card';
+            captureDiv.innerHTML = content.innerHTML;
+
+            // Add watermark
+            const watermark = document.createElement('div');
+            watermark.className = 'watermark';
+            watermark.textContent = 'arkadeep.com/projects/far';
+            captureDiv.appendChild(watermark);
+
+            document.body.appendChild(captureDiv);
+
+            try {
+                const canvas = await html2canvas(captureDiv, {
+                    backgroundColor: getComputedStyle(document.documentElement)
+                        .getPropertyValue('--card-bg').trim(),
+                    scale: 2,
+                    logging: false
+                });
+                document.body.removeChild(captureDiv);
+                return canvas.toDataURL('image/png');
+            } catch (error) {
+                console.error('Error generating image:', error);
+                document.body.removeChild(captureDiv);
+                return null;
+            }
+        }
+
+        async function generateAndDownloadImage() {
+            const dataUrl = await generateImage();
+            if (dataUrl) {
+                const link = document.createElement('a');
+                link.download = 'distance-share.png';
+                link.href = dataUrl;
+                link.click();
+            }
+        }
+
+        async function shareImage() {
+            const dataUrl = await generateImage();
+            if (!dataUrl) return;
+
+            // Convert data URL to Blob
+            const response = await fetch(dataUrl);
+            const blob = await response.blob();
+
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        files: [new File([blob], 'distance-share.png', { type: 'image/png' })]
+                    });
+                } catch (err) {
+                    if (err.name !== 'AbortError') {
+                        console.error('Share failed:', err);
+                        // Fallback to download if sharing fails
+                        generateAndDownloadImage();
+                    }
+                }
+            } else {
+                // Fallback to download if Web Share API is not available
+                generateAndDownloadImage();
+            }
+        }
+
+        // Update the original shareResult function to use the new image sharing
+        async function shareResult() {
+            shareImage();
         }
     </script>
 </body>
