@@ -12,15 +12,13 @@
     <meta name="author" content="Arkadeep Mukhopadhyay">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta property="og:title" content="Residency Progress ✨">
-    <meta property="og:description"
-        content="Easily track your 3-year medical residency with a visual daily timeline.">
+    <meta property="og:description" content="Easily track your 3-year medical residency with a visual daily timeline.">
     <meta property="og:image" content="residency.png">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://arkadeep.com/projects/residency-progress">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="3-Year Medical Residency Tracker | Daily Progress Timeline">
-    <meta name="twitter:description"
-        content="Visualize your residency progress with this 3-year timeline tracker.">
+    <meta name="twitter:description" content="Visualize your residency progress with this 3-year timeline tracker.">
     <meta name="twitter:image" content="residency.png">
     <link rel="canonical" href="https://arkadeep.com/projects/residency-progress">
 
@@ -30,12 +28,12 @@
             color: #e2e8f0;
             font-family: 'Segoe UI', system-ui, sans-serif;
             margin: 0;
-            height: 100vh;
+            height: 100%;
             display: flex;
             flex-direction: column;
             padding: 0;
             box-sizing: border-box;
-            overflow: hidden;
+            overflow: auto;
         }
 
         .container {
@@ -71,10 +69,10 @@
         }
 
         .timeline {
+            padding: 1rem;
             flex-grow: 1;
             display: grid;
             gap: 2px;
-            padding: 1rem;
             background: rgba(30, 41, 59, 0.7);
             border-radius: 1rem;
             backdrop-filter: blur(10px);
@@ -194,6 +192,9 @@
                 <span class="reset" onclick="resetStartDate()">(reset)</span>
             </div>
         </div>
+        <div class="timeline-ka-baap">
+            
+        </div>
         <div class="timeline" id="timeline"></div>
         <div class="today-progress">
             <div class="seconds-left" id="secondsLeft">Loading...</div>
@@ -245,8 +246,8 @@
 
         function calculateOptimalGrid() {
             const container = document.getElementById('timeline');
-            const containerWidth = container.clientWidth;
-            const containerHeight = container.clientHeight;
+            const containerWidth = container.clientWidth - 32;
+            const containerHeight = container.clientHeight - 32;
             const aspectRatio = containerWidth / containerHeight;
 
             let columns = Math.ceil(Math.sqrt(totalDays * aspectRatio));
