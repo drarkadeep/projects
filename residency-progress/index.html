@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Residency Progress ✨</title>
+    <link rel="shortcut icon" href="favicon.png" type="image/x-icon">
+    <meta name="description"
+        content="Stay on top of your medical residency with this comprehensive 3-year progress tracker. Visualize your timeline, track daily achievements, and monitor your journey toward becoming a medical professional.">
+    <meta name="keywords"
+        content="medical residency tracker, residency timeline, medical training progress, residency progress, 3 year medical residency, daily progress tracker, resident timeline, medical education tools">
+    <meta name="author" content="Arkadeep Mukhopadhyay">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="Residency Progress ✨">
+    <meta property="og:description"
+        content="Easily track your 3-year medical residency with a visual daily timeline.">
+    <meta property="og:image" content="residency.png">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://arkadeep.com/projects/residency-progress">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="3-Year Medical Residency Tracker | Daily Progress Timeline">
+    <meta name="twitter:description"
+        content="Visualize your residency progress with this 3-year timeline tracker.">
+    <meta name="twitter:image" content="residency.png">
+    <link rel="canonical" href="https://arkadeep.com/projects/residency-progress">
+
+    <style>
+        body {
+            background: #0f172a;
+            color: #e2e8f0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+
+        .overall-progress {
+            text-align: center;
+            padding: 1rem;
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 1rem;
+            backdrop-filter: blur(10px);
+            margin-bottom: 1rem;
+        }
+
+        .overall-percentage {
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            font-weight: 700;
+            color: #60a5fa;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .overall-label {
+            color: #94a3b8;
+            font-size: 1rem;
+            margin-top: 0.25rem;
+            font-weight: bold;
+        }
+
+        .timeline {
+            flex-grow: 1;
+            display: grid;
+            gap: 2px;
+            padding: 1rem;
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 1rem;
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .day {
+            aspect-ratio: 1;
+            background: rgba(148, 163, 184, 0.2);
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .day.active {
+            background: #60a5fa;
+            box-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
+        }
+
+        .day.today {
+            animation: blink 1.5s ease-out infinite;
+        }
+
+        @keyframes blink {
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .today-progress {
+            background: rgba(30, 41, 59, 0.7);
+            padding: 1rem;
+            border-radius: 1rem;
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+
+        .seconds-left {
+            font-size: clamp(1.2rem, 2.5vw, 2rem);
+            font-weight: 600;
+            color: #60a5fa;
+        }
+
+        .date-prompt {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .prompt-content {
+            background: rgba(30, 41, 59, 0.95);
+            padding: 2rem;
+            border-radius: 1rem;
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+
+        .prompt-content input {
+            background: rgba(148, 163, 184, 0.2);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            color: #e2e8f0;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+            font-size: 1rem;
+        }
+
+        .prompt-content button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .prompt-content button:hover {
+            background: #2563eb;
+        }
+
+        .reset {
+            color: inherit;
+            font-style: italic;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: normal;
+        }
+
+        .reset:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="overall-progress">
+            <div class="overall-percentage" id="overallPercentage">0.000000%</div>
+            <div class="overall-label">
+                Residency Progress
+                <span class="reset" onclick="resetStartDate()">(reset)</span>
+            </div>
+        </div>
+        <div class="timeline" id="timeline"></div>
+        <div class="today-progress">
+            <div class="seconds-left" id="secondsLeft">Loading...</div>
+        </div>
+    </div>
+
+    <div class="date-prompt" id="datePrompt" style="display: none;">
+        <div class="prompt-content">
+            <h2>Set Residency Start Date</h2>
+            <input type="date" id="startDateInput">
+            <br><br>
+            <button onclick="setStartDate()">Start Tracking</button>
+        </div>
+    </div>
+
+    <script>
+        let startDate;
+        let endDate;
+        const totalDays = 365 * 3;
+
+        function initializeDates() {
+            const savedStartDate = localStorage.getItem('timelineStartDate');
+
+            if (savedStartDate) {
+                startDate = new Date(savedStartDate);
+                endDate = new Date(startDate);
+                endDate.setFullYear(endDate.getFullYear() + 3);
+                createTimeline();
+                updateOverallProgress();
+            } else {
+                document.getElementById('datePrompt').style.display = 'flex';
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('startDateInput').value = today;
+            }
+        }
+
+        function setStartDate() {
+            const input = document.getElementById('startDateInput').value;
+            startDate = new Date(input);
+            endDate = new Date(startDate);
+            endDate.setFullYear(endDate.getFullYear() + 3);
+
+            localStorage.setItem('timelineStartDate', startDate.toISOString());
+            document.getElementById('datePrompt').style.display = 'none';
+
+            createTimeline();
+            updateOverallProgress();
+        }
+
+        function calculateOptimalGrid() {
+            const container = document.getElementById('timeline');
+            const containerWidth = container.clientWidth;
+            const containerHeight = container.clientHeight;
+            const aspectRatio = containerWidth / containerHeight;
+
+            let columns = Math.ceil(Math.sqrt(totalDays * aspectRatio));
+            let rows = Math.ceil(totalDays / columns);
+
+            while (rows < 10) {
+                columns--;
+                rows = Math.ceil(totalDays / columns);
+            }
+
+            return { columns, rows };
+        }
+
+        function createTimeline() {
+            const timeline = document.getElementById('timeline');
+            timeline.innerHTML = '';
+
+            const { columns, rows } = calculateOptimalGrid();
+            timeline.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
+
+            for (let i = 0; i < totalDays; i++) {
+                const day = document.createElement('div');
+                day.className = 'day';
+                timeline.appendChild(day);
+            }
+
+            updateProgress();
+            setInterval(updateProgress, 1000);
+        }
+
+        function updateOverallProgress() {
+            const now = new Date();
+            const progress = (now - startDate) / (endDate - startDate);
+            const percentage = Math.max(0, Math.min(100, progress * 100));
+            document.getElementById('overallPercentage').textContent =
+                `${percentage.toFixed(8)}%`; // Increase to 10 decimal places
+        }
+
+        function updateProgress() {
+            if (!startDate || !endDate) return;
+
+            const now = new Date();
+            const daysSinceStart = Math.floor((now - startDate) / (1000 * 60 * 60 * 24));
+            const days = document.querySelectorAll('.day');
+
+            days.forEach((day, index) => {
+                day.classList.remove('today');
+                if (index < daysSinceStart) {
+                    day.classList.add('active');
+                } else if (index === daysSinceStart) {
+                    day.classList.add('active', 'today');
+                }
+            });
+
+            // Update seconds left in current day
+            const tomorrow = new Date(now);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            tomorrow.setHours(0, 0, 0, 0);
+            const secondsRemaining = Math.floor((tomorrow - now) / 1000);
+            const hours = Math.floor(secondsRemaining / 3600);
+            const minutes = Math.floor((secondsRemaining % 3600) / 60);
+            const seconds = secondsRemaining % 60;
+            document.getElementById('secondsLeft').textContent =
+                `${hours}h ${minutes}m ${seconds}s remaining today`;
+        }
+
+        function resetStartDate() {
+            localStorage.removeItem('timelineStartDate');
+            location.reload();
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            if (startDate) {
+                createTimeline();
+            }
+        });
+
+        // Initialize on load
+        initializeDates();
+        setInterval(updateOverallProgress, 10); // Update overall progress every 10ms
+    </script>
+</body>
+
+</html>
