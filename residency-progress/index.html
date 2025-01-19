@@ -37,11 +37,18 @@
         }
 
         .container {
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             padding: 1rem;
             box-sizing: border-box;
+        }
+
+        .main-content {
+            height: 95vh;
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 1rem;
         }
 
         .overall-progress {
@@ -59,6 +66,7 @@
             color: #60a5fa;
             margin: 0;
             line-height: 1.2;
+            text-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
         }
 
         .overall-label {
@@ -116,12 +124,25 @@
             border-radius: 1rem;
             backdrop-filter: blur(10px);
             text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            font-weight: bold;
+            color: #60A5FA;
+            font-size: 1.2rem;
         }
 
-        .seconds-left {
-            font-size: clamp(1.2rem, 2.5vw, 2rem);
-            font-weight: 600;
+        .arrow {
+            cursor: pointer;
+            user-select: none;
             color: #60a5fa;
+            font-size: 1.5rem;
+            padding: 0.5rem;
+        }
+
+        .arrow:hover {
+            color: #3b82f6;
         }
 
         .date-prompt {
@@ -180,24 +201,148 @@
         .reset:hover {
             text-decoration: underline;
         }
+
+        .achievements {
+            background: rgba(30, 41, 59, 0.7);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .achievements-title {
+            color: #60a5fa;
+            margin: 0 0 1rem 0;
+            font-size: 1.5rem;
+        }
+
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .achievement-card {
+            background: rgba(148, 163, 184, 0.1);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
+            position: relative;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .achievement-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .achievement-progress {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            text-align: center;
+            filter: none !important;
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            gap: 2px;
+        }
+
+        .achievement-progress-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #60a5fa;
+            text-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
+        }
+
+        .achievement-progress-number::after {
+            content: "% complete";
+        }
+
+        .achievement-progress-label {
+            font-size: 1rem;
+            color: #60a5fa;
+            text-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
+        }
+
+        .achievement-card.unlocked .achievement-progress {
+            display: none;
+        }
+
+        .achievement-card.unlocked {
+            background: rgba(96, 165, 250, 0.2);
+            border: 1px solid rgba(96, 165, 250, 0.3);
+        }
+
+        .achievement-title {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #94a3b8;
+            margin-bottom: 0.5rem;
+            filter: blur(5px);
+            transition: filter 0.3s ease;
+        }
+
+        .achievement-desc {
+            font-size: 1rem;
+            color: #64748b;
+            filter: blur(5px);
+            transition: filter 0.3s ease;
+        }
+
+        .achievement-progress {
+            filter: blur(5px);
+            transition: filter 0.3s ease;
+        }
+
+        .achievement-progress-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #60a5fa;
+            text-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
+        }
+
+        .achievement-progress-label {
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+
+        .achievement-card.unlocked .achievement-title,
+        .achievement-card.unlocked .achievement-desc,
+        .achievement-card.unlocked .achievement-progress {
+            filter: blur(0);
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <div class="overall-progress">
-            <div class="overall-percentage" id="overallPercentage">0.000000%</div>
-            <div class="overall-label">
-                Residency Progress
-                <span class="reset" onclick="resetStartDate()">(reset)</span>
+        <div class="main-content">
+            <div class="overall-progress">
+                <div class="overall-percentage" id="overallPercentage">0.000000%</div>
+                <div class="overall-label">
+                    Residency Progress
+                    <span class="reset" onclick="resetStartDate()">(reset)</span>
+                </div>
+            </div>
+            <div class="timeline-ka-baap">
+
+            </div>
+            <div class="timeline" id="timeline"></div>
+            <div class="today-progress">
+                <span class="arrow" onclick="cycleDisplayFormat('prev')">←</span>
+                <div class="seconds-left" id="secondsLeft">Loading...</div>
+                <span class="arrow" onclick="cycleDisplayFormat('next')">→</span>
             </div>
         </div>
-        <div class="timeline-ka-baap">
-            
-        </div>
-        <div class="timeline" id="timeline"></div>
-        <div class="today-progress">
-            <div class="seconds-left" id="secondsLeft">Loading...</div>
+
+        <div class="achievements">
+            <h2 class="achievements-title">Milestones</h2>
+            <div class="achievements-grid" id="achievementsGrid"></div>
         </div>
     </div>
 
@@ -214,6 +359,63 @@
         let startDate;
         let endDate;
         const totalDays = 365 * 3;
+        const displayFormats = ['hms', 'minutes', 'hours-week', 'days-month', 'weeks-semester'];
+        let currentFormatIndex = 0;
+
+        function cycleDisplayFormat(direction) {
+            if (direction === 'next') {
+                currentFormatIndex = (currentFormatIndex + 1) % displayFormats.length;
+            } else {
+                currentFormatIndex = (currentFormatIndex - 1 + displayFormats.length) % displayFormats.length;
+            }
+            updateProgress();
+        }
+
+        function getTimeDisplay(now) {
+            const format = displayFormats[currentFormatIndex];
+            const tomorrow = new Date(now);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            tomorrow.setHours(0, 0, 0, 0);
+
+            switch (format) {
+                case 'hms': {
+                    const secondsRemaining = Math.floor((tomorrow - now) / 1000);
+                    const hours = Math.floor(secondsRemaining / 3600);
+                    const minutes = Math.floor((secondsRemaining % 3600) / 60);
+                    const seconds = secondsRemaining % 60;
+                    return `${hours}h ${minutes}m ${seconds}s remaining today`;
+                }
+                case 'minutes': {
+                    const minutesRemaining = Math.ceil((tomorrow - now) / (1000 * 60));
+                    return `${minutesRemaining} minutes remaining today`;
+                }
+                case 'hours-week': {
+                    const nextWeek = new Date(now);
+                    nextWeek.setDate(nextWeek.getDate() + (7 - nextWeek.getDay()));
+                    nextWeek.setHours(0, 0, 0, 0);
+                    const hoursRemaining = Math.ceil((nextWeek - now) / (1000 * 60 * 60));
+                    return `${hoursRemaining} hours remaining this week`;
+                }
+                case 'days-month': {
+                    const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+                    const daysRemaining = Math.ceil((nextMonth - now) / (1000 * 60 * 60 * 24));
+                    return `${daysRemaining} days remaining this month`;
+                }
+                case 'weeks-semester': {
+                    const currentMonth = now.getMonth();
+                    let semesterEnd;
+                    if (currentMonth >= 0 && currentMonth < 5) {
+                        semesterEnd = new Date(now.getFullYear(), 5, 1);
+                    } else if (currentMonth >= 5 && currentMonth < 8) {
+                        semesterEnd = new Date(now.getFullYear(), 8, 1);
+                    } else {
+                        semesterEnd = new Date(now.getFullYear() + 1, 0, 1);
+                    }
+                    const weeksRemaining = Math.ceil((semesterEnd - now) / (1000 * 60 * 60 * 24 * 7));
+                    return `${weeksRemaining} weeks remaining this semester`;
+                }
+            }
+        }
 
         function initializeDates() {
             const savedStartDate = localStorage.getItem('timelineStartDate');
@@ -241,6 +443,7 @@
             document.getElementById('datePrompt').style.display = 'none';
 
             createTimeline();
+            updateAchievements();
             updateOverallProgress();
         }
 
@@ -283,7 +486,7 @@
             const progress = (now - startDate) / (endDate - startDate);
             const percentage = Math.max(0, Math.min(100, progress * 100));
             document.getElementById('overallPercentage').textContent =
-                `${percentage.toFixed(8)}%`; // Increase to 10 decimal places
+                `${percentage.toFixed(8)}%`;
         }
 
         function updateProgress() {
@@ -302,16 +505,7 @@
                 }
             });
 
-            // Update seconds left in current day
-            const tomorrow = new Date(now);
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            tomorrow.setHours(0, 0, 0, 0);
-            const secondsRemaining = Math.floor((tomorrow - now) / 1000);
-            const hours = Math.floor(secondsRemaining / 3600);
-            const minutes = Math.floor((secondsRemaining % 3600) / 60);
-            const seconds = secondsRemaining % 60;
-            document.getElementById('secondsLeft').textContent =
-                `${hours}h ${minutes}m ${seconds}s remaining today`;
+            document.getElementById('secondsLeft').textContent = getTimeDisplay(now);
         }
 
         function resetStartDate() {
@@ -319,16 +513,147 @@
             location.reload();
         }
 
-        // Handle window resize
         window.addEventListener('resize', () => {
             if (startDate) {
                 createTimeline();
             }
         });
 
-        // Initialize on load
         initializeDates();
-        setInterval(updateOverallProgress, 10); // Update overall progress every 10ms
+        setInterval(updateOverallProgress, 10);
+
+        const achievements = [
+            {
+                id: 'baby-steps',
+                title: 'Baby Steps',
+                description: 'You\'ve completed your first million seconds as a resident!'
+            },
+            {
+                id: 'quarter-mile',
+                title: 'Quarter Mile',
+                description: 'Three months of learning and growing as a medical professional'
+            },
+            {
+                id: 'half-lap',
+                title: 'Half Lap',
+                description: 'Halfway through your first year - you\'re getting the hang of this!'
+            },
+            {
+                id: 'first-orbit',
+                title: 'First Orbit Complete',
+                description: 'One year down! You\'ve come so far in your journey'
+            },
+            {
+                id: 'seasoned-healer',
+                title: 'Seasoned Healer',
+                description: '5000 hours of medical practice under your belt'
+            },
+            {
+                id: 'halfway-hero',
+                title: 'Halfway Hero',
+                description: 'The halfway point of residency - you can see the light!'
+            },
+            {
+                id: 'master-apprentice',
+                title: 'Master Apprentice',
+                description: 'Two years of dedicated service to medicine'
+            },
+            {
+                id: 'almost-there',
+                title: 'Almost There',
+                description: 'The final stretch begins - greatness awaits!'
+            },
+            {
+                id: 'expert-status',
+                title: 'Expert Status',
+                description: '10,000 hours of practice - true expertise achieved'
+            },
+            {
+                id: 'final-countdown',
+                title: 'Final Countdown',
+                description: 'Less than 100 days to go - the end is in sight!'
+            },
+            {
+                id: 'graduation-path',
+                title: 'Graduation Path',
+                description: 'Your final month as a resident - time to spread your wings'
+            },
+            {
+                id: 'transformation',
+                title: 'The Transformation',
+                description: 'From resident to attending - your journey is complete!'
+            }
+        ];
+
+        function calculateAchievementProgress(index, timeDiff, daysPassed, hoursPassed) {
+            switch (index) {
+                case 0: return Math.min(100, (timeDiff / (1000000 * 1000)) * 100);
+                case 1: return Math.min(100, (daysPassed / 90) * 100);
+                case 2: return Math.min(100, (daysPassed / 182) * 100);
+                case 3: return Math.min(100, (daysPassed / 365) * 100);
+                case 4: return Math.min(100, (hoursPassed / 5000) * 100);
+                case 5: return Math.min(100, (daysPassed / 547) * 100);
+                case 6: return Math.min(100, (daysPassed / 730) * 100);
+                case 7: return Math.min(100, (daysPassed / 912) * 100);
+                case 8: return Math.min(100, (hoursPassed / 10000) * 100);
+                case 9: return Math.min(100, (daysPassed / 995) * 100);
+                case 10: return Math.min(100, (daysPassed / 1065) * 100);
+                case 11: return Math.min(100, (daysPassed / 1095) * 100);
+            }
+        }
+
+        function updateAchievements() {
+            if (!startDate) return;
+
+            const now = new Date();
+            const timeDiff = now - startDate;
+            const daysPassed = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+            const hoursPassed = Math.floor(timeDiff / (1000 * 60 * 60));
+            const achievementsGrid = document.getElementById('achievementsGrid');
+            achievementsGrid.innerHTML = '';
+
+            achievements.forEach((achievement, index) => {
+                let isUnlocked = false;
+                let progress = calculateAchievementProgress(index, timeDiff, daysPassed, hoursPassed);
+
+                switch (index) {
+                    case 0: isUnlocked = timeDiff >= 1000000 * 1000; break;
+                    case 1: isUnlocked = daysPassed >= 90; break;
+                    case 2: isUnlocked = daysPassed >= 182; break;
+                    case 3: isUnlocked = daysPassed >= 365; break;
+                    case 4: isUnlocked = hoursPassed >= 5000; break;
+                    case 5: isUnlocked = daysPassed >= 547; break;
+                    case 6: isUnlocked = daysPassed >= 730; break;
+                    case 7: isUnlocked = daysPassed >= 912; break;
+                    case 8: isUnlocked = hoursPassed >= 10000; break;
+                    case 9: isUnlocked = daysPassed >= 995; break;
+                    case 10: isUnlocked = daysPassed >= 1065; break;
+                    case 11: isUnlocked = daysPassed >= 1095; break;
+                }
+
+                const card = document.createElement('div');
+                card.className = `achievement-card${isUnlocked ? ' unlocked' : ''}`;
+                card.innerHTML = `
+                    <div class="achievement-content">
+                        <div class="achievement-title">${achievement.title}</div>
+                        <div class="achievement-desc">${achievement.description}</div>
+                    </div>
+                    ${!isUnlocked ? `
+                    <div class="achievement-progress">
+                        <span class="achievement-progress-number">${Math.floor(progress)}</span>
+                    </div>` : ''}
+                `;
+                achievementsGrid.appendChild(card);
+            });
+        }
+
+        window.addEventListener('load', updateAchievements);
+
+        const originalCreateTimeline = createTimeline;
+        createTimeline = function () {
+            originalCreateTimeline();
+            setInterval(updateAchievements, 1000);
+        };
     </script>
 </body>
 
