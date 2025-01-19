@@ -402,19 +402,30 @@
                     return `${daysRemaining} days remaining this month`;
                 }
                 case 'weeks-semester': {
-                    const currentMonth = now.getMonth();
-                    let semesterEnd;
-                    if (currentMonth >= 0 && currentMonth < 5) {
-                        semesterEnd = new Date(now.getFullYear(), 5, 1);
-                    } else if (currentMonth >= 5 && currentMonth < 8) {
-                        semesterEnd = new Date(now.getFullYear(), 8, 1);
-                    } else {
-                        semesterEnd = new Date(now.getFullYear() + 1, 0, 1);
-                    }
-                    const weeksRemaining = Math.ceil((semesterEnd - now) / (1000 * 60 * 60 * 24 * 7));
-                    return `${weeksRemaining} weeks remaining this semester`;
+                    const timelineStartDate = new Date(localStorage.getItem('timelineStartDate'));
+
+                    const monthsDiff = (now.getFullYear() - timelineStartDate.getFullYear()) * 12
+                        + now.getMonth() - timelineStartDate.getMonth();
+                    const semesterNumber = Math.floor(monthsDiff / 6) + 1;
+
+                    const currentSemesterStart = new Date(timelineStartDate);
+                    currentSemesterStart.setMonth(timelineStartDate.getMonth() + (semesterNumber - 1) * 6);
+
+                    const currentSemesterEnd = new Date(currentSemesterStart);
+                    currentSemesterEnd.setMonth(currentSemesterStart.getMonth() + 6);
+
+                    const weekNumber = Math.ceil((now - currentSemesterStart) / (1000 * 60 * 60 * 24 * 7));
+
+                    return `${weekNumber}${getSuffix(weekNumber)} week of ${semesterNumber}${getSuffix(semesterNumber)} semester`;
                 }
             }
+        }
+
+        function getSuffix(num) {
+            if (num % 10 === 1 && num % 100 !== 11) return 'st';
+            if (num % 10 === 2 && num % 100 !== 12) return 'nd';
+            if (num % 10 === 3 && num % 100 !== 13) return 'rd';
+            return 'th';
         }
 
         function initializeDates() {
