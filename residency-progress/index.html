@@ -67,6 +67,7 @@
             margin: 0;
             line-height: 1.2;
             text-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
+            cursor: pointer;
         }
 
         .overall-label {
@@ -361,6 +362,7 @@
         const totalDays = 365 * 3;
         const displayFormats = ['hms', 'minutes', 'hours-week', 'days-month', 'weeks-semester'];
         let currentFormatIndex = 0;
+        let fixedPoints = localStorage.getItem('percentageFixedPoints') === '2' ? 2 : 8;
 
         function cycleDisplayFormat(direction) {
             if (direction === 'next') {
@@ -442,6 +444,15 @@
                 const today = new Date().toISOString().split('T')[0];
                 document.getElementById('startDateInput').value = today;
             }
+
+            if (savedStartDate) {
+                startDate = new Date(savedStartDate);
+                endDate = new Date(startDate);
+                endDate.setFullYear(endDate.getFullYear() + 3);
+                createTimeline();
+                updateOverallProgress();
+                document.getElementById('overallPercentage').addEventListener('click', toggleFixedPoints);
+            }
         }
 
         function setStartDate() {
@@ -497,7 +508,13 @@
             const progress = (now - startDate) / (endDate - startDate);
             const percentage = Math.max(0, Math.min(100, progress * 100));
             document.getElementById('overallPercentage').textContent =
-                `${percentage.toFixed(8)}%`;
+                `${percentage.toFixed(fixedPoints)}%`;
+        }
+
+        function toggleFixedPoints() {
+            fixedPoints = fixedPoints === 8 ? 2 : 8;
+            localStorage.setItem('percentageFixedPoints', fixedPoints.toString());
+            updateOverallProgress();
         }
 
         function updateProgress() {
@@ -521,6 +538,7 @@
 
         function resetStartDate() {
             localStorage.removeItem('timelineStartDate');
+            localStorage.removeItem('percentageFixedPoints');
             location.reload();
         }
 
