@@ -558,59 +558,59 @@
                 description: 'You\'ve completed your first million seconds as a resident!'
             },
             {
-                id: 'quarter-mile',
-                title: 'Quarter Mile',
-                description: 'Three months of learning and growing as a medical professional'
+                id: 'getting-started',
+                title: 'Getting Started',
+                description: 'Your first three months as a resident - foundations are key.'
             },
             {
-                id: 'half-lap',
-                title: 'Half Lap',
-                description: 'Halfway through your first year - you\'re getting the hang of this!'
+                id: 'steady-pace',
+                title: 'Steady Pace',
+                description: 'Halfway through your first year - you\'re finding your rhythm.'
             },
             {
-                id: 'first-orbit',
-                title: 'First Orbit Complete',
-                description: 'One year down! You\'ve come so far in your journey'
+                id: 'first-lap',
+                title: 'First Lap Complete',
+                description: 'One year down! A major milestone on your journey.'
             },
             {
-                id: 'seasoned-healer',
-                title: 'Seasoned Healer',
-                description: '5000 hours of medical practice under your belt'
+                id: 'proficient-practitioner',
+                title: 'Proficient Practitioner',
+                description: '5000 hours of practice - your skills are sharpening.'
             },
             {
-                id: 'halfway-hero',
-                title: 'Halfway Hero',
-                description: 'The halfway point of residency - you can see the light!'
+                id: 'over-the-hump',
+                title: 'Over the Hump',
+                description: 'The halfway point of your residency - a remarkable achievement!'
             },
             {
-                id: 'master-apprentice',
-                title: 'Master Apprentice',
-                description: 'Two years of dedicated service to medicine'
+                id: 'dedicated-devotion',
+                title: 'Dedicated Devotion',
+                description: 'Two years of unwavering commitment to patient care.'
             },
             {
-                id: 'almost-there',
-                title: 'Almost There',
-                description: 'The final stretch begins - greatness awaits!'
+                id: 'penultimate-step',
+                title: 'The Penultimate Step',
+                description: 'Entering your final year - the culmination is near.'
             },
             {
-                id: 'expert-status',
-                title: 'Expert Status',
-                description: '10,000 hours of practice - true expertise achieved'
+                id: 'expert-in-action',
+                title: 'Expert in Action',
+                description: '10,000 hours of practice - you\'re now a true expert.'
             },
             {
-                id: 'final-countdown',
-                title: 'Final Countdown',
-                description: 'Less than 100 days to go - the end is in sight!'
+                id: 'final-leg',
+                title: 'The Final Leg',
+                description: 'Less than 100 days to go - keep the momentum!'
             },
             {
-                id: 'graduation-path',
-                title: 'Graduation Path',
-                description: 'Your final month as a resident - time to spread your wings'
+                id: 'finishing-touches',
+                title: 'Finishing Touches',
+                description: 'Your last month as a resident - excellence in every detail.'
             },
             {
-                id: 'transformation',
-                title: 'The Transformation',
-                description: 'From resident to attending - your journey is complete!'
+                id: 'resident-no-more',
+                title: 'Resident No More',
+                description: 'Congratulations on completing your residency - a transformative journey!'
             }
         ];
 
@@ -663,18 +663,19 @@
                 const card = document.createElement('div');
                 card.className = `achievement-card${isUnlocked ? ' unlocked' : ''}`;
                 card.innerHTML = `
-                    <div class="achievement-content">
-                        <div class="achievement-title">${achievement.title}</div>
-                        <div class="achievement-desc">${achievement.description}</div>
-                    </div>
-                    ${!isUnlocked ? `
-                    <div class="achievement-progress">
-                        <span class="achievement-progress-number">${Math.floor(progress)}</span>
-                    </div>` : ''}
-                `;
+            <div class="achievement-content">
+                <div class="achievement-title">${achievement.title}</div>
+                <div class="achievement-desc">${achievement.description}</div>
+            </div>
+            ${!isUnlocked ? `
+            <div class="achievement-progress">
+                <span class="achievement-progress-number">${Math.floor(progress)}</span>
+            </div>` : ''}
+        `;
                 achievementsGrid.appendChild(card);
             });
         }
+
 
         window.addEventListener('load', updateAchievements);
 
