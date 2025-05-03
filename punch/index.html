@@ -88,6 +88,22 @@
         .punch-effect-emoji {
             font-size: 4rem;
         }
+        .text-effect {
+            position: absolute;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #e53e3e;
+            text-shadow: 2px 2px 0 white, -2px -2px 0 white, 2px -2px 0 white, -2px 2px 0 white;
+            animation: textPop 0.8s ease-out forwards;
+            z-index: 10;
+            pointer-events: none;
+        }
+        @keyframes textPop {
+            0% { transform: scale(0.5); opacity: 0; }
+            20% { transform: scale(1.5); opacity: 1; }
+            80% { transform: scale(1.2) translateY(-20px); opacity: 1; }
+            100% { transform: scale(1) translateY(-40px); opacity: 0; }
+        }
         .health-bar-container {
             width: 100%;
             max-width: 400px;
@@ -158,6 +174,36 @@
         }
         .play-again-btn:hover {
             background-color: #2c5282;
+        }
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 100;
+        }
+        .confetti-piece {
+            position: absolute;
+            width: 10px;
+            height: 16px;
+            top: -20px;
+            animation: confetti-fall 4s ease-in-out forwards;
+        }
+        @keyframes confetti-fall {
+            0% { 
+                transform: translateY(0) rotate(0deg); 
+                opacity: 1;
+            }
+            50% {
+                transform: translateY(40vh) rotate(360deg);
+                opacity: 1;
+            }
+            100% { 
+                transform: translateY(100vh) rotate(720deg); 
+                opacity: 0;
+            }
         }
         .fist-container {
             position: absolute;
@@ -271,6 +317,16 @@
             let health = 100;
             let punchCount = 0;
             
+            // Health-based emojis
+            const healthEmojis = {
+                100: '😀', // Full health
+                80: '🙂',  // Slightly damaged
+                60: '😐',  // Concerned
+                40: '😣',  // Pained
+                20: '😫',  // Very hurt
+                0: '😵'    // Knocked out
+            };
+            
             // Check URL parameters for name
             function getURLParameters() {
                 const urlParams = new URLSearchParams(window.location.search);
@@ -295,6 +351,22 @@
             function updateStats() {
                 stats.textContent = `Health: ${health}/100 | Punches: ${punchCount}`;
                 healthBar.style.width = `${health}%`;
+                
+                // Update emoji based on health
+                const characterEmoji = document.getElementById('characterEmoji');
+                if (health <= 0) {
+                    characterEmoji.textContent = healthEmojis[0];
+                } else if (health <= 20) {
+                    characterEmoji.textContent = healthEmojis[20];
+                } else if (health <= 40) {
+                    characterEmoji.textContent = healthEmojis[40];
+                } else if (health <= 60) {
+                    characterEmoji.textContent = healthEmojis[60];
+                } else if (health <= 80) {
+                    characterEmoji.textContent = healthEmojis[80];
+                } else {
+                    characterEmoji.textContent = healthEmojis[100];
+                }
             }
             
             // Set character name
@@ -323,9 +395,45 @@
             punchBtn.addEventListener('click', function() {
                 if (health <= 0) return;
                 
-                // Show punch effect
+                // Disable button during animation
+                punchBtn.disabled = true;
+                
+                // Create random punch variations
+                const punchSounds = ['POW!', 'BAM!', 'WHAM!', 'SMACK!', 'THWACK!', 'KAPOW!'];
+                const randomPunch = punchSounds[Math.floor(Math.random() * punchSounds.length)];
+                const punchEffectEmoji = document.getElementById('punchEffectEmoji');
+                
+                // Randomize punch effect position slightly
+                const offsetX = Math.random() * 40 - 20;
+                const offsetY = Math.random() * 40 - 20;
+                punchEffect.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+                
+                // Choose random punch effect
+                const punchEffects = ['💥', '👊💥', '💪💥', '⚡'];
+                punchEffectEmoji.textContent = punchEffects[Math.floor(Math.random() * punchEffects.length)];
+                
+                // Add text effect with the punch sound
+                const textEffect = document.createElement('div');
+                textEffect.className = 'text-effect';
+                textEffect.textContent = randomPunch;
+                textEffect.style.left = `${Math.random() * 60 + 20}%`;
+                textEffect.style.top = `${Math.random() * 60 + 20}%`;
+                character.appendChild(textEffect);
+                
+                // Show punch animations
                 punchEffect.style.display = 'flex';
+                document.querySelector('.character-container').classList.add('punch-animation');
                 character.classList.add('shake');
+                character.classList.add('character-damage');
+                
+                // Play punch sound if browser supports it
+                try {
+                    const audio = new Audio('data:audio/mp3;base64,//uQxAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAAFAAAGhgCFhYWFhYWFhYWFhYWFhYWFhYWFvb29vb29vb29vb29vb29vb29vb3s7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs////////////8AAAA1RJREFUOE9tk09LVFEYxp9z73vnoitzJEzG6k4jJTJzETEu2rQvoOiuVYvmE0h9gLLaRL7iYhIXEi2KWrYoalPpQoL8Q2oJQduZqJHZ68ydO/eei3NHJzzw8Jz3d5/3vO95zhF0SDqdNgnzCOAZwBhB3QgRcaVSx1P/qnJB0Wnb+U8OIg5IQW7IoIKprsLj8Oj3OvDD/TGNnPTCl30Z8XPGCTkbjZeOHjTp2HQZrNUkIWMlYL6zMrkGJI+Xof4QQHs7QHwdBLpTZKvlhgA/CwAGCEQDHDZi1FtADDu79v4Vhoe9GdgdsBo/JbTN9taMDKy1gNi2OXFvsRRCnZcB6hOSJv8CXGVE0ZQTRhPWcWLr0tYAYts6ebCiQ4mQBJK0BTjOSIymrXvEUTc2B/5KgXlNkDRzQJAzojXzbpgXsdxDjm0/sLZSqW/gq0izhzQRQVvlCqeNPDlsEU3Qz/U9uRaIBYLnwICsMyfCTjDO1SsQO7aZHA/FDmQISFCfkHQEOElo5FY4rtV3kGPUt10l5F4w4IIgTdMQoBGBfymcNOxmzEFkXefkfOhAjkDSgQIB9ROGwbwJRdOruosd24wfMB88wICk3YDwbRgA7zWibPo9XO7Y5vb98XmC+jXlWLpOAL9YJsrW15AsPCB2GBnrn3sF8AQhlU7XOCMzDGPHNsYGwvFJAm8VoMUymGcnCPK7Sl36OPQ+fA15QOwsHGpfBxLFxSQFOUNQhbP3RlAGGKCi7TBL31U68WHoQ3jvtoBcXEicriKZRmL3QJBfYdY+q1TxYzDWVqSdxXytX4WJxWw2e8B1e15V56qHzSqQV5WQP9XofG0+fTNfT2StbJbK9nFdfp3Pl/p/XSwUJlCtnkKxOM4E5V0o9PJ2qXTGdf1eVdPlUkneVdX7DuAEcNoFLrpAqRY3c9kC8EMB+VrtXqfexOF+qiqeBIAvgKqFvf6qS1xEgOOAU7PqASztbHcEOFYAg7WR6dVZLO/tHfprXd0SaAv4BeA7gB8AXgNoetl/5A/nBn5NHJtvXQAAAABJRU5ErkJggg==');
+                    audio.volume = 0.5;
+                    audio.play();
+                } catch(e) {
+                    console.log("Audio not supported");
+                }
                 
                 // Reduce health and increase punch count
                 const damage = Math.floor(Math.random() * 10) + 5; // Random damage between 5-15
@@ -338,7 +446,17 @@
                 // Reset punch effect and check for game over
                 setTimeout(function() {
                     punchEffect.style.display = 'none';
+                    document.querySelector('.character-container').classList.remove('punch-animation');
                     character.classList.remove('shake');
+                    character.classList.remove('character-damage');
+                    
+                    // Remove text effect
+                    if (textEffect && textEffect.parentNode) {
+                        textEffect.parentNode.removeChild(textEffect);
+                    }
+                    
+                    // Re-enable button
+                    punchBtn.disabled = false;
                     
                     if (health <= 0) {
                         setTimeout(function() {
@@ -346,7 +464,7 @@
                             gameOverModal.style.display = 'flex';
                         }, 500);
                     }
-                }, 300);
+                }, 400);
             });
             
             // Reset game
@@ -355,6 +473,28 @@
                 punchCount = 0;
                 updateStats();
                 gameOverModal.style.display = 'none';
+                
+                // Add celebration effects
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti-container';
+                document.body.appendChild(confetti);
+                
+                // Create confetti pieces
+                for (let i = 0; i < 50; i++) {
+                    const piece = document.createElement('div');
+                    piece.className = 'confetti-piece';
+                    piece.style.left = Math.random() * 100 + 'vw';
+                    piece.style.backgroundColor = ['#f00', '#0f0', '#00f', '#ff0', '#0ff', '#f0f'][Math.floor(Math.random() * 6)];
+                    piece.style.animationDelay = Math.random() * 3 + 's';
+                    confetti.appendChild(piece);
+                }
+                
+                // Remove confetti after animation
+                setTimeout(() => {
+                    if (confetti && confetti.parentNode) {
+                        confetti.parentNode.removeChild(confetti);
+                    }
+                }, 4000);
             });
             
             // Initialize the game
