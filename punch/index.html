@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Character Punching Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            padding: 1rem;
+        }
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .name-input {
+            display: flex;
+            margin-bottom: 1.5rem;
+            width: 100%;
+            max-width: 400px;
+            border-bottom: 2px solid #3182ce;
+            padding: 0.5rem 0;
+        }
+        input {
+            flex-grow: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-size: 1rem;
+            padding: 0.25rem 0.5rem;
+            margin-right: 0.75rem;
+        }
+        .set-name-btn {
+            background-color: #3182ce;
+            color: white;
+            border: none;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .set-name-btn:hover {
+            background-color: #2c5282;
+        }
+        .character-container {
+            position: relative;
+            width: 16rem;
+            height: 16rem;
+            margin-bottom: 1.5rem;
+        }
+        .character {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #fefcbf;
+            border-radius: 50%;
+            border: 4px solid #ecc94b;
+        }
+        .character-content {
+            text-align: center;
+        }
+        .character-emoji {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+        .character-name {
+            font-weight: bold;
+            font-size: 1.25rem;
+        }
+        .punch-effect {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+        .punch-effect-emoji {
+            font-size: 4rem;
+        }
+        .health-bar-container {
+            width: 100%;
+            max-width: 400px;
+            height: 1.5rem;
+            background-color: #cbd5e0;
+            border-radius: 9999px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+        .health-bar {
+            height: 100%;
+            background-color: #e53e3e;
+            border-radius: 9999px;
+            transition: width 0.3s ease-out;
+        }
+        .stats {
+            margin-bottom: 1.5rem;
+            font-weight: bold;
+        }
+        .punch-btn {
+            background-color: #e53e3e;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            font-size: 1.25rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .punch-btn:hover {
+            background-color: #c53030;
+        }
+        .punch-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+        .modal {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            text-align: center;
+        }
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        .modal-text {
+            margin-bottom: 1rem;
+        }
+        .play-again-btn {
+            background-color: #3182ce;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .play-again-btn:hover {
+            background-color: #2c5282;
+        }
+        .fist-container {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 5;
+            opacity: 0;
+        }
+        .fist {
+            position: absolute;
+            bottom: -50px;
+            right: -50px;
+            font-size: 3rem;
+            transform: rotate(45deg);
+        }
+        .punch-animation .fist-container {
+            animation: punch 0.4s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        .shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        .character-damage {
+            animation: damage 0.5s ease both;
+        }
+        @keyframes punch {
+            0% { 
+                opacity: 1;
+                transform: translate(50px, 50px) scale(0.8); 
+            }
+            50% { 
+                opacity: 1;
+                transform: translate(-10px, -10px) scale(1.2); 
+            }
+            100% { 
+                opacity: 0;
+                transform: translate(-30px, -30px) scale(1); 
+            }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-10px) rotate(-5deg); }
+            20%, 40%, 60%, 80% { transform: translateX(10px) rotate(5deg); }
+        }
+        @keyframes damage {
+            0% { filter: brightness(1); }
+            30% { filter: brightness(1.5) saturate(1.5); }
+            100% { filter: brightness(1); }
+        }
+    </style>
+</head>
+<body>
+    <h1>Character Punching Game</h1>
+    
+    <div class="name-input">
+        <input type="text" id="nameInput" placeholder="Enter character name">
+        <button id="setNameBtn" class="set-name-btn">Set Name</button>
+    </div>
+    
+    <div class="character-container">
+        <div id="character" class="character">
+            <div class="character-content">
+                <div id="characterEmoji" class="character-emoji">😀</div>
+                <div id="characterName" class="character-name">Punching Bag</div>
+            </div>
+        </div>
+        
+        <div id="punchEffect" class="punch-effect" style="display: none;">
+            <div id="punchEffectEmoji" class="punch-effect-emoji">💥</div>
+        </div>
+        
+        <div id="fistContainer" class="fist-container">
+            <div id="fist" class="fist">👊</div>
+        </div>
+    </div>
+    
+    <div class="health-bar-container">
+        <div id="healthBar" class="health-bar" style="width: 100%;"></div>
+    </div>
+    
+    <div id="stats" class="stats">
+        Health: 100/100 | Punches: 0
+    </div>
+    
+    <button id="punchBtn" class="punch-btn">PUNCH!</button>
+    
+    <div id="gameOverModal" class="modal-overlay" style="display: none;">
+        <div class="modal">
+            <h2 class="modal-title">K.O.!</h2>
+            <p id="gameOverText" class="modal-text">You defeated Punching Bag with 0 punches!</p>
+            <button id="playAgainBtn" class="play-again-btn">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM elements
+            const nameInput = document.getElementById('nameInput');
+            const setNameBtn = document.getElementById('setNameBtn');
+            const characterNameElement = document.getElementById('characterName');
+            const character = document.getElementById('character');
+            const punchEffect = document.getElementById('punchEffect');
+            const healthBar = document.getElementById('healthBar');
+            const stats = document.getElementById('stats');
+            const punchBtn = document.getElementById('punchBtn');
+            const gameOverModal = document.getElementById('gameOverModal');
+            const gameOverText = document.getElementById('gameOverText');
+            const playAgainBtn = document.getElementById('playAgainBtn');
+            
+            // Game state
+            let characterName = 'Punching Bag';
+            let health = 100;
+            let punchCount = 0;
+            
+            // Check URL parameters for name
+            function getURLParameters() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const nameParam = urlParams.get('name');
+                
+                if (nameParam) {
+                    // Replace hyphens with spaces
+                    const formattedName = nameParam.replace(/-/g, ' ');
+                    nameInput.value = formattedName;
+                    characterName = formattedName;
+                    characterNameElement.textContent = formattedName;
+                }
+            }
+            
+            // Initialize game
+            function init() {
+                getURLParameters();
+                updateStats();
+            }
+            
+            // Update health and punch stats
+            function updateStats() {
+                stats.textContent = `Health: ${health}/100 | Punches: ${punchCount}`;
+                healthBar.style.width = `${health}%`;
+            }
+            
+            // Set character name
+            setNameBtn.addEventListener('click', function() {
+                const newName = nameInput.value.trim();
+                if (newName) {
+                    characterName = newName;
+                    characterNameElement.textContent = newName;
+                    nameInput.value = '';
+                }
+            });
+            
+            // Press Enter to set name
+            nameInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    const newName = nameInput.value.trim();
+                    if (newName) {
+                        characterName = newName;
+                        characterNameElement.textContent = newName;
+                        nameInput.value = '';
+                    }
+                }
+            });
+            
+            // Punch character
+            punchBtn.addEventListener('click', function() {
+                if (health <= 0) return;
+                
+                // Show punch effect
+                punchEffect.style.display = 'flex';
+                character.classList.add('shake');
+                
+                // Reduce health and increase punch count
+                const damage = Math.floor(Math.random() * 10) + 5; // Random damage between 5-15
+                health = Math.max(0, health - damage);
+                punchCount++;
+                
+                // Update UI
+                updateStats();
+                
+                // Reset punch effect and check for game over
+                setTimeout(function() {
+                    punchEffect.style.display = 'none';
+                    character.classList.remove('shake');
+                    
+                    if (health <= 0) {
+                        setTimeout(function() {
+                            gameOverText.textContent = `You defeated ${characterName} with ${punchCount} punches!`;
+                            gameOverModal.style.display = 'flex';
+                        }, 500);
+                    }
+                }, 300);
+            });
+            
+            // Reset game
+            playAgainBtn.addEventListener('click', function() {
+                health = 100;
+                punchCount = 0;
+                updateStats();
+                gameOverModal.style.display = 'none';
+            });
+            
+            // Initialize the game
+            init();
+        });
+    </script>
+</body>
+</html>
