@@ -5,7 +5,7 @@
 
 ## List of Projects
 - [Punch 🥊](https://arkadeep.com/projects/punch) - Fustrated? Ok, Punch.
-- [Residency Progress ✨](https://arkadeep.com/projects/residency-progress) - Get to know how much of your 3-year residency is complete at a glance!
+- [Residency Progress ✨](https://arkadeep.com/projects/residency-progress) - Get to know how much of your 3-year residency is complete at a glance! And a better [granular](https://arkadeep.com/projects/residency-progress/granular.html) one created with feedbacks.
 - [How far am I?](https://arkadeep.com/projects/far) - An app that reminds you how far you are from somebody...
 - [Antarctic BP Tracker](https://arkadeep.com/projects/bp) - A **stress-free way** to track your BP, which in turn, helps lower your BP!
 - [Suddenly Stoic](https://arkadeep.com/projects/suddenly-stoic) - Read stoic quotes collected by [awesome-stoicism](https://github.com/DavidWells/awesome-stoicism/tree/master) and save your favorites for sudden stoic needs.
