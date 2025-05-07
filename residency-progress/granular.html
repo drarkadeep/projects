@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Degree Progress Tracker</title>
+    <style>
+        :root {
+            --primary: #6a0dad;
+            --primary-light: #9c4dcc;
+            --primary-dark: #38006b;
+            --white: #ffffff;
+            --light-gray: #f5f5f5;
+            --gray: #cccccc;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-gray);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            width: 100%;
+            box-sizing: border-box;
+            flex: 1;
+        }
+        
+        header {
+            background-color: var(--primary);
+            color: var(--white);
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+        
+        .form-container {
+            background-color: var(--white);
+            border-radius: 8px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--gray);
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(106, 13, 173, 0.2);
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: var(--white);
+            border: none;
+            border-radius: 4px;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+        }
+        
+        button:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .progress-container {
+            background-color: var(--white);
+            border-radius: 8px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            display: none;
+        }
+        
+        .progress-percentage {
+            font-size: 60px;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 10px 0;
+        }
+        
+        .digit-progress-container {
+            margin-top: 30px;
+        }
+        
+        .digit-progress {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        
+        .digit-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        .digit-label {
+            font-weight: 600;
+        }
+        
+        .remaining-time {
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background-color: var(--gray);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background-color: var(--primary);
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+        
+        footer {
+            background-color: var(--primary-dark);
+            color: var(--white);
+            text-align: center;
+            padding: 15px 0;
+            margin-top: 30px;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .form-container, .progress-container {
+                padding: 15px;
+            }
+            
+            .progress-percentage {
+                font-size: 50px;
+            }
+            
+            header h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Degree Progress Tracker</h1>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div id="setupForm" class="form-container">
+            <h2>Setup Your Degree Program</h2>
+            <div class="form-group">
+                <label for="startDate">Start Date:</label>
+                <input type="date" id="startDate" required>
+            </div>
+            <div class="form-group">
+                <label for="duration">Duration (in years):</label>
+                <input type="number" id="duration" min="0.5" step="0.5" placeholder="Enter duration (e.g., 3, 4, 5)" required>
+            </div>
+            <button id="saveBtn">Save & Start Tracking</button>
+        </div>
+        
+        <div id="progressTracker" class="progress-container">
+            <h2>Your Degree Progress</h2>
+            <div class="progress-percentage" id="progressPercentage">0.0000%</div>
+            
+            <div class="digit-progress-container">
+                <h3>Time Until Digit Change</h3>
+                
+                <div class="digit-progress">
+                    <div class="digit-info">
+                        <span class="digit-label">1st Digit (<span id="firstDigitTotal">-</span>)</span>
+                        <span class="remaining-time" id="firstDigitTime">-</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="firstDigitProgress" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <div class="digit-progress">
+                    <div class="digit-info">
+                        <span class="digit-label">2nd Digit (<span id="secondDigitTotal">-</span>)</span>
+                        <span class="remaining-time" id="secondDigitTime">-</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="secondDigitProgress" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <div class="digit-progress">
+                    <div class="digit-info">
+                        <span class="digit-label">1st Decimal (<span id="firstDecimalTotal">-</span>)</span>
+                        <span class="remaining-time" id="firstDecimalTime">-</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="firstDecimalProgress" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <div class="digit-progress">
+                    <div class="digit-info">
+                        <span class="digit-label">2nd Decimal (<span id="secondDecimalTotal">-</span>)</span>
+                        <span class="remaining-time" id="secondDecimalTime">-</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="secondDecimalProgress" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <div class="digit-progress">
+                    <div class="digit-info">
+                        <span class="digit-label">3rd Decimal (<span id="thirdDecimalTotal">-</span>)</span>
+                        <span class="remaining-time" id="thirdDecimalTime">-</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="thirdDecimalProgress" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <div class="digit-progress">
+                    <div class="digit-info">
+                        <span class="digit-label">4th Decimal (<span id="fourthDecimalTotal">-</span>)</span>
+                        <span class="remaining-time" id="fourthDecimalTime">-</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="fourthDecimalProgress" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="resetBtn" style="margin-top: 30px;">Reset</button>
+        </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <p>Created with ❤️ in <a href="https://arkadeep.com" style="color:white;text-decoration: none;font-weight: bold;">Antarctica</a></p>
+        </div>
+    </footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const setupForm = document.getElementById('setupForm');
+            const progressTracker = document.getElementById('progressTracker');
+            const saveBtn = document.getElementById('saveBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const startDateInput = document.getElementById('startDate');
+            const durationInput = document.getElementById('duration');
+            
+            // Check if we already have data in localStorage
+            const startDate = localStorage.getItem('degreeStartDate');
+            const duration = localStorage.getItem('degreeDuration');
+            
+            if (startDate && duration) {
+                // Data exists, show progress tracker
+                setupForm.style.display = 'none';
+                progressTracker.style.display = 'block';
+                updateProgress(startDate, duration);
+            } else {
+                // No data, show setup form
+                setupForm.style.display = 'block';
+                progressTracker.style.display = 'none';
+            }
+            
+            // Save button click handler
+            saveBtn.addEventListener('click', function() {
+                const startDate = startDateInput.value;
+                const duration = durationInput.value;
+                
+                if (!startDate || !duration) {
+                    alert('Please enter both start date and duration.');
+                    return;
+                }
+                
+                // Save to localStorage
+                localStorage.setItem('degreeStartDate', startDate);
+                localStorage.setItem('degreeDuration', duration);
+                
+                // Show progress tracker
+                setupForm.style.display = 'none';
+                progressTracker.style.display = 'block';
+                
+                // Update progress
+                updateProgress(startDate, duration);
+            });
+            
+            // Reset button click handler
+            resetBtn.addEventListener('click', function() {
+                // Clear localStorage
+                localStorage.removeItem('degreeStartDate');
+                localStorage.removeItem('degreeDuration');
+                
+                // Show setup form
+                setupForm.style.display = 'block';
+                progressTracker.style.display = 'none';
+            });
+            
+            // Function to update progress display
+            function updateProgress(startDate, duration) {
+                // Start continuous update
+                updateProgressDisplay();
+                
+                // Update every 100ms
+                setInterval(updateProgressDisplay, 100);
+                
+                function updateProgressDisplay() {
+                    const start = new Date(startDate);
+                    const durationMs = parseFloat(duration) * 365 * 24 * 60 * 60 * 1000; // Convert years to milliseconds
+                    const end = new Date(start.getTime() + durationMs);
+                    const now = new Date();
+                    
+                    // Calculate progress with higher precision
+                    const totalTime = end - start;
+                    const elapsedTime = now - start;
+                    let progress = (elapsedTime / totalTime) * 100;
+                    
+                    // Cap progress at 100%
+                    progress = Math.min(Math.max(progress, 0), 100);
+                    
+                    // Update main percentage display with more precision (6 decimal places)
+                    const progressElement = document.getElementById('progressPercentage');
+                    progressElement.textContent = progress.toFixed(6).slice(0,6) + '%';
+                    
+                    // Calculate time for each digit to change
+                    updateDigitProgress(progress, totalTime);
+                }
+            }
+            
+            // Function to update each digit's progress
+            function updateDigitProgress(progress, totalTime) {
+                const now = new Date();
+                
+                // Extract digits
+                const digits = {
+                    firstDigit: Math.floor(progress / 10),
+                    secondDigit: Math.floor(progress) % 10,
+                    firstDecimal: Math.floor(progress * 10) % 10,
+                    secondDecimal: Math.floor(progress * 100) % 10,
+                    thirdDecimal: Math.floor(progress * 1000) % 10,
+                    fourthDecimal: Math.floor(progress * 10000) % 10
+                };
+                
+                // Calculate time until change for each digit
+                updateDigitTimeAndProgress('firstDigit', digits.firstDigit, 10, progress, totalTime);
+                updateDigitTimeAndProgress('secondDigit', digits.secondDigit, 1, progress, totalTime);
+                updateDigitTimeAndProgress('firstDecimal', digits.firstDecimal, 0.1, progress, totalTime);
+                updateDigitTimeAndProgress('secondDecimal', digits.secondDecimal, 0.01, progress, totalTime);
+                updateDigitTimeAndProgress('thirdDecimal', digits.thirdDecimal, 0.001, progress, totalTime);
+                updateDigitTimeAndProgress('fourthDecimal', digits.fourthDecimal, 0.0001, progress, totalTime);
+            }
+            
+            // Function to update a specific digit's time and progress bar
+            function updateDigitTimeAndProgress(digitName, currentDigit, digitValue, progress, totalTime) {
+                // Calculate progress within this digit
+                const nextThreshold = Math.floor(progress / digitValue) * digitValue + digitValue;
+                const digitProgress = (progress % digitValue) / digitValue * 100;
+                
+                // Calculate time until next digit change
+                const timePercentLeft = 1 - (progress % digitValue) / digitValue;
+                const timeLeftMs = (timePercentLeft * digitValue / 100) * totalTime;
+                
+                // Update progress bar
+                const progressBar = document.getElementById(digitName + 'Progress');
+                progressBar.style.width = digitProgress + '%';
+                
+                // Update time display
+                const timeDisplay = document.getElementById(digitName + 'Time');
+                timeDisplay.textContent = formatTime(timeLeftMs, digitValue);
+                
+                // Calculate total time for this digit change
+                const totalTimeForDigit = (digitValue / 100) * totalTime;
+                const totalTimeElement = document.getElementById(digitName + 'Total');
+                if (totalTimeElement) {
+                    totalTimeElement.textContent = formatTime(totalTimeForDigit, digitValue);
+                }
+            }
+            
+            // Replace the formatTime function with this version:
+            function formatTime(ms, digitValue) {
+                if (ms <= 0) return '0s';
+                
+                const seconds = Math.floor(ms / 1000);
+                const minutes = Math.floor(seconds / 60);
+                const hours = Math.floor(minutes / 60);
+                const days = Math.floor(hours / 24);
+                
+                // For first 2 levels (first and second digit) - only show days and hours
+                if (days > 0 && digitValue >= 1) {
+                    return `${days}d ${hours % 24}h`;
+                } else if (hours > 0 && digitValue >= 1) {
+                    return `${hours}h`;
+                }
+                // For next 2 levels (first and second decimal) - don't show seconds
+                else if (days > 0 && digitValue >= 0.01) {
+                    return `${days}d ${hours % 24}h ${minutes % 60}m`;
+                } else if (hours > 0 && digitValue >= 0.01) {
+                    return `${hours}h ${minutes % 60}m`;
+                } else if (minutes > 0 && digitValue >= 0.01) {
+                    return `${minutes}m`;
+                }
+                // For last 2 levels - show all units
+                else if (days > 0) {
+                    return `${days}d ${hours % 24}h ${minutes % 60}m ${seconds % 60}s`;
+                } else if (hours > 0) {
+                    return `${hours}h ${minutes % 60}m ${seconds % 60}s`;
+                } else if (minutes > 0) {
+                    return `${minutes}m ${seconds % 60}s`;
+                } else {
+                    return `${seconds}s`;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+``` 
