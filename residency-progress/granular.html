@@ -362,7 +362,7 @@
                     
                     // Update main percentage display with more precision (6 decimal places)
                     const progressElement = document.getElementById('progressPercentage');
-                    progressElement.textContent = progress.toFixed(6).slice(0,6) + '%';
+                    progressElement.textContent = progress.toFixed(6).slice(0,7) + '%';
                     
                     // Calculate time for each digit to change
                     updateDigitProgress(progress, totalTime);
@@ -456,4 +456,3 @@
     </script>
 </body>
 </html>
-``` 
