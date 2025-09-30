@@ -4,6 +4,7 @@
 > Hosted - [Arkadeep.com](https://arkadeep.com/projects)
 
 ## List of Projects
+- [Demon Encoder](https://arkadeep.com/projects/demon) - à ẩąȧảȃã ẫãẳẫ ãḁâạäãầ ẫăàẫ âạḁắãầẫẩ ảȃàąḁ ẫãẳẫ ąḁẫạ ắàầąàḁẫẩ ạå “à” àḁä áàâȁ.
 - [Punch 🥊](https://arkadeep.com/projects/punch) - Fustrated? Ok, Punch.
 - [Residency Progress ✨](https://arkadeep.com/projects/residency-progress) - Get to know how much of your 3-year residency is complete at a glance! And a better [granular](https://arkadeep.com/projects/residency-progress/granular.html) one created with feedbacks.
 - [How far am I?](https://arkadeep.com/projects/far) - An app that reminds you how far you are from somebody...
