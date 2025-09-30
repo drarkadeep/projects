@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>A-Variants Text Encoder</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #f0f4ff, #fdfbff);
+      font-family: system-ui, sans-serif;
+      color: #222;
+    }
+    .container {
+      width: 90%;
+      max-width: 720px;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    h1 {
+      font-size: 1.4rem;
+      text-align: center;
+      margin: 0 0 1rem;
+      color: #333;
+    }
+    textarea {
+      width: 100%;
+      min-height: 140px;
+      padding: 0.8rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      resize: vertical;
+      box-sizing: border-box;
+    }
+    .buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.7rem;
+    }
+    button {
+      padding: 0.8rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+      color: #fff;
+    }
+    button.convert { background: #4a90e2; }
+    button.convert:hover { background: #357acb; }
+
+    button.reverse { background: #50b572; }
+    button.reverse:hover { background: #3d945b; }
+
+    button.copy { background: #f39c12; }
+    button.copy:hover { background: #d98200; }
+
+    button.clear { background: #e74c3c; }
+    button.clear:hover { background: #c0392b; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Demon Encoder</h1>
+
+    <textarea id="source" placeholder="Type here..."></textarea>
+ <div class="buttons">
+      <button class="convert" id="convert">Encode</button>
+      <button class="reverse" id="reverse">Decode</button>
+      <button class="copy" id="copy">Copy</button>
+      <button class="clear" id="clear">Clear</button>
+    </div>
+    <textarea id="result" placeholder="Result will appear here..." readonly></textarea>
+
+   
+  </div>
+
+  <script>
+    // 26 lowercase "a" variants (excluding plain 'a')
+    const variants = [
+      "à","á","â","ä","ã","å","ā","ă","ą","ǎ",
+      "ȁ","ȃ","ȧ","ḁ","ạ","ả","ấ","ầ","ẩ","ẫ",
+      "ậ","ắ","ằ","ẳ","ẵ","ặ"
+    ];
+
+    // Mapping A–Z <-> variants
+    const letters = Array.from({length:26}, (_,i)=>String.fromCharCode(65+i));
+    const encodeMap = {};
+    const decodeMap = {};
+    letters.forEach((L,i)=> {
+      encodeMap[L] = variants[i];
+      decodeMap[variants[i]] = L;
+    });
+
+    const src = document.getElementById("source");
+    const res = document.getElementById("result");
+
+    // Convert A–Z → variants
+    document.getElementById("convert").onclick = () => {
+      let input = src.value.toUpperCase();
+      let out = "";
+      for (let ch of input) {
+        if (encodeMap[ch]) out += encodeMap[ch];
+        else out += ch; // keep non A-Z unchanged
+      }
+      res.value = out;
+    };
+
+    // Reverse: variants → A–Z
+    document.getElementById("reverse").onclick = () => {
+      let input = src.value;
+      let out = "";
+      for (let ch of input) {
+        if (decodeMap[ch]) out += decodeMap[ch];
+        else out += ch;
+      }
+      res.value = out;
+    };
+
+    // Copy result
+    document.getElementById("copy").onclick = async () => {
+      if (!res.value) return;
+      try {
+        await navigator.clipboard.writeText(res.value);
+        alert("Copied to clipboard!");
+      } catch(e) {
+        alert("Copy failed.");
+      }
+    };
+
+    // Clear both boxes
+    document.getElementById("clear").onclick = () => {
+      src.value = "";
+      res.value = "";
+    };
+  </script>
+</body>
+</html>
