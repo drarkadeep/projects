@@ -185,23 +185,24 @@
               u: ["ù","ú","û","ü","ũ","ū","ŭ","ů","ű","ų","ǔ","ȕ","ȗ","ʉ","ǖ","ǘ","ǚ","ǜ","ụ","ủ","ứ","ừ","ử","ữ","ự","ū́"]
             };
             
+            
             // Settings
             let selectedVowel = 'a';
             let maniacMode = false;
             
             // Build encode/decode maps
             function buildMaps(vowel) {
-              const variants = vowelVariants[vowel];
-              const letters = Array.from({length:26}, (_,i)=>String.fromCharCode(65+i));
-              const encodeMap = {};
-              const decodeMap = {};
-              
-              letters.forEach((L,i)=> {
-                encodeMap[L] = variants[i];
-                decodeMap[variants[i]] = L;
-              });
-              
-              return { encodeMap, decodeMap };
+            const variants = vowelVariants[vowel];
+            const letters = Array.from({length:26}, (_,i)=>String.fromCharCode(65+i));
+            const encodeMap = {};
+            const decodeMap = {};
+            
+            letters.forEach((L,i)=> {
+            encodeMap[L] = variants[i];
+            decodeMap[variants[i]] = L;
+            });
+            
+            return { encodeMap, decodeMap };
             }
             
             let maps = buildMaps(selectedVowel);
@@ -214,105 +215,140 @@
             
             // Detect if text is encoded or plain
             function isEncoded(text) {
-              const allVariants = Object.values(vowelVariants).flat();
-              for (let ch of text) {
-                if (allVariants.includes(ch)) return true;
-              }
-              return false;
+            const allVariants = Object.values(vowelVariants).flat();
+            for (let ch of text) {
+            if (allVariants.includes(ch)) return true;
+            }
+            return false;
+            }
+            
+            // Check if text starts with a vowel marker (auto-detect maniac mode)
+            function hasManiacMarker(text) {
+            if (!text || text.length === 0) return false;
+            const firstChar = text[0].toLowerCase();
+            return ['a', 'e', 'i', 'o', 'u'].includes(firstChar);
             }
             
             // Convert function with auto-detect
             document.getElementById("convert").onclick = () => {
-              let input = src.value;
-              if (!input) return;
+            let input = src.value;
+            if (!input) return;
             
-              let output;
-              if (isEncoded(input)) {
-                // Decode
-                output = decode(input);
-              } else {
-                // Encode
-                output = encode(input);
-              }
-              res.value = output;
+            let output;
+            if (isEncoded(input)) {
+            // Decode
+            output = decode(input);
+            } else {
+            // Encode
+            output = encode(input);
+            }
+            res.value = output;
             };
             
             function encode(text) {
-              if (maniacMode) {
-                // Remove punctuation (keep only alphanumeric and spaces/newlines)
-                text = text.replace(/[^\w\s\n]/g, '');
-                // Replace line breaks with double vowel
-                text = text.replace(/\n/g, selectedVowel + selectedVowel);
-                // Replace spaces with vowel
-                text = text.replace(/ /g, selectedVowel);
-              }
-              
-              text = text.toUpperCase();
-              let out = "";
-              for (let ch of text) {
-                if (maps.encodeMap[ch]) out += maps.encodeMap[ch];
-                else out += ch;
-              }
-              return out;
+            let processedText = text;
+            
+            // First encode normally
+            processedText = processedText.toUpperCase();
+            let encoded = "";
+            for (let ch of processedText) {
+            if (maps.encodeMap[ch]) encoded += maps.encodeMap[ch];
+            else encoded += ch;
+            }
+            
+            // Then apply maniac mode transformations if enabled
+            if (maniacMode) {
+            // Remove punctuation (keep only alphanumeric and spaces/newlines)
+            encoded = encoded.replace(/[^\w\s\n]/g, '');
+            // Replace line breaks with double vowel
+            const encodedVowel = maps.encodeMap[selectedVowel.toUpperCase()];
+            encoded = encoded.replace(/\n/g, encodedVowel + encodedVowel);
+            // Replace spaces with single vowel
+            encoded = encoded.replace(/ /g, encodedVowel);
+            // Add vowel marker at the front
+            encoded = selectedVowel + encoded;
+            }
+            
+            return encoded;
             }
             
             function decode(text) {
-              let out = "";
-              for (let ch of text) {
-                if (maps.decodeMap[ch]) out += maps.decodeMap[ch];
-                else out += ch;
-              }
-              
-              if (maniacMode) {
-                const doubleVowel = selectedVowel.toUpperCase() + selectedVowel.toUpperCase();
-                const singleVowel = selectedVowel.toUpperCase();
-                // Replace double vowel with line break
-                out = out.split(doubleVowel).join('\n');
-                // Replace single vowel with space
-                out = out.split(singleVowel).join(' ');
-              }
-              
-              return out;
+            let processedText = text;
+            let wasManiacMode = false;
+            
+            // Check if maniac mode was used (vowel at front)
+            if (hasManiacMarker(text)) {
+            wasManiacMode = true;
+            // Extract the vowel marker from front
+            const markerVowel = text[0].toLowerCase();
+            // Remove the marker
+            processedText = text.substring(1);
+            
+            // Get the encoded form of the vowel that was used
+            const tempMaps = buildMaps(markerVowel);
+            const encodedVowel = tempMaps.encodeMap[markerVowel.toUpperCase()];
+            const doubleEncodedVowel = encodedVowel + encodedVowel;
+            
+            // Replace double vowel with newline placeholder
+            processedText = processedText.split(doubleEncodedVowel).join('\x00NEWLINE\x00');
+            // Replace single vowel with space placeholder
+            processedText = processedText.split(encodedVowel).join('\x00SPACE\x00');
+            }
+            
+            // Now decode normally
+            let decoded = "";
+            for (let ch of processedText) {
+            if (maps.decodeMap[ch]) decoded += maps.decodeMap[ch];
+            else decoded += ch;
+            }
+            
+            // If maniac mode was used, restore spaces and newlines
+            if (wasManiacMode) {
+            decoded = decoded.replace(/\x00NEWLINE\x00/g, '\n');
+            decoded = decoded.replace(/\x00SPACE\x00/g, ' ');
+            }
+            
+            return decoded;
             }
             
             // Settings modal
             document.getElementById("settingsBtn").onclick = () => {
-              modal.classList.add("show");
+            modal.classList.add("show");
             };
             
             document.getElementById("cancelSettings").onclick = () => {
-              modal.classList.remove("show");
+            modal.classList.remove("show");
             };
             
             document.getElementById("saveSettings").onclick = () => {
-              selectedVowel = vowelSelect.value;
-              maniacMode = maniacModeCheckbox.checked;
-              maps = buildMaps(selectedVowel);
-              modal.classList.remove("show");
+            selectedVowel = vowelSelect.value;
+            maniacMode = maniacModeCheckbox.checked;
+            maps = buildMaps(selectedVowel);
+            modal.classList.remove("show");
             };
             
             // Close modal on background click
             modal.onclick = (e) => {
-              if (e.target === modal) {
-                modal.classList.remove("show");
-              }
+            if (e.target === modal) {
+            modal.classList.remove("show");
+            }
             };
             
             // Copy result
             document.getElementById("copy").onclick = async () => {
-              if (!res.value) return;
-              try {
-                await navigator.clipboard.writeText(res.value);
-                alert("Copied to clipboard!");
-              } catch(e) {
-                alert("Copy failed.");
-              }
+            if (!res.value) return;
+            try {
+            await navigator.clipboard.writeText(res.value);
+            alert("Copied to clipboard!");
+            } catch(e) {
+            alert("Copy failed.");
+            }
             };
             
             // Clear both boxes
             document.getElementById("clear").onclick = () => {
-              src.value = "";
-              res.value = "";
+            src.value = "";
+            res.value = "";
             };
         </script>
     </body>
