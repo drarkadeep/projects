@@ -1,341 +1,319 @@
 <!doctype html>
-
 <html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Demon Encoder</title>
-  <style>
-    body {
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: linear-gradient(135deg, #f0f4ff, #fdfbff);
-      font-family: system-ui, sans-serif;
-      color: #222;
-    }
-    .container {
-      width: 90%;
-      max-width: 720px;
-      background: #fff;
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-    h1 {
-      font-size: 1.4rem;
-      text-align: center;
-      margin: 0 0 1rem;
-      color: #333;
-    }
-    textarea {
-      width: 100%;
-      min-height: 140px;
-      padding: 0.8rem;
-      font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      resize: vertical;
-      box-sizing: border-box;
-    }
-    .buttons {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.7rem;
-    }
-    button {
-      padding: 0.8rem;
-      font-size: 1rem;
-      font-weight: 600;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.2s;
-      color: #fff;
-    }
-    button.convert { background: #4a90e2; }
-    button.convert:hover { background: #357acb; }
-
-```
-button.settings { background: #9b59b6; }
-button.settings:hover { background: #8e44ad; }
-
-button.copy { background: #f39c12; }
-button.copy:hover { background: #d98200; }
-
-button.clear { background: #e74c3c; }
-button.clear:hover { background: #c0392b; }
-
-/* Modal styles */
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.5);
-  justify-content: center;
-  align-items: center;
-}
-.modal.show {
-  display: flex;
-}
-.modal-content {
-  background: #fff;
-  padding: 2rem;
-  border-radius: 12px;
-  width: 90%;
-  max-width: 500px;
-  max-height: 80vh;
-  overflow-y: auto;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-}
-.modal-content h2 {
-  margin: 0 0 1.5rem;
-  color: #333;
-  font-size: 1.3rem;
-}
-.setting-group {
-  margin-bottom: 1.5rem;
-}
-.setting-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-  color: #555;
-}
-.setting-group select {
-  width: 100%;
-  padding: 0.6rem;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  box-sizing: border-box;
-}
-.checkbox-group {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-.checkbox-group input[type="checkbox"] {
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-}
-.modal-buttons {
-  display: flex;
-  gap: 0.7rem;
-  margin-top: 1.5rem;
-}
-.modal-buttons button {
-  flex: 1;
-}
-button.save { background: #27ae60; }
-button.save:hover { background: #229954; }
-button.cancel { background: #95a5a6; }
-button.cancel:hover { background: #7f8c8d; }
-```
-
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>Demon Encoder</h1>
-
-```
-<textarea id="source" placeholder="Type here..."></textarea>
-<div class="buttons">
-  <button class="convert" id="convert">Convert</button>
-  <button class="settings" id="settingsBtn">Settings</button>
-  <button class="copy" id="copy">Copy</button>
-  <button class="clear" id="clear">Clear</button>
-</div>
-<textarea id="result" placeholder="Result will appear here..." readonly></textarea>
-```
-
-  </div>
-
-  <!-- Settings Modal -->
-
-  <div class="modal" id="modal">
-    <div class="modal-content">
-      <h2>Settings</h2>
-
-```
-  <div class="setting-group">
-    <label for="vowelSelect">Select Vowel:</label>
-    <select id="vowelSelect">
-      <option value="a">a</option>
-      <option value="e">e</option>
-      <option value="i">i</option>
-      <option value="o">o</option>
-      <option value="u">u</option>
-    </select>
-  </div>
-
-  <div class="setting-group">
-    <div class="checkbox-group">
-      <input type="checkbox" id="maniacMode" />
-      <label for="maniacMode" style="margin: 0;">Maniac Mode</label>
-    </div>
-  </div>
-
-  <div class="modal-buttons">
-    <button class="save" id="saveSettings">Save</button>
-    <button class="cancel" id="cancelSettings">Cancel</button>
-  </div>
-</div>
-```
-
-  </div>
-
-  <script>
-    // Vowel variant sequences
-    const vowelVariants = {
-      a: ["à","á","â","ä","ã","å","ā","ă","ą","ǎ","ȁ","ȃ","ȧ","ḁ","ạ","ả","ấ","ầ","ẩ","ẫ","ậ","ắ","ằ","ẳ","ẵ","ặ"],
-      e: ["è","é","ê","ë","ē","ĕ","ė","ę","ě","ȅ","ȇ","ȩ","ḕ","ḗ","ḙ","ḛ","ẹ","ẻ","ẽ","ế","ề","ẻ̆","é̆","è̆","ĕ̉","ĕ̃"],
-      i: ["ì","í","î","ï","ĩ","ī","ĭ","į","ǐ","ȉ","ȋ","ı","ị","ỉ","ᶖ","ȉ","ȋ","ỉ","ĩ","ĩ","í̆","ì̆","ĭ̉","ĭ̃","ị̆","ī́"],
-      o: ["ò","ó","ô","õ","ö","ø","ō","ŏ","ő","ǒ","ȍ","ȏ","ȯ","ǫ","ǭ","ǿ","ọ","ỏ","ố","ồ","ổ","ỗ","ộ","ớ","ờ","ở"],
-      u: ["ù","ú","û","ü","ũ","ū","ŭ","ů","ű","ų","ǔ","ȕ","ȗ","ʉ","ǖ","ǘ","ǚ","ǜ","ụ","ủ","ứ","ừ","ử","ữ","ự","ū́"]
-    };
-
-    // Settings
-    let selectedVowel = 'a';
-    let maniacMode = false;
-
-    // Build encode/decode maps
-    function buildMaps(vowel) {
-      const variants = vowelVariants[vowel];
-      const letters = Array.from({length:26}, (_,i)=>String.fromCharCode(65+i));
-      const encodeMap = {};
-      const decodeMap = {};
-      
-      letters.forEach((L,i)=> {
-        encodeMap[L] = variants[i];
-        decodeMap[variants[i]] = L;
-      });
-      
-      return { encodeMap, decodeMap };
-    }
-
-    let maps = buildMaps(selectedVowel);
-
-    const src = document.getElementById("source");
-    const res = document.getElementById("result");
-    const modal = document.getElementById("modal");
-    const vowelSelect = document.getElementById("vowelSelect");
-    const maniacModeCheckbox = document.getElementById("maniacMode");
-
-    // Detect if text is encoded or plain
-    function isEncoded(text) {
-      const allVariants = Object.values(vowelVariants).flat();
-      for (let ch of text) {
-        if (allVariants.includes(ch)) return true;
-      }
-      return false;
-    }
-
-    // Convert function with auto-detect
-    document.getElementById("convert").onclick = () => {
-      let input = src.value;
-      if (!input) return;
-
-      let output;
-      if (isEncoded(input)) {
-        // Decode
-        output = decode(input);
-      } else {
-        // Encode
-        output = encode(input);
-      }
-      res.value = output;
-    };
-
-    function encode(text) {
-      if (maniacMode) {
-        // Remove punctuation (keep only alphanumeric and spaces/newlines)
-        text = text.replace(/[^\w\s\n]/g, '');
-        // Replace line breaks with double vowel
-        text = text.replace(/\n/g, selectedVowel + selectedVowel);
-        // Replace spaces with vowel
-        text = text.replace(/ /g, selectedVowel);
-      }
-      
-      text = text.toUpperCase();
-      let out = "";
-      for (let ch of text) {
-        if (maps.encodeMap[ch]) out += maps.encodeMap[ch];
-        else out += ch;
-      }
-      return out;
-    }
-
-    function decode(text) {
-      let out = "";
-      for (let ch of text) {
-        if (maps.decodeMap[ch]) out += maps.decodeMap[ch];
-        else out += ch;
-      }
-      
-      if (maniacMode) {
-        const doubleVowel = selectedVowel.toUpperCase() + selectedVowel.toUpperCase();
-        const singleVowel = selectedVowel.toUpperCase();
-        // Replace double vowel with line break
-        out = out.split(doubleVowel).join('\n');
-        // Replace single vowel with space
-        out = out.split(singleVowel).join(' ');
-      }
-      
-      return out;
-    }
-
-    // Settings modal
-    document.getElementById("settingsBtn").onclick = () => {
-      modal.classList.add("show");
-    };
-
-    document.getElementById("cancelSettings").onclick = () => {
-      modal.classList.remove("show");
-    };
-
-    document.getElementById("saveSettings").onclick = () => {
-      selectedVowel = vowelSelect.value;
-      maniacMode = maniacModeCheckbox.checked;
-      maps = buildMaps(selectedVowel);
-      modal.classList.remove("show");
-    };
-
-    // Close modal on background click
-    modal.onclick = (e) => {
-      if (e.target === modal) {
-        modal.classList.remove("show");
-      }
-    };
-
-    // Copy result
-    document.getElementById("copy").onclick = async () => {
-      if (!res.value) return;
-      try {
-        await navigator.clipboard.writeText(res.value);
-        alert("Copied to clipboard!");
-      } catch(e) {
-        alert("Copy failed.");
-      }
-    };
-
-    // Clear both boxes
-    document.getElementById("clear").onclick = () => {
-      src.value = "";
-      res.value = "";
-    };
-  </script>
-
-</body>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>Demon Encoder</title>
+        <style>
+            body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #f0f4ff, #fdfbff);
+            font-family: system-ui, sans-serif;
+            color: #222;
+            }
+            .container {
+            width: 90%;
+            max-width: 720px;
+            background: #fff;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            }
+            h1 {
+            font-size: 1.4rem;
+            text-align: center;
+            margin: 0 0 1rem;
+            color: #333;
+            }
+            textarea {
+            width: 100%;
+            min-height: 140px;
+            padding: 0.8rem;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            resize: vertical;
+            box-sizing: border-box;
+            }
+            .buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.7rem;
+            }
+            button {
+            padding: 0.8rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            color: #fff;
+            }
+            button.convert { background: #4a90e2; }
+            button.convert:hover { background: #357acb; }
+            button.settings { background: #9b59b6; }
+            button.settings:hover { background: #8e44ad; }
+            button.copy { background: #f39c12; }
+            button.copy:hover { background: #d98200; }
+            button.clear { background: #e74c3c; }
+            button.clear:hover { background: #c0392b; }
+            /* Modal styles */
+            .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            }
+            .modal.show {
+            display: flex;
+            }
+            .modal-content {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            }
+            .modal-content h2 {
+            margin: 0 0 1.5rem;
+            color: #333;
+            font-size: 1.3rem;
+            }
+            .setting-group {
+            margin-bottom: 1.5rem;
+            }
+            .setting-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #555;
+            }
+            .setting-group select {
+            width: 100%;
+            padding: 0.6rem;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+            }
+            .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            }
+            .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            }
+            .modal-buttons {
+            display: flex;
+            gap: 0.7rem;
+            margin-top: 1.5rem;
+            }
+            .modal-buttons button {
+            flex: 1;
+            }
+            button.save { background: #27ae60; }
+            button.save:hover { background: #229954; }
+            button.cancel { background: #95a5a6; }
+            button.cancel:hover { background: #7f8c8d; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Demon Encoder</h1>
+            <textarea id="source" placeholder="Type here..."></textarea>
+            <div class="buttons">
+                <button class="convert" id="convert">Convert</button>
+                <button class="settings" id="settingsBtn">Settings</button>
+                <button class="copy" id="copy">Copy</button>
+                <button class="clear" id="clear">Clear</button>
+            </div>
+            <textarea id="result" placeholder="Result will appear here..." readonly></textarea>
+        </div>
+        <!-- Settings Modal -->
+        <div class="modal" id="modal">
+            <div class="modal-content">
+                <h2>Settings</h2>
+                <div class="setting-group">
+                    <label for="vowelSelect">Select Vowel:</label>
+                    <select id="vowelSelect">
+                        <option value="a">a</option>
+                        <option value="e">e</option>
+                        <option value="i">i</option>
+                        <option value="o">o</option>
+                        <option value="u">u</option>
+                    </select>
+                </div>
+                <div class="setting-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="maniacMode" />
+                        <label for="maniacMode" style="margin: 0;">Maniac Mode</label>
+                    </div>
+                </div>
+                <div class="modal-buttons">
+                    <button class="save" id="saveSettings">Save</button>
+                    <button class="cancel" id="cancelSettings">Cancel</button>
+                </div>
+            </div>
+        </div>
+        <script>
+            // Vowel variant sequences
+            const vowelVariants = {
+              a: ["à","á","â","ä","ã","å","ā","ă","ą","ǎ","ȁ","ȃ","ȧ","ḁ","ạ","ả","ấ","ầ","ẩ","ẫ","ậ","ắ","ằ","ẳ","ẵ","ặ"],
+              e: ["è","é","ê","ë","ē","ĕ","ė","ę","ě","ȅ","ȇ","ȩ","ḕ","ḗ","ḙ","ḛ","ẹ","ẻ","ẽ","ế","ề","ẻ̆","é̆","è̆","ĕ̉","ĕ̃"],
+              i: ["ì","í","î","ï","ĩ","ī","ĭ","į","ǐ","ȉ","ȋ","ı","ị","ỉ","ᶖ","ȉ","ȋ","ỉ","ĩ","ĩ","í̆","ì̆","ĭ̉","ĭ̃","ị̆","ī́"],
+              o: ["ò","ó","ô","õ","ö","ø","ō","ŏ","ő","ǒ","ȍ","ȏ","ȯ","ǫ","ǭ","ǿ","ọ","ỏ","ố","ồ","ổ","ỗ","ộ","ớ","ờ","ở"],
+              u: ["ù","ú","û","ü","ũ","ū","ŭ","ů","ű","ų","ǔ","ȕ","ȗ","ʉ","ǖ","ǘ","ǚ","ǜ","ụ","ủ","ứ","ừ","ử","ữ","ự","ū́"]
+            };
+            
+            // Settings
+            let selectedVowel = 'a';
+            let maniacMode = false;
+            
+            // Build encode/decode maps
+            function buildMaps(vowel) {
+              const variants = vowelVariants[vowel];
+              const letters = Array.from({length:26}, (_,i)=>String.fromCharCode(65+i));
+              const encodeMap = {};
+              const decodeMap = {};
+              
+              letters.forEach((L,i)=> {
+                encodeMap[L] = variants[i];
+                decodeMap[variants[i]] = L;
+              });
+              
+              return { encodeMap, decodeMap };
+            }
+            
+            let maps = buildMaps(selectedVowel);
+            
+            const src = document.getElementById("source");
+            const res = document.getElementById("result");
+            const modal = document.getElementById("modal");
+            const vowelSelect = document.getElementById("vowelSelect");
+            const maniacModeCheckbox = document.getElementById("maniacMode");
+            
+            // Detect if text is encoded or plain
+            function isEncoded(text) {
+              const allVariants = Object.values(vowelVariants).flat();
+              for (let ch of text) {
+                if (allVariants.includes(ch)) return true;
+              }
+              return false;
+            }
+            
+            // Convert function with auto-detect
+            document.getElementById("convert").onclick = () => {
+              let input = src.value;
+              if (!input) return;
+            
+              let output;
+              if (isEncoded(input)) {
+                // Decode
+                output = decode(input);
+              } else {
+                // Encode
+                output = encode(input);
+              }
+              res.value = output;
+            };
+            
+            function encode(text) {
+              if (maniacMode) {
+                // Remove punctuation (keep only alphanumeric and spaces/newlines)
+                text = text.replace(/[^\w\s\n]/g, '');
+                // Replace line breaks with double vowel
+                text = text.replace(/\n/g, selectedVowel + selectedVowel);
+                // Replace spaces with vowel
+                text = text.replace(/ /g, selectedVowel);
+              }
+              
+              text = text.toUpperCase();
+              let out = "";
+              for (let ch of text) {
+                if (maps.encodeMap[ch]) out += maps.encodeMap[ch];
+                else out += ch;
+              }
+              return out;
+            }
+            
+            function decode(text) {
+              let out = "";
+              for (let ch of text) {
+                if (maps.decodeMap[ch]) out += maps.decodeMap[ch];
+                else out += ch;
+              }
+              
+              if (maniacMode) {
+                const doubleVowel = selectedVowel.toUpperCase() + selectedVowel.toUpperCase();
+                const singleVowel = selectedVowel.toUpperCase();
+                // Replace double vowel with line break
+                out = out.split(doubleVowel).join('\n');
+                // Replace single vowel with space
+                out = out.split(singleVowel).join(' ');
+              }
+              
+              return out;
+            }
+            
+            // Settings modal
+            document.getElementById("settingsBtn").onclick = () => {
+              modal.classList.add("show");
+            };
+            
+            document.getElementById("cancelSettings").onclick = () => {
+              modal.classList.remove("show");
+            };
+            
+            document.getElementById("saveSettings").onclick = () => {
+              selectedVowel = vowelSelect.value;
+              maniacMode = maniacModeCheckbox.checked;
+              maps = buildMaps(selectedVowel);
+              modal.classList.remove("show");
+            };
+            
+            // Close modal on background click
+            modal.onclick = (e) => {
+              if (e.target === modal) {
+                modal.classList.remove("show");
+              }
+            };
+            
+            // Copy result
+            document.getElementById("copy").onclick = async () => {
+              if (!res.value) return;
+              try {
+                await navigator.clipboard.writeText(res.value);
+                alert("Copied to clipboard!");
+              } catch(e) {
+                alert("Copy failed.");
+              }
+            };
+            
+            // Clear both boxes
+            document.getElementById("clear").onclick = () => {
+              src.value = "";
+              res.value = "";
+            };
+        </script>
+    </body>
 </html>
