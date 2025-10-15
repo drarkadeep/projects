@@ -1,0 +1,244 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Dodge Blocks — Tiny Game with Supabase Leaderboard</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto;}
+    .wrap{display:flex;gap:20px;padding:16px;max-width:980px;margin:0 auto;}
+    .game {flex: 1; background:#121212;color:#fff;border-radius:8px;padding:12px; min-width:320px;}
+    canvas{width:100%;height:360px;background:#0e0e0e;border-radius:6px;display:block;}
+    .hud{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+    button{padding:8px 12px;border-radius:6px;border:none;background:#1f8ceb;color:white;cursor:pointer}
+    .side{width:320px;}
+    input,select{width:100%;padding:8px;margin:6px 0;border-radius:6px;border:1px solid #ddd}
+    ul{padding-left:18px;margin:4px 0}
+    .leaderboard{background:#fff;border-radius:8px;padding:12px;color:#111}
+    .lb-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #eee}
+    .small{font-size:12px;color:#666}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="game">
+      <h2>Dodge Blocks</h2>
+      <canvas id="c" width="600" height="360"></canvas>
+      <div class="hud">
+        <div>Score: <span id="score">0</span></div>
+        <div>
+          <button id="startBtn">Start</button>
+          <button id="jumpBtn">Jump</button>
+        </div>
+      </div>
+      <p class="small">Tap/click Jump or press Space. Survive as long as possible. When you die, submit your score.</p>
+    </div>
+
+    <div class="side">
+      <div class="leaderboard">
+        <h3>Leaderboard</h3>
+        <div id="lb">
+          <div class="small">Loading...</div>
+        </div>
+
+        <hr>
+        <div>
+          <label>Your name</label>
+          <input id="name" placeholder="Player" maxlength="20" />
+          <label>Submit Score</label>
+          <input id="manualScore" type="number" placeholder="score" />
+          <button id="submitBtn">Submit Score</button>
+        </div>
+
+        <hr>
+        <div class="small">Realtime: new scores appear instantly.</div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    // --- CONFIG: replace these with your Supabase values ---
+    const SUPABASE_URL = 'https://fhjrjxjrywibpvtdzmqe.supabase.co'; // e.g. https://xyz.supabase.co
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZoanJqeGpyeXdpYnB2dGR6bXFlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA1MTg5NDYsImV4cCI6MjA3NjA5NDk0Nn0.heMcktDLWnDXLGItXfa7f6Eiem4mehwPeFnIQzV8MAM';
+
+    // --- Import Supabase client from esm.sh CDN ---
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // --- Simple game logic (minimal) ---
+    const canvas = document.getElementById('c');
+    const ctx = canvas.getContext('2d');
+    const scoreEl = document.getElementById('score');
+    const startBtn = document.getElementById('startBtn');
+    const jumpBtn = document.getElementById('jumpBtn');
+    const submitBtn = document.getElementById('submitBtn');
+    const nameInput = document.getElementById('name');
+    const manualScore = document.getElementById('manualScore');
+    const lbEl = document.getElementById('lb');
+
+    let w = canvas.width, h = canvas.height;
+    let running = false, score = 0, player, obstacles, gravity = 0.7, tick=0;
+
+    function resetGame(){
+      player = {x:60, y:h-50, vy:0, w:32, h:32, grounded:true};
+      obstacles = [];
+      score = 0; tick = 0;
+      updateScore();
+    }
+
+    function startGame(){
+      running = true;
+      resetGame();
+      loop();
+    }
+
+    function endGame(){
+      running = false;
+      // show submit UI
+      const name = nameInput.value.trim() || 'Anon';
+      // pop up quick submit
+      if (confirm(`Game over! Score: ${Math.floor(score)}. Submit to leaderboard?`)) {
+        submitScore(name, Math.floor(score)).catch(e=>console.error(e));
+      }
+    }
+
+    function updateScore(){ scoreEl.textContent = Math.floor(score); }
+
+    function loop(){
+      if(!running) return;
+      tick++;
+      ctx.clearRect(0,0,w,h);
+      // ground
+      ctx.fillStyle='#222';
+      ctx.fillRect(0,h-30,w,30);
+
+      // player physics
+      player.vy += gravity;
+      player.y += player.vy;
+      if (player.y + player.h > h-30){ player.y = h-30 - player.h; player.vy=0; player.grounded = true; }
+
+      // spawn obstacles
+      if (tick % Math.max(30, 80 - Math.floor(score/5)) === 0){
+        obstacles.push({x:w, y:h-30-24, w:24, h:24, speed:4 + score*0.02});
+      }
+
+      // move & draw obstacles
+      ctx.fillStyle = '#ff6b6b';
+      for (let i = obstacles.length-1; i>=0; i--){
+        const ob = obstacles[i];
+        ob.x -= ob.speed;
+        ctx.fillRect(ob.x, ob.y, ob.w, ob.h);
+        // collision
+        if (ob.x < player.x + player.w && ob.x + ob.w > player.x &&
+            ob.y < player.y + player.h && ob.y + ob.h > player.y){
+          endGame();
+          return;
+        }
+        if (ob.x + ob.w < 0) obstacles.splice(i,1);
+      }
+
+      // draw player
+      ctx.fillStyle = '#60b5ff';
+      ctx.fillRect(player.x, player.y, player.w, player.h);
+
+      // update score
+      score += 0.1;
+      updateScore();
+
+      requestAnimationFrame(loop);
+    }
+
+    // controls
+    window.addEventListener('keydown', e=>{
+      if (e.code === 'Space') jump();
+      if (e.code === 'Enter' && !running) startGame();
+    });
+    jumpBtn.onclick = jump;
+    startBtn.onclick = ()=>{ if(!running) startGame(); };
+
+    function jump(){
+      if (!running) { startGame(); return; }
+      if (player.grounded){
+        player.vy = -11;
+        player.grounded = false;
+      }
+    }
+
+    // --- Supabase leaderboard code ---
+    async function fetchLeaderboard(){
+      const { data, error } = await supabase
+        .from('highscores')
+        .select('name,score,created_at')
+        .order('score', { ascending: false })
+        .limit(10);
+
+      if (error) {
+        console.error(error);
+        lbEl.innerHTML = '<div class="small">Unable to load leaderboard.</div>';
+        return;
+      }
+      renderLeaderboard(data || []);
+    }
+
+    function renderLeaderboard(rows){
+      if (!rows || rows.length === 0){
+        lbEl.innerHTML = '<div class="small">No scores yet — be first!</div>';
+        return;
+      }
+      lbEl.innerHTML = '';
+      rows.forEach((r, i) => {
+        const div = document.createElement('div');
+        div.className = 'lb-row';
+        div.innerHTML = `<div>${i+1}. ${escapeHtml(r.name)}</div><div>${r.score}</div>`;
+        lbEl.appendChild(div);
+      });
+    }
+
+    // simple escape
+    function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
+
+    // submit score
+    async function submitScore(name, scoreVal){
+      if (!name) name = 'Anon';
+      const { data, error } = await supabase
+        .from('highscores')
+        .insert({ name: name.slice(0,30), score: scoreVal });
+
+      if (error){
+        alert('Submit failed: ' + error.message);
+        console.error(error);
+      } else {
+        // refresh leaderboard (will also be updated by realtime)
+        fetchLeaderboard();
+      }
+    }
+
+    submitBtn.onclick = ()=> {
+      const n = nameInput.value.trim() || 'Anon';
+      const s = parseInt(manualScore.value) || Math.floor(score);
+      submitScore(n, s).catch(e=>console.error(e));
+    };
+
+    // realtime updates (so leaderboard updates instantly)
+    function subsRealtime(){
+      // Supabase v2 realtime pattern using channel + postgres_changes
+      const channel = supabase.channel('public:highscores')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'highscores' }, payload => {
+          // new payload.record has the inserted row
+          // Simple: re-fetch top 10
+          fetchLeaderboard();
+        })
+        .subscribe();
+
+      // Note: channel stays open as long as page open
+    }
+
+    // init
+    resetGame();
+    fetchLeaderboard();
+    subsRealtime();
+
+  </script>
+</body>
+</html>
