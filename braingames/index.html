@@ -1,0 +1,3484 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brain Games Challenge</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --surface-color: #1e1e1e;
+            --primary-color: #bb86fc;
+            --secondary-color: #03dac6;
+            --error-color: #cf6679;
+            --text-color: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            --spacing-unit: 16px;
+            --border-radius: 12px;
+            --transition-speed: 0.3s;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            /* Prevent text selection during rapid clicking */
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-family);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Typography */
+        h1,
+        h2,
+        h3 {
+            font-weight: 600;
+            margin-bottom: var(--spacing-unit);
+        }
+
+        h1 {
+            font-size: 2rem;
+            text-align: center;
+            color: var(--primary-color);
+        }
+
+        h2 {
+            font-size: 1.5rem;
+        }
+
+        /* Layout */
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: var(--spacing-unit);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Screens */
+        .screen {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+            animation: fadeIn var(--transition-speed) ease-in-out;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Menu */
+        .game-list {
+            display: grid;
+            gap: var(--spacing-unit);
+        }
+
+        .game-card {
+            background-color: var(--surface-color);
+            padding: var(--spacing-unit);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .game-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            border-color: var(--primary-color);
+        }
+
+        .game-card h3 {
+            margin-bottom: 8px;
+            color: var(--secondary-color);
+        }
+
+        .game-stats {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* HUD */
+        .hud {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-unit);
+            padding: 10px;
+            background: var(--surface-color);
+            border-radius: var(--border-radius);
+        }
+
+        .hud-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .hud-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .hud-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        /* Controls */
+        button {
+            background-color: var(--primary-color);
+            color: #000;
+            border: none;
+            padding: 12px 24px;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        button.secondary {
+            background-color: var(--surface-color);
+            color: var(--text-color);
+            border: 1px solid var(--text-secondary);
+        }
+
+        .game-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: var(--surface-color);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-unit);
+            position: relative;
+            min-height: 300px;
+        }
+
+        /* Utility */
+        .hidden {
+            display: none !important;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-2 {
+            margin-top: calc(var(--spacing-unit) * 2);
+        }
+
+        /* Game Specific Styles Placeholder */
+        /* Will be populated as we build games */
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <!-- Main Menu -->
+        <div id="menu-screen" class="screen active">
+            <h1>Brain Games</h1>
+            <div class="game-list" id="game-list">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen">
+            <div class="hud">
+                <button id="back-btn" class="secondary" style="padding: 8px 16px;">&larr;</button>
+                <div class="hud-stat">
+                    <span class="hud-label">Score</span>
+                    <span class="hud-value" id="score-display">0</span>
+                </div>
+                <div class="hud-stat">
+                    <span class="hud-label">Level</span>
+                    <span class="hud-value" id="level-display">1</span>
+                </div>
+            </div>
+            <div id="game-container" class="game-area">
+                <!-- Game content goes here -->
+            </div>
+            <div id="game-controls" class="mt-2 text-center">
+                <!-- Dynamic controls -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Game Engine & State Management ---
+
+        const GAMES = [
+            { id: 'nback', name: 'N-Back Memory', description: 'Remember position N steps back.' },
+            { id: 'stroop', name: 'Stroop Challenge', description: 'Select the color, not the word.' },
+            { id: 'math', name: 'Rapid Math', description: 'Solve equations against the clock.' },
+            { id: 'matrix', name: 'Matrix Memory', description: 'Repeat the pattern sequence.' },
+            { id: 'symbol', name: 'Symbol Search', description: 'Find the unique symbol.' },
+            // Memory & Pattern
+            { id: 'audiovisual', name: 'Audio-Visual Match', description: 'Match sound and symbol N-back.' },
+            { id: 'pathfinder', name: 'Pathfinder Memory', description: 'Retrace the hidden path.' },
+            { id: 'face', name: 'Face Recall', description: 'Reconstruct the face features.' },
+            { id: 'sequence', name: 'Sequence Slider', description: 'Recall number positions.' },
+            { id: 'color', name: 'Color Mixer', description: 'Mix primaries to make target.' },
+            // Attention & Focus
+            { id: 'odd', name: 'Odd One Out', description: 'Find the rogue moving dot.' },
+            { id: 'letters', name: 'Letter Soup', description: 'Catch falling letters.' },
+            { id: 'direction', name: 'Directional Confusion', description: 'Follow arrow or text rule.' },
+            { id: 'shadow', name: 'Shadow Match', description: 'Match 3D object to shadow.' },
+            { id: 'focus', name: 'Focus Pocus', description: 'Track the hidden ball.' },
+            // Logic & Reasoning
+            { id: 'balance', name: 'Balance Scale', description: 'Solve the weight logic.' },
+            { id: 'mirror', name: 'Mirror Maze', description: 'Reflect laser to target.' },
+            { id: 'rule', name: 'Rule Switcher', description: 'Sort by changing rules.' },
+            { id: 'cipher', name: 'Cipher Breaker', description: 'Decode the secret word.' },
+            { id: 'traffic', name: 'Traffic Controller', description: 'Manage intersection flow.' },
+            // Speed & Reflexes
+            { id: 'reaction', name: 'Reaction Time', description: 'Wait for Green, ignore Blue.' },
+            { id: 'typing', name: 'Typing Ninja', description: 'Type words to defeat enemies.' },
+            { id: 'bubble', name: 'Bubble Pop Math', description: 'Pop bubbles to sum target.' },
+            { id: 'rhythm', name: 'Rhythm Recall', description: 'Repeat the beat pattern.' },
+            { id: 'shape', name: 'Shape Shifter', description: 'Fit shape through the hole.' }
+        ];
+
+        class GameEngine {
+            constructor() {
+                this.storageKey = 'brain_games_progress';
+                this.progress = this.loadProgress();
+                this.currentGame = null;
+                this.score = 0;
+                this.level = 1;
+
+                this.initMenu();
+                this.bindEvents();
+            }
+
+            loadProgress() {
+                const stored = localStorage.getItem(this.storageKey);
+                return stored ? JSON.parse(stored) : {};
+            }
+
+            saveProgress(gameId, score) {
+                if (!this.progress[gameId] || score > this.progress[gameId]) {
+                    this.progress[gameId] = score;
+                    localStorage.setItem(this.storageKey, JSON.stringify(this.progress));
+                    this.updateMenu();
+                }
+            }
+
+            initMenu() {
+                const list = document.getElementById('game-list');
+                list.innerHTML = '';
+                GAMES.forEach(game => {
+                    const highScore = this.progress[game.id] || 0;
+                    const card = document.createElement('div');
+                    card.className = 'game-card';
+                    card.innerHTML = `
+                        <h3>${game.name}</h3>
+                        <p>${game.description}</p>
+                        <div class="game-stats">Best Score: ${highScore}</div>
+                    `;
+                    card.onclick = () => this.startGame(game.id);
+                    list.appendChild(card);
+                });
+            }
+
+            updateMenu() {
+                this.initMenu(); // Re-render to show new scores
+            }
+
+            bindEvents() {
+                document.getElementById('back-btn').onclick = () => this.showMenu();
+            }
+
+            showMenu() {
+                if (this.currentGame && this.currentGame.cleanup) {
+                    this.currentGame.cleanup();
+                }
+                document.getElementById('game-screen').classList.remove('active');
+                document.getElementById('menu-screen').classList.add('active');
+                this.currentGame = null;
+            }
+
+            startGame(gameId) {
+                document.getElementById('menu-screen').classList.remove('active');
+                document.getElementById('game-screen').classList.add('active');
+
+                this.score = 0;
+                this.level = 1;
+                this.updateHUD();
+
+                const container = document.getElementById('game-container');
+                const controls = document.getElementById('game-controls');
+                container.innerHTML = '';
+                controls.innerHTML = '';
+
+                // Initialize specific game
+                switch (gameId) {
+                    case 'nback': this.currentGame = new NBackGame(this, container, controls); break;
+                    case 'stroop': this.currentGame = new StroopGame(this, container, controls); break;
+                    case 'math': this.currentGame = new MathGame(this, container, controls); break;
+                    case 'matrix': this.currentGame = new MatrixGame(this, container, controls); break;
+                    case 'symbol': this.currentGame = new SymbolGame(this, container, controls); break;
+                    // New Games
+                    case 'audiovisual': this.currentGame = new AudioVisualGame(this, container, controls); break;
+                    case 'pathfinder': this.currentGame = new PathfinderGame(this, container, controls); break;
+                    case 'face': this.currentGame = new FaceGame(this, container, controls); break;
+                    case 'sequence': this.currentGame = new SequenceGame(this, container, controls); break;
+                    case 'color': this.currentGame = new ColorGame(this, container, controls); break;
+                    case 'odd': this.currentGame = new OddOneOutGame(this, container, controls); break;
+                    case 'letters': this.currentGame = new LetterSoupGame(this, container, controls); break;
+                    case 'direction': this.currentGame = new DirectionGame(this, container, controls); break;
+                    case 'shadow': this.currentGame = new ShadowGame(this, container, controls); break;
+                    case 'focus': this.currentGame = new FocusGame(this, container, controls); break;
+                    case 'balance': this.currentGame = new BalanceGame(this, container, controls); break;
+                    case 'mirror': this.currentGame = new MirrorGame(this, container, controls); break;
+                    case 'rule': this.currentGame = new RuleGame(this, container, controls); break;
+                    case 'cipher': this.currentGame = new CipherGame(this, container, controls); break;
+                    case 'traffic': this.currentGame = new TrafficGame(this, container, controls); break;
+                    case 'reaction': this.currentGame = new ReactionGame(this, container, controls); break;
+                    case 'typing': this.currentGame = new TypingGame(this, container, controls); break;
+                    case 'bubble': this.currentGame = new BubbleGame(this, container, controls); break;
+                    case 'rhythm': this.currentGame = new RhythmGame(this, container, controls); break;
+                    case 'shape': this.currentGame = new ShapeGame(this, container, controls); break;
+                }
+
+                if (this.currentGame) {
+                    this.currentGame.start();
+                }
+            }
+
+            updateHUD() {
+                document.getElementById('score-display').textContent = this.score;
+                document.getElementById('level-display').textContent = this.level;
+            }
+
+            gameOver(finalScore) {
+                alert(`Game Over! Score: ${finalScore}`);
+                this.saveProgress(this.currentGame.id, finalScore);
+                this.showMenu();
+            }
+        }
+
+        // --- Game Implementations (Placeholders) ---
+
+        class BaseGame {
+            constructor(engine, container, controls) {
+                this.engine = engine;
+                this.container = container;
+                this.controls = controls;
+                this.id = 'base';
+            }
+            start() { console.log('Game started'); }
+            cleanup() { console.log('Game cleanup'); }
+        }
+
+        class NBackGame extends BaseGame {
+            constructor(engine, container, controls) {
+                super(engine, container, controls);
+                this.id = 'nback';
+                this.gridSize = 3;
+                this.sequence = [];
+                this.currentIndex = 0;
+                this.score = 0;
+                this.n = 1; // N-back level
+                this.intervalId = null;
+                this.isPlaying = false;
+                this.userAnswered = false;
+            }
+
+            start() {
+                this.n = this.engine.level; // Level 1 = 1-back, Level 2 = 2-back
+                this.sequence = [];
+                this.currentIndex = 0;
+                this.score = 0;
+                this.isPlaying = true;
+
+                this.render();
+                this.startRound();
+            }
+
+            render() {
+                this.container.innerHTML = `
+                    <div style="text-align:center; margin-bottom:10px;">
+                        <h3>${this.n}-Back</h3>
+                        <p>Does the current position match the one ${this.n} step(s) ago?</p>
+                    </div>
+                    <div id="nback-grid" style="
+                        display: grid; 
+                        grid-template-columns: repeat(${this.gridSize}, 1fr); 
+                        gap: 10px; 
+                        width: 300px; 
+                        height: 300px;
+                    ">
+                        ${Array(this.gridSize * this.gridSize).fill(0).map((_, i) =>
+                    `<div id="cell-${i}" style="
+                                background: #333; 
+                                border-radius: 8px;
+                                transition: background 0.2s;
+                            "></div>`
+                ).join('')}
+                    </div>
+                `;
+
+                this.controls.innerHTML = `
+                    <button id="match-btn" style="width: 200px; height: 60px; font-size: 1.2rem;">MATCH</button>
+                `;
+
+                document.getElementById('match-btn').onclick = () => this.checkMatch();
+            }
+
+            startRound() {
+                if (!this.isPlaying) return;
+
+                // Add new position to sequence
+                const nextPos = Math.floor(Math.random() * (this.gridSize * this.gridSize));
+                this.sequence.push(nextPos);
+                this.userAnswered = false;
+
+                // Flash cell
+                this.flashCell(nextPos);
+
+                // Wait for next round
+                // Speed increases slightly with score
+                const speed = Math.max(1000, 2500 - (this.score * 50));
+
+                this.intervalId = setTimeout(() => {
+                    this.evaluateMissed();
+                    this.currentIndex++;
+                    this.startRound();
+                }, speed);
+            }
+
+            flashCell(index) {
+                const cell = document.getElementById(`cell-${index}`);
+                if (cell) {
+                    cell.style.background = 'var(--primary-color)';
+                    setTimeout(() => {
+                        cell.style.background = '#333';
+                    }, 800);
+                }
+            }
+
+            checkMatch() {
+                if (this.userAnswered) return;
+                this.userAnswered = true;
+
+                const currentPos = this.sequence[this.sequence.length - 1];
+                const targetPos = this.sequence[this.sequence.length - 1 - this.n];
+
+                const btn = document.getElementById('match-btn');
+
+                if (targetPos !== undefined && currentPos === targetPos) {
+                    // Correct Match
+                    this.score += 10;
+                    this.engine.score = this.score;
+                    this.engine.updateHUD();
+                    this.flashFeedback(true);
+
+                    // Level up every 50 points
+                    if (this.score % 50 === 0) {
+                        this.engine.level++;
+                        this.n++;
+                        this.engine.updateHUD();
+                        this.cleanup();
+                        alert(`Level Up! Now ${this.n}-Back`);
+                        this.start();
+                    }
+                } else {
+                    // Wrong Match
+                    this.flashFeedback(false);
+                    this.endGame();
+                }
+            }
+
+            evaluateMissed() {
+                // If user didn't click, check if they SHOULD have clicked
+                if (!this.userAnswered) {
+                    const currentPos = this.sequence[this.sequence.length - 1];
+                    const targetPos = this.sequence[this.sequence.length - 1 - this.n];
+
+                    if (targetPos !== undefined && currentPos === targetPos) {
+                        // Missed a match
+                        this.endGame();
+                    }
+                }
+            }
+
+            flashFeedback(correct) {
+                const btn = document.getElementById('match-btn');
+                const originalColor = btn.style.backgroundColor;
+                btn.style.backgroundColor = correct ? 'var(--secondary-color)' : 'var(--error-color)';
+                setTimeout(() => {
+                    btn.style.backgroundColor = originalColor;
+                }, 300);
+            }
+
+            endGame() {
+                this.isPlaying = false;
+                clearTimeout(this.intervalId);
+                this.engine.gameOver(this.score);
+            }
+
+            cleanup() {
+                this.isPlaying = false;
+                clearTimeout(this.intervalId);
+            }
+        }
+
+        class StroopGame extends BaseGame {
+            constructor(engine, container, controls) {
+                super(engine, container, controls);
+                this.id = 'stroop';
+                this.colors = ['RED', 'BLUE', 'GREEN', 'YELLOW'];
+                this.colorCodes = {
+                    'RED': '#ff5252',
+                    'BLUE': '#448aff',
+                    'GREEN': '#69f0ae',
+                    'YELLOW': '#ffff00'
+                };
+                this.score = 0;
+                this.timer = null;
+                this.timeLeft = 0;
+                this.maxTime = 3000; // Start with 3 seconds
+            }
+
+            start() {
+                this.score = 0;
+                this.maxTime = 3000;
+                this.engine.level = 1;
+                this.nextRound();
+            }
+
+            nextRound() {
+                // Difficulty progression: reduce time
+                this.maxTime = Math.max(800, 3000 - (this.score * 20));
+                this.timeLeft = this.maxTime;
+
+                const word = this.colors[Math.floor(Math.random() * this.colors.length)];
+                const colorKey = this.colors[Math.floor(Math.random() * this.colors.length)];
+                this.targetColor = colorKey;
+
+                this.render(word, this.colorCodes[colorKey]);
+                this.startTimer();
+            }
+
+            render(word, colorCode) {
+                this.container.innerHTML = `
+                    <div style="text-align:center; margin-bottom:20px;">
+                        <h3>Stroop Challenge</h3>
+                        <p>Select the <strong>COLOR</strong> of the text!</p>
+                    </div>
+                    <div style="
+                        font-size: 4rem; 
+                        font-weight: bold; 
+                        color: ${colorCode};
+                        margin-bottom: 20px;
+                        text-shadow: 0 0 10px rgba(0,0,0,0.5);
+                    ">${word}</div>
+                    <div id="timer-bar" style="
+                        width: 100%; 
+                        height: 10px; 
+                        background: #333; 
+                        border-radius: 5px; 
+                        overflow: hidden;
+                    ">
+                        <div id="timer-fill" style="
+                            width: 100%; 
+                            height: 100%; 
+                            background: var(--secondary-color);
+                            transition: width 0.1s linear;
+                        "></div>
+                    </div>
+                `;
+
+                this.controls.innerHTML = `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 400px;">
+                        ${this.colors.map(c => `
+                            <button onclick="app.currentGame.checkAnswer('${c}')" style="border: 2px solid ${this.colorCodes[c]}; color: ${this.colorCodes[c]}; background: transparent;">${c}</button>
+                        `).join('')}
+                    </div>
+                `;
+                // Note: 'app' is global in window.onload, but we need to access it. 
+                // Better to bind click in JS to avoid global scope issues if 'app' isn't global.
+                // Let's fix the onclick binding.
+                const buttons = this.controls.querySelectorAll('button');
+                buttons.forEach((btn, i) => {
+                    btn.onclick = () => this.checkAnswer(this.colors[i]);
+                });
+            }
+
+            startTimer() {
+                clearInterval(this.timer);
+                const step = 50;
+                this.timer = setInterval(() => {
+                    this.timeLeft -= step;
+                    const pct = (this.timeLeft / this.maxTime) * 100;
+                    const fill = document.getElementById('timer-fill');
+                    if (fill) fill.style.width = `${pct}%`;
+
+                    if (this.timeLeft <= 0) {
+                        clearInterval(this.timer);
+                        this.engine.gameOver(this.score);
+                    }
+                }, step);
+            }
+
+            checkAnswer(selectedColor) {
+                clearInterval(this.timer);
+                if (selectedColor === this.targetColor) {
+                    this.score += 10;
+                    this.engine.score = this.score;
+
+                    // Level calculation
+                    this.engine.level = Math.floor(this.score / 100) + 1;
+                    this.engine.updateHUD();
+
+                    this.nextRound();
+                } else {
+                    this.engine.gameOver(this.score);
+                }
+            }
+
+            cleanup() {
+                clearInterval(this.timer);
+            }
+        }
+
+        class MathGame extends BaseGame {
+            constructor(engine, container, controls) {
+                super(engine, container, controls);
+                this.id = 'math';
+                this.score = 0;
+                this.timer = null;
+                this.timeLeft = 0;
+                this.maxTime = 5000;
+            }
+
+            start() {
+                this.score = 0;
+                this.engine.level = 1;
+                this.nextRound();
+            }
+
+            nextRound() {
+                this.maxTime = Math.max(2000, 5000 - (this.score * 50));
+                this.timeLeft = this.maxTime;
+
+                // Difficulty based on score
+                const difficulty = Math.floor(this.score / 50) + 1;
+                const range = difficulty * 10;
+
+                const ops = ['+', '-'];
+                if (difficulty > 2) ops.push('*');
+
+                const op = ops[Math.floor(Math.random() * ops.length)];
+                let a = Math.floor(Math.random() * range) + 1;
+                let b = Math.floor(Math.random() * range) + 1;
+
+                // Simplify for multiplication
+                if (op === '*') {
+                    a = Math.floor(Math.random() * (difficulty + 2)) + 1;
+                    b = Math.floor(Math.random() * 10) + 1;
+                }
+
+                let answer;
+                switch (op) {
+                    case '+': answer = a + b; break;
+                    case '-': answer = a - b; break;
+                    case '*': answer = a * b; break;
+                }
+
+                // Generate choices
+                const choices = new Set([answer]);
+                while (choices.size < 3) {
+                    const offset = Math.floor(Math.random() * 5) + 1;
+                    const sign = Math.random() > 0.5 ? 1 : -1;
+                    choices.add(answer + (offset * sign));
+                }
+                const choicesArray = Array.from(choices).sort(() => Math.random() - 0.5);
+
+                this.render(a, op, b, choicesArray, answer);
+                this.startTimer();
+            }
+
+            render(a, op, b, choices, correctAnswer) {
+                this.container.innerHTML = `
+                    <div style="text-align:center; margin-bottom:20px;">
+                        <h3>Rapid Math</h3>
+                        <p>Solve quickly!</p>
+                    </div>
+                    <div style="
+                        font-size: 3rem; 
+                        font-weight: bold; 
+                        margin-bottom: 30px;
+                    ">${a} ${op} ${b} = ?</div>
+                    <div id="math-timer-bar" style="
+                        width: 100%; 
+                        height: 10px; 
+                        background: #333; 
+                        border-radius: 5px; 
+                        overflow: hidden;
+                    ">
+                        <div id="math-timer-fill" style="
+                            width: 100%; 
+                            height: 100%; 
+                            background: var(--secondary-color);
+                            transition: width 0.1s linear;
+                        "></div>
+                    </div>
+                `;
+
+                this.controls.innerHTML = `
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%;">
+                        ${choices.map(c => `
+                            <button class="math-btn" data-val="${c}" style="font-size: 1.5rem;">${c}</button>
+                        `).join('')}
+                    </div>
+                `;
+
+                const buttons = this.controls.querySelectorAll('.math-btn');
+                buttons.forEach(btn => {
+                    btn.onclick = () => this.checkAnswer(parseInt(btn.dataset.val), correctAnswer);
+                });
+            }
+
+            startTimer() {
+                clearInterval(this.timer);
+                const step = 50;
+                this.timer = setInterval(() => {
+                    this.timeLeft -= step;
+                    const pct = (this.timeLeft / this.maxTime) * 100;
+                    const fill = document.getElementById('math-timer-fill');
+                    if (fill) fill.style.width = `${pct}%`;
+
+                    if (this.timeLeft <= 0) {
+                        clearInterval(this.timer);
+                        this.engine.gameOver(this.score);
+                    }
+                }, step);
+            }
+
+            checkAnswer(selected, correct) {
+                clearInterval(this.timer);
+                if (selected === correct) {
+                    this.score += 10;
+                    this.engine.score = this.score;
+                    this.engine.level = Math.floor(this.score / 100) + 1;
+                    this.engine.updateHUD();
+                    this.nextRound();
+                } else {
+                    this.engine.gameOver(this.score);
+                }
+            }
+
+            cleanup() {
+                clearInterval(this.timer);
+            }
+        }
+
+        class MatrixGame extends BaseGame {
+            constructor(engine, container, controls) {
+                super(engine, container, controls);
+                this.id = 'matrix';
+                this.gridSize = 4;
+                this.pattern = [];
+                this.userPattern = [];
+                this.score = 0;
+                this.isShowing = false;
+            }
+
+            start() {
+                this.score = 0;
+                this.engine.level = 1;
+                this.gridSize = 4;
+                this.nextRound();
+            }
+
+            nextRound() {
+                this.pattern = [];
+                this.userPattern = [];
+                this.isShowing = true;
+
+                // Difficulty: more tiles, larger grid
+                const tileCount = 3 + Math.floor(this.score / 30);
+                if (this.score > 100) this.gridSize = 5;
+                if (this.score > 200) this.gridSize = 6;
+
+                this.render();
+
+                // Generate pattern
+                const totalCells = this.gridSize * this.gridSize;
+                while (this.pattern.length < tileCount) {
+                    const r = Math.floor(Math.random() * totalCells);
+                    if (!this.pattern.includes(r)) this.pattern.push(r);
+                }
+
+                // Show pattern
+                setTimeout(() => {
+                    this.pattern.forEach(idx => {
+                        const cell = document.getElementById(`matrix-cell-${idx}`);
+                        if (cell) cell.style.background = 'var(--secondary-color)';
+                    });
+
+                    // Hide pattern
+                    setTimeout(() => {
+                        this.pattern.forEach(idx => {
+                            const cell = document.getElementById(`matrix-cell-${idx}`);
+                            if (cell) cell.style.background = '#333';
+                        });
+                        this.isShowing = false;
+                        this.controls.innerHTML = '<p>Repeat the pattern!</p>';
+                    }, 1000 + (tileCount * 200)); // Time to memorize
+                }, 500);
+            }
+
+            render() {
+                this.container.innerHTML = `
+                    <div style="text-align:center; margin-bottom:10px;">
+                        <h3>Matrix Memory</h3>
+                        <p>Memorize the pattern.</p>
+                    </div>
+                    <div id="matrix-grid" style="
+                        display: grid; 
+                        grid-template-columns: repeat(${this.gridSize}, 1fr); 
+                        gap: 8px; 
+                        width: 300px; 
+                        height: 300px;
+                    ">
+                        ${Array(this.gridSize * this.gridSize).fill(0).map((_, i) =>
+                    `<div id="matrix-cell-${i}" class="matrix-cell" style="
+                                background: #333; 
+                                border-radius: 4px;
+                                cursor: pointer;
+                                transition: background 0.2s;
+                            "></div>`
+                ).join('')}
+                    </div>
+                `;
+
+                this.controls.innerHTML = '<p>Watch carefully...</p>';
+
+                const cells = this.container.querySelectorAll('.matrix-cell');
+                cells.forEach((cell, i) => {
+                    cell.onclick = () => this.handleCellClick(i);
+                });
+            }
+
+            handleCellClick(index) {
+                if (this.isShowing) return;
+
+                const cell = document.getElementById(`matrix-cell-${index}`);
+
+                // Already clicked?
+                if (this.userPattern.includes(index)) return;
+
+                if (this.pattern.includes(index)) {
+                    // Correct
+                    cell.style.background = 'var(--secondary-color)';
+                    this.userPattern.push(index);
+
+                    if (this.userPattern.length === this.pattern.length) {
+                        // Round Complete
+                        this.score += 10 + (this.pattern.length * 2);
+                        this.engine.score = this.score;
+                        this.engine.level = Math.floor(this.score / 50) + 1;
+                        this.engine.updateHUD();
+                        setTimeout(() => this.nextRound(), 500);
+                    }
+                } else {
+                    // Wrong
+                    cell.style.background = 'var(--error-color)';
+                    this.engine.gameOver(this.score);
+                }
+            }
+        }
+
+        class SymbolGame extends BaseGame {
+            constructor(engine, container, controls) {
+                super(engine, container, controls);
+                this.id = 'symbol';
+                this.symbols = ['★', '☆', '✦', '✧', '✪', '✫', '✬', '✭', '✮', '✯'];
+                this.score = 0;
+                this.timer = null;
+                this.timeLeft = 0;
+                this.maxTime = 10000;
+                this.gridSize = 5;
+                this.targetCount = 0;
+                this.foundCount = 0;
+            }
+
+            start() {
+                this.score = 0;
+                this.engine.level = 1;
+                this.nextRound();
+            }
+
+            nextRound() {
+                this.maxTime = Math.max(3000, 10000 - (this.score * 50));
+                this.timeLeft = this.maxTime;
+                this.foundCount = 0;
+
+                // Difficulty
+                this.gridSize = 5 + Math.floor(this.score / 100);
+                const numSymbols = Math.min(this.symbols.length, 3 + Math.floor(this.score / 50));
+                const activeSymbols = this.symbols.slice(0, numSymbols);
+
+                const target = activeSymbols[Math.floor(Math.random() * activeSymbols.length)];
+                this.targetSymbol = target;
+
+                // Generate Grid
+                const totalCells = this.gridSize * this.gridSize;
+                const gridData = [];
+                this.targetCount = 0;
+
+                for (let i = 0; i < totalCells; i++) {
+                    const s = activeSymbols[Math.floor(Math.random() * activeSymbols.length)];
+                    if (s === target) this.targetCount++;
+                    gridData.push(s);
+                }
+
+                // Ensure at least one target
+                if (this.targetCount === 0) {
+                    const r = Math.floor(Math.random() * totalCells);
+                    gridData[r] = target;
+                    this.targetCount = 1;
+                }
+
+                this.render(gridData);
+                this.startTimer();
+            }
+
+            render(gridData) {
+                this.container.innerHTML = `
+                    <div style="text-align:center; margin-bottom:10px;">
+                        <h3>Symbol Search</h3>
+                        <p>Find all: <span style="font-size:1.5rem; color:var(--secondary-color);">${this.targetSymbol}</span></p>
+                    </div>
+                    <div id="symbol-grid" style="
+                        display: grid; 
+                        grid-template-columns: repeat(${this.gridSize}, 1fr); 
+                        gap: 5px; 
+                        width: 300px; 
+                        height: 300px;
+                    ">
+                        ${gridData.map((s, i) =>
+                    `<div id="sym-cell-${i}" class="sym-cell" data-sym="${s}" style="
+                                background: #333; 
+                                border-radius: 4px;
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                                font-size: 1.2rem;
+                                cursor: pointer;
+                                user-select: none;
+                            ">${s}</div>`
+                ).join('')}
+                    </div>
+                    <div id="sym-timer-bar" style="
+                        width: 100%; 
+                        height: 10px; 
+                        background: #333; 
+                        border-radius: 5px; 
+                        overflow: hidden;
+                        margin-top: 10px;
+                    ">
+                        <div id="sym-timer-fill" style="
+                            width: 100%; 
+                            height: 100%; 
+                            background: var(--secondary-color);
+                            transition: width 0.1s linear;
+                        "></div>
+                    </div>
+                `;
+
+                this.controls.innerHTML = '';
+
+                const cells = this.container.querySelectorAll('.sym-cell');
+                cells.forEach((cell, i) => {
+                    cell.onclick = () => this.handleCellClick(cell);
+                });
+            }
+
+            handleCellClick(cell) {
+                if (cell.classList.contains('clicked')) return;
+
+                const sym = cell.dataset.sym;
+                if (sym === this.targetSymbol) {
+                    cell.style.background = 'var(--secondary-color)';
+                    cell.style.color = '#000';
+                    cell.classList.add('clicked');
+                    this.foundCount++;
+
+                    if (this.foundCount === this.targetCount) {
+                        // Round Complete
+                        clearInterval(this.timer);
+                        this.score += 10 + this.targetCount;
+                        this.engine.score = this.score;
+                        this.engine.level = Math.floor(this.score / 50) + 1;
+                        this.engine.updateHUD();
+                        setTimeout(() => this.nextRound(), 500);
+                    }
+                } else {
+                    // Wrong click - penalty or game over? Let's do time penalty
+                    cell.style.background = 'var(--error-color)';
+                    this.timeLeft -= 2000; // Lose 2 seconds
+                    cell.classList.add('clicked');
+                }
+            }
+
+            startTimer() {
+                clearInterval(this.timer);
+                const step = 50;
+                this.timer = setInterval(() => {
+                    this.timeLeft -= step;
+                    const pct = (this.timeLeft / this.maxTime) * 100;
+                    const fill = document.getElementById('sym-timer-fill');
+                    if (fill) fill.style.width = `${pct}%`;
+
+                    if (this.timeLeft <= 0) {
+                        clearInterval(this.timer);
+                        this.engine.gameOver(this.score);
+                    }
+                }, step);
+            }
+
+            cleanup() {
+                clearInterval(this.timer);
+            }
+        }
+
+        // --- New Game Stubs ---
+
+        class AudioVisualGame extends BaseGame {
+            constructor(e, c, ctrl) {
+                super(e, c, ctrl);
+                this.id = 'audiovisual';
+                this.n = 1;
+                this.sequence = []; // { symbol: 'X', letter: 'A' }
+                this.score = 0;
+                this.isPlaying = false;
+                this.intervalId = null;
+                this.symbols = ['★', '●', '■', '▲', '◆'];
+                this.letters = ['A', 'B', 'C', 'D', 'E'];
+                this.currentIndex = 0;
+            }
+
+            start() {
+                this.n = this.engine.level;
+                this.sequence = [];
+                this.score = 0;
+                this.currentIndex = 0;
+                this.isPlaying = true;
+                this.render();
+                this.startRound();
+            }
+
+            render() {
+                this.container.innerHTML = `
+                    <div class="text-center">
+                        <h3>Audio-Visual ${this.n}-Back</h3>
+                        <p>Match Position (Visual) or Sound (Audio) ${this.n} steps back.</p>
+                        <div id="av-display" style="
+                            font-size: 5rem; 
+                            margin: 20px auto; 
+                            height: 100px; 
+                            width: 100px; 
+                            display: flex; 
+                            align-items: center; 
+                            justify-content: center;
+                            background: #333;
+                            border-radius: 10px;
+                        "></div>
+                        <div id="av-feedback" style="height: 20px; color: var(--secondary-color);"></div>
+                    </div>
+                `;
+
+                this.controls.innerHTML = `
+                    <div style="display: flex; gap: 20px; justify-content: center;">
+                        <button id="btn-visual" style="width: 120px;">Visual (A)</button>
+                        <button id="btn-audio" style="width: 120px;">Audio (L)</button>
+                    </div>
+                `;
+
+                document.getElementById('btn-visual').onclick = () => this.checkMatch('visual');
+                document.getElementById('btn-audio').onclick = () => this.checkMatch('audio');
+
+                // Keyboard support
+                document.onkeydown = (e) => {
+                    if (!this.isPlaying) return;
+                    if (e.key.toLowerCase() === 'a') this.checkMatch('visual');
+                    if (e.key.toLowerCase() === 'l') this.checkMatch('audio');
+                };
+            }
+
+            startRound() {
+                if (!this.isPlaying) return;
+
+                const sym = this.symbols[Math.floor(Math.random() * this.symbols.length)];
+                const lettr = this.letters[Math.floor(Math.random() * this.letters.length)];
+
+                // 30% chance to force a match if possible
+                if (this.sequence.length >= this.n && Math.random() < 0.3) {
+                    const target = this.sequence[this.sequence.length - this.n];
+                    if (Math.random() < 0.5) sym = target.symbol;
+                    else lettr = target.letter;
+                }
+
+                this.sequence.push({ symbol: sym, letter: lettr });
+
+                // Display Symbol
+                const display = document.getElementById('av-display');
+                display.textContent = sym;
+
+                // Play Audio (Speech)
+                const utterance = new SpeechSynthesisUtterance(lettr);
+                utterance.rate = 1.5;
+                window.speechSynthesis.speak(utterance);
+
+                // Clear after 1s
+                setTimeout(() => {
+                    if (display) display.textContent = '';
+                }, 1000);
+
+                // Next round
+                const speed = Math.max(1500, 3000 - (this.score * 50));
+                this.intervalId = setTimeout(() => {
+                    this.currentIndex++;
+                    this.startRound();
+                }, speed);
+            }
+
+            checkMatch(type) {
+                const current = this.sequence[this.sequence.length - 1];
+                const target = this.sequence[this.sequence.length - 1 - this.n];
+
+                if (!target) return; // Too early
+
+                let isMatch = false;
+                if (type === 'visual') isMatch = current.symbol === target.symbol;
+                if (type === 'audio') isMatch = current.letter === target.letter;
+
+                const feedback = document.getElementById('av-feedback');
+                if (isMatch) {
+                    this.score += 10;
+                    this.engine.score = this.score;
+                    this.engine.updateHUD();
+                    feedback.textContent = "Correct!";
+                    feedback.style.color = "var(--secondary-color)";
+
+                    if (this.score % 100 === 0) {
+                        this.n++;
+                        this.engine.level++;
+                        this.engine.updateHUD();
+                        alert(`Level Up! Now ${this.n}-Back`);
+                    }
+                } else {
+                    this.engine.gameOver(this.score);
+                }
+                setTimeout(() => feedback.textContent = "", 500);
+            }
+
+            cleanup() {
+                this.isPlaying = false;
+                clearTimeout(this.intervalId);
+                document.onkeydown = null;
+                window.speechSynthesis.cancel();
+            }
+        }
+
+        class PathfinderGame extends BaseGame {
+            constructor(e, c, ctrl) {
+                super(e, c, ctrl);
+                this.id = 'pathfinder';
+                this.gridSize = 4;
+                this.path = [];
+                this.userPath = [];
+                this.score = 0;
+                this.isShowing = false;
+            }
+
+            start() {
+                this.score = 0;
+                this.engine.level = 1;
+                this.gridSize = 3;
+                this.nextRound();
+            }
+
+            nextRound() {
+                this.path = [];
+                this.userPath = [];
+                this.isShowing = true;
+
+                // Generate Path
+                let current = 0; // Start at top-left
+                this.path.push(current);
+                const len = 3 + Math.floor(this.score / 50);
+
+                for (let i = 0; i < len; i++) {
+                    const moves = [-1, 1, -this.gridSize, this.gridSize]; // L, R, U, D
+                    const validMoves = moves.filter(m => {
+                        const next = current + m;
+                        if (next < 0 || next >= this.gridSize * this.gridSize) return false;
+                        // Prevent wrapping
+                        if (m === 1 && current % this.gridSize === this.gridSize - 1) return false;
+                        if (m === -1 && current % this.gridSize === 0) return false;
+                        return !this.path.includes(next);
+                    });
+
+                    if (validMoves.length === 0) break;
+                    current += validMoves[Math.floor(Math.random() * validMoves.length)];
+                    this.path.push(current);
+                }
+
+                this.render();
+                this.showPath();
+            }
+
+            render() {
+                this.container.innerHTML = `
+                    <div class="text-center">
+                        <h3>Pathfinder</h3>
+                        <p>${this.isShowing ? 'Watch the path...' : 'Retrace the path!'}</p>
+                    </div>
+                    <div id="pf-grid" style="
+                        display: grid; 
+                        grid-template-columns: repeat(${this.gridSize}, 1fr); 
+                        gap: 5px; 
+                        width: 300px; 
+                        height: 300px;
+                        margin: 0 auto;
+                    ">
+                        ${Array(this.gridSize * this.gridSize).fill(0).map((_, i) =>
+                    `<div id="pf-cell-${i}" class="pf-cell" style="
+                                background: #333; 
+                                border-radius: 4px;
+                                cursor: pointer;
+                                transition: background 0.2s;
+                            "></div>`
+                ).join('')}
+                    </div>
+                `;
+
+                this.controls.innerHTML = '';
+
+                if (!this.isShowing) {
+                    const cells = document.querySelectorAll('.pf-cell');
+                    cells.forEach((cell, i) => {
+                        cell.onclick = () => this.handleClick(i);
+                    });
+                }
+            }
+
+            showPath() {
+                let i = 0;
+                const interval = setInterval(() => {
+                    if (i >= this.path.length) {
+                        clearInterval(interval);
+                        setTimeout(() => {
+                            this.isShowing = false;
+                            this.render(); // Re-render to enable clicks
+                        }, 500);
+                        return;
+                    }
+                    const idx = this.path[i];
+                    const cell = document.getElementById(`pf-cell-${idx}`);
+                    if (cell) cell.style.background = 'var(--primary-color)';
+
+                    setTimeout(() => {
+                        if (cell) cell.style.background = '#333';
+                    }, 400);
+
+                    i++;
+                }, 600);
+            }
+
+            handleClick(index) {
+                if (this.isShowing) return;
+
+                const expected = this.path[this.userPath.length];
+                const cell = document.getElementById(`pf-cell-${index}`);
+
+                if (index === expected) {
+                    cell.style.background = 'var(--secondary-color)';
+                    this.userPath.push(index);
+
+                    if (this.userPath.length === this.path.length) {
+                        this.score += 10 * this.path.length;
+                        this.engine.score = this.score;
+                        this.engine.level = Math.floor(this.score / 100) + 1;
+                        if (this.engine.level > 3) this.gridSize = 4;
+                        if (this.engine.level > 6) this.gridSize = 5;
+                        this.engine.updateHUD();
+                        setTimeout(() => this.nextRound(), 500);
+                    }
+                } else {
+                    cell.style.background = 'var(--error-color)';
+                    setTimeout(() => this.engine.gameOver(this.score), 500);
+                }
+            }
+        }
+        class FaceGame extends BaseGame {
+            constructor(e, c, ctrl) {
+                super(e, c, ctrl);
+                this.id = 'face';
+                this.features = {
+                    eyes: ['👀', '🕶️', '🥺', '😠'],
+                    mouth: ['👄', '👅', '😬', '😷'],
+                    hat: ['🎩', '🧢', '👑', '⛑️']
+                };
+                this.targetFace = {};
+                this.score = 0;
+                this.state = 'memorize'; // memorize, distract, recall
+            }
+
+            start() {
+                this.score = 0;
+                this.engine.level = 1;
+                this.nextRound();
+            }
+
+            nextRound() {
+                this.targetFace = {
+                    eyes: this.features.eyes[Math.floor(Math.random() * this.features.eyes.length)],
+                    mouth: this.features.mouth[Math.floor(Math.random() * this.features.mouth.length)],
+                    hat: this.features.hat[Math.floor(Math.random() * this.features.hat.length)]
+                };
+                this.state = 'memorize';
+                this.render();
+
+                setTimeout(() => {
+                    this.state = 'recall';
+                    this.render();
+                }, 3000);
+            }
+
+            render() {
+                if (this.state === 'memorize') {
+                    this.container.innerHTML = `
+                        <div class="text-center">
+                            <h3>Face Recall</h3>
+                            <p>Memorize this face!</p>
+                            <div style="font-size: 4rem; display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 20px;">
+                                <div>${this.targetFace.hat}</div>
+                                <div>${this.targetFace.eyes}</div>
+                                <div>${this.targetFace.mouth}</div>
+                            </div>
+                        </div>
+                    `;
+                    this.controls.innerHTML = '';
+                } else if (this.state === 'recall') {
+                    this.container.innerHTML = `
+                        <div class="text-center">
+                            <h3>Reconstruct the Face</h3>
+                            <div id="face-builder" style="font-size: 4rem; display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 20px; min-height: 200px;">
+                                <div id="sel-hat">❓</div>
+                                <div id="sel-eyes">❓</div>
+                                <div id="sel-mouth">❓</div>
+                            </div>
+                        </div>
+                    `;
+
+                    this.controls.innerHTML = `
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;">
+                            <div style="display: flex; gap: 5px;">${this.features.hat.map(f => `<button onclick="app.currentGame.select('hat', '${f}')" style="font-size: 1.5rem; padding: 5px;">${f}</button>`).join('')}</div>
+                            <div style="display: flex; gap: 5px;">${this.features.eyes.map(f => `<button onclick="app.currentGame.select('eyes', '${f}')" style="font-size: 1.5rem; padding: 5px;">${f}</button>`).join('')}</div>
+                            <div style="display: flex; gap: 5px;">${this.features.mouth.map(f => `<button onclick="app.currentGame.select('mouth', '${f}')" style="font-size: 1.5rem; padding: 5px;">${f}</button>`).join('')}</div>
+                        </div>
+                        <button onclick="app.currentGame.check()" style="margin-top: 10px; width: 100%;">SUBMIT</button>
+                    `;
+
+                    // Bind clicks
+                    const btns = this.controls.querySelectorAll('button');
+                    btns.forEach(btn => {
+                        if (btn.innerText === 'SUBMIT') btn.onclick = () => this.check();
+                        else {
+                            const char = btn.innerText;
+                            // Find type
+                            let type = '';
+                            if (this.features.hat.includes(char)) type = 'hat';
+                            if (this.features.eyes.includes(char)) type = 'eyes';
+                            if (this.features.mouth.includes(char)) type = 'mouth';
+                            btn.onclick = () => this.select(type, char);
+                        }
+                    });
+                }
+            }
+
+            select(type, val) {
+                document.getElementById(`sel-${type}`).innerText = val;
+            }
+
+            check() {
+                const hat = document.getElementById('sel-hat').innerText;
+                const eyes = document.getElementById('sel-eyes').innerText;
+                const mouth = document.getElementById('sel-mouth').innerText;
+
+                if (hat === this.targetFace.hat && eyes === this.targetFace.eyes && mouth === this.targetFace.mouth) {
+                    this.score += 50;
+                    this.engine.score = this.score;
+                    this.engine.level++;
+                    this.engine.updateHUD();
+                    alert('Correct!');
+                    this.nextRound();
+                } else {
+                    this.engine.gameOver(this.score);
+                }
+            }
+        }
+
+        class SequenceGame extends BaseGame {
+            constructor(e, c, ctrl) {
+                super(e, c, ctrl);
+                this.id = 'sequence';
+                this.gridSize = 5;
+                this.sequence = [];
+                this.userIndex = 0;
+                this.score = 0;
+            }
+
+            start() {
+                this.score = 0;
+                this.engine.level = 1;
+                this.nextRound();
+            }
+
+            nextRound() {
+                this.sequence = [];
+                this.userIndex = 0;
+                const count = 3 + Math.floor(this.score / 100);
+
+                // Generate unique positions
+                const positions = new Set();
+                while (positions.size < count) {
+                    positions.add(Math.floor(Math.random() * 25));
+                }
+
+                this.sequence = Array.from(positions).map((pos, i) => ({ pos, val: i + 1 }));
+
+                this.render(true);
+
+                setTimeout(() => {
+                    this.render(false);
+                }, 2000);
+            }
+
+            render(showNumbers) {
+                this.container.innerHTML = `
+                    <div class="text-center">
+                        <h3>Sequence Slider</h3>
+                        <p>${showNumbers ? 'Memorize order!' : 'Click in ascending order (1, 2, 3...)'}</p>
+                    </div>
+                    <div style="
+                        display: grid; 
+                        grid-template-columns: repeat(5, 1fr); 
+                        gap: 5px; 
+                        width: 300px; 
+                        height: 300px;
+                        margin: 0 auto;
+                    ">
+                        ${Array(25).fill(0).map((_, i) => {
+                    const item = this.sequence.find(s => s.pos === i);
+                    if (item) {
+                        return `<div id="seq-cell-${i}" class="seq-cell" style="
+                                    background: ${showNumbers ? 'var(--primary-color)' : '#333'}; 
+                                    color: #000;
+                                    font-weight: bold;
+                                    font-size: 1.5rem;
+                                    border-radius: 4px;
+                                    display: flex;
+                                    justify-content: center;
+                                    align-items: center;
+                                    cursor: pointer;
+                                ">${showNumbers ? item.val : ''}</div>`;
+                    } else {
+                        return `<div style="background: transparent;"></div>`;
+                    }
+                }).join('')}
+                    </div>
+                `;
+
+                this.controls.innerHTML = '';
+
+                if (!showNumbers) {
+                    const cells = document.querySelectorAll('.seq-cell');
+                    cells.forEach(cell => {
+                        const id = parseInt(cell.id.split('-')[2]);
+                        cell.onclick = () => this.handleClick(id, cell);
+                    });
+                }
+            }
+
+            handleClick(pos, cell) {
+                const expected = this.sequence[this.userIndex];
+                if (pos === expected.pos) {
+                    cell.innerText = expected.val;
+                    cell.style.background = 'var(--secondary-color)';
+                    this.userIndex++;
+
+                    if (this.userIndex === this.sequence.length) {
+                        this.score += 10 * this.sequence.length;
+                        this.engine.score = this.score;
+                        this.engine.level = Math.floor(this.score / 100) + 1;
+                        this.engine.updateHUD();
+                        setTimeout(() => this.nextRound(), 500);
+                    }
+                } else {
+                    cell.style.background = 'var(--error-color)';
+                    this.engine.gameOver(this.score);
+                }
+            }
+        }
+
+        class ColorGame extends BaseGame {
+            constructor(e, c, ctrl) {
+                super(e, c, ctrl);
+                this.id = 'color';
+                this.score = 0;
+                this.targetColor = '';
+                this.mixes = {
+                    'Purple': ['Red', 'Blue'],
+                    'Orange': ['Red', 'Yellow'],
+                    'Green': ['Blue', 'Yellow'],
+                    'Pink': ['Red', 'White'],
+                    'Cyan': ['Blue', 'White']
+                };
+                this.colors = ['Red', 'Blue', 'Yellow', 'White'];
+                this.selected = [];
+            }
+
+            start() {
+                this.score = 0;
+                this.engine.level = 1;
+                this.nextRound();
+            }
+
+            nextRound() {
+                const targets = Object.keys(this.mixes);
+                this.targetColor = targets[Math.floor(Math.random() * targets.length)];
+                this.selected = [];
+                this.render();
+            }
+
+            render() {
+                this.container.innerHTML = `
+                    <div class="text-center">
+                        <h3>Color Mixer</h3>
+                        <p>Select 2 colors to make:</p>
+                        <h2 style="color: ${this.targetColor.toLowerCase()}; font-size: 3rem;">${this.targetColor}</h2>
+                    </div>
+                    <div style="display: flex; gap: 20px; justify-content: center; margin-top: 30px;">
+                        ${this.colors.map(c => `
+                            <div class="color-bubble" data-color="${c}" style="
+                                width: 60px; height: 60px; 
+                                border-radius: 50%; 
+                                background: ${c.toLowerCase()}; 
+                                border: 2px solid #fff;
+                                cursor: pointer;
+                                transition: transform 0.2s;
+                            "></div>
+                        `).join('')}
+                    </div>
+                `;
+
+                this.controls.innerHTML = '';
+
+                const bubbles = this.container.querySelectorAll('.color-bubble');
+                bubbles.forEach(b => {
+                    b.onclick = () => {
+                        b.style.transform = 'scale(0.8)';
+                        this.handleSelect(b.dataset.color);
+                    };
+                });
+            }
+
+            handleSelect(color) {
+                this.selected.push(color);
+                if (this.selected.length === 2) {
+                    const req = this.mixes[this.targetColor];
+                    if (req.includes(this.selected[0]) && req.includes(this.selected[1]) && this.selected[0] !== this.selected[1]) {
+                        this.score += 20;
+                        this.engine.score = this.score;
+                        this.engine.level = Math.floor(this.score / 100) + 1;
+                        this.engine.updateHUD();
+                        setTimeout(() => this.nextRound(), 200);
+                    } else {
+                        this.engine.gameOver(this.score);
+                    }
+                }
+            }
+        }
+
+        class OddOneOutGame extends BaseGame {
+            constructor(e, c, ctrl) {
+                super(e, c, ctrl);
+                this.id = 'odd';
+                this.dots = [];
+                this.score = 0;
+                this.canvas = null;
+                this.ctx = null;
+                this.animationId = null;
+                this.targetIndex = -1;
+            }
+
+            start() {
+                this.score = 0;
+                this.engine.level = 1;
+                this.nextRound();
+            }
+
+            nextRound() {
+                this.render();
+                this.initDots();
+                this.animate();
+            }
+
+            render() {
+                this.container.innerHTML = `
+                    <div class="text-center">
+                        <h3>Odd One Out</h3>
+                        <p>Find the dot moving differently!</p>
+                        <canvas id="odd-canvas" width="300" height="300" style="background: #000; border-radius: 8px; cursor: crosshair;"></canvas>
+                    </div>
+                `;
+                this.controls.innerHTML = '';
+
+                this.canvas = document.getElementById('odd-canvas');
+                this.ctx = this.canvas.getContext('2d');
+
+                this.canvas.onclick = (e) => {
+                    const rect = this.canvas.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    this.checkClick(x, y);
+                };
+            }
+
+            initDots() {
+                this.dots = [];
+                const count = 10 + (this.engine.level * 2);
+                this.targetIndex = Math.floor(Math.random() * count);
+
+                // Base movement
+                const baseSpeed = 1 + (this.engine.level * 0.2);
+                const baseAngle = Math.random() * Math.PI * 2;
+
+                for (let i = 0; i < count; i++) {
+                    let angle = baseAngle;
+                    let speed = baseSpeed;
+
+                    if (i === this.targetIndex) {
+                        // Make target different
+                        if (Math.random() > 0.5) {
+                            angle += Math.PI; // Opposite direction
+                        } else {
+                            speed *= 2.5; // Much faster
+                        }
+                    } else {
+                        // Add slight jitter to normal dots so it's not too obvious
+                        angle += (Math.random() - 0.5) * 0.2;
+                    }
+
+                    this.dots.push({
+                        x: Math.random() * 300,
+                        y: Math.random() * 300,
+                        vx: Math.cos(angle) * speed,
+                        vy: Math.sin(angle) * speed,
+                        r: 5,
+                        color: '#fff'
+                    });
+                }
+            }
+
+            animate() {
+                if (!this.canvas) return;
+
+                this.ctx.clearRect(0, 0, 300, 300);
+
+                this.dots.forEach(dot => {
+                    dot.x += dot.vx;
+                    dot.y += dot.vy;
+
+                    // Bounce
+                    if (dot.x < 0 || dot.x > 300) dot.vx *= -1;
+                    if (dot.y < 0 || dot.y > 300) dot.vy *= -1;
+
+                    this.ctx.beginPath();
+                    this.ctx.arc(dot.x, dot.y, dot.r, 0, Math.PI * 2);
+                    this.ctx.fillStyle = dot.color;
+                    this.ctx.fill();
+                });
+
+                this.animationId = requestAnimationFrame(() => this.animate());
+            }
+
+            checkClick(x, y) {
+                const target = this.dots[this.targetIndex];
+                const dx = x - target.x;
+                const dy = y - target.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < 20) { // Generous hit area
+                    cancelAnimationFrame(this.animationId);
+                    this.score += 20;
+                    this.engine.score = this.score;
+                    this.engine.level = Math.floor(this.score / 100) + 1;
+                    this.engine.updateHUD();
+                    alert('Found it!');
+                    this.nextRound();
+                } else {
+                    // Check if clicked any other dot
+                    let clickedOther = false;
+                    for (let i = 0; i < this.dots.length; i++) {
+                        if (i === this.targetIndex) continue;
+                        const d = this.dots[i];
+                        if (Math.sqrt((x - d.x) ** 2 + (y - d.y) ** 2) < 20) {
+                            clickedOther = true;
+                            break;
+                        }
+                    }
+                    if (clickedOther) {
+                        cancelAnimationFrame(this.animationId);
+                        this.engine.gameOver(this.score);
+                    }
+                }
+            }
+
+            cleanup() {
+                cancelAnimationFrame(this.animationId);
+            }
+        }
+
+        class LetterSoupGame extends BaseGame {
+            constructor(e, c, ctrl) {
+                super(e, c, ctrl);
+                this.id = 'letters';
+                this.words = ['BRAIN', 'GAME', 'FOCUS', 'SPEED', 'LOGIC', 'SMART', 'QUICK', 'SHARP'];
+                this.targetWord = '';
+                this.foundIndices = []; // Indices of targetWord found
+                this.fallingLetters = [];
+                this.score = 0;
+                this.canvas = null;
+                this.ctx = null;
+                this.animationId = null;
+                this.spawnRate = 60;
+                this.frame = 0;
+            }
+
+            start() {
+                this.score = 0;
+                this.engine.level = 1;
+                this.nextRound();
+            }
+
+            nextRound() {
+                this.targetWord = this.words[Math.floor(Math.random() * this.words.length)];
+                this.foundIndices = [];
+                this.fallingLetters = [];
+                this.frame = 0;
+                this.render();
+                this.animate();
+            }
+
+            render() {
+                this.container.innerHTML = `
+                    <div class="text-center">
+                        <h3>Letter Soup</h3>
+                        <p>Catch: <strong style="font-size: 1.5rem; color: var(--secondary-color);">${this.targetWord}</strong></p>
+                        <div id="word-progress" style="font-size: 2rem; letter-spacing: 5px; margin-bottom: 10px;">
+                            ${this.targetWord.split('').map(() => '_').join('')}
+                        </div>
+                        <canvas id="soup-canvas" width="300" height="300" style="background: #111; border-radius: 8px; border-bottom: 2px solid var(--primary-color);"></canvas>
+                    </div>
+                `;
+                this.controls.innerHTML = '';
+
+                this.canvas = document.getElementById('soup-canvas');
+                this.ctx = this.canvas.getContext('2d');
+
+                this.canvas.onclick = (e) => {
+                    const rect = this.canvas.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    this.checkClick(x, y);
+                };
+            }
+
+            animate() {
+                if (!this.canvas) return;
+                this.ctx.clearRect(0, 0, 300, 300);
+                this.frame++;
+
+                // Spawn
+                if (this.frame % this.spawnRate === 0) {
+                    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+                    // 40% chance to spawn a needed letter
+                    let char;
+                    const needed = this.targetWord.split('').filter((_, i) => !this.foundIndices.includes(i));
+                    if (needed.length > 0 && Math.random() < 0.4) {
+                        char = needed[Math.floor(Math.random() * needed.length)];
+                    } else {
+                        char = chars[Math.floor(Math.random() * chars.length)];
+                    }
+
+                    this.fallingLetters.push({
+                        x: Math.random() * 280 + 10,
+                        y: -20,
+                        char: char,
+                        speed: 1 + Math.random() + (this.engine.level * 0.2)
+                    });
+                }
+
+                // Update & Draw
+                for (let i = this.fallingLetters.length - 1; i >= 0; i--) {
+                    const l = this.fallingLetters[i];
+                    l.y += l.speed;
+
+                    this.ctx.font = '24px Arial';
+                    this.ctx.fillStyle = '#fff';
+                    this.ctx.fillText(l.char, l.x, l.y);
+
+                    if (l.y > 320) {
+                        this.fallingLetters.splice(i, 1);
+                    }
+                }
+
+                this.animationId = requestAnimationFrame(() => this.animate());
+            }
+
+            checkClick(x, y) {
+                for (let i = this.fallingLetters.length - 1; i >= 0; i--) {
+                    const l = this.fallingLetters[i];
+                    // Simple hit box
+                    if (x > l.x && x < l.x + 24 && y > l.y - 24 && y < l.y) {
+                        // Hit!
+                        this.handleLetter(l.char);
+                        this.fallingLetters.splice(i, 1);
+                        // Visual pop
+                        this.ctx.fillStyle = 'var(--secondary-color)';
+                        this.ctx.beginPath();
+                        this.ctx.arc(l.x + 12, l.y - 12, 20, 0, Math.PI * 2);
+                        this.ctx.fill();
+                        return;
+                    }
+                }
+            }
+
+            handleLetter(char) {
+                // Check if char is next needed in sequence (or just needed at all? Let's say in order for difficulty)
+                // Actually, let's do any order but fill slots
+                let filled = false;
+                for (let i = 0; i < this.targetWord.length; i++) {
+                    if (this.targetWord[i] === char && !this.foundIndices.includes(i)) {
+                        this.foundIndices.push(i);
+                        filled = true;
+                        break; // Only fill one slot per click
+                    }
+                }
+
+                if (filled) {
+                    this.updateProgress();
+                    if (this.foundIndices.length === this.targetWord.length) {
+                        cancelAnimationFrame(this.animationId);
+                        this.score += 50;
+                        this.engine.score = this.score;
+                        this.engine.level++;
+                        this.engine.updateHUD();
+                        setTimeout(() => this.nextRound(), 500);
+                    }
+                } else {
+                    // Penalty?
+                    this.score = Math.max(0, this.score - 5);
+                    this.engine.updateHUD();
+                }
+            }
+
+            updateProgress() {
+                const display = this.targetWord.split('').map((c, i) =>
+                    this.foundIndices.includes(i) ? c : '_'
+                ).join('');
+                document.getElementById('word-progress').innerText = display;
+            }
+
+            cleanup() {
+                cancelAnimationFrame(this.animationId);
+            }
+        }
+        class DirectionGame extends BaseGame {
+            constructor(e, c, ctrl) {
+                super(e, c, ctrl);
+                this.id = 'direction';
+                this.score = 0;
+                this.rule = 'arrow'; // 'arrow' or 'text'
+                this.directions = ['UP', 'DOWN', 'LEFT', 'RIGHT'];
+                this.arrows = { 'UP': '⬆️', 'DOWN': '⬇️', 'LEFT': '⬅️', 'RIGHT': '➡️' };
+                this.currentArrow = '';
+                this.currentText = '';
+                this.timer = null;
+                this.timeLeft = 0;
+            }
+
+            start() {
+                this.score = 0;
+                this.engine.level = 1;
+                this.nextRound();
+
+                // Keyboard support
+                document.onkeydown = (e) => {
+                    if (e.key.startsWith('Arrow')) {
+                        const dir = e.key.replace('Arrow', '').toUpperCase();
+                        this.check(dir);
+                    }
+                };
+            }
+
+            nextRound() {
+                this.rule = Math.random() > 0.5 ? 'arrow' : 'text';
+                this.currentArrow = this.directions[Math.floor(Math.random() * 4)];
+                this.currentText = this.directions[Math.floor(Math.random() * 4)];
+
+                // 30% chance they match
+                if (Math.random() < 0.3) this.currentText = this.currentArrow;
+
+                this.render();
+                this.startTimer();
+            }
+
+            render() {
+                this.container.innerHTML = `
+                    <div class="text-center">
+                        <h3>Directional Confusion</h3>
+                        <p>Rule: <strong style="color: var(--secondary-color); font-size: 1.2rem;">FOLLOW ${this.rule.toUpperCase()}</strong></p>
+                        <div style="font-size: 6rem; margin: 20px 0;">${this.arrows[this.currentArrow]}</div>
+                        <div style="font-size: 3rem; font-weight: bold; color: var(--primary-color);">${this.currentText}</div>
+                        <div id="dir-timer" style="width: 100%; height: 5px; background: #333; margin-top: 20px;">
+                            <div id="dir-fill" style="width: 100%; height: 100%; background: var(--secondary-color);"></div>
+                        </div>
+                    </div>
+                `;
+
+                this.controls.innerHTML = `
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; max-width: 200px; margin: 0 auto;">
+                        <div></div>
+                        <button onclick="app.currentGame.check('UP')">⬆️</button>
+                        <div></div>
+                        <button onclick="app.currentGame.check('LEFT')">⬅️</button>
+                        <button onclick="app.currentGame.check('DOWN')">⬇️</button>
+                        <button onclick="app.currentGame.check('RIGHT')">➡️</button>
+                    </div>
+                `;
+            }
+
+            startTimer() {
+                clearInterval(this.timer);
+                this.timeLeft = Math.max(1000, 3000 - (this.score * 20));
+                const total = this.timeLeft;
+
+                this.timer = setInterval(() => {
+                    this.timeLeft -= 50;
+                    const pct = (this.timeLeft / total) * 100;
+                    const fill = document.getElementById('dir-fill');
+                    if (fill) fill.style.width = `${pct}%`;
+
+                    if (this.timeLeft <= 0) {
+                        clearInterval(this.timer);
+                        this.engine.gameOver(this.score);
+                    }
+                }, 50);
+            }
+
+            check(dir) {
+                clearInterval(this.timer);
+                const correct = this.rule === 'arrow' ? this.currentArrow : this.currentText;
+
+                if (dir === correct) {
+                    this.score += 10;
+                    this.engine.score = this.score;
+                    this.engine.level = Math.floor(this.score / 100) + 1;
+                    this.engine.updateHUD();
+                    this.nextRound();
+                } else {
+                    this.engine.gameOver(this.score);
+                }
+            }
+
+            cleanup() {
+                clearInterval(this.timer);
+                document.onkeydown = null;
+            }
+        }
+
+        class ShadowGame extends BaseGame {
+            constructor(e, c, ctrl) {
+                super(e, c, ctrl);
+                this.id = 'shadow';
+                this.shapes = ['Square', 'Circle', 'Triangle', 'Star'];
+                this.score = 0;
+            }
+
+            start() {
+                this.score = 0;
+                this.engine.level = 1;
+                this.nextRound();
+            }
+
+            nextRound() {
+                // Simplified version: Rotate a shape and find matching rotation
+                // For web simplicity without 3D engine, we'll use CSS transforms
+                this.targetRotation = Math.floor(Math.random() * 4) * 90; // 0, 90, 180, 270
+                this.targetShape = this.shapes[Math.floor(Math.random() * this.shapes.length)];
+
+                this.options = [];
+                // Correct option
+                this.options.push({ shape: this.targetShape, rot: this.targetRotation, correct: true });
+
+                // Distractors
+                while (this.options.length < 4) {
+                    const s = this.shapes[Math.floor(Math.random() * this.shapes.length)];
+                    const r = Math.floor(Math.random() * 4) * 90;
+                    // Avoid duplicate correct answer
+                    if (s === this.targetShape && r === this.targetRotation) continue;
+                    this.options.push({ shape: s, rot: r, correct: false });
+                }
+
+                this.options.sort(() => Math.random() - 0.5);
+                this.render();
+            }
+
+            render() {
+                const getShapeHTML = (shape, rot) => {
+                    let char = '';
+                    switch (shape) {
+                        case 'Square': char = '■'; break;
+                        case 'Circle': char = '●'; break;
+                        case 'Triangle': char = '▲'; break;
+                        case 'Star': char = '★'; break;
+                    }
+                    return `<div style="font-size: 3rem; transform: rotate(${rot}deg); display: inline-block;">${char}</div>`;
+                };
+
+                this.container.innerHTML = `
+                    <div class="text-center">
+                        <h3>Shadow Match</h3>
+                        <p>Find the matching shadow (rotation)!</p>
+                        <div style="
+                            padding: 20px; 
+                            background: #fff; 
+                            color: #000; 
+                            border-radius: 8px; 
+                            display: inline-block;
+                            margin: 20px;
+                            box-shadow: 5px 5px 15px rgba(0,0,0,0.5);
+                        ">
+                            ${getShapeHTML(this.targetShape, this.targetRotation)}
+                        </div>
+                    </div>
+                `;
+
+                this.controls.innerHTML = `
+                    <div style="display: flex; gap: 10px; justify-content: center;">
+                        ${this.options.map((opt, i) => `
+                            <button onclick="app.currentGame.check(${i})" style="
+                                background: #333; 
+                                border: 1px solid #555;
+                                padding: 10px;
+                            ">
+                                ${getShapeHTML(opt.shape, opt.rot)}
+                            </button>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            check(index) {
+                if (this.options[index].correct) {
+                    this.score += 10;
+                    this.engine.score = this.score;
+                    this.engine.level = Math.floor(this.score / 100) + 1;
+                    this.engine.updateHUD();
+                    this.nextRound();
+                } else {
+                    this.engine.gameOver(this.score);
+                }
+            }
+        }
+
+        class FocusGame extends BaseGame {
+            constructor(e, c, ctrl) {
+                super(e, c, ctrl);
+                this.id = 'focus';
+                this.cups = [];
+                this.ballPos = 0;
+                this.score = 0;
+                this.isShuffling = false;
+            }
+
+            start() {
+                this.score = 0;
+                this.engine.level = 1;
+                this.cupCount = 3;
+                this.nextRound();
+            }
+
+            nextRound() {
+                this.cupCount = 3 + Math.floor(this.score / 100);
+                this.ballPos = Math.floor(Math.random() * this.cupCount);
+                this.render();
+
+                setTimeout(() => {
+                    this.shuffle();
+                }, 1000);
+            }
+
+            render() {
+                this.container.innerHTML = `
+                    <div class="text-center">
+                        <h3>Focus Pocus</h3>
+                        <p>${this.isShuffling ? 'Watch closely...' : 'Where is the ball?'}</p>
+                        <div id="cup-container" style="
+                            display: flex; 
+                            gap: 20px; 
+                            justify-content: center; 
+                            margin-top: 50px;
+                            height: 100px;
+                            position: relative;
+                        ">
+                            ${Array(this.cupCount).fill(0).map((_, i) => `
+                                <div id="cup-${i}" class="cup" style="
+                                    width: 60px; 
+                                    height: 80px; 
+                                    background: var(--primary-color); 
+                                    border-radius: 5px 5px 0 0;
+                                    position: absolute;
+                                    left: ${i * 80}px;
+                                    transition: left 0.3s ease-in-out;
+                                    cursor: pointer;
+                                    display: flex;
+                                    justify-content: center;
+                                    align-items: flex-end;
+                                    padding-bottom: 5px;
+                                ">
+                                    ${i === this.ballPos && !this.isShuffling ? '<div class="ball" style="width: 20px; height: 20px; background: #fff; border-radius: 50%;"></div>' : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+
+                // Adjust container width
+                const container = document.getElementById('cup-container');
+                if (container) container.style.width = `${this.cupCount * 80}px`;
+
+                this.controls.innerHTML = '';
+
+                if (!this.isShuffling) {
+                    const cups = document.querySelectorAll('.cup');
+                    cups.forEach((cup, i) => {
+                        cup.onclick = () => this.check(i);
+                    });
+                }
+            }
+
+            async shuffle() {
+                this.isShuffling = true;
+                // Hide ball
+                const ball = document.querySelector('.ball');
+                if (ball) ball.style.display = 'none';
+
+                this.render(); // Re-render to remove ball from DOM logic if needed, or just hide it
+
+                const moves = 5 + (this.engine.level * 2);
+                const speed = Math.max(200, 600 - (this.engine.level * 50));
+
+                // Current positions map: index -> visual position (0, 1, 2...)
+                let positions = Array(this.cupCount).fill(0).map((_, i) => i);
+
+                for (let i = 0; i < moves; i++) {
+                    // Pick two random cups to swap
+                    const a = Math.floor(Math.random() * this.cupCount);
+                    let b = Math.floor(Math.random() * this.cupCount);
+                    while (a === b) b = Math.floor(Math.random() * this.cupCount);
+
+                    // Swap logic
+                    const cupA = document.getElementById(`cup-${positions[a]}`); // cup at pos a
+                    const cupB = document.getElementById(`cup-${positions[b]}`); // cup at pos b
+
+                    // Actually, the IDs are fixed to the logical cups. positions[a] is the cup index at position a.
+                    // Let's track logical indices.
+                    // positions[0] = cup_id_at_left
+
+                    // Swap in array
+                    const temp = positions[a];
+                    positions[a] = positions[b];
+                    positions[b] = temp;
+
+                    // Animate
+                    this.updateCupPositions(positions);
+
+                    await new Promise(r => setTimeout(r, speed));
+                }
+
+                // Update ball pos
+                // The ball was in `this.ballPos` (logical index).
+                // We need to know where that logical index is now.
+                // positions[x] = logical_id. We want x where positions[x] == this.ballPos.
+                // Wait, no. The user clicks a position.
+                // Let's say user clicks the 1st cup (leftmost). That corresponds to positions[0].
+                // So if positions[0] == this.ballPos, they win.
+
+                this.currentPositions = positions;
+                this.isShuffling = false;
+                this.render();
+            }
+
+            updateCupPositions(positions) {
+                positions.forEach((cupIdx, posIdx) => {
+                    const cup = document.getElementById(`cup-${cupIdx}`);
+                    if (cup) cup.style.left = `${posIdx * 80}px`;
+                });
+            }
+
+            check(posIdx) {
+                if (this.isShuffling) return;
+
+                // Which cup is at this visual position?
+                // In render(), we rendered cups at absolute positions based on their ID initially.
+                // But after shuffle, we need to know which cup ID is at the clicked position.
+                // Actually, render() resets positions based on ID * 80.
+                // We need to persist the shuffled positions or map clicks correctly.
+
+                // Simpler approach: Just track the ball's position index.
+                // When swapping A and B: if ball is at A, it moves to B.
+
+                // Let's rewrite shuffle to just track ball index
+                // Wait, visual animation needs to match.
+
+                // If I use the previous shuffle logic:
+                // positions[0] is the cup ID at left.
+                // If I click the left cup, I am choosing cup ID = positions[0].
+                // If positions[0] == this.ballPos (original ball index), then correct.
+
+                // However, render() resets the DOM. I should not call render() during shuffle or after shuffle until result.
+                // I called render() at end of shuffle. This resets cups to initial positions (cup-0 at 0, cup-1 at 80).
+                // This breaks the visual "swap".
+
+                // Fix: Don't re-render after shuffle. Just update state and enable clicks.
+                // But I need to remove "Watch closely" text.
+
+                // Let's just check against the `currentPositions` I calculated.
+                const selectedCupId = this.currentPositions[posIdx];
+
+                if (selectedCupId === this.ballPos) {
+                    this.score += 20;
+                    this.engine.score = this.score;
+                    this.engine.level++;
+                    this.engine.updateHUD();
+                    alert('Found it!');
+                    this.nextRound();
+                } else {
+                    // Show where it was
+                    const correctPos = this.currentPositions.indexOf(this.ballPos);
+                    const cup = document.getElementById(`cup-${this.ballPos}`);
+                    cup.style.background = 'var(--secondary-color)';
+                    setTimeout(() => this.engine.gameOver(this.score), 1000);
+                }
+            }
+        }
+
+        class BalanceGame extends BaseGame {
+            constructor(e, c, ctrl) {
+                super(e, c, ctrl);
+                this.id = 'balance';
+                this.score = 0;
+                this.shapes = ['🟥', '🔺', '🔵', '⭐'];
+                this.values = {};
+                this.problem = {};
+            }
+
+            start() {
+                this.score = 0;
+                this.engine.level = 1;
+                this.nextRound();
+            }
+
+            nextRound() {
+                // Assign random values
+                this.values = {
+                    '🟥': Math.floor(Math.random() * 5) + 2,
+                    '🔺': Math.floor(Math.random() * 5) + 2,
+                    '🔵': Math.floor(Math.random() * 5) + 2
+                };
+
+                // Ensure unique values for simplicity? No, just consistent logic.
+                // Create 2 relations
+                // Relation 1: A = n * B
+                // Relation 2: B = m * C
+                // Question: A = ? * C
+
+                // Let's do simple addition logic
+                // 1 Square = 2 Triangles
+                // 1 Triangle = 2 Circles
+                // 1 Square = ? Circles
+
+                const s1 = this.shapes[0];
+                const s2 = this.shapes[1];
+                const s3 = this.shapes[2];
+
+                const v1 = Math.floor(Math.random() * 2) + 2; // 2 or 3
+                const v2 = Math.floor(Math.random() * 2) + 2; // 2 or 3
+
+                this.problem = {
+                    rel1: { left: { shape: s1, count: 1 }, right: { shape: s2, count: v1 } },
+                    rel2: { left: { shape: s2, count: 1 }, right: { shape: s3, count: v2 } },
+                    question: { left: { shape: s1, count: 1 }, right: { shape: s3 } },
+                    answer: v1 * v2
+                };
+
+                this.render();
+            }
+
+            render() {
+                this.container.innerHTML = `
+                    <div class="text-center">
+                        <h3>Balance Scale</h3>
+                        <p>Solve the logic!</p>
+                        <div style="font-size: 2rem; margin: 20px 0; display: flex; flex-direction: column; gap: 10px;">
+                            <div>${this.problem.rel1.left.count}${this.problem.rel1.left.shape} = ${this.problem.rel1.right.count}${this.problem.rel1.right.shape}</div>
+                            <div>${this.problem.rel2.left.count}${this.problem.rel2.left.shape} = ${this.problem.rel2.right.count}${this.problem.rel2.right.shape}</div>
+                            <div style="margin-top: 10px; color: var(--primary-color); font-weight: bold;">
+                                ${this.problem.question.left.count}${this.problem.question.left.shape} = <span id="ans-slot">?</span> ${this.problem.question.right.shape}
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Number pad
+                this.controls.innerHTML = `
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 200px; margin: 0 auto;">
+                        ${[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => `<button onclick="app.currentGame.check(${n})">${n}</button>`).join('')}
+                    </div>
+                `;
+            }
+
+            check(val) {
+                if (val === this.problem.answer) {
+                    this.score += 20;
+                    this.engine.score = this.score;
+                    this.engine.level++;
+                    this.engine.updateHUD();
+                    alert('Correct!');
+                    this.nextRound();
+                } else {
+                    this.engine.gameOver(this.score);
+                }
+            }
+        }
+
+        class MirrorGame extends BaseGame {
+            constructor(e, c, ctrl) {
+                super(e, c, ctrl);
+                this.id = 'mirror';
+                this.gridSize = 5;
+                this.mirrors = [];
+                this.laser = { x: 0, y: 0, dir: 'R' }; // R, L, U, D
+                this.target = { x: 4, y: 4 };
+                this.score = 0;
+                this.isSimulating = false;
+            }
+
+            start() {
+                this.score = 0;
+                this.engine.level = 1;
+                this.nextRound();
+            }
+
+            nextRound() {
+                this.mirrors = [];
+                this.isSimulating = false;
+                this.gridSize = 5;
+
+                // Random start and target on edges
+                this.laser = { x: 0, y: Math.floor(Math.random() * 5), dir: 'R' };
+                this.target = { x: 4, y: Math.floor(Math.random() * 5) };
+
+                // Ensure not same row if direct path
+                if (this.laser.y === this.target.y) this.target.y = (this.target.y + 2) % 5;
+
+                this.render();
+            }
+
+            render() {
+                this.container.innerHTML = `
+                    <div class="text-center">
+                        <h3>Mirror Maze</h3>
+                        <p>Place mirrors (/) to guide the laser to the target!</p>
+                        <div id="mirror-grid" style="
+                            display: grid; 
+                            grid-template-columns: repeat(${this.gridSize}, 1fr); 
+                            gap: 2px; 
+                            width: 300px; 
+                            height: 300px; 
+                            margin: 20px auto;
+                            background: #222;
+                        ">
+                            ${Array(this.gridSize * this.gridSize).fill(0).map((_, i) => {
+                    const x = i % this.gridSize;
+                    const y = Math.floor(i / this.gridSize);
+                    let content = '';
+                    if (x === this.laser.x && y === this.laser.y) content = '🔫';
+                    else if (x === this.target.x && y === this.target.y) content = '🎯';
+                    else {
+                        const m = this.mirrors.find(m => m.x === x && m.y === y);
+                        if (m) content = m.type === '/' ? '╱' : '╲';
+                    }
+                    return `<div onclick="app.currentGame.placeMirror(${x}, ${y})" style="
+                                    background: #333; 
+                                    display: flex; 
+                                    justify-content: center; 
+                                    align-items: center; 
+                                    font-size: 1.5rem;
+                                    cursor: pointer;
+                                ">${content}</div>`;
+                }).join('')}
+                        </div>
+                    </div>
+                `;
+
+                this.controls.innerHTML = `
+                    <button onclick="app.currentGame.fire()">FIRE LASER</button>
+                    <button onclick="app.currentGame.clearMirrors()" class="secondary">CLEAR</button>
+                `;
+            }
+
+            placeMirror(x, y) {
+                if (this.isSimulating) return;
+                if ((x === this.laser.x && y === this.laser.y) || (x === this.target.x && y === this.target.y)) return;
+
+                const idx = this.mirrors.findIndex(m => m.x === x && m.y === y);
+                if (idx >= 0) {
+                    // Toggle or remove
+                    if (this.mirrors[idx].type === '/') this.mirrors[idx].type = '\\';
+                    else this.mirrors.splice(idx, 1);
+                } else {
+                    this.mirrors.push({ x, y, type: '/' });
+                }
+                this.render();
+            }
+
+            clearMirrors() {
+                this.mirrors = [];
+                this.render();
+            }
+
+            async fire() {
+                if (this.isSimulating) return;
+                this.isSimulating = true;
+
+                let cx = this.laser.x;
+                let cy = this.laser.y;
+                let cdir = this.laser.dir;
+
+                let steps = 0;
+                while (steps < 20) {
+                    // Move
+                    switch (cdir) {
+                        case 'R': cx++; break;
+                        case 'L': cx--; break;
+                        case 'U': cy--; break;
+                        case 'D': cy++; break;
+                    }
+
+                    // Check bounds
+                    if (cx < 0 || cx >= this.gridSize || cy < 0 || cy >= this.gridSize) {
+                        alert('Missed! Laser went out of bounds.');
+                        this.isSimulating = false;
+                        return;
+                    }
+
+                    // Visualize
+                    const cellIdx = cy * this.gridSize + cx;
+                    const cell = document.getElementById('mirror-grid').children[cellIdx];
+                    if (cell) {
+                        cell.style.background = 'var(--error-color)';
+                        await new Promise(r => setTimeout(r, 200));
+                        cell.style.background = '#333';
+                    }
+
+                    // Check Target
+                    if (cx === this.target.x && cy === this.target.y) {
+                        this.score += 50;
+                        this.engine.score = this.score;
+                        this.engine.level++;
+                        this.engine.updateHUD();
+                        alert('Target Hit!');
+                        this.nextRound();
+                        return;
+                    }
+
+                    // Check Mirror
+                    const m = this.mirrors.find(m => m.x === cx && m.y === cy);
+                    if (m) {
+                        // Reflect
+                        if (m.type === '/') {
+                            if (cdir === 'R') cdir = 'U';
+                            else if (cdir === 'L') cdir = 'D';
+                            else if (cdir === 'U') cdir = 'R';
+                            else if (cdir === 'D') cdir = 'L';
+                        } else { // '\'
+                            if (cdir === 'R') cdir = 'D';
+                            else if (cdir === 'L') cdir = 'U';
+                            else if (cdir === 'U') cdir = 'L';
+                            else if (cdir === 'D') cdir = 'R';
+                        }
+                    }
+
+                    steps++;
+                }
+
+                alert('Laser fizzled out.');
+                this.isSimulating = false;
+            }
+        }
+        class RuleGame extends BaseGame {
+            constructor(e, c, ctrl) {
+                super(e, c, ctrl);
+                this.id = 'rule';
+                this.score = 0;
+                this.currentRule = 'COLOR'; // COLOR, SHAPE, NUMBER
+                this.card = {};
+                this.colors = ['RED', 'BLUE', 'GREEN'];
+                this.shapes = ['CIRCLE', 'SQUARE', 'TRIANGLE'];
+                this.numbers = [1, 2, 3];
+                this.timer = null;
+            }
+
+            start() {
+                this.score = 0;
+                this.engine.level = 1;
+                this.nextRound();
+            }
+
+            nextRound() {
+                // Change rule every 5 rounds or randomly?
+                // Let's change rule every round for high intensity
+                const rules = ['COLOR', 'SHAPE', 'NUMBER'];
+                this.currentRule = rules[Math.floor(Math.random() * rules.length)];
+
+                this.card = {
+                    color: this.colors[Math.floor(Math.random() * 3)],
+                    shape: this.shapes[Math.floor(Math.random() * 3)],
+                    number: this.numbers[Math.floor(Math.random() * 3)]
+                };
+
+                this.render();
+            }
+
+            render() {
+                const colorMap = { 'RED': '#ff5252', 'BLUE': '#448aff', 'GREEN': '#69f0ae' };
+                const shapeMap = { 'CIRCLE': '●', 'SQUARE': '■', 'TRIANGLE': '▲' };
+
+                this.container.innerHTML = `
+                    <div class="text-center">
+                        <h3>Rule Switcher</h3>
+                        <p>Sort by: <strong style="font-size: 1.5rem; color: var(--secondary-color);">${this.currentRule}</strong></p>
+                        <div style="
+                            width: 150px; 
+                            height: 200px; 
+                            background: #fff; 
+                            border-radius: 10px; 
+                            margin: 20px auto;
+                            display: flex; 
+                            flex-direction: column;
+                            justify-content: center; 
+                            align-items: center;
+                            color: ${colorMap[this.card.color]};
+                            font-size: 5rem;
+                            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                        ">
+                            <div>${shapeMap[this.card.shape]}</div>
+                            <div style="font-size: 2rem; font-weight: bold;">${this.card.number}</div>
+                        </div>
+                    </div>
+                `;
+
+                // Controls depend on rule? No, show all options, user must pick right category option
+                // Actually, let's show 3 bins.
+                // If Rule is Color: Bins are Red, Blue, Green
+                // If Rule is Shape: Bins are Circle, Square, Triangle
+                // If Rule is Number: Bins are 1, 2, 3
+
+                let options = [];
+                if (this.currentRule === 'COLOR') options = this.colors;
+                if (this.currentRule === 'SHAPE') options = this.shapes;
+                if (this.currentRule === 'NUMBER') options = this.numbers;
+
+                this.controls.innerHTML = `
+                    <div style="display: flex; gap: 10px; justify-content: center;">
+                        ${options.map(opt => `
+                            <button onclick="app.currentGame.check('${opt}')" style="min-width: 80px;">${opt}</button>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            check(val) {
+                let correct = false;
+                if (this.currentRule === 'COLOR' && val === this.card.color) correct = true;
+                if (this.currentRule === 'SHAPE' && val === this.card.shape) correct = true;
+                if (this.currentRule === 'NUMBER' && val == this.card.number) correct = true; // loose equality for number
+
+                if (correct) {
+                    this.score += 10;
+                    this.engine.score = this.score;
+                    this.engine.level = Math.floor(this.score / 100) + 1;
+                    this.engine.updateHUD();
+                    this.nextRound();
+                } else {
+                    this.engine.gameOver(this.score);
+                }
+            }
+        }
+
+        class CipherGame extends BaseGame {
+            constructor(e, c, ctrl) {
+                super(e, c, ctrl);
+                this.id = 'cipher';
+                this.score = 0;
+                this.offset = 0;
+                this.targetWord = '';
+                this.cipherText = '';
+            }
+
+            start() {
+                this.score = 0;
+                this.engine.level = 1;
+                this.nextRound();
+            }
+
+            nextRound() {
+                this.offset = Math.floor(Math.random() * 5) + 1; // Shift 1-5
+                const words = ['CAT', 'DOG', 'FOX', 'BOX', 'SKY', 'RED', 'ONE', 'TWO'];
+                this.targetWord = words[Math.floor(Math.random() * words.length)];
+
+                // Encode
+                this.cipherText = this.targetWord.split('').map(char => {
+                    const code = char.charCodeAt(0) - 65; // A=0
+                    const shifted = (code + this.offset) % 26;
+                    return String.fromCharCode(shifted + 65);
+                }).join('');
+
+                this.render();
+            }
+
+            render() {
+                this.container.innerHTML = `
+                    <div class="text-center">
+                        <h3>Cipher Breaker</h3>
+                        <p>Decode the word! (Shift +${this.offset})</p>
+                        <div style="font-size: 3rem; letter-spacing: 5px; margin: 20px 0; color: var(--error-color);">
+                            ${this.cipherText}
+                        </div>
+                        <div style="font-size: 1.2rem; color: #aaa;">
+                            A &rarr; ${String.fromCharCode(65 + this.offset)}<br>
+                            B &rarr; ${String.fromCharCode(66 + this.offset)}
+                        </div>
+                    </div>
+                `;
+
+                this.controls.innerHTML = `
+                    <div style="display: flex; gap: 10px; justify-content: center;">
+                        <input type="text" id="cipher-input" maxlength="3" style="
+                            font-size: 2rem; 
+                            width: 150px; 
+                            text-align: center; 
+                            text-transform: uppercase;
+                            background: #333;
+                            color: #fff;
+                            border: 2px solid var(--primary-color);
+                            border-radius: 8px;
+                        ">
+                        <button onclick="app.currentGame.check()">UNLOCK</button>
+                    </div>
+                `;
+
+                setTimeout(() => document.getElementById('cipher-input').focus(), 100);
+
+                // Enter key
+                document.getElementById('cipher-input').onkeydown = (e) => {
+                    if (e.key === 'Enter') this.check();
+                };
+            }
+
+            check() {
+                const input = document.getElementById('cipher-input').value.toUpperCase();
+                if (input === this.targetWord) {
+                    this.score += 30;
+                    this.engine.score = this.score;
+                    this.engine.level++;
+                    this.engine.updateHUD();
+                    alert('Decoded!');
+                    this.nextRound();
+                } else {
+                    this.engine.gameOver(this.score);
+                }
+            }
+        }
+
+        class TrafficGame extends BaseGame {
+            constructor(e, c, ctrl) {
+                super(e, c, ctrl);
+                this.id = 'traffic';
+                this.score = 0;
+                this.greenLight = 'H'; // H or V
+                this.carsH = [];
+                this.carsV = [];
+                this.intervalId = null;
+                this.canvas = null;
+                this.ctx = null;
+            }
+
+            start() {
+                this.score = 0;
+                this.engine.level = 1;
+                this.greenLight = 'H';
+                this.carsH = [];
+                this.carsV = [];
+                this.render();
+                this.loop();
+            }
+
+            render() {
+                this.container.innerHTML = `
+                    <div class="text-center">
+                        <h3>Traffic Controller</h3>
+                        <p>Click to toggle lights. Don't let queues get too long!</p>
+                        <canvas id="traffic-canvas" width="300" height="300" style="background: #222; border-radius: 8px; cursor: pointer;"></canvas>
+                    </div>
+                `;
+                this.controls.innerHTML = '';
+
+                this.canvas = document.getElementById('traffic-canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.canvas.onclick = () => this.toggleLight();
+            }
+
+            toggleLight() {
+                this.greenLight = this.greenLight === 'H' ? 'V' : 'H';
+            }
+
+            loop() {
+                if (!this.canvas) return;
+
+                // Spawn cars
+                if (Math.random() < 0.05 + (this.engine.level * 0.01)) {
+                    this.carsH.push({ x: -20, speed: 2, stopped: false });
+                }
+                if (Math.random() < 0.05 + (this.engine.level * 0.01)) {
+                    this.carsV.push({ y: -20, speed: 2, stopped: false });
+                }
+
+                // Update H
+                let leadH = 300; // Position of car ahead
+                this.carsH.forEach(car => {
+                    // Stop line at x=130
+                    if (this.greenLight === 'V' && car.x > 110 && car.x < 130) {
+                        car.stopped = true;
+                    } else if (car.x + 20 >= leadH - 10) { // Queue logic
+                        car.stopped = true;
+                    } else {
+                        car.stopped = false;
+                    }
+
+                    if (!car.stopped) car.x += car.speed;
+                    leadH = car.x;
+                });
+
+                // Update V
+                let leadV = 300;
+                this.carsV.forEach(car => {
+                    // Stop line at y=130
+                    if (this.greenLight === 'H' && car.y > 110 && car.y < 130) {
+                        car.stopped = true;
+                    } else if (car.y + 20 >= leadV - 10) {
+                        car.stopped = true;
+                    } else {
+                        car.stopped = false;
+                    }
+
+                    if (!car.stopped) car.y += car.speed;
+                    leadV = car.y;
+                });
+
+                // Cleanup
+                this.carsH = this.carsH.filter(c => c.x < 320);
+                this.carsV = this.carsV.filter(c => c.y < 320);
+
+                // Score
+                this.score++;
+                if (this.score % 500 === 0) {
+                    this.engine.level++;
+                    this.engine.updateHUD();
+                }
+                this.engine.score = Math.floor(this.score / 10);
+                this.engine.updateHUD();
+
+                // Game Over: Queue too long
+                const queueH = this.carsH.filter(c => c.stopped && c.x < 130).length;
+                const queueV = this.carsV.filter(c => c.stopped && c.y < 130).length;
+
+                if (queueH > 5 || queueV > 5) {
+                    this.engine.gameOver(this.engine.score);
+                    return;
+                }
+
+                this.draw();
+                this.intervalId = requestAnimationFrame(() => this.loop());
+            }
+
+            draw() {
+                this.ctx.clearRect(0, 0, 300, 300);
+
+                // Roads
+                this.ctx.fillStyle = '#444';
+                this.ctx.fillRect(0, 130, 300, 40); // H
+                this.ctx.fillRect(130, 0, 40, 300); // V
+
+                // Lights
+                this.ctx.fillStyle = this.greenLight === 'H' ? '#0f0' : '#f00';
+                this.ctx.fillRect(100, 100, 20, 20); // H Light
+
+                this.ctx.fillStyle = this.greenLight === 'V' ? '#0f0' : '#f00';
+                this.ctx.fillRect(180, 100, 20, 20); // V Light
+
+                // Cars
+                this.ctx.fillStyle = '#448aff';
+                this.carsH.forEach(c => this.ctx.fillRect(c.x, 140, 20, 20));
+
+                this.ctx.fillStyle = '#ff5252';
+                this.carsV.forEach(c => this.ctx.fillRect(140, c.y, 20, 20));
+            }
+
+            cleanup() {
+                cancelAnimationFrame(this.intervalId);
+            }
+        }
+
+        class ReactionGame extends BaseGame {
+            constructor(e, c, ctrl) {
+                super(e, c, ctrl);
+                this.id = 'reaction';
+                this.score = 0;
+                this.state = 'wait'; // wait, ready, go, false
+                this.startTime = 0;
+                this.timeoutId = null;
+            }
+
+            start() {
+                this.score = 0;
+                this.engine.level = 1;
+                this.nextRound();
+            }
+
+            nextRound() {
+                this.state = 'wait';
+                this.render();
+
+                const delay = Math.random() * 2000 + 1000;
+                this.timeoutId = setTimeout(() => {
+                    // 30% chance of Blue (False start check)
+                    if (Math.random() < 0.3) {
+                        this.state = 'false';
+                        this.render();
+                        setTimeout(() => {
+                            if (this.state === 'false') this.nextRound(); // If they didn't click, good job
+                        }, 1000);
+                    } else {
+                        this.state = 'go';
+                        this.startTime = Date.now();
+                        this.render();
+                    }
+                }, delay);
+            }
+
+            render() {
+                let color = '#333';
+                let text = 'Wait for GREEN...';
+
+                if (this.state === 'wait') {
+                    color = '#333';
+                    text = 'Wait...';
+                } else if (this.state === 'go') {
+                    color = '#00e676';
+                    text = 'CLICK NOW!';
+                } else if (this.state === 'false') {
+                    color = '#2979ff';
+                    text = 'Don\'t Click!';
+                }
+
+                this.container.innerHTML = `
+                    <div class="text-center">
+                        <h3>Reaction Time</h3>
+                        <p>Click only on GREEN!</p>
+                        <div id="reaction-box" style="
+                            width: 100%; 
+                            height: 200px; 
+                            background: ${color}; 
+                            border-radius: 10px; 
+                            display: flex; 
+                            justify-content: center; 
+                            align-items: center; 
+                            font-size: 3rem; 
+                            font-weight: bold;
+                            cursor: pointer;
+                            margin-top: 20px;
+                            user-select: none;
+                        ">${text}</div>
+                    </div>
+                `;
+
+                this.controls.innerHTML = '';
+
+                document.getElementById('reaction-box').onmousedown = () => this.handleClick();
+            }
+
+            handleClick() {
+                if (this.state === 'wait') {
+                    clearTimeout(this.timeoutId);
+                    alert('Too early!');
+                    this.engine.gameOver(this.score);
+                } else if (this.state === 'false') {
+                    alert('You clicked on Blue!');
+                    this.engine.gameOver(this.score);
+                } else if (this.state === 'go') {
+                    const time = Date.now() - this.startTime;
+                    const points = Math.max(0, 1000 - time);
+                    this.score += Math.floor(points / 10);
+                    this.engine.score = this.score;
+                    this.engine.level = Math.floor(this.score / 500) + 1;
+                    this.engine.updateHUD();
+                    alert(`Time: ${time}ms`);
+                    this.nextRound();
+                }
+            }
+
+            cleanup() {
+                clearTimeout(this.timeoutId);
+            }
+        }
+
+        class TypingGame extends BaseGame {
+            constructor(e, c, ctrl) {
+                super(e, c, ctrl);
+                this.id = 'typing';
+                this.score = 0;
+                this.words = ['CODE', 'DATA', 'BYTE', 'NODE', 'JAVA', 'HTML', 'CSS', 'RUBY', 'PERL', 'RUST', 'LISP', 'BASH', 'UNIX', 'LINUX', 'MAC'];
+                this.currentWord = '';
+                this.input = '';
+                this.timer = null;
+                this.timeLeft = 0;
+            }
+
+            start() {
+                this.score = 0;
+                this.engine.level = 1;
+                this.nextRound();
+
+                document.onkeydown = (e) => {
+                    if (e.key.length === 1 && /[a-zA-Z]/.test(e.key)) {
+                        this.input += e.key.toUpperCase();
+                        this.check();
+                    } else if (e.key === 'Backspace') {
+                        this.input = this.input.slice(0, -1);
+                        this.render();
+                    }
+                };
+            }
+
+            nextRound() {
+                this.currentWord = this.words[Math.floor(Math.random() * this.words.length)];
+                this.input = '';
+                this.startTimer();
+                this.render();
+            }
+
+            render() {
+                this.container.innerHTML = `
+                    <div class="text-center">
+                        <h3>Typing Ninja</h3>
+                        <p>Type the word!</p>
+                        <div style="font-size: 4rem; margin: 20px 0; letter-spacing: 5px;">${this.currentWord}</div>
+                        <div style="font-size: 3rem; color: var(--secondary-color); min-height: 60px;">${this.input}</div>
+                        <div id="type-timer" style="width: 100%; height: 5px; background: #333; margin-top: 20px;">
+                            <div id="type-fill" style="width: 100%; height: 100%; background: var(--primary-color);"></div>
+                        </div>
+                    </div>
+                `;
+                this.controls.innerHTML = ''; // Keyboard only
+            }
+
+            startTimer() {
+                clearInterval(this.timer);
+                this.timeLeft = Math.max(1000, 3000 - (this.score * 20));
+                const total = this.timeLeft;
+
+                this.timer = setInterval(() => {
+                    this.timeLeft -= 50;
+                    const pct = (this.timeLeft / total) * 100;
+                    const fill = document.getElementById('type-fill');
+                    if (fill) fill.style.width = `${pct}%`;
+
+                    if (this.timeLeft <= 0) {
+                        clearInterval(this.timer);
+                        this.engine.gameOver(this.score);
+                    }
+                }, 50);
+            }
+
+            check() {
+                if (this.input === this.currentWord) {
+                    clearInterval(this.timer);
+                    this.score += 10 + this.currentWord.length;
+                    this.engine.score = this.score;
+                    this.engine.level = Math.floor(this.score / 200) + 1;
+                    this.engine.updateHUD();
+                    this.nextRound();
+                } else if (!this.currentWord.startsWith(this.input)) {
+                    // Wrong char
+                    this.container.style.background = 'var(--error-color)';
+                    setTimeout(() => this.container.style.background = 'var(--surface-color)', 100);
+                    this.input = this.input.slice(0, -1);
+                } else {
+                    this.render();
+                }
+            }
+
+            cleanup() {
+                clearInterval(this.timer);
+                document.onkeydown = null;
+            }
+        }
+
+        class BubbleGame extends BaseGame {
+            constructor(e, c, ctrl) {
+                super(e, c, ctrl);
+                this.id = 'bubble';
+                this.score = 0;
+                this.targetSum = 10;
+                this.currentSum = 0;
+                this.bubbles = [];
+                this.canvas = null;
+                this.ctx = null;
+                this.animationId = null;
+                this.frame = 0;
+            }
+
+            start() {
+                this.score = 0;
+                this.engine.level = 1;
+                this.nextRound();
+            }
+
+            nextRound() {
+                this.targetSum = Math.floor(Math.random() * 10) + 10; // 10-20
+                this.currentSum = 0;
+                this.bubbles = [];
+                this.render();
+                this.loop();
+            }
+
+            render() {
+                this.container.innerHTML = `
+                    <div class="text-center">
+                        <h3>Bubble Pop Math</h3>
+                        <p>Pop bubbles to reach: <strong style="font-size: 1.5rem; color: var(--secondary-color);">${this.targetSum}</strong></p>
+                        <p>Current: <span id="bubble-sum">${this.currentSum}</span></p>
+                        <canvas id="bubble-canvas" width="300" height="300" style="background: #111; border-radius: 8px; cursor: crosshair;"></canvas>
+                    </div>
+                `;
+                this.controls.innerHTML = '';
+
+                this.canvas = document.getElementById('bubble-canvas');
+                this.ctx = this.canvas.getContext('2d');
+
+                this.canvas.onclick = (e) => {
+                    const rect = this.canvas.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    this.checkClick(x, y);
+                };
+            }
+
+            loop() {
+                if (!this.canvas) return;
+                this.ctx.clearRect(0, 0, 300, 300);
+                this.frame++;
+
+                // Spawn
+                if (this.frame % 40 === 0) {
+                    const val = Math.floor(Math.random() * 9) + 1;
+                    this.bubbles.push({
+                        x: Math.random() * 260 + 20,
+                        y: 320,
+                        val: val,
+                        r: 15 + (val * 2),
+                        speed: 1 + Math.random()
+                    });
+                }
+
+                // Update & Draw
+                for (let i = this.bubbles.length - 1; i >= 0; i--) {
+                    const b = this.bubbles[i];
+                    b.y -= b.speed;
+
+                    this.ctx.beginPath();
+                    this.ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+                    this.ctx.fillStyle = `hsla(${b.val * 30}, 70%, 50%, 0.8)`;
+                    this.ctx.fill();
+                    this.ctx.fillStyle = '#fff';
+                    this.ctx.font = '16px Arial';
+                    this.ctx.textAlign = 'center';
+                    this.ctx.textBaseline = 'middle';
+                    this.ctx.fillText(b.val, b.x, b.y);
+
+                    if (b.y < -50) {
+                        this.bubbles.splice(i, 1);
+                    }
+                }
+
+                this.animationId = requestAnimationFrame(() => this.loop());
+            }
+
+            checkClick(x, y) {
+                for (let i = this.bubbles.length - 1; i >= 0; i--) {
+                    const b = this.bubbles[i];
+                    const dist = Math.sqrt((x - b.x) ** 2 + (y - b.y) ** 2);
+                    if (dist < b.r) {
+                        this.currentSum += b.val;
+                        this.bubbles.splice(i, 1);
+                        document.getElementById('bubble-sum').innerText = this.currentSum;
+
+                        if (this.currentSum === this.targetSum) {
+                            cancelAnimationFrame(this.animationId);
+                            this.score += 50;
+                            this.engine.score = this.score;
+                            this.engine.level++;
+                            this.engine.updateHUD();
+                            alert('Target Reached!');
+                            this.nextRound();
+                        } else if (this.currentSum > this.targetSum) {
+                            cancelAnimationFrame(this.animationId);
+                            this.engine.gameOver(this.score);
+                        }
+                        return;
+                    }
+                }
+            }
+
+            cleanup() {
+                cancelAnimationFrame(this.animationId);
+                document.onkeydown = null;
+            }
+        }
+        class RhythmGame extends BaseGame {
+            constructor(e, c, ctrl) {
+                super(e, c, ctrl);
+                this.id = 'rhythm';
+                this.score = 0;
+                this.sequence = []; // timestamps relative to start
+                this.userTaps = [];
+                this.isPlaying = false;
+                this.startTime = 0;
+                this.timeoutIds = [];
+            }
+
+            start() {
+                this.score = 0;
+                this.engine.level = 1;
+                this.nextRound();
+            }
+
+            nextRound() {
+                this.sequence = [];
+                this.userTaps = [];
+                this.isPlaying = true;
+
+                // Generate rhythm: 3-5 beats
+                let time = 0;
+                const beats = 3 + Math.floor(this.engine.level / 2);
+                for (let i = 0; i < beats; i++) {
+                    time += Math.random() * 500 + 400; // 400-900ms gap
+                    this.sequence.push(time);
+                }
+
+                this.render();
+                this.playRhythm();
+            }
+
+            render() {
+                this.container.innerHTML = `
+                    <div class="text-center">
+                        <h3>Rhythm Recall</h3>
+                        <p>${this.isPlaying ? 'Listen/Watch...' : 'Repeat the Rhythm!'}</p>
+                        <div id="rhythm-box" style="
+                            width: 100px; 
+                            height: 100px; 
+                            background: #333; 
+                            border-radius: 50%; 
+                            margin: 20px auto;
+                            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+                            transition: transform 0.1s;
+                        "></div>
+                    </div>
+                `;
+
+                this.controls.innerHTML = `
+                    <button id="tap-btn" style="width: 150px; height: 150px; border-radius: 50%; font-size: 1.5rem;" disabled>TAP</button>
+                `;
+
+                const btn = document.getElementById('tap-btn');
+                btn.onmousedown = () => {
+                    btn.style.transform = 'scale(0.95)';
+                    this.recordTap();
+                };
+                btn.onmouseup = () => btn.style.transform = 'scale(1)';
+
+                // Keyboard spacebar
+                document.onkeydown = (e) => {
+                    if (e.code === 'Space' && !btn.disabled) {
+                        btn.onmousedown();
+                        setTimeout(() => btn.onmouseup(), 100);
+                    }
+                };
+            }
+
+            playRhythm() {
+                const box = document.getElementById('rhythm-box');
+
+                this.sequence.forEach((t, i) => {
+                    const id = setTimeout(() => {
+                        box.style.background = 'var(--primary-color)';
+                        box.style.transform = 'scale(1.2)';
+                        // Sound?
+                        // const osc = new AudioContext().createOscillator(); ... maybe too complex for now without user interaction first
+
+                        setTimeout(() => {
+                            box.style.background = '#333';
+                            box.style.transform = 'scale(1)';
+                        }, 100);
+
+                        if (i === this.sequence.length - 1) {
+                            setTimeout(() => this.enableInput(), 500);
+                        }
+                    }, t);
+                    this.timeoutIds.push(id);
+                });
+            }
+
+            enableInput() {
+                this.isPlaying = false;
+                this.render(); // Update text
+                const btn = document.getElementById('tap-btn');
+                if (btn) btn.disabled = false;
+                this.startTime = Date.now();
+            }
+
+            recordTap() {
+                if (this.isPlaying) return;
+
+                const time = Date.now() - this.startTime;
+                this.userTaps.push(time);
+
+                // Visual feedback
+                const box = document.getElementById('rhythm-box');
+                box.style.background = 'var(--secondary-color)';
+                setTimeout(() => box.style.background = '#333', 100);
+
+                if (this.userTaps.length === this.sequence.length) {
+                    this.check();
+                }
+            }
+
+            check() {
+                // Compare intervals
+                // Sequence: [500, 1000, 1500] (relative to start of playback)
+                // User: [400, 900, 1600] (relative to start of input)
+                // We care about the *intervals* between beats.
+                // Seq Intervals: [500, 500, 500] (first is from start)
+
+                let totalError = 0;
+                for (let i = 0; i < this.sequence.length; i++) {
+                    const seqTime = this.sequence[i];
+                    const userTime = this.userTaps[i];
+                    // Normalize? No, absolute timing from start of their turn.
+                    // Actually, relative intervals are better.
+                    // Let's just compare absolute times with a margin.
+
+                    const diff = Math.abs(seqTime - userTime);
+                    totalError += diff;
+                }
+
+                const avgError = totalError / this.sequence.length;
+
+                if (avgError < 300) { // Generous margin
+                    this.score += 20;
+                    this.engine.score = this.score;
+                    this.engine.level++;
+                    this.engine.updateHUD();
+                    alert(`Good! Avg Error: ${Math.floor(avgError)}ms`);
+                    this.nextRound();
+                } else {
+                    alert(`Too off beat! Avg Error: ${Math.floor(avgError)}ms`);
+                    this.engine.gameOver(this.score);
+                }
+            }
+
+            cleanup() {
+                this.timeoutIds.forEach(id => clearTimeout(id));
+                document.onkeydown = null;
+            }
+        }
+
+        class ShapeGame extends BaseGame {
+            constructor(e, c, ctrl) {
+                super(e, c, ctrl);
+                this.id = 'shape';
+                this.score = 0;
+                this.currentShape = '';
+                this.shapes = ['square', 'circle', 'triangle'];
+                this.intervalId = null;
+                this.speed = 2000;
+            }
+
+            start() {
+                this.score = 0;
+                this.engine.level = 1;
+                this.speed = 2000;
+                this.render();
+                this.loop();
+            }
+
+            render() {
+                this.container.innerHTML = `
+                    <div class="text-center">
+                        <h3>Shape Shifter</h3>
+                        <p>Click the matching button!</p>
+                        <div id="shifter-box" style="
+                            width: 150px; 
+                            height: 150px; 
+                            margin: 20px auto;
+                            transition: all 0.2s;
+                        "></div>
+                        <div id="shifter-timer" style="height: 5px; background: #333; width: 200px; margin: 0 auto;">
+                            <div id="shifter-fill" style="height: 100%; width: 100%; background: var(--primary-color);"></div>
+                        </div>
+                    </div>
+                `;
+
+                this.controls.innerHTML = `
+                    <div style="display: flex; gap: 10px; justify-content: center;">
+                        <button onclick="app.currentGame.check('square')">■</button>
+                        <button onclick="app.currentGame.check('circle')">●</button>
+                        <button onclick="app.currentGame.check('triangle')">▲</button>
+                    </div>
+                `;
+            }
+
+            loop() {
+                this.changeShape();
+
+                clearInterval(this.intervalId);
+                let timeLeft = this.speed;
+                const step = 50;
+
+                this.intervalId = setInterval(() => {
+                    timeLeft -= step;
+                    const pct = (timeLeft / this.speed) * 100;
+                    const fill = document.getElementById('shifter-fill');
+                    if (fill) fill.style.width = `${pct}%`;
+
+                    if (timeLeft <= 0) {
+                        clearInterval(this.intervalId);
+                        this.engine.gameOver(this.score);
+                    }
+                }, step);
+            }
+
+            changeShape() {
+                this.currentShape = this.shapes[Math.floor(Math.random() * 3)];
+                const box = document.getElementById('shifter-box');
+                if (!box) return;
+
+                box.style.borderRadius = '0';
+                box.style.clipPath = 'none';
+                box.style.background = 'var(--secondary-color)';
+
+                if (this.currentShape === 'circle') {
+                    box.style.borderRadius = '50%';
+                } else if (this.currentShape === 'triangle') {
+                    box.style.clipPath = 'polygon(50% 0%, 0% 100%, 100% 100%)';
+                }
+                // square is default
+            }
+
+            check(shape) {
+                if (shape === this.currentShape) {
+                    this.score += 10;
+                    this.engine.score = this.score;
+                    this.engine.level = Math.floor(this.score / 100) + 1;
+                    this.engine.updateHUD();
+
+                    this.speed = Math.max(500, 2000 - (this.score * 10));
+                    this.loop();
+                } else {
+                    clearInterval(this.intervalId);
+                    this.engine.gameOver(this.score);
+                }
+            }
+
+            cleanup() {
+                clearInterval(this.intervalId);
+            }
+        }
+
+        // --- Initialization ---
+        window.onload = () => {
+            window.app = new GameEngine();
+        };
+
+    </script>
+</body>
+
+</html>
