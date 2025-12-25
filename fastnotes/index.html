@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>Fast Notes v2</title>
+
+<style>
+:root {
+  --bg: #121212;
+  --card: #1e1e1e;
+  --input: #2c2c2c;
+  --text: #e0e0e0;
+  --muted: #888;
+  --accent: #64b5f6;
+  --border: #333;
+  --danger: #ef5350;
+  --success: #66bb6a;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: sans-serif; padding-bottom: 100px; }
+
+/* Layout */
+header { padding: 15px; background: var(--card); border-bottom: 1px solid var(--border); font-weight: bold; display: flex; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+.container { padding: 15px; max-width: 600px; margin: 0 auto; }
+
+/* Components */
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 15px; }
+.card-head { padding: 15px; background: rgba(255,255,255,0.03); font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; }
+.card-body { padding: 15px; }
+
+input, textarea { width: 100%; background: var(--input); border: 1px solid var(--border); color: white; padding: 12px; border-radius: 8px; font-size: 16px; margin-bottom: 10px; display: block; }
+input:focus, textarea:focus { border-color: var(--accent); }
+
+button { padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--input); color: var(--text); font-weight: 600; cursor: pointer; }
+.btn-primary { background: var(--accent); color: black; border: none; width: 100%; }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+
+/* Builder Toolbar */
+.toolbar { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 10px; }
+.toolbar button { white-space: nowrap; flex-shrink: 0; border-color: var(--accent); color: var(--accent); background: rgba(100,181,246,0.1); }
+
+/* Generated Form */
+.gen-label { color: var(--muted); font-size: 13px; margin-bottom: 4px; white-space: pre-wrap; }
+.chip-container { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.chip-label { cursor: pointer; }
+.chip-label input { display: none; }
+.chip-span { padding: 8px 14px; background: var(--input); border: 1px solid var(--border); border-radius: 20px; font-size: 14px; display: block; }
+.chip-label input:checked + .chip-span { background: var(--accent); color: black; border-color: var(--accent); }
+
+/* Repeating Blocks */
+.rep-block { border-left: 2px solid var(--accent); padding-left: 10px; margin: 10px 0; }
+.rep-item { background: rgba(255,255,255,0.02); padding: 10px; border-radius: 8px; margin-bottom: 10px; position: relative; border: 1px solid var(--border); }
+.rep-remove { position: absolute; top: 5px; right: 5px; background: var(--danger); color: white; border: none; padding: 4px 8px; font-size: 10px; border-radius: 4px; }
+
+/* Output & FAB */
+.output { background: #000; padding: 15px; border-radius: 8px; white-space: pre-wrap; font-family: monospace; font-size: 14px; color: var(--success); min-height: 100px; }
+.fab-row { position: fixed; bottom: 20px; left: 0; right: 0; display: flex; justify-content: center; gap: 10px; pointer-events: none; }
+.fab { pointer-events: auto; background: var(--accent); color: black; border: none; padding: 14px 24px; border-radius: 50px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+.fab.sec { background: var(--card); color: var(--text); border: 1px solid var(--border); }
+
+.hide { display: none !important; }
+.toast { position: fixed; top: 70px; left: 50%; transform: translateX(-50%); background: var(--success); color: black; padding: 8px 16px; border-radius: 20px; font-weight: bold; opacity: 0; transition: 0.3s; pointer-events: none; }
+.toast.show { opacity: 1; }
+
+.tpl-list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: var(--input); margin-bottom: 5px; border-radius: 8px; }
+</style>
+</head>
+<body>
+
+<header>
+  <span>📝 Notes v2</span>
+  <button class="btn-sm" onclick="showScreen('manager')">Templates</button>
+</header>
+
+<div class="container">
+
+  <!-- MANAGER -->
+  <div id="screen-manager">
+    <div class="card">
+      <div class="card-head" onclick="toggle('editor')">Create / Edit ▼</div>
+      <div class="card-body hide" id="editor">
+        <input id="tName" placeholder="Template Name">
+        <div class="toolbar">
+          <button onclick="insert('__text__')">Text</button>
+          <button onclick="insert('__num__')">Num</button>
+          <button onclick="insert('__date__')">Date</button>
+          <button onclick="insert('#[A,B]')">Radio</button>
+          <button onclick="insert('*[A,B]')">Check</button>
+          <button onclick="insert('{{<button text=\'Add\'>\n  Item: __text__\n}}')">Repeater</button>
+        </div>
+        <textarea id="tContent" style="height: 150px" placeholder="Template content..."></textarea>
+        <button class="btn-primary" onclick="saveTemplate()">Save</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head">Your Templates</div>
+      <div class="card-body" id="tplList"></div>
+    </div>
+  </div>
+
+  <!-- WORKSPACE -->
+  <div id="screen-workspace" class="hide">
+    <div style="margin-bottom:10px">
+      <button class="btn-sm" onclick="showScreen('manager')">← Back</button>
+    </div>
+    <div id="form-root"></div>
+    <div class="card">
+      <div class="card-head">Preview</div>
+      <div class="card-body">
+        <div id="output" class="output"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Floating Buttons -->
+<div class="fab-row hide" id="fabs">
+  <button class="fab sec" onclick="resetActiveForm()">Reset</button>
+  <button class="fab" onclick="copyText()">Copy Note</button>
+</div>
+
+<div id="toast" class="toast">Copied!</div>
+
+<script>
+// --- CORE DATA ---
+let templates = JSON.parse(localStorage.getItem('fn_templates') || '{}');
+let activeTplName = null;
+let activeTplContent = null;
+// We store repeater sub-templates in memory to avoid "SyntaxError" in HTML attributes
+const repeaterRegistry = {}; 
+
+function saveStorage() { localStorage.setItem('fn_templates', JSON.stringify(templates)); }
+
+// --- PARSER ENGINE (The Magic Fix) ---
+// Scans string for tokens, handling nested {{ }} correctly
+function tokenize(str) {
+  const tokens = [];
+  let i = 0;
+  while(i < str.length) {
+    // 1. Check for Repeater: {{<button
+    if(str.startsWith('{{<button', i)) {
+      // Find attributes
+      const tagEnd = str.indexOf('>', i);
+      const btnTextMatch = str.substring(i, tagEnd).match(/text=['"]([^'"]+)['"]/);
+      const btnText = btnTextMatch ? btnTextMatch[1] : 'Add';
+      
+      // Find Balanced Closing }}
+      let balance = 1;
+      let j = tagEnd + 1;
+      while(j < str.length && balance > 0) {
+        if(str.startsWith('{{<button', j)) balance++;
+        else if(str.startsWith('}}', j)) balance--;
+        
+        if(balance > 0) j++;
+      }
+      
+      const content = str.substring(tagEnd + 1, j);
+      tokens.push({ type: 'rep', label: btnText, content: content });
+      i = j + 2; // skip }}
+      continue;
+    }
+
+    // 2. Check for Fields: __x__, #[], *[]
+    const sub = str.substring(i);
+    const match = sub.match(/^(__[a-z]+__|#\[.*?\]|\*\[.*?\])/);
+    if(match) {
+      tokens.push({ type: 'field', raw: match[0] });
+      i += match[0].length;
+      continue;
+    }
+
+    // 3. Text
+    tokens.push({ type: 'text', val: str[i] });
+    i++;
+  }
+  return tokens;
+}
+
+// --- RENDERER ---
+function renderForm(tokens, container, pathPrefix) {
+  // Merge adjacent text tokens for cleaner UI
+  const merged = [];
+  let buf = '';
+  tokens.forEach(t => {
+    if(t.type === 'text') buf += t.val;
+    else {
+      if(buf) merged.push({type:'text', val:buf});
+      buf = '';
+      merged.push(t);
+    }
+  });
+  if(buf) merged.push({type:'text', val:buf});
+
+  merged.forEach((t, idx) => {
+    const id = `${pathPrefix}_${idx}`;
+
+    if(t.type === 'text') {
+      // Only show non-empty labels
+      if(t.val.trim()) {
+        const div = document.createElement('div');
+        div.className = 'gen-label';
+        div.textContent = t.val;
+        container.appendChild(div);
+      }
+    } 
+    else if(t.type === 'rep') {
+      // Store the inner content template in memory, not HTML
+      const registryId = `tpl_${Date.now()}_${Math.random().toString(36).substr(2,9)}`;
+      repeaterRegistry[registryId] = t.content;
+
+      const wrap = document.createElement('div');
+      wrap.innerHTML = `
+        <div id="cont_${id}" class="rep-block" data-reg="${registryId}"></div>
+        <button class="btn-sm" style="color:var(--success);border-color:var(--success)" 
+          onclick="addRepeatItem('cont_${id}', '${registryId}')">+ ${t.label}</button>
+      `;
+      container.appendChild(wrap);
+    } 
+    else if(t.type === 'field') {
+      const el = createFieldElement(t.raw, id);
+      container.appendChild(el);
+    }
+  });
+}
+
+function createFieldElement(rawToken, id) {
+  const wrapper = document.createElement('div');
+  
+  // Input: __text__, __num__, etc
+  const matchInp = rawToken.match(/__([a-z]+)__/);
+  if(matchInp) {
+    const type = matchInp[1];
+    const input = document.createElement('input');
+    input.className = 'live-input';
+    input.dataset.raw = rawToken;
+    if(type === 'num') input.type = 'number';
+    if(type === 'date') input.value = new Date().toISOString().split('T')[0];
+    if(type === 'time') input.value = new Date().toTimeString().substring(0,5);
+    input.oninput = updateOutput;
+    wrapper.appendChild(input);
+    return wrapper;
+  }
+
+  // Chips: #[...] or *[...]
+  const isRadio = rawToken.startsWith('#');
+  const inner = rawToken.substring(2, rawToken.length-1);
+  const opts = inner.split(',').map(s=>s.trim());
+  
+  const container = document.createElement('div');
+  container.className = 'chip-container';
+  container.dataset.raw = rawToken;
+  container.dataset.type = isRadio ? 'radio' : 'check';
+
+  opts.forEach(opt => {
+    const label = document.createElement('label');
+    label.className = 'chip-label';
+    label.innerHTML = `
+      <input type="${isRadio ? 'radio' : 'checkbox'}" name="${id}" value="${opt}" onchange="updateOutput()">
+      <span class="chip-span">${opt}</span>
+    `;
+    container.appendChild(label);
+  });
+  
+  wrapper.appendChild(container);
+  return wrapper;
+}
+
+function addRepeatItem(containerId, registryId) {
+  const container = document.getElementById(containerId);
+  const contentTpl = repeaterRegistry[registryId]; // Retrieve from memory
+  const tokens = tokenize(contentTpl);
+  
+  const itemId = `${containerId}_item_${Date.now()}`;
+  const itemDiv = document.createElement('div');
+  itemDiv.className = 'rep-item';
+  itemDiv.id = itemId;
+  
+  // Render inner
+  renderForm(tokens, itemDiv, itemId);
+  
+  // Append remove button
+  const remBtn = document.createElement('button');
+  remBtn.className = 'rep-remove';
+  remBtn.textContent = 'Remove';
+  remBtn.onclick = () => { itemDiv.remove(); updateOutput(); };
+  itemDiv.appendChild(remBtn);
+  
+  container.appendChild(itemDiv);
+  updateOutput();
+}
+
+// --- GENERATOR ---
+function updateOutput() {
+  if(!activeTplContent) return;
+  const tokens = tokenize(activeTplContent);
+  const root = document.getElementById('form-root');
+  const res = processTokens(tokens, root);
+  document.getElementById('output').textContent = res;
+}
+
+function processTokens(tokens, container) {
+  let result = '';
+  // Helpers to iterate DOM children of specific types
+  const inputs = Array.from(container.querySelectorAll(':scope > div > .live-input'));
+  const chipGroups = Array.from(container.querySelectorAll(':scope > div > .chip-container'));
+  const repBlocks = Array.from(container.querySelectorAll(':scope > div > .rep-block'));
+  
+  let iInp = 0, iChip = 0, iRep = 0;
+
+  tokens.forEach(t => {
+    if(t.type === 'text') {
+      result += t.val;
+    }
+    else if(t.type === 'field') {
+      if(t.raw.startsWith('__')) {
+        const el = inputs[iInp++];
+        if(el) result += el.value;
+      } else {
+        const el = chipGroups[iChip++];
+        if(el) {
+          const checked = Array.from(el.querySelectorAll('input:checked')).map(c=>c.value);
+          result += checked.join(', ');
+        }
+      }
+    }
+    else if(t.type === 'rep') {
+      const block = repBlocks[iRep++];
+      if(block) {
+        const innerTpl = repeaterRegistry[block.dataset.reg];
+        const innerTokens = tokenize(innerTpl);
+        // Each child is a .rep-item
+        Array.from(block.children).forEach(child => {
+          result += processTokens(innerTokens, child);
+        });
+      }
+    }
+  });
+  return result;
+}
+
+// --- APP LOGIC ---
+function loadTemplate(name) {
+  activeTplName = name;
+  activeTplContent = templates[name];
+  const root = document.getElementById('form-root');
+  root.innerHTML = '';
+  
+  const tokens = tokenize(activeTplContent);
+  renderForm(tokens, root, 'root');
+  
+  showScreen('workspace');
+  updateOutput();
+}
+
+function saveTemplate() {
+  const name = document.getElementById('tName').value;
+  const txt = document.getElementById('tContent').value;
+  if(!name || !txt) return alert("Missing fields");
+  templates[name] = txt;
+  saveStorage();
+  renderList();
+  document.getElementById('editor').classList.add('hide');
+}
+
+function renderList() {
+  const div = document.getElementById('tplList');
+  div.innerHTML = Object.keys(templates).length ? '' : '<div style="text-align:center;color:#666">No templates</div>';
+  Object.keys(templates).forEach(k => {
+    div.innerHTML += `
+      <div class="tpl-list-item">
+        <span>${k}</span>
+        <div>
+          <button class="btn-sm" onclick="loadTemplate('${k}')">Use</button>
+          <button class="btn-sm" style="color:var(--accent)" onclick="startEdit('${k}')">Edit</button>
+          <button class="btn-sm" style="color:var(--danger)" onclick="delTpl('${k}')">✕</button>
+        </div>
+      </div>`;
+  });
+}
+
+function startEdit(name) {
+  document.getElementById('tName').value = name;
+  document.getElementById('tContent').value = templates[name];
+  document.getElementById('editor').classList.remove('hide');
+}
+
+function delTpl(name) {
+  if(confirm('Delete?')) { delete templates[name]; saveStorage(); renderList(); }
+}
+
+function insert(txt) {
+  const ta = document.getElementById('tContent');
+  const [s, e] = [ta.selectionStart, ta.selectionEnd];
+  ta.value = ta.value.substring(0, s) + txt + ta.value.substring(e);
+  ta.focus();
+}
+
+function showScreen(id) {
+  document.getElementById('screen-manager').classList.toggle('hide', id !== 'manager');
+  document.getElementById('screen-workspace').classList.toggle('hide', id !== 'workspace');
+  document.getElementById('fabs').classList.toggle('hide', id !== 'workspace');
+}
+
+function toggle(id) { document.getElementById(id).classList.toggle('hide'); }
+function resetActiveForm() { if(confirm('Clear form?')) loadTemplate(activeTplName); }
+function copyText() {
+  navigator.clipboard.writeText(document.getElementById('output').textContent);
+  const t = document.getElementById('toast'); t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2000);
+}
+
+// Init
+renderList();
+</script>
+</body>
+</html>
