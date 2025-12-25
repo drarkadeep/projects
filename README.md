@@ -4,6 +4,7 @@
 > Hosted - [Arkadeep.com](https://arkadeep.com/projects)
 
 ## List of Projects
+- [Fast Notes](https://arkadeep.com/projects/fastnotes) - Easiest way to create notes in a refillable format.
 - [Brain Games 🧠](https://arkadeep.com/projects/braingames) - Train your brain, gain without pain.
 - [Demon Encoder](https://arkadeep.com/projects/demon) - à ẩąȧảȃã ẫãẳẫ ãḁâạäãầ ẫăàẫ âạḁắãầẫẩ ảȃàąḁ ẫãẳẫ ąḁẫạ ắàầąàḁẫẩ ạå “à” àḁä áàâȁ.
 - [Punch 🥊](https://arkadeep.com/projects/punch) - Fustrated? Ok, Punch.
