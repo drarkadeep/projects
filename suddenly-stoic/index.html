@@ -6,180 +6,282 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="https://arkadeep.com/assets/media/A_thumbnail.png">
     <title>Suddenly Stoic</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Feather Icons -->
+    <script src="https://unpkg.com/feather-icons"></script>
+
     <style>
         :root {
-            --bg-color: #121212;
-            --text-color: #e0e0e0;
-            --accent-color: #bb86fc;
-            --button-color: #2c2c2c;
-            --quote-bg: #1e1e1e;
-            --shadow-color: rgba(0, 0, 0, 0.2);
+            --bg-color: #0f1012;
+            --card-bg: #1a1b1e;
+            --text-primary: #e8e8e8;
+            --text-secondary: #9ca3af;
+            --accent-color: #d4af37; /* Muted Gold */
+            --accent-hover: #f3c845;
+            --danger-color: #ef4444;
+            --border-radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
-            line-height: 1.6;
-            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
             background-color: var(--bg-color);
+            color: var(--text-primary);
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            justify-content: center;
+            align-items: center;
             padding: 20px;
         }
 
+        /* Main Card Container */
         .container {
-            max-width: 800px;
             width: 100%;
-            margin: 0 auto;
-            flex-grow: 1;
+            max-width: 600px;
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 3rem 2rem;
+            box-shadow: var(--shadow);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        h1,
-        h2 {
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+            opacity: 0.8;
+        }
+
+        /* Quote Styling */
+        .quote-wrapper {
             text-align: center;
-            margin-bottom: 1rem;
-            color: var(--accent-color);
-        }
-
-        .quote-box {
-            background-color: var(--quote-bg);
-            padding: 1.5rem;
-            border-radius: 8px;
-            margin-bottom: 1.5rem;
-            box-shadow: 0 2px 4px var(--shadow-color);
+            margin-bottom: 2.5rem;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            width: 100%;
         }
 
         .quote {
-            font-size: 1.1em;
-            margin-bottom: 0.5rem;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.75rem;
+            line-height: 1.5;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            transition: opacity 0.3s ease;
         }
 
         .author {
-            text-align: right;
-            font-style: italic;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
             color: var(--accent-color);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
         }
 
         button {
-            background-color: var(--button-color);
-            border: none;
-            color: var(--text-color);
-            padding: 0.5rem 1rem;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 1rem;
-            margin: 0.25rem;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary);
             cursor: pointer;
-            border-radius: 4px;
-            transition: all 0.3s ease;
-            box-shadow:
-                inset 1px 1px 0px rgba(255, 255, 255, 0.1),
-                inset -1px -1px 0px rgba(0, 0, 0, 0.3),
-                2px 2px 5px var(--shadow-color);
-        }
-
-        button:hover {
-            background-color: #3c3c3c;
-        }
-
-        button:active {
-            box-shadow:
-                inset -1px -1px 0px rgba(255, 255, 255, 0.1),
-                inset 1px 1px 0px rgba(0, 0, 0, 0.3);
-            transform: translateY(1px);
-        }
-
-        .favorites {
-            margin-top: 1.5rem;
-        }
-
-        .favorites-header {
+            padding: 12px;
+            border-radius: 50%;
+            transition: var(--transition);
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
         }
 
-        .favorites-toggle {
-            margin-left: 10px;
-            margin-bottom: 1rem;
-            transition: transform 0.3s ease;
+        button:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            transform: translateY(-2px);
+            background-color: rgba(212, 175, 55, 0.05);
         }
 
-        .favorites-toggle.collapsed {
-            transform: rotate(-90deg);
+        button svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        button.active-fav {
+            color: var(--danger-color);
+            border-color: var(--danger-color);
+            fill: var(--danger-color);
+        }
+        
+        button.active-fav svg {
+            fill: var(--danger-color);
+        }
+
+        /* Tooltip hint */
+        button[title] {
+            position: relative;
+        }
+
+        /* Favorites Section */
+        .favorites-container {
+            width: 100%;
+            margin-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            overflow: hidden;
         }
 
         #favoritesList {
             max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.5s ease;
+            overflow-y: auto;
+            transition: max-height 0.5s ease-in-out;
+            padding-right: 5px;
         }
 
         #favoritesList.expanded {
-            max-height: 1000000000px;
+            max-height: 300px;
+            margin-top: 1.5rem;
         }
 
-        .favorite-quote {
-            background-color: var(--quote-bg);
+        /* Custom Scrollbar */
+        #favoritesList::-webkit-scrollbar {
+            width: 6px;
+        }
+        #favoritesList::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        #favoritesList::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .favorite-item {
+            background-color: rgba(255, 255, 255, 0.03);
             padding: 1rem;
-            margin-bottom: 1rem;
-            border-radius: 4px;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
             position: relative;
-            box-shadow: 0 1px 3px var(--shadow-color);
+            animation: fadeIn 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
         }
 
-        .remove-favorite {
-            position: absolute;
-            top: 5px;
-            right: 5px;
+        .favorite-text {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .favorite-author {
+            display: block;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--accent-color);
+        }
+
+        .remove-btn {
+            background: none;
+            border: none;
+            color: #555;
+            padding: 0;
             cursor: pointer;
-            font-size: 1.2rem;
-            color: #888;
-            transition: color 0.3s ease;
+            width: auto;
+            height: auto;
+        }
+        .remove-btn:hover {
+            color: var(--danger-color);
+            background: none;
+            transform: none;
         }
 
-        .remove-favorite:hover {
-            color: var(--accent-color);
-        }
-
-        footer {
-            text-align: center;
-            padding: 1rem 0;
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background-color: var(--accent-color);
+            color: #000;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 600;
             font-size: 0.9rem;
-            color: var(--text-color);
+            opacity: 0;
+            transition: all 0.4s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            z-index: 100;
+        }
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
         }
 
+        /* Footer */
+        footer {
+            margin-top: 2rem;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.3);
+            text-align: center;
+        }
+        
         footer a {
-            color: var(--accent-color);
+            color: rgba(255, 255, 255, 0.5);
             text-decoration: none;
+            transition: color 0.2s;
         }
-
+        
         footer a:hover {
-            text-decoration: underline;
+            color: var(--accent-color);
         }
 
-        @media (max-width: 600px) {
-            body {
-                padding: 10px;
-            }
+        /* Loader */
+        .loader {
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-left-color: var(--accent-color);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+            display: none;
+        }
 
-            .quote-box,
-            .favorite-quote {
-                padding: 1rem;
-            }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-            button {
-                width: 100%;
-                margin: 0.25rem 0;
-            }
+        /* Responsive */
+        @media (max-width: 480px) {
+            .quote { font-size: 1.4rem; }
+            .container { padding: 2rem 1.5rem; }
         }
     </style>
 </head>
@@ -187,105 +289,219 @@
 <body>
     <div class="container">
         <h1>Suddenly Stoic</h1>
-        <div class="quote-box">
-            <p id="quote" class="quote"></p>
-            <p id="author" class="author"></p>
-        </div>
-        <button id="newQuote">New Quote</button>
-        <button id="favorite">Add to Favorites</button>
-        <div class="favorites">
-            <div class="favorites-header" id="favoritesHeader">
-                <h2>Favorites</h2>
-                <span class="favorites-toggle">▼</span>
+        
+        <div class="quote-wrapper">
+            <div id="loader" class="loader"></div>
+            <div id="content-area">
+                <p id="quote" class="quote">"Finding wisdom..."</p>
+                <p id="author" class="author"></p>
             </div>
+        </div>
+
+        <div class="controls">
+            <button id="favorite" title="Save to Favorites">
+                <i data-feather="heart"></i>
+            </button>
+            <button id="newQuote" title="New Quote">
+                <i data-feather="refresh-cw"></i>
+            </button>
+            <button id="toggleFavorites" title="View Favorites">
+                <i data-feather="list"></i>
+            </button>
+        </div>
+
+        <div class="favorites-container">
             <div id="favoritesList"></div>
         </div>
     </div>
+
     <footer>
-        Built with ❤️ by <a href="https://www.arkadeep.com" target="_blank">Arkadeep</a>
+        Designed by <a href="https://www.arkadeep.com" target="_blank">Arkadeep</a>
     </footer>
 
+    <div id="toast" class="toast">Added to favorites</div>
+
     <script>
+        // DOM Elements
         const quoteElement = document.getElementById('quote');
         const authorElement = document.getElementById('author');
         const newQuoteButton = document.getElementById('newQuote');
         const favoriteButton = document.getElementById('favorite');
+        const toggleFavButton = document.getElementById('toggleFavorites');
         const favoritesList = document.getElementById('favoritesList');
-        const favoritesHeader = document.getElementById('favoritesHeader');
-        const favoritesToggle = favoritesHeader.querySelector('.favorites-toggle');
+        const loader = document.getElementById('loader');
+        const contentArea = document.getElementById('content-area');
+        const toast = document.getElementById('toast');
 
+        // State
         let quotes = [];
         let currentQuote = null;
+        let isLoading = true;
 
-        // Fetch quotes from the JSON file
+        // Initialize Icons
+        feather.replace();
+
+        // Loading UI Toggle
+        function toggleLoading(loading) {
+            isLoading = loading;
+            if (loading) {
+                loader.style.display = 'block';
+                contentArea.style.opacity = '0';
+            } else {
+                loader.style.display = 'none';
+                contentArea.style.opacity = '1';
+            }
+        }
+
+        // Fetch Data
         fetch('https://raw.githubusercontent.com/DavidWells/awesome-stoicism/refs/heads/master/quotes.json')
             .then(response => response.json())
             .then(data => {
                 quotes = data;
                 displayRandomQuote();
             })
-            .catch(error => console.error('Error fetching quotes:', error));
+            .catch(error => {
+                console.error('Error:', error);
+                quoteElement.textContent = "Could not load wisdom. Check connection.";
+                toggleLoading(false);
+            });
 
         function displayRandomQuote() {
             if (quotes.length > 0) {
-                const randomIndex = Math.floor(Math.random() * quotes.length);
-                currentQuote = quotes[randomIndex];
-                quoteElement.textContent = currentQuote.quote;
-                authorElement.textContent = `- ${currentQuote.author}`;
+                // Animation reset
+                contentArea.style.opacity = '0';
+                
+                setTimeout(() => {
+                    const randomIndex = Math.floor(Math.random() * quotes.length);
+                    currentQuote = quotes[randomIndex];
+                    quoteElement.textContent = `“${currentQuote.quote}”`;
+                    authorElement.textContent = currentQuote.author;
+                    
+                    // Reset favorite button state
+                    checkIfFavorite();
+                    
+                    toggleLoading(false);
+                }, 200); // Small delay for fade effect
             }
         }
 
-        function addToFavorites() {
-            if (currentQuote) {
-                let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-                if (!favorites.some(fav => fav.quote === currentQuote.quote)) {
-                    favorites.push(currentQuote);
-                    localStorage.setItem('favorites', JSON.stringify(favorites));
-                    displayFavorites();
-                }
+        // Check if current quote is already favorited
+        function checkIfFavorite() {
+            const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+            const isFav = favorites.some(fav => fav.quote === currentQuote.quote);
+            
+            if (isFav) {
+                favoriteButton.classList.add('active-fav');
+                // Fill the heart icon
+                favoriteButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#ef4444" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-heart"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>`;
+            } else {
+                favoriteButton.classList.remove('active-fav');
+                // Outline heart icon
+                favoriteButton.innerHTML = `<i data-feather="heart"></i>`;
+                feather.replace();
             }
         }
 
-        function displayFavorites() {
+        function toggleFavoriteStatus() {
+            if (!currentQuote) return;
+
+            let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+            const existingIndex = favorites.findIndex(fav => fav.quote === currentQuote.quote);
+
+            if (existingIndex === -1) {
+                // Add
+                favorites.unshift(currentQuote); // Add to top
+                localStorage.setItem('favorites', JSON.stringify(favorites));
+                showToast("Added to favorites");
+            } else {
+                // Remove
+                favorites.splice(existingIndex, 1);
+                localStorage.setItem('favorites', JSON.stringify(favorites));
+                showToast("Removed from favorites");
+            }
+            
+            checkIfFavorite();
+            renderFavoritesList();
+        }
+
+        function renderFavoritesList() {
             const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
             favoritesList.innerHTML = '';
-            favorites.forEach((fav, index) => {
-                const quoteDiv = document.createElement('div');
-                quoteDiv.classList.add('favorite-quote');
-                quoteDiv.innerHTML = `
-                    <span class="remove-favorite" data-index="${index}">&times;</span>
-                    <p>${fav.quote}</p>
-                    <p><em>- ${fav.author}</em></p>
-                `;
-                favoritesList.appendChild(quoteDiv);
-            });
+            
+            if (favorites.length === 0) {
+                favoritesList.innerHTML = '<p style="text-align:center; color:#555; padding:1rem;">No favorites yet.</p>';
+                return;
+            }
 
-            // Add event listeners for remove buttons
-            document.querySelectorAll('.remove-favorite').forEach(button => {
-                button.addEventListener('click', removeFavorite);
+            favorites.forEach((fav, index) => {
+                const div = document.createElement('div');
+                div.className = 'favorite-item';
+                div.innerHTML = `
+                    <div>
+                        <div class="favorite-text">"${fav.quote}"</div>
+                        <span class="favorite-author">${fav.author}</span>
+                    </div>
+                    <button class="remove-btn" onclick="removeFavorite(${index})">
+                        <i data-feather="x" style="width:16px; height:16px;"></i>
+                    </button>
+                `;
+                favoritesList.appendChild(div);
             });
+            feather.replace();
         }
 
-        function removeFavorite(event) {
-            const index = event.target.dataset.index;
+        // Global function for the onclick handler in HTML string
+        window.removeFavorite = function(index) {
             let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+            
+            // Check if we are removing the currently displayed quote
+            if(currentQuote && favorites[index].quote === currentQuote.quote) {
+                 // We will update the button state after removal
+                 setTimeout(checkIfFavorite, 50); 
+            }
+
             favorites.splice(index, 1);
             localStorage.setItem('favorites', JSON.stringify(favorites));
-            displayFavorites();
-        }
+            renderFavoritesList();
+        };
 
-        function toggleFavorites() {
+        function toggleFavoritesDrawer() {
             favoritesList.classList.toggle('expanded');
-            favoritesToggle.classList.toggle('collapsed');
+            
+            // If opening, render the list fresh
+            if (favoritesList.classList.contains('expanded')) {
+                renderFavoritesList();
+                toggleFavButton.style.borderColor = 'var(--accent-color)';
+                toggleFavButton.style.color = 'var(--accent-color)';
+            } else {
+                toggleFavButton.style.borderColor = '';
+                toggleFavButton.style.color = '';
+            }
         }
 
-        newQuoteButton.addEventListener('click', displayRandomQuote);
-        favoriteButton.addEventListener('click', addToFavorites);
-        favoritesHeader.addEventListener('click', toggleFavorites);
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
 
-        // Initial display
-        displayFavorites();
+        // Event Listeners
+        newQuoteButton.addEventListener('click', () => {
+            const icon = newQuoteButton.querySelector('svg');
+            icon.style.transition = 'transform 0.5s';
+            icon.style.transform = 'rotate(360deg)';
+            setTimeout(() => icon.style.transform = 'rotate(0deg)', 500);
+            
+            displayRandomQuote();
+        });
+        
+        favoriteButton.addEventListener('click', toggleFavoriteStatus);
+        toggleFavButton.addEventListener('click', toggleFavoritesDrawer);
+
+        // Initial Render
+        renderFavoritesList();
     </script>
 </body>
-
 </html>
