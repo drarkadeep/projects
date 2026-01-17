@@ -1,0 +1,1920 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no"
+    />
+    <title>Antarctica Games - Brain Training</title>
+    <meta
+      name="description"
+      content="Challenging brain training games for memory, attention, cognition and math"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --bg: #0a0a0a;
+        --surface: #1a1a1a;
+        --border: #333;
+        --primary: #00ff88;
+        --error: #ff3366;
+        --warning: #ffaa00;
+        --text: #ffffff;
+        --text-dim: #888;
+      }
+
+      body {
+        font-family:
+          "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", monospace;
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+        min-height: 100dvh;
+        overflow-x: hidden;
+      }
+
+      #app {
+        min-height: 100vh;
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      header {
+        padding: 16px;
+        border-bottom: 3px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .logo {
+        font-size: 14px;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+      }
+
+      .streak-badge {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border: 2px solid var(--primary);
+        font-size: 14px;
+      }
+
+      .streak-badge .fire {
+        color: var(--warning);
+      }
+
+      main {
+        flex: 1;
+        padding: 16px;
+        overflow-y: auto;
+      }
+
+      footer {
+        padding: 12px;
+        border-top: 2px solid var(--border);
+        text-align: center;
+        font-size: 11px;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .view {
+        display: none;
+      }
+
+      .view.active {
+        display: block;
+      }
+
+      h1 {
+        font-size: 20px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 20px;
+      }
+
+      h2 {
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--text-dim);
+        margin-bottom: 12px;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-bottom: 24px;
+      }
+
+      .stat-card {
+        background: var(--surface);
+        border: 2px solid var(--border);
+        padding: 16px;
+      }
+
+      .stat-value {
+        font-size: 28px;
+        font-weight: bold;
+        color: var(--primary);
+      }
+
+      .stat-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        color: var(--text-dim);
+        margin-top: 4px;
+      }
+
+      .game-grid {
+        display: grid;
+        gap: 12px;
+      }
+
+      .game-card {
+        background: var(--surface);
+        border: 3px solid var(--border);
+        padding: 20px;
+        cursor: pointer;
+        transition:
+          border-color 0.1s,
+          transform 0.1s;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .game-card:active {
+        border-color: var(--primary);
+        transform: scale(0.98);
+      }
+
+      .game-info h3 {
+        font-size: 16px;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+      }
+
+      .game-info .category {
+        font-size: 11px;
+        color: var(--text-dim);
+        text-transform: uppercase;
+      }
+
+      .game-level {
+        font-size: 12px;
+        color: var(--primary);
+      }
+
+      .btn {
+        background: transparent;
+        color: var(--text);
+        border: 3px solid var(--border);
+        padding: 16px 24px;
+        font-family: inherit;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: all 0.1s;
+        width: 100%;
+      }
+
+      .btn:active {
+        background: var(--text);
+        color: var(--bg);
+      }
+
+      .btn-primary {
+        border-color: var(--primary);
+        color: var(--primary);
+      }
+
+      .btn-primary:active {
+        background: var(--primary);
+        color: var(--bg);
+      }
+
+      .btn-back {
+        width: auto;
+        padding: 12px 16px;
+        margin-bottom: 16px;
+      }
+
+      /* Game Container */
+      .game-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid var(--border);
+      }
+
+      .game-title {
+        font-size: 14px;
+        text-transform: uppercase;
+      }
+
+      .game-stats {
+        display: flex;
+        gap: 16px;
+        font-size: 14px;
+      }
+
+      .game-stats span {
+        color: var(--primary);
+      }
+
+      .game-area {
+        min-height: 300px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .game-message {
+        font-size: 18px;
+        text-transform: uppercase;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      .game-message.success {
+        color: var(--primary);
+      }
+
+      .game-message.error {
+        color: var(--error);
+      }
+
+      /* Sequence Memory */
+      .sequence-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        max-width: 300px;
+        width: 100%;
+      }
+
+      .sequence-tile {
+        aspect-ratio: 1;
+        background: var(--surface);
+        border: 3px solid var(--border);
+        cursor: pointer;
+        transition: all 0.1s;
+      }
+
+      .sequence-tile.flash {
+        background: var(--primary);
+        border-color: var(--primary);
+      }
+
+      .sequence-tile.wrong {
+        background: var(--error);
+        border-color: var(--error);
+      }
+
+      .sequence-tile:active {
+        transform: scale(0.95);
+      }
+
+      /* Card Match */
+      .card-grid {
+        display: grid;
+        gap: 8px;
+        max-width: 320px;
+        width: 100%;
+      }
+
+      .card {
+        aspect-ratio: 1;
+        background: var(--surface);
+        border: 3px solid var(--border);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        transition: all 0.15s;
+      }
+
+      .card.flipped,
+      .card.matched {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: var(--bg);
+      }
+
+      .card.matched {
+        opacity: 0.5;
+      }
+
+      .card:not(.flipped):not(.matched) span {
+        display: none;
+      }
+
+      /* Stroop Test */
+      .stroop-word {
+        font-size: 48px;
+        font-weight: bold;
+        text-transform: uppercase;
+        margin-bottom: 30px;
+      }
+
+      .stroop-options {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        max-width: 300px;
+        width: 100%;
+      }
+
+      .stroop-btn {
+        padding: 20px;
+        border: 3px solid var(--border);
+        background: var(--surface);
+        font-family: inherit;
+        font-size: 14px;
+        text-transform: uppercase;
+        cursor: pointer;
+        color: var(--text);
+      }
+
+      .stroop-btn:active {
+        border-color: var(--text);
+      }
+
+      /* Visual Search */
+      .search-grid {
+        display: grid;
+        gap: 6px;
+        max-width: 320px;
+        width: 100%;
+      }
+
+      .search-item {
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        background: var(--surface);
+        border: 2px solid var(--border);
+        cursor: pointer;
+      }
+
+      .search-item:active {
+        border-color: var(--text);
+      }
+
+      .search-target {
+        padding: 10px 20px;
+        border: 3px solid var(--primary);
+        margin-bottom: 20px;
+        font-size: 24px;
+      }
+
+      /* Pattern Logic */
+      .pattern-container {
+        max-width: 320px;
+        width: 100%;
+      }
+
+      .pattern-matrix {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-bottom: 20px;
+      }
+
+      .pattern-cell {
+        aspect-ratio: 1;
+        background: var(--surface);
+        border: 3px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+      }
+
+      .pattern-cell.question {
+        border-color: var(--primary);
+        color: var(--primary);
+      }
+
+      .pattern-options {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+      }
+
+      .pattern-option {
+        aspect-ratio: 1;
+        background: var(--surface);
+        border: 3px solid var(--border);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+      }
+
+      .pattern-option:active {
+        border-color: var(--text);
+      }
+
+      /* Word Scramble */
+      .scrambled-word {
+        font-size: 32px;
+        letter-spacing: 8px;
+        margin-bottom: 24px;
+        font-weight: bold;
+      }
+
+      .word-input {
+        background: var(--surface);
+        border: 3px solid var(--border);
+        color: var(--text);
+        font-family: inherit;
+        font-size: 24px;
+        text-align: center;
+        padding: 16px;
+        width: 100%;
+        max-width: 300px;
+        text-transform: uppercase;
+      }
+
+      .word-input:focus {
+        outline: none;
+        border-color: var(--primary);
+      }
+
+      /* Speed Math */
+      .math-problem {
+        font-size: 36px;
+        margin-bottom: 24px;
+        font-weight: bold;
+      }
+
+      .math-options {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        max-width: 280px;
+        width: 100%;
+      }
+
+      .math-btn {
+        padding: 20px;
+        border: 3px solid var(--border);
+        background: var(--surface);
+        font-family: inherit;
+        font-size: 20px;
+        cursor: pointer;
+        color: var(--text);
+      }
+
+      .math-btn:active {
+        border-color: var(--text);
+      }
+
+      /* Number Memory */
+      .number-display {
+        font-size: 36px;
+        letter-spacing: 6px;
+        margin-bottom: 24px;
+        font-weight: bold;
+        color: var(--primary);
+      }
+
+      .number-input {
+        background: var(--surface);
+        border: 3px solid var(--border);
+        color: var(--text);
+        font-family: inherit;
+        font-size: 28px;
+        text-align: center;
+        padding: 16px;
+        width: 100%;
+        max-width: 300px;
+        letter-spacing: 4px;
+      }
+
+      .number-input:focus {
+        outline: none;
+        border-color: var(--primary);
+      }
+
+      /* Timer Bar */
+      .timer-bar {
+        width: 100%;
+        height: 6px;
+        background: var(--border);
+        margin-bottom: 20px;
+      }
+
+      .timer-fill {
+        height: 100%;
+        background: var(--primary);
+        transition: width 0.1s linear;
+      }
+
+      .timer-fill.warning {
+        background: var(--warning);
+      }
+
+      .timer-fill.danger {
+        background: var(--error);
+      }
+
+      /* Result Screen */
+      .result-screen {
+        text-align: center;
+      }
+
+      .result-score {
+        font-size: 48px;
+        font-weight: bold;
+        color: var(--primary);
+        margin-bottom: 8px;
+      }
+
+      .result-label {
+        font-size: 12px;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        margin-bottom: 24px;
+      }
+
+      .result-stats {
+        margin-bottom: 24px;
+      }
+
+      .result-stat {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--border);
+        font-size: 14px;
+      }
+
+      /* Nav Tabs */
+      .nav-tabs {
+        display: flex;
+        gap: 0;
+        margin-bottom: 20px;
+        border: 2px solid var(--border);
+      }
+
+      .nav-tab {
+        flex: 1;
+        padding: 12px;
+        background: transparent;
+        border: none;
+        color: var(--text-dim);
+        font-family: inherit;
+        font-size: 12px;
+        text-transform: uppercase;
+        cursor: pointer;
+      }
+
+      .nav-tab.active {
+        background: var(--surface);
+        color: var(--primary);
+      }
+
+      .nav-tab:not(:last-child) {
+        border-right: 2px solid var(--border);
+      }
+
+      /* Category Headers */
+      .category-header {
+        font-size: 11px;
+        color: var(--text-dim);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin: 20px 0 12px 0;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .category-header:first-child {
+        margin-top: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <header>
+        <div class="logo">Antarctica Games</div>
+        <div class="streak-badge">
+          <span class="fire">🔥</span>
+          <span id="headerStreak">0</span>
+        </div>
+      </header>
+
+      <main>
+        <!-- Home View -->
+        <div id="homeView" class="view active">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-value" id="totalScore">0</div>
+              <div class="stat-label">Total Score</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="dailyStreak">0</div>
+              <div class="stat-label">Day Streak</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="gamesPlayed">0</div>
+              <div class="stat-label">Games Played</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="avgAccuracy">0%</div>
+              <div class="stat-label">Accuracy</div>
+            </div>
+          </div>
+
+          <h2>Train Your Brain</h2>
+          <div class="game-grid">
+            <div class="category-header">🧠 Memory</div>
+
+            <div class="game-card" data-game="sequenceMemory">
+              <div class="game-info">
+                <h3>Sequence Memory</h3>
+                <div class="category">Remember the pattern</div>
+              </div>
+              <div class="game-level">
+                LVL <span id="level-sequenceMemory">1</span>
+              </div>
+            </div>
+
+            <div class="game-card" data-game="cardMatch">
+              <div class="game-info">
+                <h3>Card Match</h3>
+                <div class="category">Find the pairs</div>
+              </div>
+              <div class="game-level">
+                LVL <span id="level-cardMatch">1</span>
+              </div>
+            </div>
+
+            <div class="category-header">👁️ Attention</div>
+
+            <div class="game-card" data-game="stroopTest">
+              <div class="game-info">
+                <h3>Stroop Test</h3>
+                <div class="category">Name the color</div>
+              </div>
+              <div class="game-level">
+                LVL <span id="level-stroopTest">1</span>
+              </div>
+            </div>
+
+            <div class="game-card" data-game="visualSearch">
+              <div class="game-info">
+                <h3>Visual Search</h3>
+                <div class="category">Find the target</div>
+              </div>
+              <div class="game-level">
+                LVL <span id="level-visualSearch">1</span>
+              </div>
+            </div>
+
+            <div class="category-header">🧩 Cognition</div>
+
+            <div class="game-card" data-game="patternLogic">
+              <div class="game-info">
+                <h3>Pattern Logic</h3>
+                <div class="category">Complete the pattern</div>
+              </div>
+              <div class="game-level">
+                LVL <span id="level-patternLogic">1</span>
+              </div>
+            </div>
+
+            <div class="game-card" data-game="wordScramble">
+              <div class="game-info">
+                <h3>Word Scramble</h3>
+                <div class="category">Unscramble words</div>
+              </div>
+              <div class="game-level">
+                LVL <span id="level-wordScramble">1</span>
+              </div>
+            </div>
+
+            <div class="category-header">➕ Math</div>
+
+            <div class="game-card" data-game="speedMath">
+              <div class="game-info">
+                <h3>Speed Math</h3>
+                <div class="category">Quick arithmetic</div>
+              </div>
+              <div class="game-level">
+                LVL <span id="level-speedMath">1</span>
+              </div>
+            </div>
+
+            <div class="game-card" data-game="numberMemory">
+              <div class="game-info">
+                <h3>Number Memory</h3>
+                <div class="category">Remember digits</div>
+              </div>
+              <div class="game-level">
+                LVL <span id="level-numberMemory">1</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Game View -->
+        <div id="gameView" class="view">
+          <button class="btn btn-back" id="backBtn">← Back</button>
+          <div class="game-header">
+            <div class="game-title" id="gameTitle">Game</div>
+            <div class="game-stats">
+              <div>LVL <span id="currentLevel">1</span></div>
+              <div>Score: <span id="currentScore">0</span></div>
+            </div>
+          </div>
+          <div class="timer-bar" id="timerBar" style="display: none">
+            <div class="timer-fill" id="timerFill"></div>
+          </div>
+          <div class="game-area" id="gameArea"></div>
+        </div>
+
+        <!-- Result View -->
+        <div id="resultView" class="view">
+          <div class="result-screen">
+            <div class="result-score" id="resultScore">0</div>
+            <div class="result-label">Score This Round</div>
+            <div class="result-stats">
+              <div class="result-stat">
+                <span>Correct</span>
+                <span id="resultCorrect">0</span>
+              </div>
+              <div class="result-stat">
+                <span>Wrong</span>
+                <span id="resultWrong">0</span>
+              </div>
+              <div class="result-stat">
+                <span>Accuracy</span>
+                <span id="resultAccuracy">0%</span>
+              </div>
+              <div class="result-stat">
+                <span>Best Streak</span>
+                <span id="resultStreak">0</span>
+              </div>
+              <div class="result-stat">
+                <span>New Level</span>
+                <span id="resultLevel">1</span>
+              </div>
+            </div>
+            <button class="btn btn-primary" id="playAgainBtn">
+              Play Again
+            </button>
+            <button class="btn" id="homeBtn" style="margin-top: 12px">
+              Home
+            </button>
+          </div>
+        </div>
+      </main>
+
+      <footer>Made in Antarctica</footer>
+    </div>
+
+    <script>
+      // Storage Manager
+      const Storage = {
+        KEY: "antarctica_games",
+
+        getDefault() {
+          return {
+            totalScore: 0,
+            gamesPlayed: 0,
+            dailyStreak: 0,
+            lastPlayDate: null,
+            totalCorrect: 0,
+            totalWrong: 0,
+            games: {
+              sequenceMemory: { level: 1, highScore: 0, played: 0 },
+              cardMatch: { level: 1, highScore: 0, played: 0 },
+              stroopTest: { level: 1, highScore: 0, played: 0 },
+              visualSearch: { level: 1, highScore: 0, played: 0 },
+              patternLogic: { level: 1, highScore: 0, played: 0 },
+              wordScramble: { level: 1, highScore: 0, played: 0 },
+              speedMath: { level: 1, highScore: 0, played: 0 },
+              numberMemory: { level: 1, highScore: 0, played: 0 },
+            },
+          };
+        },
+
+        load() {
+          try {
+            const data = localStorage.getItem(this.KEY);
+            if (data) {
+              const parsed = JSON.parse(data);
+              // Merge with defaults for any missing fields
+              const defaults = this.getDefault();
+              return {
+                ...defaults,
+                ...parsed,
+                games: { ...defaults.games, ...parsed.games },
+              };
+            }
+          } catch (e) {
+            console.error("Storage load error:", e);
+          }
+          return this.getDefault();
+        },
+
+        save(data) {
+          try {
+            localStorage.setItem(this.KEY, JSON.stringify(data));
+          } catch (e) {
+            console.error("Storage save error:", e);
+          }
+        },
+
+        updateStreak(data) {
+          const today = new Date().toISOString().split("T")[0];
+          if (data.lastPlayDate === today) return data;
+
+          const yesterday = new Date(Date.now() - 86400000)
+            .toISOString()
+            .split("T")[0];
+          if (data.lastPlayDate === yesterday) {
+            data.dailyStreak++;
+          } else if (data.lastPlayDate !== today) {
+            data.dailyStreak = 1;
+          }
+          data.lastPlayDate = today;
+          return data;
+        },
+      };
+
+      // Game Base Class
+      class Game {
+        constructor(name, container) {
+          this.name = name;
+          this.container = container;
+          this.data = Storage.load();
+          this.gameData = this.data.games[name];
+          this.level = this.gameData.level;
+          this.score = 0;
+          this.correct = 0;
+          this.wrong = 0;
+          this.streak = 0;
+          this.bestStreak = 0;
+          this.consecutiveCorrect = 0;
+          this.consecutiveWrong = 0;
+          this.roundsPlayed = 0;
+          this.maxRounds = 10;
+          this.timerInterval = null;
+        }
+
+        updateUI() {
+          document.getElementById("currentLevel").textContent = this.level;
+          document.getElementById("currentScore").textContent = this.score;
+        }
+
+        startTimer(seconds, onComplete) {
+          const timerBar = document.getElementById("timerBar");
+          const timerFill = document.getElementById("timerFill");
+          timerBar.style.display = "block";
+
+          let remaining = seconds * 1000;
+          const total = remaining;
+          const interval = 50;
+
+          this.timerInterval = setInterval(() => {
+            remaining -= interval;
+            const percent = (remaining / total) * 100;
+            timerFill.style.width = percent + "%";
+
+            timerFill.classList.remove("warning", "danger");
+            if (percent < 25) timerFill.classList.add("danger");
+            else if (percent < 50) timerFill.classList.add("warning");
+
+            if (remaining <= 0) {
+              this.stopTimer();
+              onComplete();
+            }
+          }, interval);
+        }
+
+        stopTimer() {
+          if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+          }
+          document.getElementById("timerBar").style.display = "none";
+        }
+
+        handleCorrect(points = 10) {
+          this.correct++;
+          this.consecutiveCorrect++;
+          this.consecutiveWrong = 0;
+          this.streak++;
+          this.bestStreak = Math.max(this.bestStreak, this.streak);
+
+          // Bonus for streaks and level
+          const multiplier = 1 + this.level * 0.1 + this.streak * 0.05;
+          this.score += Math.round(points * multiplier);
+
+          // Level up after 3 consecutive correct
+          if (this.consecutiveCorrect >= 3) {
+            this.level++;
+            this.consecutiveCorrect = 0;
+          }
+
+          this.updateUI();
+        }
+
+        handleWrong() {
+          this.wrong++;
+          this.consecutiveWrong++;
+          this.consecutiveCorrect = 0;
+          this.streak = 0;
+
+          // Level down after 2 consecutive wrong
+          if (this.consecutiveWrong >= 2 && this.level > 1) {
+            this.level--;
+            this.consecutiveWrong = 0;
+          }
+
+          this.updateUI();
+        }
+
+        endGame() {
+          this.stopTimer();
+
+          // Save stats
+          this.data.totalScore += this.score;
+          this.data.gamesPlayed++;
+          this.data.totalCorrect += this.correct;
+          this.data.totalWrong += this.wrong;
+          this.data = Storage.updateStreak(this.data);
+
+          this.gameData.level = this.level;
+          if (this.score > this.gameData.highScore) {
+            this.gameData.highScore = this.score;
+          }
+          this.gameData.played++;
+
+          Storage.save(this.data);
+
+          // Show results
+          App.showResult({
+            score: this.score,
+            correct: this.correct,
+            wrong: this.wrong,
+            streak: this.bestStreak,
+            level: this.level,
+          });
+        }
+
+        nextRound() {
+          this.roundsPlayed++;
+          if (this.roundsPlayed >= this.maxRounds) {
+            this.endGame();
+            return false;
+          }
+          return true;
+        }
+
+        start() {
+          throw new Error("start() must be implemented");
+        }
+      }
+
+      // Sequence Memory Game
+      class SequenceMemoryGame extends Game {
+        constructor(container) {
+          super("sequenceMemory", container);
+          this.sequence = [];
+          this.playerIndex = 0;
+          this.isShowing = false;
+        }
+
+        start() {
+          this.addToSequence();
+        }
+
+        addToSequence() {
+          const gridSize = Math.min(3 + Math.floor(this.level / 5), 5);
+          const tileCount = gridSize * gridSize;
+          this.sequence.push(Math.floor(Math.random() * tileCount));
+          this.playerIndex = 0;
+          this.render(gridSize);
+          this.showSequence(gridSize);
+        }
+
+        render(gridSize = 3) {
+          const tileCount = gridSize * gridSize;
+          this.container.innerHTML = `
+          <div class="game-message">Watch the sequence</div>
+          <div class="sequence-grid" style="grid-template-columns: repeat(${gridSize}, 1fr);">
+            ${Array(tileCount)
+              .fill(0)
+              .map(
+                (_, i) => `<div class="sequence-tile" data-index="${i}"></div>`,
+              )
+              .join("")}
+          </div>
+        `;
+        }
+
+        showSequence(gridSize) {
+          this.isShowing = true;
+          const message = this.container.querySelector(".game-message");
+          message.textContent = "Watch the sequence";
+
+          let i = 0;
+          const baseDelay = Math.max(300, 600 - this.level * 20);
+
+          const showNext = () => {
+            if (i >= this.sequence.length) {
+              this.isShowing = false;
+              message.textContent = "Your turn";
+              this.enableInput();
+              return;
+            }
+
+            const tile = this.container.querySelector(
+              `[data-index="${this.sequence[i]}"]`,
+            );
+            tile.classList.add("flash");
+
+            setTimeout(() => {
+              tile.classList.remove("flash");
+              i++;
+              setTimeout(showNext, baseDelay / 2);
+            }, baseDelay);
+          };
+
+          setTimeout(showNext, 500);
+        }
+
+        enableInput() {
+          const tiles = this.container.querySelectorAll(".sequence-tile");
+          tiles.forEach((tile) => {
+            tile.onclick = () =>
+              this.handleTileClick(parseInt(tile.dataset.index));
+          });
+        }
+
+        handleTileClick(index) {
+          if (this.isShowing) return;
+
+          const tile = this.container.querySelector(`[data-index="${index}"]`);
+
+          if (index === this.sequence[this.playerIndex]) {
+            tile.classList.add("flash");
+            setTimeout(() => tile.classList.remove("flash"), 150);
+
+            this.playerIndex++;
+
+            if (this.playerIndex === this.sequence.length) {
+              this.handleCorrect(this.sequence.length * 10);
+
+              if (!this.nextRound()) return;
+
+              setTimeout(() => this.addToSequence(), 500);
+            }
+          } else {
+            tile.classList.add("wrong");
+            this.handleWrong();
+            this.sequence = [];
+
+            setTimeout(() => {
+              tile.classList.remove("wrong");
+              if (!this.nextRound()) return;
+              this.addToSequence();
+            }, 500);
+          }
+        }
+      }
+
+      // Card Match Game
+      class CardMatchGame extends Game {
+        constructor(container) {
+          super("cardMatch", container);
+          this.cards = [];
+          this.flipped = [];
+          this.matched = 0;
+          this.symbols = [
+            "◆",
+            "●",
+            "■",
+            "▲",
+            "★",
+            "♦",
+            "♠",
+            "♣",
+            "♥",
+            "⬟",
+            "⬡",
+            "◐",
+          ];
+        }
+
+        start() {
+          this.startRound();
+        }
+
+        startRound() {
+          const pairCount = Math.min(3 + Math.floor(this.level / 2), 8);
+          const gridCols = pairCount <= 4 ? 4 : pairCount <= 6 ? 4 : 4;
+
+          const symbols = this.symbols.slice(0, pairCount);
+          this.cards = [...symbols, ...symbols];
+          this.shuffleCards();
+          this.flipped = [];
+          this.matched = 0;
+
+          this.render(gridCols);
+
+          const timeLimit = Math.max(15, 60 - this.level * 3);
+          this.startTimer(timeLimit, () => {
+            this.handleWrong();
+            if (this.nextRound()) this.startRound();
+          });
+        }
+
+        shuffleCards() {
+          for (let i = this.cards.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [this.cards[i], this.cards[j]] = [this.cards[j], this.cards[i]];
+          }
+        }
+
+        render(cols) {
+          this.container.innerHTML = `
+          <div class="game-message">Find all pairs</div>
+          <div class="card-grid" style="grid-template-columns: repeat(${cols}, 1fr);">
+            ${this.cards
+              .map(
+                (symbol, i) =>
+                  `<div class="card" data-index="${i}"><span>${symbol}</span></div>`,
+              )
+              .join("")}
+          </div>
+        `;
+
+          const cards = this.container.querySelectorAll(".card");
+          cards.forEach((card) => {
+            card.onclick = () => this.flipCard(parseInt(card.dataset.index));
+          });
+        }
+
+        flipCard(index) {
+          const card = this.container.querySelector(`[data-index="${index}"]`);
+
+          if (
+            card.classList.contains("flipped") ||
+            card.classList.contains("matched")
+          )
+            return;
+          if (this.flipped.length >= 2) return;
+
+          card.classList.add("flipped");
+          this.flipped.push(index);
+
+          if (this.flipped.length === 2) {
+            setTimeout(() => this.checkMatch(), 300);
+          }
+        }
+
+        checkMatch() {
+          const [i1, i2] = this.flipped;
+          const card1 = this.container.querySelector(`[data-index="${i1}"]`);
+          const card2 = this.container.querySelector(`[data-index="${i2}"]`);
+
+          if (this.cards[i1] === this.cards[i2]) {
+            card1.classList.add("matched");
+            card2.classList.add("matched");
+            this.matched += 2;
+
+            if (this.matched === this.cards.length) {
+              this.stopTimer();
+              this.handleCorrect(this.cards.length * 5);
+
+              setTimeout(() => {
+                if (this.nextRound()) this.startRound();
+              }, 500);
+            }
+          } else {
+            card1.classList.remove("flipped");
+            card2.classList.remove("flipped");
+          }
+
+          this.flipped = [];
+        }
+      }
+
+      // Stroop Test Game
+      class StroopTestGame extends Game {
+        constructor(container) {
+          super("stroopTest", container);
+          this.colors = [
+            { name: "RED", hex: "#ff3366" },
+            { name: "BLUE", hex: "#3366ff" },
+            { name: "GREEN", hex: "#00ff88" },
+            { name: "YELLOW", hex: "#ffaa00" },
+          ];
+          this.currentColor = null;
+        }
+
+        start() {
+          this.showRound();
+        }
+
+        showRound() {
+          // Pick word and display color (different)
+          const wordIndex = Math.floor(Math.random() * this.colors.length);
+          let colorIndex = Math.floor(Math.random() * this.colors.length);
+
+          // Higher levels = more likely to mismatch
+          const mismatchChance = Math.min(0.9, 0.5 + this.level * 0.05);
+          if (Math.random() < mismatchChance) {
+            while (colorIndex === wordIndex) {
+              colorIndex = Math.floor(Math.random() * this.colors.length);
+            }
+          }
+
+          this.currentColor = this.colors[colorIndex];
+          const word = this.colors[wordIndex].name;
+
+          // Shuffle options
+          const options = [...this.colors].sort(() => Math.random() - 0.5);
+
+          this.container.innerHTML = `
+          <div class="game-message">What COLOR is the word?</div>
+          <div class="stroop-word" style="color: ${this.currentColor.hex}">${word}</div>
+          <div class="stroop-options">
+            ${options
+              .map(
+                (c) =>
+                  `<button class="stroop-btn" data-color="${c.name}">${c.name}</button>`,
+              )
+              .join("")}
+          </div>
+        `;
+
+          const buttons = this.container.querySelectorAll(".stroop-btn");
+          buttons.forEach((btn) => {
+            btn.onclick = () => this.checkAnswer(btn.dataset.color);
+          });
+
+          const timeLimit = Math.max(2, 5 - this.level * 0.2);
+          this.startTimer(timeLimit, () => {
+            this.handleWrong();
+            if (this.nextRound()) this.showRound();
+          });
+        }
+
+        checkAnswer(answer) {
+          this.stopTimer();
+
+          if (answer === this.currentColor.name) {
+            this.handleCorrect(15);
+          } else {
+            this.handleWrong();
+          }
+
+          if (this.nextRound()) {
+            setTimeout(() => this.showRound(), 300);
+          }
+        }
+      }
+
+      // Visual Search Game
+      class VisualSearchGame extends Game {
+        constructor(container) {
+          super("visualSearch", container);
+          this.shapes = ["○", "□", "△", "◇", "☆", "⬠", "⬡"];
+          this.target = null;
+        }
+
+        start() {
+          this.showRound();
+        }
+
+        showRound() {
+          const gridSize = Math.min(4 + Math.floor(this.level / 3), 7);
+          const itemCount = gridSize * gridSize;
+
+          // Pick target and distractors
+          const targetIndex = Math.floor(Math.random() * this.shapes.length);
+          this.target = this.shapes[targetIndex];
+
+          const distractors = this.shapes.filter((_, i) => i !== targetIndex);
+          const targetPosition = Math.floor(Math.random() * itemCount);
+
+          const items = Array(itemCount)
+            .fill(0)
+            .map((_, i) => {
+              if (i === targetPosition) return this.target;
+              return distractors[
+                Math.floor(Math.random() * distractors.length)
+              ];
+            });
+
+          this.container.innerHTML = `
+          <div class="search-target">Find: ${this.target}</div>
+          <div class="search-grid" style="grid-template-columns: repeat(${gridSize}, 1fr);">
+            ${items
+              .map(
+                (shape, i) =>
+                  `<div class="search-item" data-index="${i}" data-shape="${shape}">${shape}</div>`,
+              )
+              .join("")}
+          </div>
+        `;
+
+          const searchItems = this.container.querySelectorAll(".search-item");
+          searchItems.forEach((item) => {
+            item.onclick = () => this.checkItem(item);
+          });
+
+          const timeLimit = Math.max(3, 10 - this.level * 0.5);
+          this.startTimer(timeLimit, () => {
+            this.handleWrong();
+            if (this.nextRound()) this.showRound();
+          });
+        }
+
+        checkItem(item) {
+          this.stopTimer();
+
+          if (item.dataset.shape === this.target) {
+            item.style.borderColor = "var(--primary)";
+            this.handleCorrect(20);
+          } else {
+            item.style.borderColor = "var(--error)";
+            this.handleWrong();
+          }
+
+          if (this.nextRound()) {
+            setTimeout(() => this.showRound(), 300);
+          }
+        }
+      }
+
+      // Pattern Logic Game
+      class PatternLogicGame extends Game {
+        constructor(container) {
+          super("patternLogic", container);
+          this.patterns = [
+            { base: ["●", "○"], rule: "alternate" },
+            { base: ["▲", "▲", "○"], rule: "repeat" },
+            { base: ["■", "□", "■", "□"], rule: "repeat" },
+            { base: ["◆", "◆", "○", "◆", "◆", "○"], rule: "repeat" },
+            { base: ["▲", "■", "●"], rule: "sequence" },
+          ];
+        }
+
+        start() {
+          this.showRound();
+        }
+
+        generatePattern() {
+          const level = this.level;
+          const shapes = ["●", "○", "■", "□", "▲", "△", "◆", "◇"];
+
+          // Simple patterns for lower levels, complex for higher
+          const patternLength = Math.min(2 + Math.floor(level / 2), 4);
+          const pattern = [];
+          const usedShapes = shapes.slice(
+            0,
+            Math.min(2 + Math.floor(level / 3), shapes.length),
+          );
+
+          for (let i = 0; i < patternLength; i++) {
+            pattern.push(usedShapes[i % usedShapes.length]);
+          }
+
+          // Create 8 cells (showing 7, asking for 8th)
+          const cells = [];
+          for (let i = 0; i < 8; i++) {
+            cells.push(pattern[i % pattern.length]);
+          }
+
+          return {
+            cells: cells.slice(0, 7),
+            answer: cells[7],
+            options: [...new Set([...usedShapes, cells[7]])]
+              .slice(0, 4)
+              .sort(() => Math.random() - 0.5),
+          };
+        }
+
+        showRound() {
+          const { cells, answer, options } = this.generatePattern();
+          this.currentAnswer = answer;
+
+          this.container.innerHTML = `
+          <div class="game-message">Complete the pattern</div>
+          <div class="pattern-container">
+            <div class="pattern-matrix">
+              ${cells.map((c) => `<div class="pattern-cell">${c}</div>`).join("")}
+              <div class="pattern-cell question">?</div>
+            </div>
+            <div class="pattern-options">
+              ${options
+                .map(
+                  (o) =>
+                    `<div class="pattern-option" data-answer="${o}">${o}</div>`,
+                )
+                .join("")}
+            </div>
+          </div>
+        `;
+
+          const optionEls = this.container.querySelectorAll(".pattern-option");
+          optionEls.forEach((opt) => {
+            opt.onclick = () => this.checkAnswer(opt.dataset.answer);
+          });
+
+          const timeLimit = Math.max(5, 15 - this.level * 0.5);
+          this.startTimer(timeLimit, () => {
+            this.handleWrong();
+            if (this.nextRound()) this.showRound();
+          });
+        }
+
+        checkAnswer(answer) {
+          this.stopTimer();
+
+          if (answer === this.currentAnswer) {
+            this.handleCorrect(25);
+          } else {
+            this.handleWrong();
+          }
+
+          if (this.nextRound()) {
+            setTimeout(() => this.showRound(), 300);
+          }
+        }
+      }
+
+      // Word Scramble Game
+      class WordScrambleGame extends Game {
+        constructor(container) {
+          super("wordScramble", container);
+          this.words = {
+            easy: [
+              "CAT",
+              "DOG",
+              "SUN",
+              "RUN",
+              "HAT",
+              "BAT",
+              "CUP",
+              "PEN",
+              "BOX",
+              "MAP",
+            ],
+            medium: [
+              "BRAIN",
+              "CLOUD",
+              "DREAM",
+              "FLAME",
+              "GRAPE",
+              "HOUSE",
+              "JUICE",
+              "KNIFE",
+              "LEMON",
+              "MUSIC",
+            ],
+            hard: [
+              "ABSTRACT",
+              "BOUNDARY",
+              "CHAMPION",
+              "DISCOVER",
+              "ELEPHANT",
+              "FUNCTION",
+              "GRATEFUL",
+              "HOSPITAL",
+              "INFINITE",
+              "JUNCTION",
+            ],
+            extreme: [
+              "ALGORITHM",
+              "BEAUTIFUL",
+              "CHROMOSOME",
+              "DICTIONARY",
+              "EXPERIMENT",
+              "FOUNDATION",
+              "GENERATION",
+              "HYPOTHESIS",
+              "INEVITABLE",
+              "JOURNALISM",
+            ],
+          };
+        }
+
+        start() {
+          this.showRound();
+        }
+
+        getWordList() {
+          if (this.level <= 2) return this.words.easy;
+          if (this.level <= 5) return this.words.medium;
+          if (this.level <= 8) return this.words.hard;
+          return this.words.extreme;
+        }
+
+        scramble(word) {
+          const arr = word.split("");
+          let scrambled = word;
+
+          // Keep scrambling until different
+          while (scrambled === word) {
+            for (let i = arr.length - 1; i > 0; i--) {
+              const j = Math.floor(Math.random() * (i + 1));
+              [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            scrambled = arr.join("");
+          }
+          return scrambled;
+        }
+
+        showRound() {
+          const wordList = this.getWordList();
+          this.currentWord =
+            wordList[Math.floor(Math.random() * wordList.length)];
+          const scrambled = this.scramble(this.currentWord);
+
+          this.container.innerHTML = `
+          <div class="game-message">Unscramble the word</div>
+          <div class="scrambled-word">${scrambled}</div>
+          <input type="text" class="word-input" maxlength="${this.currentWord.length}" autocomplete="off" autocapitalize="characters">
+        `;
+
+          const input = this.container.querySelector(".word-input");
+          input.focus();
+
+          input.oninput = () => {
+            input.value = input.value.toUpperCase();
+            if (input.value.length === this.currentWord.length) {
+              this.checkAnswer(input.value);
+            }
+          };
+
+          const timeLimit = Math.max(5, 20 - this.level);
+          this.startTimer(timeLimit, () => {
+            this.handleWrong();
+            if (this.nextRound()) this.showRound();
+          });
+        }
+
+        checkAnswer(answer) {
+          this.stopTimer();
+
+          if (answer === this.currentWord) {
+            this.handleCorrect(this.currentWord.length * 5);
+          } else {
+            this.handleWrong();
+          }
+
+          if (this.nextRound()) {
+            setTimeout(() => this.showRound(), 300);
+          }
+        }
+      }
+
+      // Speed Math Game
+      class SpeedMathGame extends Game {
+        constructor(container) {
+          super("speedMath", container);
+        }
+
+        start() {
+          this.showRound();
+        }
+
+        generateProblem() {
+          const level = this.level;
+          let a, b, op, answer;
+
+          if (level <= 2) {
+            // Simple addition/subtraction
+            a = Math.floor(Math.random() * 10) + 1;
+            b = Math.floor(Math.random() * 10) + 1;
+            op = Math.random() < 0.5 ? "+" : "-";
+            if (op === "-" && b > a) [a, b] = [b, a];
+          } else if (level <= 5) {
+            // Larger numbers, include multiplication
+            a = Math.floor(Math.random() * 20) + 5;
+            b = Math.floor(Math.random() * 10) + 1;
+            op = ["+", "-", "×"][Math.floor(Math.random() * 3)];
+            if (op === "-" && b > a) [a, b] = [b, a];
+          } else if (level <= 8) {
+            // Include division
+            op = ["+", "-", "×", "÷"][Math.floor(Math.random() * 4)];
+            if (op === "÷") {
+              b = Math.floor(Math.random() * 10) + 2;
+              a = b * (Math.floor(Math.random() * 10) + 1);
+            } else {
+              a = Math.floor(Math.random() * 50) + 10;
+              b = Math.floor(Math.random() * 20) + 1;
+              if (op === "-" && b > a) [a, b] = [b, a];
+            }
+          } else {
+            // Complex multi-digit
+            op = ["+", "-", "×", "÷"][Math.floor(Math.random() * 4)];
+            if (op === "÷") {
+              b = Math.floor(Math.random() * 12) + 2;
+              a = b * (Math.floor(Math.random() * 15) + 1);
+            } else if (op === "×") {
+              a = Math.floor(Math.random() * 15) + 5;
+              b = Math.floor(Math.random() * 12) + 2;
+            } else {
+              a = Math.floor(Math.random() * 100) + 20;
+              b = Math.floor(Math.random() * 50) + 10;
+              if (op === "-" && b > a) [a, b] = [b, a];
+            }
+          }
+
+          switch (op) {
+            case "+":
+              answer = a + b;
+              break;
+            case "-":
+              answer = a - b;
+              break;
+            case "×":
+              answer = a * b;
+              break;
+            case "÷":
+              answer = a / b;
+              break;
+          }
+
+          return { a, b, op, answer };
+        }
+
+        showRound() {
+          const { a, b, op, answer } = this.generateProblem();
+          this.currentAnswer = answer;
+
+          // Generate wrong options
+          const options = [answer];
+          while (options.length < 4) {
+            const offset = Math.floor(Math.random() * 10) - 5;
+            const wrong = answer + offset;
+            if (wrong !== answer && wrong >= 0 && !options.includes(wrong)) {
+              options.push(wrong);
+            }
+          }
+          options.sort(() => Math.random() - 0.5);
+
+          this.container.innerHTML = `
+          <div class="game-message">Solve quickly!</div>
+          <div class="math-problem">${a} ${op} ${b} = ?</div>
+          <div class="math-options">
+            ${options
+              .map(
+                (o) =>
+                  `<button class="math-btn" data-answer="${o}">${o}</button>`,
+              )
+              .join("")}
+          </div>
+        `;
+
+          const buttons = this.container.querySelectorAll(".math-btn");
+          buttons.forEach((btn) => {
+            btn.onclick = () => this.checkAnswer(parseInt(btn.dataset.answer));
+          });
+
+          const timeLimit = Math.max(2, 6 - this.level * 0.3);
+          this.startTimer(timeLimit, () => {
+            this.handleWrong();
+            if (this.nextRound()) this.showRound();
+          });
+        }
+
+        checkAnswer(answer) {
+          this.stopTimer();
+
+          if (answer === this.currentAnswer) {
+            this.handleCorrect(20);
+          } else {
+            this.handleWrong();
+          }
+
+          if (this.nextRound()) {
+            setTimeout(() => this.showRound(), 300);
+          }
+        }
+      }
+
+      // Number Memory Game
+      class NumberMemoryGame extends Game {
+        constructor(container) {
+          super("numberMemory", container);
+        }
+
+        start() {
+          this.showRound();
+        }
+
+        showRound() {
+          const digitCount = Math.min(3 + Math.floor(this.level / 2), 12);
+          this.currentNumber = "";
+          for (let i = 0; i < digitCount; i++) {
+            this.currentNumber += Math.floor(Math.random() * 10);
+          }
+
+          this.container.innerHTML = `
+          <div class="game-message">Remember this number</div>
+          <div class="number-display">${this.currentNumber}</div>
+        `;
+
+          const displayTime = Math.max(1500, 3000 - this.level * 100);
+
+          setTimeout(() => {
+            this.showInput();
+          }, displayTime);
+        }
+
+        showInput() {
+          this.container.innerHTML = `
+          <div class="game-message">Enter the number</div>
+          <input type="tel" class="number-input" maxlength="${this.currentNumber.length}" autocomplete="off">
+        `;
+
+          const input = this.container.querySelector(".number-input");
+          input.focus();
+
+          input.oninput = () => {
+            if (input.value.length === this.currentNumber.length) {
+              this.checkAnswer(input.value);
+            }
+          };
+
+          const timeLimit = Math.max(5, 15 - this.level * 0.5);
+          this.startTimer(timeLimit, () => {
+            this.handleWrong();
+            if (this.nextRound()) this.showRound();
+          });
+        }
+
+        checkAnswer(answer) {
+          this.stopTimer();
+
+          if (answer === this.currentNumber) {
+            this.handleCorrect(this.currentNumber.length * 10);
+          } else {
+            this.handleWrong();
+          }
+
+          if (this.nextRound()) {
+            setTimeout(() => this.showRound(), 300);
+          }
+        }
+      }
+
+      // Game Registry
+      const Games = {
+        sequenceMemory: SequenceMemoryGame,
+        cardMatch: CardMatchGame,
+        stroopTest: StroopTestGame,
+        visualSearch: VisualSearchGame,
+        patternLogic: PatternLogicGame,
+        wordScramble: WordScrambleGame,
+        speedMath: SpeedMathGame,
+        numberMemory: NumberMemoryGame,
+      };
+
+      const GameTitles = {
+        sequenceMemory: "Sequence Memory",
+        cardMatch: "Card Match",
+        stroopTest: "Stroop Test",
+        visualSearch: "Visual Search",
+        patternLogic: "Pattern Logic",
+        wordScramble: "Word Scramble",
+        speedMath: "Speed Math",
+        numberMemory: "Number Memory",
+      };
+
+      // App Controller
+      const App = {
+        currentGame: null,
+        currentGameName: null,
+
+        init() {
+          this.bindEvents();
+          this.updateHomeStats();
+        },
+
+        bindEvents() {
+          // Game card clicks
+          document.querySelectorAll(".game-card").forEach((card) => {
+            card.onclick = () => this.startGame(card.dataset.game);
+          });
+
+          // Back button
+          document.getElementById("backBtn").onclick = () => this.showHome();
+
+          // Result buttons
+          document.getElementById("playAgainBtn").onclick = () =>
+            this.startGame(this.currentGameName);
+          document.getElementById("homeBtn").onclick = () => this.showHome();
+        },
+
+        showView(viewId) {
+          document
+            .querySelectorAll(".view")
+            .forEach((v) => v.classList.remove("active"));
+          document.getElementById(viewId).classList.add("active");
+        },
+
+        showHome() {
+          if (this.currentGame) {
+            this.currentGame.stopTimer();
+            this.currentGame = null;
+          }
+          this.updateHomeStats();
+          this.showView("homeView");
+        },
+
+        updateHomeStats() {
+          const data = Storage.load();
+
+          document.getElementById("totalScore").textContent =
+            data.totalScore.toLocaleString();
+          document.getElementById("dailyStreak").textContent = data.dailyStreak;
+          document.getElementById("gamesPlayed").textContent = data.gamesPlayed;
+          document.getElementById("headerStreak").textContent =
+            data.dailyStreak;
+
+          const total = data.totalCorrect + data.totalWrong;
+          const accuracy =
+            total > 0 ? Math.round((data.totalCorrect / total) * 100) : 0;
+          document.getElementById("avgAccuracy").textContent = accuracy + "%";
+
+          // Update game levels
+          Object.keys(data.games).forEach((game) => {
+            const el = document.getElementById(`level-${game}`);
+            if (el) el.textContent = data.games[game].level;
+          });
+        },
+
+        startGame(gameName) {
+          this.currentGameName = gameName;
+          const GameClass = Games[gameName];
+          const container = document.getElementById("gameArea");
+
+          document.getElementById("gameTitle").textContent =
+            GameTitles[gameName];
+
+          this.currentGame = new GameClass(container);
+          this.currentGame.updateUI();
+
+          this.showView("gameView");
+
+          // Small delay before starting
+          setTimeout(() => this.currentGame.start(), 300);
+        },
+
+        showResult(stats) {
+          document.getElementById("resultScore").textContent =
+            stats.score.toLocaleString();
+          document.getElementById("resultCorrect").textContent = stats.correct;
+          document.getElementById("resultWrong").textContent = stats.wrong;
+          document.getElementById("resultStreak").textContent = stats.streak;
+          document.getElementById("resultLevel").textContent = stats.level;
+
+          const total = stats.correct + stats.wrong;
+          const accuracy =
+            total > 0 ? Math.round((stats.correct / total) * 100) : 0;
+          document.getElementById("resultAccuracy").textContent =
+            accuracy + "%";
+
+          this.showView("resultView");
+        },
+      };
+
+      // Initialize
+      document.addEventListener("DOMContentLoaded", () => App.init());
+    </script>
+  </body>
+</html>
