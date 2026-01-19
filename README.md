@@ -4,7 +4,7 @@
 > Hosted - [Arkadeep.com](https://arkadeep.com/projects)
 
 ## List of Projects
-- [Antarctica Games](https://arkadeep.com/projects/steps) - Internship vs Residency (JR1) in terms of steps...
+- [Steps](https://arkadeep.com/projects/steps) - Internship vs Residency (JR1) in terms of steps...
 - [Antarctica Games](https://arkadeep.com/projects/antgame) - Train your brain, gain without pain. Improved version of [Brain Games 🧠](https://arkadeep.com/projects/braingames).
 - [Fast Notes](https://arkadeep.com/projects/fastnotes) - Easiest way to create notes in a refillable format.
 - [Demon Encoder](https://arkadeep.com/projects/demon) - à ẩąȧảȃã ẫãẳẫ ãḁâạäãầ ẫăàẫ âạḁắãầẫẩ ảȃàąḁ ẫãẳẫ ąḁẫạ ắàầąàḁẫẩ ạå “à” àḁä áàâȁ.
