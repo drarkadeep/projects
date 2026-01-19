@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Internship vs Residency | Dr Arkadeep</title>
+    <meta name="description" content="A visual comparison of Internship vs Residency by Dr Arkadeep.">
+    <meta name="author" content="Dr Arkadeep">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Internship vs Residency">
+    <meta property="og:description" content="Visual guide by Dr Arkadeep">
+    <meta property="og:image" content="Steps-1.jpg">
+    <meta property="og:type" content="website">
+
+    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/drarkadeep/drarkadeep.github.io/refs/heads/main/assets/media/A_thumbnail.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #000000;
+            --text-color: #ffffff;
+            --accent-color: #3b82f6;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* Slideshow Container */
+        .slideshow-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slide {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .slide.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Title Slide Styling */
+        .title-slide {
+            background: radial-gradient(circle at center, #1a1a1a 0%, #000000 100%);
+        }
+
+        .title-content {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .title-content h1 {
+            font-size: clamp(2rem, 8vw, 4rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, #ffffff, #888888);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .title-content p {
+            font-size: clamp(1rem, 4vw, 1.5rem);
+            color: #888;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+        }
+
+        .swipe-hint {
+            font-size: 0.9rem;
+            color: var(--accent-color);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            opacity: 0.6;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; transform: translateX(0); }
+            50% { opacity: 0.8; transform: translateX(10px); }
+        }
+
+        /* Feedback Slide Styling */
+        .feedback-slide {
+            background: radial-gradient(circle at center, #111 0%, #000 100%);
+        }
+
+        .feedback-content {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .feedback-content h2 {
+            font-size: clamp(2rem, 6vw, 3rem);
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+
+        .feedback-content p {
+            color: #888;
+            margin-bottom: 2.5rem;
+            font-size: 1.1rem;
+        }
+
+        .feedback-btn {
+            display: inline-block;
+            padding: 1.2rem 2.5rem;
+            background: var(--accent-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .feedback-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(59, 130, 246, 0.5);
+            background: #2563eb;
+        }
+
+        .feedback-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Image Slide Styling */
+        .slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #000;
+        }
+
+        @keyframes slideNext {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        @keyframes slidePrev {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+
+        .slide.active.slide-next {
+            animation: slideNext 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .slide.active.slide-prev {
+            animation: slidePrev 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Navigation Overlay */
+        .nav-btn {
+            cursor: pointer;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 15%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            color: rgba(255,255,255,0.2);
+            font-size: 2rem;
+            transition: 0.3s;
+            user-select: none;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255,255,255,0.05);
+            color: rgba(255,255,255,1);
+        }
+
+        .prev { left: 0; }
+        .next { right: 0; }
+
+        /* Orientation Warning */
+        #orientation-warning {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        #orientation-warning .icon {
+            font-size: 4rem;
+            margin-bottom: 2rem;
+            animation: phoneRotate 2s infinite ease-in-out;
+        }
+
+        @keyframes phoneRotate {
+            0% { transform: rotate(0deg); }
+            50% { transform: rotate(90deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        @media screen and (orientation: portrait) {
+            #orientation-warning { display: flex; }
+        }
+
+        @media (hover: none) {
+            .nav-btn { opacity: 0; pointer-events: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="orientation-warning">
+        <div class="icon">🔄</div>
+        <h2>Please rotate your device</h2>
+        <p>This slideshow is best experienced in landscape mode.</p>
+    </div>
+
+    <main class="slideshow-container">
+        <!-- Title Slide -->
+        <div class="slide active title-slide">
+            <div class="title-content">
+                <h1>Internship vs Residency</h1>
+                <p>by Dr Arkadeep</p>
+                <div class="swipe-hint">Swipe to begin &rarr;</div>
+            </div>
+        </div>
+
+        <!-- Image Slides -->
+        <div class="slide"><img src="Steps-1.jpg" alt="Slide 1"></div>
+        <div class="slide"><img src="Steps-2.jpg" alt="Slide 2"></div>
+        <div class="slide"><img src="Steps-3.jpg" alt="Slide 3"></div>
+        <div class="slide"><img src="Steps-4.jpg" alt="Slide 4"></div>
+        <div class="slide"><img src="Steps-5.jpg" alt="Slide 5"></div>
+        <div class="slide"><img src="Steps-6.jpg" alt="Slide 6"></div>
+        <div class="slide"><img src="Steps-7.jpg" alt="Slide 7"></div>
+        <div class="slide"><img src="Steps-8.jpg" alt="Slide 8"></div>
+
+        <!-- Feedback Slide -->
+        <div class="slide feedback-slide">
+            <div class="feedback-content">
+                <h2>Thank You</h2>
+                <p>We value your thoughts on this guide.</p>
+                <a href="https://forms.gle/p5M4bk4MPWLsesHT9" target="_blank" class="feedback-btn" id="feedbackLink">Provide Feedback</a>
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <a class="nav-btn prev" id="prevBtn">&#10094;</a>
+        <a class="nav-btn next" id="nextBtn">&#10095;</a>
+    </main>
+
+    <script>
+        let slideIndex = 0;
+        const slides = document.querySelectorAll(".slide");
+
+        function showSlides(n, direction = 'next') {
+            if (n >= slides.length) slideIndex = 0;
+            if (n < 0) slideIndex = slides.length - 1;
+            
+            const animationClass = direction === 'next' ? 'slide-next' : 'slide-prev';
+            
+            slides.forEach((slide) => {
+                slide.classList.remove("active", "slide-next", "slide-prev");
+            });
+            
+            slides[slideIndex].classList.add("active", animationClass);
+        }
+
+        function nextSlide() {
+            slideIndex++;
+            showSlides(slideIndex, 'next');
+        }
+
+        function prevSlide() {
+            slideIndex--;
+            showSlides(slideIndex, 'prev');
+        }
+
+        document.getElementById("nextBtn").addEventListener("click", nextSlide);
+        document.getElementById("prevBtn").addEventListener("click", prevSlide);
+
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "ArrowRight" || e.key === " ") nextSlide();
+            if (e.key === "ArrowLeft") prevSlide();
+        });
+
+        document.getElementById("feedbackLink").addEventListener("click", (e) => {
+            e.stopPropagation();
+        });
+
+        // Swipe support
+        let touchstartX = 0;
+        let touchendX = 0;
+
+        document.addEventListener('touchstart', e => {
+            touchstartX = e.changedTouches[0].screenX;
+        }, false);
+
+        document.addEventListener('touchend', e => {
+            touchendX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, false);
+
+        function handleSwipe() {
+            if (touchendX < touchstartX - 50) nextSlide();
+            if (touchendX > touchstartX + 50) prevSlide();
+        }
+    </script>
+</body>
+</html>
