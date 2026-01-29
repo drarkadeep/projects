@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Unnecessary Bengali Stickers</title>
+    <link rel="icon" type="image/x-icon" href="https://arkadeep.com/assets/media/A_thumbnail.png">
+    <meta name="description" content="Niche Bengali phrases on cats & dogs — stickers nobody asked for, so I made them." />
+    
+    <!-- Open Graph / Social Sharing -->
+    <meta property="og:title" content="Unnecessary Bengali Stickers" />
+    <meta property="og:description" content="Niche Bengali phrases on cats & dogs — stickers nobody asked for, so I made them." />
+    <meta property="og:image" content="header.png" />
+    <meta property="og:type" content="website" />
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Unnecessary Bengali Stickers" />
+    <meta name="twitter:description" content="Niche Bengali phrases on cats & dogs — stickers nobody asked for, so I made them." />
+    <meta name="twitter:image" content="header.png" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background: linear-gradient(
+          145deg,
+          #0d0d0d 0%,
+          #1a1a1a 50%,
+          #0f0f0f 100%
+        );
+        min-height: 100vh;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        padding: 12px;
+      }
+
+      /* Masonry Grid */
+      .gallery {
+        column-count: 2;
+        column-gap: 12px;
+      }
+
+      @media (min-width: 480px) {
+        .gallery {
+          column-count: 3;
+          column-gap: 14px;
+        }
+        body {
+          padding: 16px;
+        }
+      }
+
+      @media (min-width: 768px) {
+        .gallery {
+          column-count: 4;
+          column-gap: 16px;
+        }
+        body {
+          padding: 20px;
+        }
+      }
+
+      @media (min-width: 1024px) {
+        .gallery {
+          column-count: 5;
+          column-gap: 18px;
+        }
+        body {
+          padding: 24px;
+        }
+      }
+
+      @media (min-width: 1400px) {
+        .gallery {
+          column-count: 6;
+          column-gap: 20px;
+        }
+        body {
+          padding: 32px;
+        }
+      }
+
+      /* Sticker Card */
+      .sticker-card {
+        break-inside: avoid;
+        margin-bottom: 12px;
+        position: relative;
+        border-radius: 16px;
+        overflow: hidden;
+        background: #1e1e1e;
+        cursor: pointer;
+        transition:
+          transform 0.3s ease,
+          box-shadow 0.3s ease;
+      }
+
+      @media (min-width: 480px) {
+        .sticker-card {
+          margin-bottom: 14px;
+          border-radius: 18px;
+        }
+      }
+
+      @media (min-width: 768px) {
+        .sticker-card {
+          margin-bottom: 16px;
+          border-radius: 20px;
+        }
+      }
+
+      .sticker-card:hover {
+        transform: scale(1.02);
+        box-shadow: 0 8px 32px rgba(255, 255, 255, 0.08);
+      }
+
+      .sticker-card:active {
+        transform: scale(0.98);
+      }
+
+      /* Loading skeleton */
+      .sticker-card .loader {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(
+          135deg,
+          #1a1a1a 0%,
+          #2a2a2a 50%,
+          #1a1a1a 100%
+        );
+        background-size: 200% 200%;
+        animation: shimmer 1.5s ease-in-out infinite;
+      }
+
+      @keyframes shimmer {
+        0%,
+        100% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+      }
+
+      .loader-spinner {
+        width: 32px;
+        height: 32px;
+        border: 3px solid rgba(255, 255, 255, 0.1);
+        border-top-color: rgba(255, 255, 255, 0.5);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .sticker-card.loaded .loader {
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+      }
+
+      /* Sticker image */
+      .sticker-img {
+        width: 100%;
+        height: auto;
+        display: block;
+        opacity: 0;
+        transition: opacity 0.4s ease;
+      }
+
+      .sticker-card.loaded .sticker-img {
+        opacity: 1;
+      }
+
+      /* Aspect ratio placeholder for loading */
+      .sticker-card::before {
+        content: "";
+        display: block;
+        padding-top: var(--aspect-ratio, 100%);
+      }
+
+      .sticker-card .sticker-img,
+      .sticker-card .loader {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .sticker-card.loaded::before {
+        display: none;
+      }
+
+      .sticker-card.loaded {
+        position: relative;
+      }
+
+      .sticker-card.loaded .sticker-img {
+        position: relative;
+      }
+
+      /* Fullscreen Modal */
+      .modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.95);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition:
+          opacity 0.3s ease,
+          visibility 0.3s ease;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+      }
+
+      .modal.active {
+        opacity: 1;
+        visibility: visible;
+      }
+
+      .modal-content {
+        position: relative;
+        max-width: 90vw;
+        max-height: 90vh;
+        transform: scale(0.9);
+        transition: transform 0.3s ease;
+      }
+
+      .modal.active .modal-content {
+        transform: scale(1);
+      }
+
+      .modal-img {
+        max-width: 90vw;
+        max-height: 85vh;
+        object-fit: contain;
+        border-radius: 16px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      }
+
+      .close-btn {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        width: 48px;
+        height: 48px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition:
+          background 0.2s ease,
+          transform 0.2s ease;
+        z-index: 1001;
+      }
+
+      .close-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(1.1);
+      }
+
+      .close-btn:active {
+        transform: scale(0.95);
+      }
+
+      .close-btn::before,
+      .close-btn::after {
+        content: "";
+        position: absolute;
+        width: 20px;
+        height: 2px;
+        background: white;
+        border-radius: 2px;
+      }
+
+      .close-btn::before {
+        transform: rotate(45deg);
+      }
+
+      .close-btn::after {
+        transform: rotate(-45deg);
+      }
+
+      /* Subtle scroll hint gradient at bottom */
+      body::after {
+        content: "";
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 60px;
+        background: linear-gradient(to top, rgba(13, 13, 13, 0.9), transparent);
+        pointer-events: none;
+        z-index: 10;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="gallery" id="gallery"></div>
+
+    <div class="modal" id="modal">
+      <button class="close-btn" id="closeBtn" aria-label="Close"></button>
+      <div class="modal-content">
+        <img
+          class="modal-img"
+          id="modalImg"
+          src=""
+          alt="Sticker fullscreen view"
+        />
+      </div>
+    </div>
+
+    <script>
+      // Generate sticker file list (1.webp to 69.webp)
+      const stickers = Array.from({ length: 69 }, (_, i) => `assets/${i + 1}.webp`);
+
+      // Fisher-Yates shuffle
+      function shuffle(array) {
+        const arr = [...array];
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+      }
+
+      // Variable aspect ratios for visual interest
+      const aspectRatios = [
+        "80%",
+        "100%",
+        "120%",
+        "90%",
+        "110%",
+        "95%",
+        "105%",
+      ];
+
+      // Create gallery
+      const gallery = document.getElementById("gallery");
+      const modal = document.getElementById("modal");
+      const modalImg = document.getElementById("modalImg");
+      const closeBtn = document.getElementById("closeBtn");
+
+      const shuffledStickers = shuffle(stickers);
+
+      shuffledStickers.forEach((src, index) => {
+        const card = document.createElement("div");
+        card.className = "sticker-card";
+        card.style.setProperty(
+          "--aspect-ratio",
+          aspectRatios[index % aspectRatios.length],
+        );
+
+        card.innerHTML = `
+                <div class="loader">
+                    <div class="loader-spinner"></div>
+                </div>
+                <img class="sticker-img" data-src="${src}" alt="Sticker ${index + 1}">
+            `;
+
+        card.addEventListener("click", () => openModal(src));
+        gallery.appendChild(card);
+      });
+
+      // Intersection Observer for lazy loading with priority for top items
+      const observerOptions = {
+        root: null,
+        rootMargin: "100px 0px 300px 0px", // Load slightly before entering viewport
+        threshold: 0,
+      };
+
+      const imageObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const card = entry.target;
+            const img = card.querySelector(".sticker-img");
+            const src = img.dataset.src;
+
+            if (src) {
+              // Priority loading - calculate distance from top
+              const rect = card.getBoundingClientRect();
+              const distanceFromTop = rect.top;
+
+              // Shorter delay for items closer to top
+              const delay = Math.max(0, Math.min(distanceFromTop / 10, 100));
+
+              setTimeout(() => {
+                img.src = src;
+                img.onload = () => {
+                  card.classList.add("loaded");
+                };
+                img.onerror = () => {
+                  card.classList.add("loaded");
+                };
+              }, delay);
+
+              img.dataset.src = "";
+              imageObserver.unobserve(card);
+            }
+          }
+        });
+      }, observerOptions);
+
+      // Observe all cards
+      document.querySelectorAll(".sticker-card").forEach((card) => {
+        imageObserver.observe(card);
+      });
+
+      // Modal functions
+      function openModal(src) {
+        modalImg.src = src;
+        modal.classList.add("active");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeModal() {
+        modal.classList.remove("active");
+        document.body.style.overflow = "";
+        setTimeout(() => {
+          modalImg.src = "";
+        }, 300);
+      }
+
+      closeBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        closeModal();
+      });
+
+      modal.addEventListener("click", (e) => {
+        if (
+          e.target === modal ||
+          e.target === document.querySelector(".modal-content")
+        ) {
+          closeModal();
+        }
+      });
+
+      // Close on Escape key
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && modal.classList.contains("active")) {
+          closeModal();
+        }
+      });
+
+      // Prevent scroll on modal image
+      modalImg.addEventListener("click", (e) => {
+        e.stopPropagation();
+      });
+    </script>
+  </body>
+</html>

@@ -4,6 +4,7 @@
 > Hosted - [Arkadeep.com](https://arkadeep.com/projects)
 
 ## List of Projects
+- [Unnecessary Bengali Stickers](https://arkadeep.com/projects/stickers) - Niche Bengali phrases on cats & dogs — stickers nobody asked for, so I made them.
 - [Steps](https://arkadeep.com/projects/steps) - Internship vs Residency (JR1) in terms of steps...
 - [Antarctica Games](https://arkadeep.com/projects/antgame) - Train your brain, gain without pain. Improved version of [Brain Games 🧠](https://arkadeep.com/projects/braingames).
 - [Fast Notes](https://arkadeep.com/projects/fastnotes) - Easiest way to create notes in a refillable format.
