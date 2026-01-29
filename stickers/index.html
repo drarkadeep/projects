@@ -4,20 +4,35 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Unnecessary Bengali Stickers</title>
-    <link rel="icon" type="image/x-icon" href="https://arkadeep.com/assets/media/A_thumbnail.png">
-    <meta name="description" content="Niche Bengali phrases on cats & dogs — stickers nobody asked for, so I made them." />
-    
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="https://arkadeep.com/assets/media/A_thumbnail.png"
+    />
+    <meta
+      name="description"
+      content="Niche Bengali phrases on cats & dogs — stickers nobody asked for, so I made them."
+    />
+
     <!-- Open Graph / Social Sharing -->
     <meta property="og:title" content="Unnecessary Bengali Stickers" />
-    <meta property="og:description" content="Niche Bengali phrases on cats & dogs — stickers nobody asked for, so I made them." />
-    <meta property="og:image" content="header.png" />
+    <meta
+      property="og:description"
+      content="Niche Bengali phrases on cats & dogs — stickers nobody asked for, so I made them."
+    />
+    <meta property="og:image" content="preview.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="1171" />
     <meta property="og:type" content="website" />
-    
+
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Unnecessary Bengali Stickers" />
-    <meta name="twitter:description" content="Niche Bengali phrases on cats & dogs — stickers nobody asked for, so I made them." />
-    <meta name="twitter:image" content="header.png" />
+    <meta
+      name="twitter:description"
+      content="Niche Bengali phrases on cats & dogs — stickers nobody asked for, so I made them."
+    />
+    <meta name="twitter:image" content="preview.jpg" />
     <style>
       * {
         margin: 0;
@@ -331,7 +346,10 @@
 
     <script>
       // Generate sticker file list (1.webp to 69.webp)
-      const stickers = Array.from({ length: 69 }, (_, i) => `assets/${i + 1}.webp`);
+      const stickers = Array.from(
+        { length: 69 },
+        (_, i) => `assets/${i + 1}.webp`,
+      );
 
       // Fisher-Yates shuffle
       function shuffle(array) {
