@@ -1,0 +1,1687 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Master all world capitals through engaging quizzes, flag identification, and map games. Track your progress with streaks and achievements."
+    />
+    <title>Capitals Master | Antarctica Games</title>
+    <style>
+      :root {
+        --bg-primary: #0a0a0a;
+        --bg-secondary: #1a1a1a;
+        --bg-tertiary: #252525;
+        --accent: #00ff88;
+        --accent-dim: #00cc6a;
+        --error: #ff4444;
+        --warning: #ffaa00;
+        --text: #ffffff;
+        --text-muted: #888888;
+        --border: #333333;
+        --border-thick: 3px;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Courier New", monospace;
+        background: var(--bg-primary);
+        color: var(--text);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Header */
+      header {
+        background: var(--bg-secondary);
+        border-bottom: var(--border-thick) solid var(--accent);
+        padding: 1rem;
+        text-align: center;
+      }
+
+      header h1 {
+        font-size: 1.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.3em;
+        color: var(--accent);
+      }
+
+      /* Navigation */
+      nav {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 2px;
+        background: var(--border);
+        border-bottom: var(--border-thick) solid var(--border);
+      }
+
+      nav button {
+        background: var(--bg-secondary);
+        border: none;
+        padding: 1rem 0.5rem;
+        color: var(--text-muted);
+        font-family: inherit;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      nav button:hover,
+      nav button.active {
+        background: var(--bg-tertiary);
+        color: var(--accent);
+      }
+
+      nav button.active {
+        border-bottom: 3px solid var(--accent);
+      }
+
+      /* Main Content */
+      main {
+        flex: 1;
+        padding: 1rem;
+        max-width: 600px;
+        margin: 0 auto;
+        width: 100%;
+      }
+
+      /* Stats Bar */
+      .stats-bar {
+        display: flex;
+        justify-content: space-around;
+        background: var(--bg-secondary);
+        border: var(--border-thick) solid var(--border);
+        padding: 0.75rem;
+        margin-bottom: 1rem;
+        font-size: 0.85rem;
+      }
+
+      .stat {
+        text-align: center;
+      }
+
+      .stat-value {
+        color: var(--accent);
+        font-size: 1.2rem;
+        font-weight: bold;
+      }
+
+      .stat-label {
+        color: var(--text-muted);
+        font-size: 0.65rem;
+        text-transform: uppercase;
+      }
+
+      /* Game Container */
+      .game-container {
+        background: var(--bg-secondary);
+        border: var(--border-thick) solid var(--border);
+        padding: 1.5rem;
+        min-height: 400px;
+      }
+
+      /* Menu Screen */
+      .menu-grid {
+        display: grid;
+        gap: 0.75rem;
+      }
+
+      .menu-btn {
+        background: var(--bg-tertiary);
+        border: 2px solid var(--border);
+        padding: 1rem;
+        color: var(--text);
+        font-family: inherit;
+        font-size: 0.9rem;
+        cursor: pointer;
+        text-align: left;
+        transition: all 0.2s;
+      }
+
+      .menu-btn:hover {
+        border-color: var(--accent);
+        transform: translateX(5px);
+      }
+
+      .menu-btn .icon {
+        font-size: 1.5rem;
+        margin-right: 0.75rem;
+      }
+
+      .menu-btn .title {
+        display: block;
+        font-weight: bold;
+        text-transform: uppercase;
+      }
+
+      .menu-btn .desc {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+      }
+
+      /* Quiz Styles */
+      .question {
+        text-align: center;
+        margin-bottom: 1.5rem;
+      }
+
+      .question-label {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+      }
+
+      .question-text {
+        font-size: 1.5rem;
+        font-weight: bold;
+      }
+
+      .flag-display {
+        width: 200px;
+        height: 133px;
+        margin: 1rem auto;
+        border: 3px solid var(--border);
+        object-fit: cover;
+      }
+
+      .options {
+        display: grid;
+        gap: 0.5rem;
+      }
+
+      .option-btn {
+        background: var(--bg-tertiary);
+        border: 2px solid var(--border);
+        padding: 1rem;
+        color: var(--text);
+        font-family: inherit;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+
+      .option-btn:hover:not(:disabled) {
+        border-color: var(--accent);
+      }
+
+      .option-btn.correct {
+        background: var(--accent);
+        color: var(--bg-primary);
+        border-color: var(--accent);
+      }
+
+      .option-btn.wrong {
+        background: var(--error);
+        border-color: var(--error);
+      }
+
+      .option-btn:disabled {
+        cursor: not-allowed;
+        opacity: 0.7;
+      }
+
+      /* Fill Input */
+      .fill-container {
+        text-align: center;
+      }
+
+      .fill-display {
+        font-size: 2rem;
+        letter-spacing: 0.5rem;
+        margin: 1rem 0;
+        font-weight: bold;
+      }
+
+      .fill-input {
+        background: var(--bg-tertiary);
+        border: 2px solid var(--border);
+        padding: 1rem;
+        color: var(--text);
+        font-family: inherit;
+        font-size: 1.2rem;
+        text-align: center;
+        width: 100%;
+        max-width: 300px;
+        text-transform: uppercase;
+      }
+
+      .fill-input:focus {
+        outline: none;
+        border-color: var(--accent);
+      }
+
+      /* Timer */
+      .timer {
+        text-align: center;
+        font-size: 2rem;
+        font-weight: bold;
+        color: var(--accent);
+        margin-bottom: 1rem;
+      }
+
+      .timer.warning {
+        color: var(--warning);
+      }
+
+      .timer.danger {
+        color: var(--error);
+      }
+
+      /* Score Display */
+      .score-display {
+        text-align: center;
+        font-size: 1.2rem;
+        margin-bottom: 1rem;
+        color: var(--accent);
+      }
+
+      /* Result Screen */
+      .result {
+        text-align: center;
+        padding: 2rem 0;
+      }
+
+      .result-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+      }
+
+      .result-title {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .result-stats {
+        color: var(--text-muted);
+        margin-bottom: 1.5rem;
+      }
+
+      /* Buttons */
+      .btn {
+        background: var(--accent);
+        border: none;
+        padding: 1rem 2rem;
+        color: var(--bg-primary);
+        font-family: inherit;
+        font-size: 1rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .btn:hover {
+        background: var(--accent-dim);
+      }
+
+      .btn-secondary {
+        background: var(--bg-tertiary);
+        color: var(--text);
+        border: 2px solid var(--border);
+      }
+
+      .btn-secondary:hover {
+        border-color: var(--accent);
+        background: var(--bg-tertiary);
+      }
+
+      /* Stats Screen */
+      .stats-grid {
+        display: grid;
+        gap: 1rem;
+      }
+
+      .stats-card {
+        background: var(--bg-tertiary);
+        border: 2px solid var(--border);
+        padding: 1rem;
+      }
+
+      .stats-card h3 {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+      }
+
+      .stats-big {
+        font-size: 2rem;
+        color: var(--accent);
+        font-weight: bold;
+      }
+
+      .progress-bar {
+        background: var(--bg-primary);
+        height: 8px;
+        margin-top: 0.5rem;
+        border: 1px solid var(--border);
+      }
+
+      .progress-fill {
+        background: var(--accent);
+        height: 100%;
+        transition: width 0.3s;
+      }
+
+      /* Achievements */
+      .achievements-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+        margin-top: 1rem;
+      }
+
+      .achievement {
+        background: var(--bg-tertiary);
+        border: 2px solid var(--border);
+        padding: 0.75rem;
+        text-align: center;
+        opacity: 0.4;
+      }
+
+      .achievement.unlocked {
+        opacity: 1;
+        border-color: var(--accent);
+      }
+
+      .achievement .icon {
+        font-size: 1.5rem;
+      }
+
+      .achievement .name {
+        font-size: 0.6rem;
+        color: var(--text-muted);
+        margin-top: 0.25rem;
+      }
+
+      /* Map Container */
+      .map-container {
+        width: 100%;
+        overflow: auto;
+        border: 2px solid var(--border);
+        background: var(--bg-tertiary);
+      }
+
+      .map-container svg {
+        width: 100%;
+        min-width: 500px;
+      }
+
+      .map-container path {
+        fill: var(--bg-secondary);
+        stroke: var(--border);
+        stroke-width: 0.5;
+        cursor: pointer;
+        transition: fill 0.2s;
+      }
+
+      .map-container path:hover {
+        fill: var(--accent-dim);
+      }
+
+      .map-container path.correct {
+        fill: var(--accent);
+      }
+
+      .map-container path.wrong {
+        fill: var(--error);
+      }
+
+      /* Footer */
+      footer {
+        background: var(--bg-secondary);
+        border-top: var(--border-thick) solid var(--border);
+        padding: 1rem;
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+      }
+
+      /* Loading */
+      .loading {
+        text-align: center;
+        padding: 3rem;
+        color: var(--text-muted);
+      }
+
+      .loading::after {
+        content: "";
+        animation: dots 1.5s infinite;
+      }
+
+      @keyframes dots {
+        0%,
+        20% {
+          content: ".";
+        }
+        40% {
+          content: "..";
+        }
+        60%,
+        100% {
+          content: "...";
+        }
+      }
+
+      /* Animations */
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        20%,
+        60% {
+          transform: translateX(-5px);
+        }
+        40%,
+        80% {
+          transform: translateX(5px);
+        }
+      }
+
+      .shake {
+        animation: shake 0.4s;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+      }
+
+      .pulse {
+        animation: pulse 0.3s;
+      }
+
+      /* Responsive */
+      @media (min-width: 768px) {
+        header h1 {
+          font-size: 2rem;
+        }
+
+        nav button {
+          font-size: 0.85rem;
+          padding: 1.25rem;
+        }
+
+        main {
+          padding: 2rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Capitals Master</h1>
+    </header>
+
+    <nav>
+      <button class="active" data-tab="capitals">🏛️ Capitals</button>
+      <button data-tab="flags">🏴 Flags</button>
+      <button data-tab="map">🗺️ Map</button>
+      <button data-tab="stats">📊 Stats</button>
+    </nav>
+
+    <main>
+      <div class="stats-bar">
+        <div class="stat">
+          <div class="stat-value" id="currentStreak">0</div>
+          <div class="stat-label">🔥 Streak</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="bestStreak">0</div>
+          <div class="stat-label">⭐ Best</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="mastered">0</div>
+          <div class="stat-label">✓ Mastered</div>
+        </div>
+      </div>
+
+      <div class="game-container" id="gameContainer">
+        <div class="loading">Loading countries</div>
+      </div>
+    </main>
+
+    <footer>Antarctica Games</footer>
+
+    <script>
+      // ============ DATA MANAGEMENT ============
+      const API_URL =
+        "https://restcountries.com/v3.1/all?fields=name,capital,cca2,flags,latlng,region";
+      const CACHE_KEY = "capitals_data";
+      const STATS_KEY = "capitals_stats";
+      const CACHE_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+      let countries = [];
+      let stats = {
+        currentStreak: 0,
+        bestStreak: 0,
+        totalAnswered: 0,
+        totalCorrect: 0,
+        mastery: {},
+        achievements: [],
+        modes: {},
+      };
+
+      // Load stats from localStorage
+      function loadStats() {
+        const saved = localStorage.getItem(STATS_KEY);
+        if (saved) {
+          stats = { ...stats, ...JSON.parse(saved) };
+        }
+        updateStatsDisplay();
+      }
+
+      // Save stats to localStorage
+      function saveStats() {
+        localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+        updateStatsDisplay();
+      }
+
+      // Update stats bar display
+      function updateStatsDisplay() {
+        document.getElementById("currentStreak").textContent =
+          stats.currentStreak;
+        document.getElementById("bestStreak").textContent = stats.bestStreak;
+        const masteredCount = Object.values(stats.mastery).filter(
+          (m) => m >= 5,
+        ).length;
+        document.getElementById("mastered").textContent = masteredCount;
+      }
+
+      // Fetch countries data
+      async function fetchCountries() {
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (cached) {
+          const data = JSON.parse(cached);
+          if (Date.now() - data.timestamp < CACHE_DURATION) {
+            return data.countries;
+          }
+        }
+
+        try {
+          const response = await fetch(API_URL);
+          const data = await response.json();
+          const filtered = data.filter(
+            (c) => c.capital && c.capital.length > 0,
+          );
+          localStorage.setItem(
+            CACHE_KEY,
+            JSON.stringify({
+              countries: filtered,
+              timestamp: Date.now(),
+            }),
+          );
+          return filtered;
+        } catch (error) {
+          console.error("Failed to fetch countries:", error);
+          return [];
+        }
+      }
+
+      // ============ GAME STATE ============
+      let currentGame = null;
+      let currentTab = "capitals";
+
+      // ============ ACHIEVEMENTS ============
+      const ACHIEVEMENTS = [
+        {
+          id: "first_correct",
+          name: "First Steps",
+          icon: "🎯",
+          check: () => stats.totalCorrect >= 1,
+        },
+        {
+          id: "streak_10",
+          name: "Hot Streak",
+          icon: "🔥",
+          check: () => stats.bestStreak >= 10,
+        },
+        {
+          id: "streak_25",
+          name: "On Fire",
+          icon: "💥",
+          check: () => stats.bestStreak >= 25,
+        },
+        {
+          id: "streak_50",
+          name: "Unstoppable",
+          icon: "🏆",
+          check: () => stats.bestStreak >= 50,
+        },
+        {
+          id: "answered_100",
+          name: "Century",
+          icon: "💯",
+          check: () => stats.totalAnswered >= 100,
+        },
+        {
+          id: "mastered_10",
+          name: "Scholar",
+          icon: "📚",
+          check: () =>
+            Object.values(stats.mastery).filter((m) => m >= 5).length >= 10,
+        },
+        {
+          id: "mastered_50",
+          name: "Expert",
+          icon: "🎓",
+          check: () =>
+            Object.values(stats.mastery).filter((m) => m >= 5).length >= 50,
+        },
+        {
+          id: "mastered_all",
+          name: "World Master",
+          icon: "🌍",
+          check: () =>
+            Object.values(stats.mastery).filter((m) => m >= 5).length >= 195,
+        },
+        {
+          id: "accuracy_90",
+          name: "Perfectionist",
+          icon: "✨",
+          check: () =>
+            stats.totalAnswered >= 50 &&
+            stats.totalCorrect / stats.totalAnswered >= 0.9,
+        },
+      ];
+
+      function checkAchievements() {
+        let newAchievements = [];
+        ACHIEVEMENTS.forEach((a) => {
+          if (!stats.achievements.includes(a.id) && a.check()) {
+            stats.achievements.push(a.id);
+            newAchievements.push(a);
+          }
+        });
+        if (newAchievements.length > 0) {
+          saveStats();
+        }
+        return newAchievements;
+      }
+
+      // ============ UTILITY FUNCTIONS ============
+      function shuffle(array) {
+        const arr = [...array];
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+      }
+
+      function getRandomCountries(count, exclude = null) {
+        let pool = countries.filter((c) => c !== exclude);
+        return shuffle(pool).slice(0, count);
+      }
+
+      function recordAnswer(countryCode, correct) {
+        stats.totalAnswered++;
+        if (correct) {
+          stats.totalCorrect++;
+          stats.currentStreak++;
+          if (stats.currentStreak > stats.bestStreak) {
+            stats.bestStreak = stats.currentStreak;
+          }
+          stats.mastery[countryCode] = (stats.mastery[countryCode] || 0) + 1;
+          if (stats.mastery[countryCode] > 5) stats.mastery[countryCode] = 5;
+        } else {
+          stats.currentStreak = 0;
+          stats.mastery[countryCode] = Math.max(
+            0,
+            (stats.mastery[countryCode] || 0) - 1,
+          );
+        }
+        saveStats();
+        checkAchievements();
+      }
+
+      // ============ RENDER FUNCTIONS ============
+      const container = document.getElementById("gameContainer");
+
+      function render(html) {
+        container.innerHTML = html;
+      }
+
+      // ============ CAPITALS MENU ============
+      function showCapitalsMenu() {
+        render(`
+                <div class="menu-grid">
+                    <button class="menu-btn" onclick="startCapitalMCQ()">
+                        <span class="icon">📝</span>
+                        <span class="title">Multiple Choice</span>
+                        <span class="desc">Choose the correct capital from 4 options</span>
+                    </button>
+                    <button class="menu-btn" onclick="startReverseMCQ()">
+                        <span class="icon">🔄</span>
+                        <span class="title">Reverse Quiz</span>
+                        <span class="desc">Given a capital, identify the country</span>
+                    </button>
+                    <button class="menu-btn" onclick="startFillLetters()">
+                        <span class="icon">✏️</span>
+                        <span class="title">Fill Letters</span>
+                        <span class="desc">Type the missing letters of the capital</span>
+                    </button>
+                    <button class="menu-btn" onclick="startSpeedRound('capital')">
+                        <span class="icon">⚡</span>
+                        <span class="title">Speed Round</span>
+                        <span class="desc">60 seconds - answer as many as you can!</span>
+                    </button>
+                    <button class="menu-btn" onclick="startEndless('capital')">
+                        <span class="icon">♾️</span>
+                        <span class="title">Endless Mode</span>
+                        <span class="desc">Keep going until you get one wrong</span>
+                    </button>
+                </div>
+            `);
+      }
+
+      // ============ MCQ GAME ============
+      function startCapitalMCQ() {
+        currentGame = { type: "capitalMCQ", score: 0, total: 10, current: 0 };
+        nextCapitalMCQ();
+      }
+
+      function nextCapitalMCQ() {
+        if (currentGame.current >= currentGame.total) {
+          showResult();
+          return;
+        }
+
+        const correct = countries[Math.floor(Math.random() * countries.length)];
+        const wrong = getRandomCountries(3, correct);
+        const options = shuffle([correct, ...wrong]);
+
+        currentGame.correctAnswer = correct;
+        currentGame.current++;
+
+        render(`
+                <div class="score-display">Question ${currentGame.current}/${currentGame.total}</div>
+                <div class="question">
+                    <div class="question-label">What is the capital of</div>
+                    <div class="question-text">${correct.name.common}?</div>
+                </div>
+                <div class="options">
+                    ${options
+                      .map(
+                        (o) => `
+                        <button class="option-btn" onclick="checkCapitalAnswer('${o.cca2}', '${correct.cca2}')">${o.capital[0]}</button>
+                    `,
+                      )
+                      .join("")}
+                </div>
+            `);
+      }
+
+      function checkCapitalAnswer(selected, correct) {
+        const buttons = document.querySelectorAll(".option-btn");
+        buttons.forEach((btn) => {
+          btn.disabled = true;
+          const country = countries.find(
+            (c) => c.capital[0] === btn.textContent,
+          );
+          if (country.cca2 === correct) {
+            btn.classList.add("correct");
+          } else if (country.cca2 === selected) {
+            btn.classList.add("wrong");
+          }
+        });
+
+        const isCorrect = selected === correct;
+        if (isCorrect) currentGame.score++;
+        recordAnswer(correct, isCorrect);
+
+        setTimeout(nextCapitalMCQ, 1000);
+      }
+
+      // ============ REVERSE MCQ ============
+      function startReverseMCQ() {
+        currentGame = { type: "reverseMCQ", score: 0, total: 10, current: 0 };
+        nextReverseMCQ();
+      }
+
+      function nextReverseMCQ() {
+        if (currentGame.current >= currentGame.total) {
+          showResult();
+          return;
+        }
+
+        const correct = countries[Math.floor(Math.random() * countries.length)];
+        const wrong = getRandomCountries(3, correct);
+        const options = shuffle([correct, ...wrong]);
+
+        currentGame.correctAnswer = correct;
+        currentGame.current++;
+
+        render(`
+                <div class="score-display">Question ${currentGame.current}/${currentGame.total}</div>
+                <div class="question">
+                    <div class="question-label">${correct.capital[0]} is the capital of</div>
+                    <div class="question-text">Which country?</div>
+                </div>
+                <div class="options">
+                    ${options
+                      .map(
+                        (o) => `
+                        <button class="option-btn" onclick="checkReverseAnswer('${o.cca2}', '${correct.cca2}')">${o.name.common}</button>
+                    `,
+                      )
+                      .join("")}
+                </div>
+            `);
+      }
+
+      function checkReverseAnswer(selected, correct) {
+        const buttons = document.querySelectorAll(".option-btn");
+        const correctCountry = countries.find((c) => c.cca2 === correct);
+
+        buttons.forEach((btn) => {
+          btn.disabled = true;
+          if (btn.textContent === correctCountry.name.common) {
+            btn.classList.add("correct");
+          } else {
+            const country = countries.find(
+              (c) => c.name.common === btn.textContent,
+            );
+            if (country && country.cca2 === selected) {
+              btn.classList.add("wrong");
+            }
+          }
+        });
+
+        const isCorrect = selected === correct;
+        if (isCorrect) currentGame.score++;
+        recordAnswer(correct, isCorrect);
+
+        setTimeout(nextReverseMCQ, 1000);
+      }
+
+      // ============ FILL LETTERS ============
+      function startFillLetters() {
+        currentGame = { type: "fillLetters", score: 0, total: 10, current: 0 };
+        nextFillLetters();
+      }
+
+      function nextFillLetters() {
+        if (currentGame.current >= currentGame.total) {
+          showResult();
+          return;
+        }
+
+        const country = countries[Math.floor(Math.random() * countries.length)];
+        const capital = country.capital[0].toUpperCase();
+
+        // Create masked version (hide ~40% of letters)
+        let masked = "";
+        for (let i = 0; i < capital.length; i++) {
+          if (capital[i] === " ") {
+            masked += " ";
+          } else if (Math.random() < 0.4) {
+            masked += "_";
+          } else {
+            masked += capital[i];
+          }
+        }
+
+        currentGame.correctAnswer = country;
+        currentGame.capital = capital;
+        currentGame.current++;
+
+        render(`
+                <div class="score-display">Question ${currentGame.current}/${currentGame.total}</div>
+                <div class="question">
+                    <div class="question-label">Capital of ${country.name.common}</div>
+                </div>
+                <div class="fill-container">
+                    <div class="fill-display">${masked}</div>
+                    <input type="text" class="fill-input" id="fillInput" placeholder="Type the capital..." onkeydown="if(event.key==='Enter')checkFillAnswer()">
+                    <br><br>
+                    <button class="btn" onclick="checkFillAnswer()">Submit</button>
+                </div>
+            `);
+        document.getElementById("fillInput").focus();
+      }
+
+      function checkFillAnswer() {
+        const input = document.getElementById("fillInput");
+        const answer = input.value.trim().toUpperCase();
+        const correct = currentGame.capital;
+        const isCorrect = answer === correct;
+
+        if (isCorrect) {
+          currentGame.score++;
+          input.style.borderColor = "var(--accent)";
+        } else {
+          input.style.borderColor = "var(--error)";
+          container.querySelector(".fill-display").textContent = correct;
+        }
+
+        recordAnswer(currentGame.correctAnswer.cca2, isCorrect);
+        input.disabled = true;
+
+        setTimeout(nextFillLetters, 1500);
+      }
+
+      // ============ SPEED ROUND ============
+      function startSpeedRound(type) {
+        currentGame = { type: "speed", mode: type, score: 0, timeLeft: 60 };
+        nextSpeedQuestion();
+        startTimer();
+      }
+
+      function startTimer() {
+        currentGame.timer = setInterval(() => {
+          currentGame.timeLeft--;
+          const timerEl = document.querySelector(".timer");
+          if (timerEl) {
+            timerEl.textContent = currentGame.timeLeft + "s";
+            timerEl.className = "timer";
+            if (currentGame.timeLeft <= 10) timerEl.classList.add("danger");
+            else if (currentGame.timeLeft <= 20)
+              timerEl.classList.add("warning");
+          }
+          if (currentGame.timeLeft <= 0) {
+            clearInterval(currentGame.timer);
+            showResult();
+          }
+        }, 1000);
+      }
+
+      function nextSpeedQuestion() {
+        const correct = countries[Math.floor(Math.random() * countries.length)];
+        const wrong = getRandomCountries(3, correct);
+        const options = shuffle([correct, ...wrong]);
+
+        currentGame.correctAnswer = correct;
+
+        render(`
+                <div class="timer">${currentGame.timeLeft}s</div>
+                <div class="score-display">Score: ${currentGame.score}</div>
+                <div class="question">
+                    <div class="question-label">What is the capital of</div>
+                    <div class="question-text">${correct.name.common}?</div>
+                </div>
+                <div class="options">
+                    ${options
+                      .map(
+                        (o) => `
+                        <button class="option-btn" onclick="checkSpeedAnswer('${o.cca2}', '${correct.cca2}')">${o.capital[0]}</button>
+                    `,
+                      )
+                      .join("")}
+                </div>
+            `);
+      }
+
+      function checkSpeedAnswer(selected, correct) {
+        const isCorrect = selected === correct;
+        if (isCorrect) {
+          currentGame.score++;
+          container.querySelector(".score-display").classList.add("pulse");
+        } else {
+          container.classList.add("shake");
+          setTimeout(() => container.classList.remove("shake"), 400);
+        }
+        recordAnswer(correct, isCorrect);
+        nextSpeedQuestion();
+      }
+
+      // ============ ENDLESS MODE ============
+      function startEndless(type) {
+        currentGame = { type: "endless", mode: type, score: 0 };
+        nextEndlessQuestion();
+      }
+
+      function nextEndlessQuestion() {
+        const correct = countries[Math.floor(Math.random() * countries.length)];
+        const wrong = getRandomCountries(3, correct);
+        const options = shuffle([correct, ...wrong]);
+
+        currentGame.correctAnswer = correct;
+
+        render(`
+                <div class="score-display">Score: ${currentGame.score}</div>
+                <div class="question">
+                    <div class="question-label">What is the capital of</div>
+                    <div class="question-text">${correct.name.common}?</div>
+                </div>
+                <div class="options">
+                    ${options
+                      .map(
+                        (o) => `
+                        <button class="option-btn" onclick="checkEndlessAnswer('${o.cca2}', '${correct.cca2}')">${o.capital[0]}</button>
+                    `,
+                      )
+                      .join("")}
+                </div>
+            `);
+      }
+
+      function checkEndlessAnswer(selected, correct) {
+        const isCorrect = selected === correct;
+        recordAnswer(correct, isCorrect);
+
+        if (isCorrect) {
+          currentGame.score++;
+          nextEndlessQuestion();
+        } else {
+          // Show correct answer then result
+          const buttons = document.querySelectorAll(".option-btn");
+          buttons.forEach((btn) => {
+            btn.disabled = true;
+            const country = countries.find(
+              (c) => c.capital[0] === btn.textContent,
+            );
+            if (country.cca2 === correct) {
+              btn.classList.add("correct");
+            } else if (country.cca2 === selected) {
+              btn.classList.add("wrong");
+            }
+          });
+          setTimeout(showResult, 1500);
+        }
+      }
+
+      // ============ FLAGS MENU ============
+      function showFlagsMenu() {
+        render(`
+                <div class="menu-grid">
+                    <button class="menu-btn" onclick="startFlagMCQ()">
+                        <span class="icon">🏴</span>
+                        <span class="title">Flag → Country</span>
+                        <span class="desc">Identify the country from its flag</span>
+                    </button>
+                    <button class="menu-btn" onclick="startFlagCapital()">
+                        <span class="icon">🏛️</span>
+                        <span class="title">Flag → Capital</span>
+                        <span class="desc">Name the capital from the flag</span>
+                    </button>
+                    <button class="menu-btn" onclick="startSpeedRound('flag')">
+                        <span class="icon">⚡</span>
+                        <span class="title">Speed Flags</span>
+                        <span class="desc">60 seconds of flag identification</span>
+                    </button>
+                </div>
+            `);
+      }
+
+      // ============ FLAG MCQ ============
+      function startFlagMCQ() {
+        currentGame = { type: "flagMCQ", score: 0, total: 10, current: 0 };
+        nextFlagMCQ();
+      }
+
+      function nextFlagMCQ() {
+        if (currentGame.current >= currentGame.total) {
+          showResult();
+          return;
+        }
+
+        const correct = countries[Math.floor(Math.random() * countries.length)];
+        const wrong = getRandomCountries(3, correct);
+        const options = shuffle([correct, ...wrong]);
+
+        currentGame.correctAnswer = correct;
+        currentGame.current++;
+
+        render(`
+                <div class="score-display">Question ${currentGame.current}/${currentGame.total}</div>
+                <div class="question">
+                    <div class="question-label">Which country's flag is this?</div>
+                    <img class="flag-display" src="${correct.flags.png}" alt="Flag">
+                </div>
+                <div class="options">
+                    ${options
+                      .map(
+                        (o) => `
+                        <button class="option-btn" onclick="checkFlagAnswer('${o.cca2}', '${correct.cca2}')">${o.name.common}</button>
+                    `,
+                      )
+                      .join("")}
+                </div>
+            `);
+      }
+
+      function checkFlagAnswer(selected, correct) {
+        const buttons = document.querySelectorAll(".option-btn");
+        const correctCountry = countries.find((c) => c.cca2 === correct);
+
+        buttons.forEach((btn) => {
+          btn.disabled = true;
+          if (btn.textContent === correctCountry.name.common) {
+            btn.classList.add("correct");
+          } else {
+            const country = countries.find(
+              (c) => c.name.common === btn.textContent,
+            );
+            if (country && country.cca2 === selected) {
+              btn.classList.add("wrong");
+            }
+          }
+        });
+
+        const isCorrect = selected === correct;
+        if (isCorrect) currentGame.score++;
+        recordAnswer(correct, isCorrect);
+
+        setTimeout(nextFlagMCQ, 1000);
+      }
+
+      // ============ FLAG TO CAPITAL ============
+      function startFlagCapital() {
+        currentGame = { type: "flagCapital", score: 0, total: 10, current: 0 };
+        nextFlagCapital();
+      }
+
+      function nextFlagCapital() {
+        if (currentGame.current >= currentGame.total) {
+          showResult();
+          return;
+        }
+
+        const correct = countries[Math.floor(Math.random() * countries.length)];
+        const wrong = getRandomCountries(3, correct);
+        const options = shuffle([correct, ...wrong]);
+
+        currentGame.correctAnswer = correct;
+        currentGame.current++;
+
+        render(`
+                <div class="score-display">Question ${currentGame.current}/${currentGame.total}</div>
+                <div class="question">
+                    <div class="question-label">What is the capital of this country?</div>
+                    <img class="flag-display" src="${correct.flags.png}" alt="Flag">
+                </div>
+                <div class="options">
+                    ${options
+                      .map(
+                        (o) => `
+                        <button class="option-btn" onclick="checkFlagCapitalAnswer('${o.cca2}', '${correct.cca2}')">${o.capital[0]}</button>
+                    `,
+                      )
+                      .join("")}
+                </div>
+            `);
+      }
+
+      function checkFlagCapitalAnswer(selected, correct) {
+        const buttons = document.querySelectorAll(".option-btn");
+        const correctCountry = countries.find((c) => c.cca2 === correct);
+
+        buttons.forEach((btn) => {
+          btn.disabled = true;
+          if (btn.textContent === correctCountry.capital[0]) {
+            btn.classList.add("correct");
+          } else {
+            const country = countries.find(
+              (c) => c.capital[0] === btn.textContent,
+            );
+            if (country && country.cca2 === selected) {
+              btn.classList.add("wrong");
+            }
+          }
+        });
+
+        const isCorrect = selected === correct;
+        if (isCorrect) currentGame.score++;
+        recordAnswer(correct, isCorrect);
+
+        setTimeout(nextFlagCapital, 1000);
+      }
+
+      // ============ MAP GAME ============
+      const MAP_SVG_URL = 'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson';
+      let mapData = null;
+
+      async function loadMapData() {
+        if (mapData) return mapData;
+        try {
+          const response = await fetch(MAP_SVG_URL);
+          mapData = await response.json();
+          return mapData;
+        } catch (e) {
+          console.error('Failed to load map:', e);
+          return null;
+        }
+      }
+
+      function showMapMenu() {
+        render(`
+                <div class="menu-grid">
+                    <button class="menu-btn" onclick="startMapQuiz()">
+                        <span class="icon">🗺️</span>
+                        <span class="title">Find on Map</span>
+                        <span class="desc">Click the correct country on the interactive map</span>
+                    </button>
+                    <button class="menu-btn" onclick="startMapCapital()">
+                        <span class="icon">📍</span>
+                        <span class="title">Capital Location</span>
+                        <span class="desc">Find which country a capital belongs to</span>
+                    </button>
+                    <button class="menu-btn" onclick="startMapSpeed()">
+                        <span class="icon">⚡</span>
+                        <span class="title">Speed Map</span>
+                        <span class="desc">60 seconds - find countries as fast as you can</span>
+                    </button>
+                </div>
+            `);
+      }
+
+      function startMapQuiz() {
+        currentGame = { type: "mapQuiz", score: 0, total: 10, current: 0 };
+        nextMapQuestion();
+      }
+
+      async function nextMapQuestion() {
+        if (currentGame.current >= currentGame.total) {
+          showResult();
+          return;
+        }
+
+        const correct = countries[Math.floor(Math.random() * countries.length)];
+        currentGame.correctAnswer = correct;
+        currentGame.current++;
+
+        render(`
+                <div class="score-display">Question ${currentGame.current}/${currentGame.total}</div>
+                <div class="question">
+                    <div class="question-label">Find this country on the map:</div>
+                    <div class="question-text">${correct.name.common}</div>
+                    <img src="${correct.flags.png}" style="width:80px;height:50px;margin-top:0.5rem;border:2px solid var(--border);">
+                </div>
+                <div class="map-container" id="mapContainer">
+                    <div class="loading">Loading map</div>
+                </div>
+            `);
+
+        await renderInteractiveMap();
+      }
+
+      // Country code mappings (GeoJSON uses different codes)
+      const CODE_MAP = {
+        'USA': 'US', 'GBR': 'GB', 'FRA': 'FR', 'DEU': 'DE', 'ITA': 'IT', 'ESP': 'ES',
+        'RUS': 'RU', 'CHN': 'CN', 'JPN': 'JP', 'IND': 'IN', 'BRA': 'BR', 'CAN': 'CA',
+        'AUS': 'AU', 'MEX': 'MX', 'KOR': 'KR', 'IDN': 'ID', 'TUR': 'TR', 'SAU': 'SA',
+        'ZAF': 'ZA', 'ARG': 'AR', 'EGY': 'EG', 'NGA': 'NG', 'PAK': 'PK', 'BGD': 'BD',
+        'VNM': 'VN', 'THA': 'TH', 'MYS': 'MY', 'PHL': 'PH', 'POL': 'PL', 'UKR': 'UA',
+        'ROU': 'RO', 'NLD': 'NL', 'BEL': 'BE', 'GRC': 'GR', 'CZE': 'CZ', 'PRT': 'PT',
+        'SWE': 'SE', 'HUN': 'HU', 'AUT': 'AT', 'CHE': 'CH', 'NOR': 'NO', 'DNK': 'DK',
+        'FIN': 'FI', 'IRL': 'IE', 'NZL': 'NZ', 'SGP': 'SG', 'HKG': 'HK', 'ISR': 'IL',
+        'ARE': 'AE', 'QAT': 'QA', 'KWT': 'KW', 'IRN': 'IR', 'IRQ': 'IQ', 'SYR': 'SY',
+        'JOR': 'JO', 'LBN': 'LB', 'AFG': 'AF', 'KAZ': 'KZ', 'UZB': 'UZ', 'MMR': 'MM',
+        'NPL': 'NP', 'LKA': 'LK', 'KHM': 'KH', 'LAO': 'LA', 'PRK': 'KP', 'MNG': 'MN',
+        'COL': 'CO', 'PER': 'PE', 'VEN': 'VE', 'CHL': 'CL', 'ECU': 'EC', 'BOL': 'BO',
+        'PRY': 'PY', 'URY': 'UY', 'CUB': 'CU', 'DOM': 'DO', 'GTM': 'GT', 'HND': 'HN',
+        'SLV': 'SV', 'NIC': 'NI', 'CRI': 'CR', 'PAN': 'PA', 'JAM': 'JM', 'HTI': 'HT',
+        'KEN': 'KE', 'ETH': 'ET', 'TZA': 'TZ', 'UGA': 'UG', 'GHA': 'GH', 'CIV': 'CI',
+        'CMR': 'CM', 'AGO': 'AO', 'MOZ': 'MZ', 'MDG': 'MG', 'ZWE': 'ZW', 'ZMB': 'ZM',
+        'SEN': 'SN', 'MLI': 'ML', 'BFA': 'BF', 'NER': 'NE', 'TCD': 'TD', 'SDN': 'SD',
+        'SSD': 'SS', 'COD': 'CD', 'COG': 'CG', 'GAB': 'GA', 'CAF': 'CF', 'SOM': 'SO',
+        'DZA': 'DZ', 'MAR': 'MA', 'TUN': 'TN', 'LBY': 'LY', 'MRT': 'MR', 'NAM': 'NA',
+        'BWA': 'BW', 'SWZ': 'SZ', 'LSO': 'LS', 'MWI': 'MW', 'RWA': 'RW', 'BDI': 'BI',
+        'ERI': 'ER', 'DJI': 'DJ', 'BEN': 'BJ', 'TGO': 'TG', 'GIN': 'GN', 'GNB': 'GW',
+        'SLE': 'SL', 'LBR': 'LR', 'GMB': 'GM', 'CPV': 'CV', 'MUS': 'MU', 'SYC': 'SC',
+        'SRB': 'RS', 'HRV': 'HR', 'SVN': 'SI', 'BIH': 'BA', 'MKD': 'MK', 'ALB': 'AL',
+        'MNE': 'ME', 'BGR': 'BG', 'MDA': 'MD', 'BLR': 'BY', 'LTU': 'LT', 'LVA': 'LV',
+        'EST': 'EE', 'GEO': 'GE', 'ARM': 'AM', 'AZE': 'AZ', 'TKM': 'TM', 'TJK': 'TJ',
+        'KGZ': 'KG', 'SVK': 'SK', 'LUX': 'LU', 'ISL': 'IS', 'CYP': 'CY', 'MLT': 'MT',
+        'GNQ': 'GQ', 'STP': 'ST', 'COM': 'KM', 'BTN': 'BT', 'MDV': 'MV', 'BRN': 'BN',
+        'TLS': 'TL', 'PNG': 'PG', 'FJI': 'FJ', 'SLB': 'SB', 'VUT': 'VU', 'WSM': 'WS',
+        'TON': 'TO', 'PLW': 'PW', 'FSM': 'FM', 'MHL': 'MH', 'KIR': 'KI', 'NRU': 'NR',
+        'TUV': 'TV', 'BHS': 'BS', 'BRB': 'BB', 'TTO': 'TT', 'GRD': 'GD', 'VCT': 'VC',
+        'LCA': 'LC', 'DMA': 'DM', 'ATG': 'AG', 'KNA': 'KN', 'SUR': 'SR', 'GUY': 'GY',
+        'BLZ': 'BZ', 'TWN': 'TW', 'YEM': 'YE', 'OMN': 'OM', 'BHR': 'BH'
+      };
+
+      function getCca2FromGeoJson(feature) {
+        const iso3 = feature.properties.ISO_A3 || feature.properties.ADM0_A3;
+        const iso2 = feature.properties.ISO_A2;
+        if (iso2 && iso2 !== '-99') return iso2;
+        if (CODE_MAP[iso3]) return CODE_MAP[iso3];
+        return iso3 ? iso3.substring(0, 2) : null;
+      }
+
+      async function renderInteractiveMap() {
+        const mapContainer = document.getElementById('mapContainer');
+        const data = await loadMapData();
+        
+        if (!data) {
+          mapContainer.innerHTML = '<p style="color:var(--error);padding:1rem;">Failed to load map. Please try again.</p>';
+          return;
+        }
+
+        const width = 800;
+        const height = 450;
+        
+        // Simple projection (Mercator-like)
+        function project(lon, lat) {
+          const x = (lon + 180) * (width / 360);
+          const latRad = lat * Math.PI / 180;
+          const mercN = Math.log(Math.tan((Math.PI / 4) + (latRad / 2)));
+          const y = (height / 2) - (width * mercN / (2 * Math.PI));
+          return [x, Math.max(0, Math.min(height, y))];
+        }
+
+        function coordsToPath(coords) {
+          if (!coords || coords.length === 0) return '';
+          return coords.map((ring, i) => {
+            if (!Array.isArray(ring)) return '';
+            const points = ring.map(coord => {
+              if (!Array.isArray(coord) || coord.length < 2) return null;
+              const [x, y] = project(coord[0], coord[1]);
+              return `${x.toFixed(1)},${y.toFixed(1)}`;
+            }).filter(p => p);
+            if (points.length === 0) return '';
+            return (i === 0 ? 'M' : 'M') + points.join('L') + 'Z';
+          }).join(' ');
+        }
+
+        let paths = '';
+        data.features.forEach(feature => {
+          const code = getCca2FromGeoJson(feature);
+          const name = feature.properties.NAME || feature.properties.ADMIN || '';
+          let d = '';
+          
+          if (feature.geometry.type === 'Polygon') {
+            d = coordsToPath(feature.geometry.coordinates);
+          } else if (feature.geometry.type === 'MultiPolygon') {
+            d = feature.geometry.coordinates.map(poly => coordsToPath(poly)).join(' ');
+          }
+          
+          if (d && code) {
+            paths += `<path d="${d}" data-code="${code}" data-name="${name}" onclick="handleMapClick('${code}')" />`;
+          }
+        });
+
+        mapContainer.innerHTML = `
+          <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet">
+            <rect width="${width}" height="${height}" fill="var(--bg-primary)" />
+            ${paths}
+          </svg>
+        `;
+      }
+
+      function handleMapClick(code) {
+        const correct = currentGame.correctAnswer.cca2;
+        const isCorrect = code === correct;
+        
+        const paths = document.querySelectorAll('.map-container path');
+        paths.forEach(p => {
+          p.style.pointerEvents = 'none';
+          if (p.dataset.code === correct) {
+            p.classList.add('correct');
+          } else if (p.dataset.code === code && !isCorrect) {
+            p.classList.add('wrong');
+          }
+        });
+
+        if (isCorrect) currentGame.score++;
+        recordAnswer(correct, isCorrect);
+
+        setTimeout(() => {
+          if (currentGame.type === 'mapSpeed') {
+            nextMapSpeedQuestion();
+          } else {
+            nextMapQuestion();
+          }
+        }, 1200);
+      }
+
+      function startMapCapital() {
+        currentGame = { type: "mapCapital", score: 0, total: 10, current: 0 };
+        nextMapCapitalQuestion();
+      }
+
+      async function nextMapCapitalQuestion() {
+        if (currentGame.current >= currentGame.total) {
+          showResult();
+          return;
+        }
+
+        const correct = countries[Math.floor(Math.random() * countries.length)];
+        currentGame.correctAnswer = correct;
+        currentGame.current++;
+
+        render(`
+                <div class="score-display">Question ${currentGame.current}/${currentGame.total}</div>
+                <div class="question">
+                    <div class="question-label">Find the country where this capital is located:</div>
+                    <div class="question-text">${correct.capital[0]}</div>
+                </div>
+                <div class="map-container" id="mapContainer">
+                    <div class="loading">Loading map</div>
+                </div>
+            `);
+
+        await renderInteractiveMap();
+      }
+
+      function startMapSpeed() {
+        currentGame = { type: 'mapSpeed', score: 0, timeLeft: 60 };
+        nextMapSpeedQuestion();
+        startTimer();
+      }
+
+      async function nextMapSpeedQuestion() {
+        const correct = countries[Math.floor(Math.random() * countries.length)];
+        currentGame.correctAnswer = correct;
+
+        render(`
+                <div class="timer">${currentGame.timeLeft}s</div>
+                <div class="score-display">Score: ${currentGame.score}</div>
+                <div class="question">
+                    <div class="question-label">Find:</div>
+                    <div class="question-text">${correct.name.common}</div>
+                </div>
+                <div class="map-container" id="mapContainer">
+                    <div class="loading">Loading map</div>
+                </div>
+            `);
+
+        await renderInteractiveMap();
+      }
+
+
+      // ============ STATS SCREEN ============
+      function showStats() {
+        const totalCountries = countries.length;
+        const masteredCount = Object.values(stats.mastery).filter(
+          (m) => m >= 5,
+        ).length;
+        const accuracy =
+          stats.totalAnswered > 0
+            ? Math.round((stats.totalCorrect / stats.totalAnswered) * 100)
+            : 0;
+
+        // Group by region
+        const regionStats = {};
+        countries.forEach((c) => {
+          if (!regionStats[c.region]) {
+            regionStats[c.region] = { total: 0, mastered: 0 };
+          }
+          regionStats[c.region].total++;
+          if (stats.mastery[c.cca2] >= 5) {
+            regionStats[c.region].mastered++;
+          }
+        });
+
+        render(`
+                <div class="stats-grid">
+                    <div class="stats-card">
+                        <h3>Overall Progress</h3>
+                        <div class="stats-big">${masteredCount}/${totalCountries}</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${(masteredCount / totalCountries) * 100}%"></div>
+                        </div>
+                    </div>
+                    <div class="stats-card">
+                        <h3>Total Answered</h3>
+                        <div class="stats-big">${stats.totalAnswered}</div>
+                        <div style="color:var(--text-muted)">${accuracy}% accuracy</div>
+                    </div>
+                    <div class="stats-card">
+                        <h3>Best Streak</h3>
+                        <div class="stats-big">🔥 ${stats.bestStreak}</div>
+                    </div>
+                    <div class="stats-card">
+                        <h3>Progress by Region</h3>
+                        ${Object.entries(regionStats)
+                          .map(
+                            ([region, data]) => `
+                            <div style="margin-top:0.5rem;">
+                                <div style="display:flex;justify-content:space-between;font-size:0.75rem;">
+                                    <span>${region || "Other"}</span>
+                                    <span>${data.mastered}/${data.total}</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: ${(data.mastered / data.total) * 100}%"></div>
+                                </div>
+                            </div>
+                        `,
+                          )
+                          .join("")}
+                    </div>
+                    <div class="stats-card">
+                        <h3>Achievements</h3>
+                        <div class="achievements-grid">
+                            ${ACHIEVEMENTS.map(
+                              (a) => `
+                                <div class="achievement ${stats.achievements.includes(a.id) ? "unlocked" : ""}">
+                                    <div class="icon">${a.icon}</div>
+                                    <div class="name">${a.name}</div>
+                                </div>
+                            `,
+                            ).join("")}
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top:1rem;text-align:center;">
+                    <button class="btn btn-secondary" onclick="if(confirm('Reset all progress?')){localStorage.removeItem('${STATS_KEY}');location.reload();}">Reset Progress</button>
+                </div>
+            `);
+      }
+
+      // ============ RESULT SCREEN ============
+      function showResult() {
+        if (currentGame.timer) {
+          clearInterval(currentGame.timer);
+        }
+
+        const score = currentGame.score;
+        const total = currentGame.total || score;
+        const percentage = total > 0 ? Math.round((score / total) * 100) : 0;
+
+        let icon = "😕";
+        let title = "Keep Practicing!";
+        if (percentage >= 90) {
+          icon = "🏆";
+          title = "Outstanding!";
+        } else if (percentage >= 70) {
+          icon = "🎉";
+          title = "Great Job!";
+        } else if (percentage >= 50) {
+          icon = "👍";
+          title = "Good Effort!";
+        }
+
+        render(`
+                <div class="result">
+                    <div class="result-icon">${icon}</div>
+                    <div class="result-title">${title}</div>
+                    <div class="result-stats">
+                        You got <strong>${score}</strong> ${currentGame.type === "endless" || currentGame.type === "speed" ? "correct" : "out of " + total}
+                        ${currentGame.type !== "endless" && currentGame.type !== "speed" ? `(${percentage}%)` : ""}
+                    </div>
+                    <button class="btn" onclick="goToMenu()">Continue</button>
+                </div>
+            `);
+      }
+
+      function goToMenu() {
+        switch (currentTab) {
+          case "capitals":
+            showCapitalsMenu();
+            break;
+          case "flags":
+            showFlagsMenu();
+            break;
+          case "map":
+            showMapMenu();
+            break;
+          case "stats":
+            showStats();
+            break;
+        }
+      }
+
+      // ============ NAVIGATION ============
+      document.querySelectorAll("nav button").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          // Clear any running timers
+          if (currentGame?.timer) {
+            clearInterval(currentGame.timer);
+          }
+
+          document
+            .querySelectorAll("nav button")
+            .forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          currentTab = btn.dataset.tab;
+
+          switch (currentTab) {
+            case "capitals":
+              showCapitalsMenu();
+              break;
+            case "flags":
+              showFlagsMenu();
+              break;
+            case "map":
+              showMapMenu();
+              break;
+            case "stats":
+              showStats();
+              break;
+          }
+        });
+      });
+
+      // ============ INITIALIZATION ============
+      async function init() {
+        loadStats();
+        countries = await fetchCountries();
+
+        if (countries.length === 0) {
+          render(`
+                    <div class="result">
+                        <div class="result-icon">❌</div>
+                        <div class="result-title">Failed to Load</div>
+                        <div class="result-stats">Could not fetch country data. Please check your internet connection.</div>
+                        <button class="btn" onclick="location.reload()">Retry</button>
+                    </div>
+                `);
+          return;
+        }
+
+        showCapitalsMenu();
+      }
+
+      init();
+    </script>
+  </body>
+</html>
