@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>MRCS / 2281</title>
+    <meta
+      name="description"
+      content="Brutalist MRCS question counter tracking 2281 questions at 50/day from 2 March 2026."
+    />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Space+Grotesk:wght@700;900&display=swap");
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --bg: #0a0a0a;
+        --fg: #f0f0f0;
+        --accent: #e8ff00;
+        --dim: #444;
+        --border: 2px solid #f0f0f0;
+        --border-dim: 1px solid #2a2a2a;
+        --mono: "Share Tech Mono", monospace;
+        --sans: "Space Grotesk", sans-serif;
+      }
+
+      html,
+      body {
+        height: 100%;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: var(--mono);
+        -webkit-font-smoothing: antialiased;
+        overflow: hidden;
+      }
+
+      .app {
+        display: flex;
+        flex-direction: column;
+        height: 100dvh;
+        height: 100vh; /* fallback */
+      }
+
+      /* ── TOP HALF ── */
+      .top {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 28px 24px 16px;
+        border-bottom: var(--border);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .label {
+        font-size: 10px;
+        letter-spacing: 0.25em;
+        text-transform: uppercase;
+        color: var(--dim);
+        margin-bottom: 8px;
+      }
+
+      .counter-wrap {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        width: 100%;
+      }
+
+      .count {
+        font-family: var(--sans);
+        font-weight: 900;
+        font-size: clamp(72px, 22vw, 120px);
+        line-height: 1;
+        letter-spacing: -2px;
+        color: var(--accent);
+        font-variant-numeric: tabular-nums;
+        transition: color 0.1s;
+      }
+
+      .total {
+        font-family: var(--sans);
+        font-weight: 700;
+        font-size: clamp(22px, 6vw, 36px);
+        color: var(--dim);
+        white-space: nowrap;
+      }
+
+      .progress-row {
+        width: 100%;
+        margin-top: 20px;
+      }
+
+      .progress-track {
+        width: 100%;
+        height: 4px;
+        background: #1a1a1a;
+        border: 1px solid #2a2a2a;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: var(--accent);
+        transition: width 1s linear;
+        will-change: width;
+      }
+
+      .progress-pct {
+        margin-top: 8px;
+        font-size: 11px;
+        letter-spacing: 0.15em;
+        color: var(--dim);
+      }
+
+      .stats-row {
+        display: flex;
+        gap: 0;
+        width: 100%;
+        margin-top: 20px;
+        border-top: var(--border-dim);
+        border-left: var(--border-dim);
+      }
+
+      .stat {
+        flex: 1;
+        padding: 10px 12px;
+        border-right: var(--border-dim);
+        border-bottom: var(--border-dim);
+      }
+
+      .stat-val {
+        font-size: 15px;
+        font-weight: bold;
+        color: var(--fg);
+        letter-spacing: 0.05em;
+      }
+
+      .stat-key {
+        font-size: 9px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--dim);
+        margin-top: 3px;
+      }
+
+      .rate-badge {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        border: 1px solid var(--dim);
+        padding: 5px 10px;
+        font-size: 10px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--dim);
+      }
+
+      /* ── BOTTOM HALF ── */
+      .bottom {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 20px 24px 28px;
+        overflow-y: auto;
+      }
+
+      .section-title {
+        font-size: 10px;
+        letter-spacing: 0.25em;
+        text-transform: uppercase;
+        color: var(--dim);
+        margin-bottom: 16px;
+      }
+
+      .input-row {
+        display: flex;
+        align-items: stretch;
+        width: 100%;
+        border: var(--border);
+        margin-bottom: 20px;
+      }
+
+      .input-row label {
+        padding: 0 14px;
+        display: flex;
+        align-items: center;
+        font-size: 11px;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--dim);
+        border-right: var(--border);
+        white-space: nowrap;
+        background: #111;
+      }
+
+      .q-input {
+        flex: 1;
+        background: transparent;
+        border: none;
+        color: var(--accent);
+        font-family: var(--sans);
+        font-size: 28px;
+        font-weight: 900;
+        padding: 14px 16px;
+        outline: none;
+        width: 100%;
+      }
+
+      .q-input::placeholder {
+        color: #2a2a2a;
+      }
+
+      /* remove spinner */
+      .q-input::-webkit-inner-spin-button,
+      .q-input::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+      }
+      .q-input[type="number"] {
+        -moz-appearance: textfield;
+        appearance: textfield;
+      }
+
+      .result-box {
+        border: var(--border-dim);
+        padding: 18px 16px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .result-item {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+      }
+
+      .result-key {
+        font-size: 9px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--dim);
+      }
+
+      .result-val {
+        font-family: var(--sans);
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--fg);
+        letter-spacing: -0.5px;
+      }
+
+      .result-val.highlight {
+        color: var(--accent);
+      }
+
+      .result-val.warn {
+        color: #ff4444;
+      }
+
+      .result-val.ok {
+        color: #44ff88;
+      }
+
+      .placeholder-text {
+        color: #2a2a2a;
+        font-size: 14px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        margin: auto;
+        text-align: center;
+        padding: 20px 0;
+      }
+
+      .divider {
+        border: none;
+        border-top: var(--border-dim);
+      }
+
+      .blink {
+        animation: blink 1s step-end infinite;
+      }
+      @keyframes blink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0;
+        }
+      }
+
+      /* scrollbar */
+      ::-webkit-scrollbar {
+        width: 4px;
+      }
+      ::-webkit-scrollbar-track {
+        background: var(--bg);
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--dim);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <!-- ══ TOP HALF ══ -->
+      <section class="top" aria-label="Question counter">
+        <div class="rate-badge">50 / DAY</div>
+        <div class="label">QUESTIONS ELAPSED</div>
+
+        <div class="counter-wrap">
+          <div class="count" id="countDisplay">0</div>
+          <div class="total">/ 2281</div>
+        </div>
+
+        <div class="progress-row">
+          <div class="progress-track">
+            <div
+              class="progress-fill"
+              id="progressFill"
+              style="width: 0%"
+            ></div>
+          </div>
+          <div class="progress-pct" id="progressPct">0.00% complete</div>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat">
+            <div class="stat-val" id="daysElapsed">—</div>
+            <div class="stat-key">Days in</div>
+          </div>
+          <div class="stat">
+            <div class="stat-val" id="daysLeft">—</div>
+            <div class="stat-key">Days left</div>
+          </div>
+          <div class="stat">
+            <div class="stat-val" id="targetDate">—</div>
+            <div class="stat-key">Target end</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ BOTTOM HALF ══ -->
+      <section class="bottom" aria-label="Solved questions estimator">
+        <div class="section-title">Solved → End Date</div>
+
+        <div class="input-row">
+          <label for="solvedInput">Solved</label>
+          <input
+            id="solvedInput"
+            class="q-input"
+            type="number"
+            inputmode="numeric"
+            placeholder="0"
+            min="0"
+            max="2281"
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="result-box" id="resultBox">
+          <div class="placeholder-text">
+            enter solved count<span class="blink">_</span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      // ── CONSTANTS ──
+      const START_MS = new Date("2026-03-02T09:02:00+05:30").getTime();
+      const TOTAL_Q = 2281;
+      const PER_DAY = 50;
+      const MS_PER_Q = (24 * 3600 * 1000) / PER_DAY; // ms per question
+      const TOTAL_DAYS = TOTAL_Q / PER_DAY; // 45.62 days
+
+      // Fixed-pace end date (ignoring user input)
+      const TARGET_MS = START_MS + TOTAL_Q * MS_PER_Q;
+
+      // ── HELPERS ──
+      function fmtDate(ms) {
+        const d = new Date(ms);
+        return d.toLocaleDateString("en-IN", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+          timeZone: "Asia/Kolkata",
+        });
+      }
+
+      function fmtDateTime(ms) {
+        const d = new Date(ms);
+        return d.toLocaleString("en-IN", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          timeZone: "Asia/Kolkata",
+          hour12: true,
+        });
+      }
+
+      function fmtDuration(ms) {
+        if (ms < 0) return "—";
+        const totalSec = Math.floor(ms / 1000);
+        const d = Math.floor(totalSec / 86400);
+        const h = Math.floor((totalSec % 86400) / 3600);
+        const m = Math.floor((totalSec % 3600) / 60);
+        const parts = [];
+        if (d > 0) parts.push(d + "d");
+        if (h > 0) parts.push(h + "h");
+        if (m > 0 || (!d && !h)) parts.push(m + "m");
+        return parts.join(" ");
+      }
+
+      // ── TOP COUNTER TICK ──
+      function tick() {
+        const now = Date.now();
+        const elapsed = Math.max(0, now - START_MS);
+
+        const qDone = Math.min(TOTAL_Q, elapsed / MS_PER_Q);
+        const qFloor = Math.floor(qDone);
+        const pct = (qDone / TOTAL_Q) * 100;
+
+        const daysElapsed = elapsed / 86400000;
+        const daysLeft = Math.max(0, (TOTAL_Q - qDone) / PER_DAY);
+
+        document.getElementById("countDisplay").textContent =
+          qFloor.toLocaleString();
+        document.getElementById("progressFill").style.width =
+          pct.toFixed(4) + "%";
+        document.getElementById("progressPct").textContent =
+          pct.toFixed(2) + "% complete";
+        document.getElementById("daysElapsed").textContent =
+          daysElapsed.toFixed(1);
+        document.getElementById("daysLeft").textContent = daysLeft.toFixed(1);
+        document.getElementById("targetDate").textContent = fmtDate(TARGET_MS);
+      }
+
+      // ── BOTTOM ESTIMATOR ──
+      function computeEstimate(solved) {
+        const now = Date.now();
+        const elapsed = Math.max(1, now - START_MS); // ms since start
+        const elapsedDays = elapsed / 86400000;
+
+        // Current pace
+        const ratePerDay = solved / elapsedDays;
+
+        // Questions remaining
+        const remaining = TOTAL_Q - solved;
+
+        // Edge cases
+        if (solved <= 0) {
+          return { error: "Enter how many you've solved." };
+        }
+        if (solved >= TOTAL_Q) {
+          return { done: true };
+        }
+        if (ratePerDay <= 0) {
+          return { error: "Rate is zero." };
+        }
+
+        const daysNeeded = remaining / ratePerDay;
+        const endMs = now + daysNeeded * 86400000;
+
+        // vs target
+        const deltaMs = endMs - TARGET_MS;
+        const onTrack = deltaMs <= 0;
+
+        return {
+          solved,
+          remaining,
+          ratePerDay,
+          endMs,
+          daysNeeded,
+          onTrack,
+          deltaMs,
+        };
+      }
+
+      function renderResult(val) {
+        const box = document.getElementById("resultBox");
+
+        if (!val && val !== 0) {
+          box.innerHTML =
+            '<div class="placeholder-text">enter solved count<span class="blink">_</span></div>';
+          return;
+        }
+
+        const res = computeEstimate(Number(val));
+
+        if (res.error) {
+          box.innerHTML = `<div class="placeholder-text">${res.error}<span class="blink">_</span></div>`;
+          return;
+        }
+
+        if (res.done) {
+          box.innerHTML = `
+          <div class="result-item">
+            <div class="result-key">Status</div>
+            <div class="result-val ok">COMPLETE ✓</div>
+          </div>`;
+          return;
+        }
+
+        const statusClass = res.onTrack ? "ok" : "warn";
+        const deltaLabel = res.onTrack
+          ? `${fmtDuration(Math.abs(res.deltaMs))} ahead`
+          : `${fmtDuration(Math.abs(res.deltaMs))} behind`;
+
+        box.innerHTML = `
+        <div class="result-item">
+          <div class="result-key">Your pace</div>
+          <div class="result-val highlight">${res.ratePerDay.toFixed(1)} q/day</div>
+        </div>
+        <hr class="divider"/>
+        <div class="result-item">
+          <div class="result-key">Estimated finish</div>
+          <div class="result-val">${fmtDateTime(res.endMs)}</div>
+        </div>
+        <div class="result-item">
+          <div class="result-key">Time to finish</div>
+          <div class="result-val">${fmtDuration(res.endMs - Date.now())}</div>
+        </div>
+        <hr class="divider"/>
+        <div class="result-item">
+          <div class="result-key">vs 50/day target</div>
+          <div class="result-val ${statusClass}">${deltaLabel}</div>
+        </div>
+        <div class="result-item">
+          <div class="result-key">Remaining questions</div>
+          <div class="result-val">${res.remaining}</div>
+        </div>
+      `;
+      }
+
+      // ── EVENTS ──
+      const solvedInput = document.getElementById("solvedInput");
+      solvedInput.addEventListener("input", () => {
+        const v = solvedInput.value.trim();
+        renderResult(v === "" ? null : v);
+      });
+
+      // ── INIT ──
+      tick();
+      setInterval(tick, 1000);
+      renderResult(null);
+    </script>
+  </body>
+</html>
