@@ -3,119 +3,497 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Rattlin' Bog Lyrics Generator</title>
+    <title>The Rattlin' Bog – Lyrics Generator</title>
+    <meta name="description" content="An interactive cumulative lyrics generator for the classic Irish folk song 'The Rattlin' Bog', featuring every verse from subatomic particle to the ancient bog.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Uncial+Antiqua&display=swap" rel="stylesheet">
     <style>
+      /* ===================== TOKENS ===================== */
+      :root {
+        --bog-dark:     #0d1a0f;
+        --bog-mid:      #1a2e1c;
+        --bog-green:    #2e5435;
+        --moss:         #4a7c59;
+        --fern:         #6a9e72;
+        --amber:        #c8882a;
+        --gold:         #e8a83a;
+        --parchment:    #f2e8d0;
+        --parchment-dk: #d9ceae;
+        --ink:          #2a1e0a;
+        --ink-light:    #4a3820;
+        --mist:         rgba(160, 210, 170, 0.08);
+        --glow:         rgba(200, 136, 42, 0.18);
+      }
+
+      /* ===================== RESET & BASE ===================== */
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      html, body {
+        height: 100%;
+      }
+
       body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #121212;
-        color: #E0E0E0;
-        margin-top: 50px;
+        font-family: 'IM Fell English', Georgia, serif;
+        background-color: var(--bog-dark);
+        color: var(--parchment);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        overflow-x: hidden;
+        position: relative;
+      }
+
+      /* ===================== BACKGROUND ===================== */
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background:
+          radial-gradient(ellipse 80% 50% at 50% 100%, rgba(46, 84, 53, 0.45) 0%, transparent 70%),
+          radial-gradient(ellipse 60% 40% at 20% 80%, rgba(74, 124, 89, 0.15) 0%, transparent 60%),
+          radial-gradient(ellipse 40% 30% at 80% 70%, rgba(26, 46, 28, 0.5) 0%, transparent 60%),
+          repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(0,0,0,0.04) 2px,
+            rgba(0,0,0,0.04) 4px
+          );
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      /* floating mist particles */
+      body::after {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background:
+          radial-gradient(ellipse 30% 20% at 15% 60%, rgba(140,200,160,0.07) 0%, transparent 70%),
+          radial-gradient(ellipse 25% 15% at 85% 40%, rgba(140,200,160,0.06) 0%, transparent 70%),
+          radial-gradient(ellipse 20% 25% at 50% 80%, rgba(100,160,120,0.08) 0%, transparent 70%);
+        animation: mistDrift 12s ease-in-out infinite alternate;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      @keyframes mistDrift {
+        from { transform: translateX(-10px) translateY(0px); opacity: 0.7; }
+        to   { transform: translateX(10px)  translateY(-8px); opacity: 1; }
+      }
+
+      /* ===================== LAYOUT ===================== */
+      .page-wrapper {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        max-width: 720px;
+        padding: 48px 24px 32px;
+        gap: 28px;
+        min-height: 100vh;
+      }
+
+      /* ===================== HEADER ===================== */
+      header {
         text-align: center;
-        line-height: 1.6;
-        padding: 0 10px;
-        transition: background-color 0.3s ease, color 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
       }
 
-      button {
-        padding: 12px 25px;
-        font-size: 18px;
-        background-color: #1DB954;
-        color: #FFF;
-        border: none;
-        border-radius: 8px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        cursor: pointer;
-        transition: background-color 0.3s ease, transform 0.2s ease;
+      .title-ornament {
+        color: var(--moss);
+        font-size: 22px;
+        letter-spacing: 6px;
+        opacity: 0.7;
+        user-select: none;
       }
 
-      button:hover {
-        background-color: #17a54a;
-        transform: translateY(-3px);
+      h1 {
+        font-family: 'Uncial Antiqua', 'IM Fell English', serif;
+        font-size: clamp(2.2rem, 7vw, 3.6rem);
+        color: var(--gold);
+        text-shadow:
+          0 0 30px rgba(232, 168, 58, 0.4),
+          0 0 60px rgba(200, 136, 42, 0.2),
+          0 2px 4px rgba(0,0,0,0.6);
+        line-height: 1.1;
+        letter-spacing: 1px;
       }
 
-      .song {
-        margin-top: 20px;
+      .subtitle {
+        font-style: italic;
+        color: var(--fern);
+        font-size: 1rem;
+        opacity: 0.85;
+        letter-spacing: 0.5px;
+      }
+
+      /* ===================== VERSE COUNTER ===================== */
+      .verse-counter {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--moss);
+        font-size: 0.88rem;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        opacity: 0.75;
+        user-select: none;
+      }
+
+      .verse-counter span.bar {
+        display: inline-block;
+        height: 1px;
+        width: 40px;
+        background: linear-gradient(to right, transparent, var(--moss));
+      }
+      .verse-counter span.bar.right {
+        background: linear-gradient(to left, transparent, var(--moss));
+      }
+
+      /* ===================== SONG CARD ===================== */
+      .song-card {
+        width: 100%;
+        background:
+          linear-gradient(160deg, rgba(242,232,208,0.97) 0%, rgba(217,206,174,0.95) 100%);
+        border-radius: 4px;
+        border: 1px solid rgba(200, 170, 100, 0.4);
+        box-shadow:
+          0 0 0 1px rgba(232, 168, 58, 0.12),
+          0 8px 32px rgba(0, 0, 0, 0.5),
+          0 2px 8px rgba(0, 0, 0, 0.4),
+          inset 0 1px 0 rgba(255,255,255,0.5),
+          inset 0 -1px 0 rgba(0,0,0,0.1);
+        padding: 32px 36px;
+        position: relative;
+        overflow-x: hidden;
+        overflow-y: auto;
+        max-height: 55vh;
+        transition: box-shadow 0.4s ease;
+        scroll-behavior: smooth;
+      }
+
+      /* parchment texture overlay */
+      .song-card::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+          repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 60px,
+            rgba(180, 150, 80, 0.04) 60px,
+            rgba(180, 150, 80, 0.04) 61px
+          ),
+          repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 24px,
+            rgba(100, 80, 30, 0.05) 24px,
+            rgba(100, 80, 30, 0.05) 25px
+          );
+        pointer-events: none;
+        border-radius: 4px;
+      }
+
+      /* left binding line */
+      .song-card::after {
+        content: '';
+        position: absolute;
+        top: 0; bottom: 0; left: 52px;
+        width: 1px;
+        background: linear-gradient(to bottom, transparent, rgba(200,136,42,0.2) 15%, rgba(200,136,42,0.2) 85%, transparent);
+        pointer-events: none;
+      }
+
+      #songArea {
+        position: relative;
+        z-index: 1;
+        color: var(--ink);
+        font-size: clamp(1rem, 2.5vw, 1.2rem);
+        line-height: 1.85;
         white-space: pre-line;
-        font-size: 20px;
-        color: #B0B0B0;
-        padding: 10px;
-        border-radius: 10px;
-        background-color: #1E1E1E;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        max-width: 90%;
-        margin-left: auto;
-        margin-right: auto;
-        transition: background-color 0.3s ease, color 0.3s ease;
+        min-height: 80px;
       }
 
-      @media (max-width: 768px) {
-        body {
-          margin-top: 30px;
-          font-size: 16px;
-        }
-
-        button {
-          font-size: 16px;
-          padding: 10px 20px;
-        }
-
-        .song {
-          font-size: 18px;
-          padding: 8px;
-        }
+      #songArea .chorus {
+        color: var(--ink-light);
+        font-style: italic;
+        margin-top: 6px;
+        display: block;
+        opacity: 0.8;
       }
 
+      #songArea .new-verse {
+        animation: verseFadeIn 0.6s ease forwards;
+        display: block;
+      }
+
+      @keyframes verseFadeIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+
+      /* ===================== BUTTON ===================== */
+      .btn-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+      }
+
+      button#nextVerseBtn {
+        position: relative;
+        padding: 14px 44px;
+        font-family: 'Uncial Antiqua', serif;
+        font-size: 1.1rem;
+        letter-spacing: 1.5px;
+        color: var(--ink);
+        background: linear-gradient(135deg, var(--gold) 0%, var(--amber) 100%);
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        box-shadow:
+          0 4px 16px rgba(200, 136, 42, 0.4),
+          0 2px 4px rgba(0,0,0,0.3),
+          inset 0 1px 0 rgba(255,255,255,0.35),
+          inset 0 -2px 0 rgba(0,0,0,0.2);
+        transition:
+          transform 0.15s ease,
+          box-shadow 0.2s ease,
+          background 0.2s ease;
+        overflow: hidden;
+      }
+
+      button#nextVerseBtn::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to bottom, rgba(255,255,255,0.2), transparent 50%);
+        pointer-events: none;
+      }
+
+      button#nextVerseBtn:hover {
+        transform: translateY(-2px);
+        box-shadow:
+          0 8px 24px rgba(200, 136, 42, 0.5),
+          0 4px 8px rgba(0,0,0,0.3),
+          inset 0 1px 0 rgba(255,255,255,0.35),
+          inset 0 -2px 0 rgba(0,0,0,0.2);
+        background: linear-gradient(135deg, #f0b840 0%, #d99020 100%);
+      }
+
+      button#nextVerseBtn:active {
+        transform: translateY(1px);
+        box-shadow:
+          0 2px 8px rgba(200, 136, 42, 0.3),
+          0 1px 2px rgba(0,0,0,0.3),
+          inset 0 1px 0 rgba(255,255,255,0.2),
+          inset 0 -1px 0 rgba(0,0,0,0.2);
+      }
+
+      button#nextVerseBtn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .btn-hint {
+        font-style: italic;
+        color: var(--moss);
+        font-size: 0.8rem;
+        opacity: 0.65;
+        letter-spacing: 0.5px;
+        user-select: none;
+      }
+
+      /* ===================== PROGRESS TRACK ===================== */
+      .progress-track {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .progress-label {
+        font-size: 0.72rem;
+        color: var(--moss);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        opacity: 0.65;
+        white-space: nowrap;
+      }
+
+      .progress-bar-bg {
+        flex: 1;
+        height: 4px;
+        background: rgba(74, 124, 89, 0.15);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+
+      .progress-bar-fill {
+        height: 100%;
+        background: linear-gradient(to right, var(--bog-green), var(--gold));
+        border-radius: 2px;
+        transition: width 0.5s ease;
+        width: 0%;
+      }
+
+      /* ===================== FOOTER ===================== */
       footer {
-        color: gray;
-        font-size: 14px;
-        padding: 10px 0px;
+        margin-top: auto;
+        padding-top: 12px;
+        text-align: center;
+        color: var(--moss);
+        font-size: 0.8rem;
+        font-style: italic;
+        opacity: 0.6;
+        letter-spacing: 0.5px;
+      }
 
-        a {
-          color: gray;
-        }
+      footer a {
+        color: var(--fern);
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+
+      footer a:hover {
+        color: var(--gold);
+      }
+
+      /* ===================== RESPONSIVE ===================== */
+      @media (max-width: 520px) {
+        .page-wrapper { padding: 32px 14px 24px; gap: 20px; }
+        .song-card { padding: 22px 18px 22px 22px; }
+        .song-card::after { left: 36px; }
       }
     </style>
   </head>
   <body>
-    <h1>The Rattlin' Bog</h1>
-    <button onclick="addVerse()">Next Verse</button>
-    <div class="song" id="songArea">Oh-ro, the rattlin' bog, <br>And the bog down in the valley-o, Rare bog, and a rattlin' bog, <br>And the bog down in the valley-o </div>
-    <footer>Thanks to <a href="https://www.youtube.com/watch?v=U58ES0aiUJo&pp=ygUOc2VhbXVzIGtlbm5lZHk%3D">Seamus Kennedy</a>
-    </footer>
+    <div class="page-wrapper">
+
+      <header>
+        <div class="title-ornament">❧ ❧ ❧</div>
+        <h1>The Rattlin' Bog</h1>
+        <p class="subtitle">An Irish cumulative song • Click to build each verse</p>
+      </header>
+
+      <div class="verse-counter" id="verseCounter">
+        <span class="bar"></span>
+        <span id="verseLabel">Chorus</span>
+        <span class="bar right"></span>
+      </div>
+
+      <div class="song-card">
+        <div id="songArea">Oh-ro, the rattlin' bog,
+And the bog down in the valley-o,
+Rare bog, and a rattlin' bog,
+And the bog down in the valley-o</div>
+      </div>
+
+      <div class="progress-track">
+        <span class="progress-label">Song Progress</span>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="progressFill"></div>
+        </div>
+        <span class="progress-label" id="progressText">0 / 22</span>
+      </div>
+
+      <div class="btn-wrapper">
+        <button id="nextVerseBtn" onclick="addVerse()">Next Verse ›</button>
+        <span class="btn-hint" id="btnHint">22 verses to sing tonight</span>
+      </div>
+
+      <footer>
+        Thanks to <a href="https://www.youtube.com/watch?v=U58ES0aiUJo&pp=ygUOc2VhbXVzIGtlbm5lZHk%3D" target="_blank" rel="noopener">Seamus Kennedy</a> &nbsp;·&nbsp; A rare song, a rattlin' song
+      </footer>
+
+    </div>
+
     <script>
-      const songArea = document.getElementById('songArea');
-      const elements = ["subatomic particle", "virus", "paramecium", "amoeba", "germ", "speck", "eye", "flea", "feather", "wing", "chick", "yolk", "egg", "bird", "nest", "leaf", "twig", "branch", "limb", "bough", "tree", "hole"];
+      const songArea       = document.getElementById('songArea');
+      const verseLabel     = document.getElementById('verseLabel');
+      const progressFill   = document.getElementById('progressFill');
+      const progressText   = document.getElementById('progressText');
+      const btnHint        = document.getElementById('btnHint');
+      const nextBtn        = document.getElementById('nextVerseBtn');
+
+      const elements = [
+        "subatomic particle","virus","paramecium","amoeba","germ",
+        "speck","eye","flea","feather","wing","chick","yolk","egg",
+        "bird","nest","leaf","twig","branch","limb","bough","tree","hole"
+      ];
       elements.reverse();
+
+      const TOTAL = elements.length;
       let verseIndex = 0;
 
+      const CHORUS = `\nOh-ro, the rattlin' bog,\nAnd the bog down in the valley-o,\nRare bog, and a rattlin' bog,\nAnd the bog down in the valley-o`;
+
       function constructVerse() {
-        let currentVerse = `Now in the ${elements[verseIndex-1]||'bog'} there was a ${elements[verseIndex]},\nA rare ${elements[verseIndex]}, a rattlin' ${elements[verseIndex]},\n`;
+        let v = `Now in the ${elements[verseIndex-1]||'bog'} there was a ${elements[verseIndex]},\nA rare ${elements[verseIndex]}, a rattlin' ${elements[verseIndex]},\n`;
         for (let i = verseIndex; i >= 0; i--) {
-          if (i == verseIndex) {
-            currentVerse += `The ${elements[i]} in the ${elements[i - 1] || 'bog'},\n`;
-          } else {
-            currentVerse += `and the ${elements[i]} in the ${elements[i - 1] || 'bog'},\n`;
-          }
+          v += (i === verseIndex ? `The` : `and the`) +
+               ` ${elements[i]} in the ${elements[i-1] || 'bog'},\n`;
         }
-        currentVerse += "And the bog down in the valley-o.";
-        return currentVerse;
+        v += `And the bog down in the valley-o.`;
+        return v;
+      }
+
+      function updateProgress() {
+        const pct = (verseIndex / TOTAL) * 100;
+        progressFill.style.width = pct + '%';
+        progressText.textContent = `${verseIndex} / ${TOTAL}`;
+        const remaining = TOTAL - verseIndex;
+        btnHint.textContent = remaining > 0
+          ? `${remaining} verse${remaining !== 1 ? 's' : ''} to sing tonight`
+          : 'The song is complete! 🍺';
+        verseLabel.textContent = verseIndex === 0
+          ? 'Chorus'
+          : `Verse ${verseIndex} – The ${elements[verseIndex - 1]}`;
       }
 
       function addVerse() {
-        if (verseIndex < elements.length) {
-          songArea.innerHTML = constructVerse();
-          songArea.innerHTML += `
-							<br>
-								<br>Oh-ro, the rattlin' bog,
-									<br>And the bog down in the valley-o,
-                 Rare bog, and a rattlin' bog,
-										<br>And the bog down in the valley-o
-											<br>`;
+        if (verseIndex < TOTAL) {
+          const verseText = constructVerse();
+          const chorusText = CHORUS;
+
+          songArea.innerHTML =
+            `<span class="new-verse">${escapeHtml(verseText)}</span>` +
+            `<span class="chorus new-verse">${escapeHtml(chorusText)}</span>`;
+
           verseIndex++;
-        } else {
-          alert('The song is complete!');
+          updateProgress();
+
+          // Scroll the card to the bottom so the newest lines are always visible
+          const card = songArea.closest('.song-card');
+          requestAnimationFrame(() => {
+            card.scrollTop = 0;
+          });
+
+          if (verseIndex >= TOTAL) {
+            nextBtn.disabled = true;
+          }
         }
       }
+
+      function escapeHtml(str) {
+        return str
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;');
+      }
+
+      updateProgress();
     </script>
   </body>
 </html>
