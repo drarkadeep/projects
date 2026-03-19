@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Residency Progress ✨</title>
+    <title>RESIDENCY PROGRESS</title>
     <link rel="shortcut icon" href="favicon.png" type="image/x-icon">
     <meta name="description"
         content="Stay on top of your medical residency with this comprehensive 3-year progress tracker. Visualize your timeline, track daily achievements, and monitor your journey toward becoming a medical professional.">
@@ -11,7 +11,7 @@
         content="medical residency tracker, residency timeline, medical training progress, residency progress, 3 year medical residency, daily progress tracker, resident timeline, medical education tools">
     <meta name="author" content="Arkadeep Mukhopadhyay">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="Residency Progress ✨">
+    <meta property="og:title" content="RESIDENCY PROGRESS">
     <meta property="og:description" content="Easily track your 3-year medical residency with a visual daily timeline.">
     <meta property="og:image" content="residency.png">
     <meta property="og:type" content="website">
@@ -23,16 +23,20 @@
     <link rel="canonical" href="https://arkadeep.com/projects/residency-progress">
 
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            background: #0f172a;
-            color: #e2e8f0;
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
             margin: 0;
             height: 100%;
             display: flex;
             flex-direction: column;
-            padding: 0;
-            box-sizing: border-box;
             overflow: auto;
         }
 
@@ -41,7 +45,6 @@
             display: flex;
             flex-direction: column;
             padding: 1rem;
-            box-sizing: border-box;
         }
 
         .main-content {
@@ -51,108 +54,104 @@
             margin-bottom: 1rem;
         }
 
+        /* ── HEADER ── */
         .overall-progress {
             text-align: center;
-            padding: 1rem;
-            background: rgba(30, 41, 59, 0.7);
-            border-radius: 1rem;
-            backdrop-filter: blur(10px);
+            padding: 1.2rem 1rem;
+            border: 2px solid #e0e0e0;
             margin-bottom: 1rem;
         }
 
         .overall-percentage {
-            font-size: clamp(2rem, 4vw, 3.5rem);
-            font-weight: 700;
-            color: #60a5fa;
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 900;
+            color: #fff;
             margin: 0;
-            line-height: 1.2;
-            text-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
+            line-height: 1;
+            letter-spacing: -0.04em;
             cursor: pointer;
+            font-family: inherit;
         }
 
         .overall-label {
-            color: #94a3b8;
-            font-size: 1rem;
-            margin-top: 0.25rem;
-            font-weight: bold;
+            color: #666;
+            font-size: 0.7rem;
+            margin-top: 0.4rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
         }
 
+        /* ── TIMELINE GRID ── */
         .timeline {
-            padding: 1rem;
+            padding: 0.5rem;
             flex-grow: 1;
             display: grid;
-            gap: 2px;
-            background: rgba(30, 41, 59, 0.7);
-            border-radius: 1rem;
-            backdrop-filter: blur(10px);
-            overflow: hidden;
+            gap: 1px;
+            border: 2px solid #e0e0e0;
             margin-bottom: 1rem;
+            overflow: hidden;
         }
 
         .day {
             aspect-ratio: 1;
-            background: rgba(148, 163, 184, 0.2);
-            border-radius: 2px;
-            transition: all 0.3s ease;
+            background: #1a1a1a;
+            transition: none;
         }
 
         .day.active {
-            background: #60a5fa;
-            box-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
+            background: #e0e0e0;
         }
 
         .day.today {
-            animation: blink 1.5s ease-out infinite;
+            background: #fff;
+            animation: brutalist-blink 1s step-end infinite;
         }
 
-        @keyframes blink {
-            0% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.3;
-            }
-
-            100% {
-                opacity: 1;
-            }
+        @keyframes brutalist-blink {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
         }
 
+        /* ── TIME DISPLAY ── */
         .today-progress {
-            background: rgba(30, 41, 59, 0.7);
-            padding: 1rem;
-            border-radius: 1rem;
-            backdrop-filter: blur(10px);
+            padding: 0.8rem 1rem;
+            border: 2px solid #e0e0e0;
             text-align: center;
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 1rem;
-            font-weight: bold;
-            color: #60A5FA;
-            font-size: 1.2rem;
+            color: #e0e0e0;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         .arrow {
             cursor: pointer;
             user-select: none;
-            color: #60a5fa;
-            font-size: 1.5rem;
-            padding: 0.5rem;
+            color: #e0e0e0;
+            font-size: 1rem;
+            padding: 0.3rem 0.5rem;
+            border: 1px solid #444;
+            font-family: inherit;
+            line-height: 1;
         }
 
         .arrow:hover {
-            color: #3b82f6;
+            background: #e0e0e0;
+            color: #0a0a0a;
         }
 
+        /* ── DATE PROMPT ── */
         .date-prompt {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(15, 23, 42, 0.9);
+            background: rgba(0, 0, 0, 0.95);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -160,75 +159,89 @@
         }
 
         .prompt-content {
-            background: rgba(30, 41, 59, 0.95);
+            border: 2px solid #e0e0e0;
             padding: 2rem;
-            border-radius: 1rem;
-            backdrop-filter: blur(10px);
             text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .prompt-content h2 {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            margin-bottom: 1.5rem;
+            font-weight: 400;
         }
 
         .prompt-content input {
-            background: rgba(148, 163, 184, 0.2);
-            border: 1px solid rgba(148, 163, 184, 0.3);
-            color: #e2e8f0;
-            padding: 0.5rem;
-            border-radius: 0.5rem;
-            margin: 1rem 0;
-            font-size: 1rem;
+            background: #0a0a0a;
+            border: 2px solid #e0e0e0;
+            color: #e0e0e0;
+            padding: 0.6rem;
+            font-family: inherit;
+            font-size: 0.85rem;
+            width: 100%;
+            margin-bottom: 1rem;
         }
 
         .prompt-content button {
-            background: #3b82f6;
-            color: white;
+            background: #e0e0e0;
+            color: #0a0a0a;
             border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
+            padding: 0.6rem 1.5rem;
             cursor: pointer;
-            font-size: 1rem;
+            font-family: inherit;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            font-weight: 700;
         }
 
         .prompt-content button:hover {
-            background: #2563eb;
+            background: #fff;
         }
 
         .reset {
-            color: inherit;
-            font-style: italic;
+            color: #666;
             cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: normal;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            border-bottom: 1px solid #666;
         }
 
         .reset:hover {
-            text-decoration: underline;
+            color: #e0e0e0;
+            border-color: #e0e0e0;
         }
 
+        /* ── ACHIEVEMENTS ── */
         .achievements {
-            background: rgba(30, 41, 59, 0.7);
+            border: 2px solid #e0e0e0;
             padding: 1.5rem;
-            border-radius: 1rem;
-            backdrop-filter: blur(10px);
         }
 
         .achievements-title {
-            color: #60a5fa;
-            margin: 0 0 1rem 0;
-            font-size: 1.5rem;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            margin-bottom: 1.2rem;
+            font-weight: 400;
+            color: #666;
         }
 
         .achievements-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 0;
         }
 
         .achievement-card {
-            background: rgba(148, 163, 184, 0.1);
-            padding: 1.5rem;
-            border-radius: 0.75rem;
-            transition: all 0.3s ease;
+            border: 1px solid #333;
+            padding: 1.2rem;
             position: relative;
-            min-height: 120px;
+            min-height: 100px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -246,7 +259,6 @@
             transform: translate(-50%, -50%);
             z-index: 2;
             text-align: center;
-            filter: none !important;
             display: flex;
             align-items: baseline;
             justify-content: center;
@@ -254,20 +266,21 @@
         }
 
         .achievement-progress-number {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #60a5fa;
-            text-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
+            font-size: 2rem;
+            font-weight: 900;
+            color: #e0e0e0;
+            font-family: inherit;
         }
 
         .achievement-progress-number::after {
-            content: "% complete";
+            content: "%";
+            font-size: 0.8rem;
+            font-weight: 400;
         }
 
         .achievement-progress-label {
-            font-size: 1rem;
-            color: #60a5fa;
-            text-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
+            font-size: 0.7rem;
+            color: #666;
         }
 
         .achievement-card.unlocked .achievement-progress {
@@ -275,41 +288,38 @@
         }
 
         .achievement-card.unlocked {
-            background: rgba(96, 165, 250, 0.2);
-            border: 1px solid rgba(96, 165, 250, 0.3);
+            background: #e0e0e0;
+            border-color: #e0e0e0;
+        }
+
+        .achievement-card.unlocked .achievement-title,
+        .achievement-card.unlocked .achievement-desc {
+            color: #0a0a0a;
+            filter: none;
         }
 
         .achievement-title {
-            font-weight: bold;
-            font-size: 1.2rem;
-            color: #94a3b8;
-            margin-bottom: 0.5rem;
-            filter: blur(5px);
-            transition: filter 0.3s ease;
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 0.3rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            filter: blur(4px);
+            transition: filter 0.2s ease;
         }
 
         .achievement-desc {
-            font-size: 1rem;
-            color: #64748b;
-            filter: blur(5px);
-            transition: filter 0.3s ease;
+            font-size: 0.75rem;
+            color: #444;
+            line-height: 1.4;
+            filter: blur(4px);
+            transition: filter 0.2s ease;
         }
 
         .achievement-progress {
-            filter: blur(5px);
-            transition: filter 0.3s ease;
-        }
-
-        .achievement-progress-number {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #60a5fa;
-            text-shadow: 0 0 10px rgba(96, 165, 250, 0.5);
-        }
-
-        .achievement-progress-label {
-            font-size: 0.8rem;
-            color: #94a3b8;
+            filter: blur(4px);
+            transition: filter 0.2s ease;
         }
 
         .achievement-card.unlocked .achievement-title,
@@ -317,6 +327,11 @@
         .achievement-card.unlocked .achievement-progress {
             filter: blur(0);
         }
+
+        /* ── SCROLLBAR ── */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: #333; }
     </style>
 </head>
 
@@ -326,17 +341,14 @@
             <div class="overall-progress">
                 <div class="overall-percentage" id="overallPercentage">0.000000%</div>
                 <div class="overall-label">
-                    Residency Progress
-                    <span class="reset" onclick="resetStartDate()">(reset)</span>
+                    RESIDENCY PROGRESS
+                    <span class="reset" onclick="resetStartDate()">RESET</span>
                 </div>
-            </div>
-            <div class="timeline-ka-baap">
-
             </div>
             <div class="timeline" id="timeline"></div>
             <div class="today-progress">
                 <span class="arrow" onclick="cycleDisplayFormat('prev')">←</span>
-                <div class="seconds-left" id="secondsLeft">Loading...</div>
+                <div class="seconds-left" id="secondsLeft">LOADING...</div>
                 <span class="arrow" onclick="cycleDisplayFormat('next')">→</span>
             </div>
         </div>
@@ -351,8 +363,8 @@
         <div class="prompt-content">
             <h2>Set Residency Start Date</h2>
             <input type="date" id="startDateInput">
-            <br><br>
-            <button onclick="setStartDate()">Start Tracking</button>
+            <br>
+            <button onclick="setStartDate()">START TRACKING</button>
         </div>
     </div>
 
@@ -405,19 +417,12 @@
                 }
                 case 'weeks-semester': {
                     const timelineStartDate = new Date(localStorage.getItem('timelineStartDate'));
-
                     const monthsDiff = (now.getFullYear() - timelineStartDate.getFullYear()) * 12
                         + now.getMonth() - timelineStartDate.getMonth();
                     const semesterNumber = Math.floor(monthsDiff / 6) + 1;
-
                     const currentSemesterStart = new Date(timelineStartDate);
                     currentSemesterStart.setMonth(timelineStartDate.getMonth() + (semesterNumber - 1) * 6);
-
-                    const currentSemesterEnd = new Date(currentSemesterStart);
-                    currentSemesterEnd.setMonth(currentSemesterStart.getMonth() + 6);
-
                     const weekNumber = Math.ceil((now - currentSemesterStart) / (1000 * 60 * 60 * 24 * 7));
-
                     return `${weekNumber}${getSuffix(weekNumber)} week of ${semesterNumber}${getSuffix(semesterNumber)} semester`;
                 }
             }
@@ -439,19 +444,11 @@
                 endDate.setFullYear(endDate.getFullYear() + 3);
                 createTimeline();
                 updateOverallProgress();
+                document.getElementById('overallPercentage').addEventListener('click', toggleFixedPoints);
             } else {
                 document.getElementById('datePrompt').style.display = 'flex';
                 const today = new Date().toISOString().split('T')[0];
                 document.getElementById('startDateInput').value = today;
-            }
-
-            if (savedStartDate) {
-                startDate = new Date(savedStartDate);
-                endDate = new Date(startDate);
-                endDate.setFullYear(endDate.getFullYear() + 3);
-                createTimeline();
-                updateOverallProgress();
-                document.getElementById('overallPercentage').addEventListener('click', toggleFixedPoints);
             }
         }
 
@@ -471,8 +468,8 @@
 
         function calculateOptimalGrid() {
             const container = document.getElementById('timeline');
-            const containerWidth = container.clientWidth - 32;
-            const containerHeight = container.clientHeight - 32;
+            const containerWidth = container.clientWidth - 16;
+            const containerHeight = container.clientHeight - 16;
             const aspectRatio = containerWidth / containerHeight;
 
             let columns = Math.ceil(Math.sqrt(totalDays * aspectRatio));
@@ -555,62 +552,62 @@
             {
                 id: 'baby-steps',
                 title: 'Baby Steps',
-                description: 'You\'ve completed your first million seconds as a resident!'
+                description: 'First million seconds as a resident.'
             },
             {
                 id: 'getting-started',
                 title: 'Getting Started',
-                description: 'Your first three months as a resident - foundations are key.'
+                description: 'First three months — foundations laid.'
             },
             {
                 id: 'steady-pace',
                 title: 'Steady Pace',
-                description: 'Halfway through your first year - you\'re finding your rhythm.'
+                description: 'Halfway through year one.'
             },
             {
                 id: 'first-lap',
-                title: 'First Lap Complete',
-                description: 'One year down! A major milestone on your journey.'
+                title: 'First Lap',
+                description: 'One year complete.'
             },
             {
                 id: 'proficient-practitioner',
-                title: 'Proficient Practitioner',
-                description: '5000 hours of practice - your skills are sharpening.'
+                title: '5000 Hours',
+                description: '5,000 hours of practice logged.'
             },
             {
                 id: 'over-the-hump',
-                title: 'Over the Hump',
-                description: 'The halfway point of your residency - a remarkable achievement!'
+                title: 'Halfway',
+                description: 'The midpoint of residency.'
             },
             {
                 id: 'dedicated-devotion',
-                title: 'Dedicated Devotion',
-                description: 'Two years of unwavering commitment to patient care.'
+                title: 'Two Years',
+                description: 'Two years of commitment.'
             },
             {
                 id: 'penultimate-step',
-                title: 'The Penultimate Step',
-                description: 'Entering your final year - the culmination is near.'
+                title: 'Final Year',
+                description: 'Entering the last stretch.'
             },
             {
                 id: 'expert-in-action',
-                title: 'Expert in Action',
-                description: '10,000 hours of practice - you\'re now a true expert.'
+                title: '10000 Hours',
+                description: '10,000 hours — mastery territory.'
             },
             {
                 id: 'final-leg',
-                title: 'The Final Leg',
-                description: 'Less than 100 days to go - keep the momentum!'
+                title: 'Last 100 Days',
+                description: 'Under 100 days remain.'
             },
             {
                 id: 'finishing-touches',
-                title: 'Finishing Touches',
-                description: 'Your last month as a resident - excellence in every detail.'
+                title: 'Last Month',
+                description: 'The final 30 days.'
             },
             {
                 id: 'resident-no-more',
-                title: 'Resident No More',
-                description: 'Congratulations on completing your residency - a transformative journey!'
+                title: 'Complete',
+                description: 'Residency finished.'
             }
         ];
 
