@@ -173,8 +173,61 @@
         flex: 1;
         display: flex;
         flex-direction: column;
-        padding: 20px 24px 28px;
-        overflow-y: auto;
+        overflow: hidden;
+      }
+
+      /* ── TAB BAR ── */
+      .tab-bar {
+        display: flex;
+        border-bottom: var(--border);
+        flex-shrink: 0;
+      }
+
+      .tab-btn {
+        flex: 1;
+        background: transparent;
+        border: none;
+        color: var(--dim);
+        font-family: var(--mono);
+        font-size: 10px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        padding: 12px 16px;
+        cursor: pointer;
+        transition: color 0.15s, background 0.15s;
+        position: relative;
+      }
+
+      .tab-btn:not(:last-child) {
+        border-right: var(--border);
+      }
+
+      .tab-btn.active {
+        color: var(--accent);
+        background: #111;
+      }
+
+      .tab-btn.active::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--accent);
+      }
+
+      /* ── TAB PANELS ── */
+      .tab-panel {
+        display: none;
+        flex: 1;
+        flex-direction: column;
+        padding: 16px 24px 20px;
+        overflow: hidden;
+      }
+
+      .tab-panel.active {
+        display: flex;
       }
 
       .section-title {
@@ -182,7 +235,8 @@
         letter-spacing: 0.25em;
         text-transform: uppercase;
         color: var(--dim);
-        margin-bottom: 16px;
+        margin-bottom: 12px;
+        flex-shrink: 0;
       }
 
       .input-row {
@@ -190,7 +244,8 @@
         align-items: stretch;
         width: 100%;
         border: var(--border);
-        margin-bottom: 20px;
+        margin-bottom: 12px;
+        flex-shrink: 0;
       }
 
       .input-row label {
@@ -214,13 +269,24 @@
         font-family: var(--sans);
         font-size: 28px;
         font-weight: 900;
-        padding: 14px 16px;
+        padding: 12px 16px;
         outline: none;
         width: 100%;
       }
 
+      .q-input.small {
+        font-size: 20px;
+      }
+
       .q-input::placeholder {
         color: #2a2a2a;
+      }
+
+      /* date input styling */
+      .q-input[type="date"] {
+        color-scheme: dark;
+        font-size: 18px;
+        font-weight: 700;
       }
 
       /* remove spinner */
@@ -235,17 +301,18 @@
 
       .result-box {
         border: var(--border-dim);
-        padding: 18px 16px;
+        padding: 14px 16px;
         flex: 1;
         display: flex;
         flex-direction: column;
-        gap: 14px;
+        gap: 10px;
+        overflow: hidden;
       }
 
       .result-item {
         display: flex;
         flex-direction: column;
-        gap: 3px;
+        gap: 2px;
       }
 
       .result-key {
@@ -257,7 +324,7 @@
 
       .result-val {
         font-family: var(--sans);
-        font-size: 22px;
+        font-size: 20px;
         font-weight: 700;
         color: var(--fg);
         letter-spacing: -0.5px;
@@ -355,26 +422,70 @@
       </section>
 
       <!-- ══ BOTTOM HALF ══ -->
-      <section class="bottom" aria-label="Solved questions estimator">
-        <div class="section-title">Solved → End Date</div>
-
-        <div class="input-row">
-          <label for="solvedInput">Solved</label>
-          <input
-            id="solvedInput"
-            class="q-input"
-            type="number"
-            inputmode="numeric"
-            placeholder="0"
-            min="0"
-            max="2281"
-            autocomplete="off"
-          />
+      <section class="bottom" aria-label="Tools">
+        <!-- Tab Bar -->
+        <div class="tab-bar">
+          <button class="tab-btn active" data-tab="estimate" id="tabEstimate">Solved → End Date</button>
+          <button class="tab-btn" data-tab="ontrack" id="tabOnTrack">Get on Track</button>
         </div>
 
-        <div class="result-box" id="resultBox">
-          <div class="placeholder-text">
-            enter solved count<span class="blink">_</span>
+        <!-- Tab 1: Solved → End Date (existing) -->
+        <div class="tab-panel active" id="panelEstimate">
+          <div class="section-title">Solved → End Date</div>
+
+          <div class="input-row">
+            <label for="solvedInput">Solved</label>
+            <input
+              id="solvedInput"
+              class="q-input"
+              type="number"
+              inputmode="numeric"
+              placeholder="0"
+              min="0"
+              max="2281"
+              autocomplete="off"
+            />
+          </div>
+
+          <div class="result-box" id="resultBox">
+            <div class="placeholder-text">
+              enter solved count<span class="blink">_</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Get on Track -->
+        <div class="tab-panel" id="panelOnTrack">
+          <div class="section-title">Get on Track</div>
+
+          <div class="input-row">
+            <label for="trackDate">Date</label>
+            <input
+              id="trackDate"
+              class="q-input"
+              type="date"
+              autocomplete="off"
+            />
+          </div>
+
+          <div class="input-row">
+            <label for="trackSolved">Solved</label>
+            <input
+              id="trackSolved"
+              class="q-input small"
+              type="number"
+              inputmode="numeric"
+              placeholder="0"
+              min="0"
+              max="2281"
+              autocomplete="off"
+            />
+          </div>
+
+          <div class="result-box" id="trackResultBox">
+            <div class="placeholder-text">
+              pick a target date & enter solved<span class="blink">_</span>
+            </div>
           </div>
         </div>
       </section>
@@ -428,6 +539,21 @@
         return parts.join(" ");
       }
 
+      // ── TAB SWITCHING ──
+      const tabBtns = document.querySelectorAll(".tab-btn");
+      const tabPanels = document.querySelectorAll(".tab-panel");
+
+      tabBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          tabBtns.forEach((b) => b.classList.remove("active"));
+          tabPanels.forEach((p) => p.classList.remove("active"));
+          btn.classList.add("active");
+          document.getElementById(
+            btn.dataset.tab === "estimate" ? "panelEstimate" : "panelOnTrack"
+          ).classList.add("active");
+        });
+      });
+
       // ── TOP COUNTER TICK ──
       function tick() {
         const now = Date.now();
@@ -452,45 +578,25 @@
         document.getElementById("targetDate").textContent = fmtDate(TARGET_MS);
       }
 
-      // ── BOTTOM ESTIMATOR ──
+      // ── TAB 1: BOTTOM ESTIMATOR ──
       function computeEstimate(solved) {
         const now = Date.now();
-        const elapsed = Math.max(1, now - START_MS); // ms since start
+        const elapsed = Math.max(1, now - START_MS);
         const elapsedDays = elapsed / 86400000;
 
-        // Current pace
         const ratePerDay = solved / elapsedDays;
-
-        // Questions remaining
         const remaining = TOTAL_Q - solved;
 
-        // Edge cases
-        if (solved <= 0) {
-          return { error: "Enter how many you've solved." };
-        }
-        if (solved >= TOTAL_Q) {
-          return { done: true };
-        }
-        if (ratePerDay <= 0) {
-          return { error: "Rate is zero." };
-        }
+        if (solved <= 0) return { error: "Enter how many you've solved." };
+        if (solved >= TOTAL_Q) return { done: true };
+        if (ratePerDay <= 0) return { error: "Rate is zero." };
 
         const daysNeeded = remaining / ratePerDay;
         const endMs = now + daysNeeded * 86400000;
-
-        // vs target
         const deltaMs = endMs - TARGET_MS;
         const onTrack = deltaMs <= 0;
 
-        return {
-          solved,
-          remaining,
-          ratePerDay,
-          endMs,
-          daysNeeded,
-          onTrack,
-          deltaMs,
-        };
+        return { solved, remaining, ratePerDay, endMs, daysNeeded, onTrack, deltaMs };
       }
 
       function renderResult(val) {
@@ -545,8 +651,91 @@
         <div class="result-item">
           <div class="result-key">Remaining questions</div>
           <div class="result-val">${res.remaining}</div>
+        </div>`;
+      }
+
+      // ── TAB 2: GET ON TRACK ──
+      // Goal: how many q/day from now → target date to match the 50/day schedule
+      function computeOnTrack() {
+        const box = document.getElementById("trackResultBox");
+        const dateVal = document.getElementById("trackDate").value;
+        const solvedVal = document.getElementById("trackSolved").value.trim();
+
+        if (!dateVal || solvedVal === "") {
+          box.innerHTML =
+            '<div class="placeholder-text">pick a target date & enter solved<span class="blink">_</span></div>';
+          return;
+        }
+
+        const solved = Number(solvedVal);
+        if (solved < 0 || isNaN(solved)) {
+          box.innerHTML =
+            '<div class="placeholder-text">enter a valid solved count<span class="blink">_</span></div>';
+          return;
+        }
+        if (solved >= TOTAL_Q) {
+          box.innerHTML = `
+          <div class="result-item">
+            <div class="result-key">Status</div>
+            <div class="result-val ok">ALREADY COMPLETE ✓</div>
+          </div>`;
+          return;
+        }
+
+        // Target date end-of-day IST
+        const targetMs = new Date(dateVal + "T23:59:59+05:30").getTime();
+        const now = Date.now();
+
+        if (targetMs <= now) {
+          box.innerHTML =
+            '<div class="placeholder-text">target date is in the past<span class="blink">_</span></div>';
+          return;
+        }
+
+        // Expected count by target date at 50/day pace from start
+        const daysSinceStart = (targetMs - START_MS) / 86400000;
+        const expectedByDate = Math.min(TOTAL_Q, Math.floor(daysSinceStart * PER_DAY));
+
+        // How many you need to solve between now and target date
+        const deficit = Math.max(0, expectedByDate - solved);
+        const daysLeft = (targetMs - now) / 86400000;
+        const neededPerDay = deficit / daysLeft;
+
+        if (deficit <= 0) {
+          box.innerHTML = `
+          <div class="result-item">
+            <div class="result-key">Expected by date</div>
+            <div class="result-val">${expectedByDate}</div>
+          </div>
+          <hr class="divider"/>
+          <div class="result-item">
+            <div class="result-key">Status</div>
+            <div class="result-val ok">ALREADY ON TRACK ✓</div>
+          </div>`;
+          return;
+        }
+
+        const statusClass = neededPerDay <= PER_DAY ? "ok" : neededPerDay <= PER_DAY * 1.5 ? "highlight" : "warn";
+
+        box.innerHTML = `
+        <div class="result-item">
+          <div class="result-key">Need to solve daily</div>
+          <div class="result-val ${statusClass}">${neededPerDay.toFixed(1)} q/day</div>
         </div>
-      `;
+        <hr class="divider"/>
+        <div class="result-item">
+          <div class="result-key">Expected by ${fmtDate(targetMs)}</div>
+          <div class="result-val">${expectedByDate}</div>
+        </div>
+        <div class="result-item">
+          <div class="result-key">Deficit to cover</div>
+          <div class="result-val warn">${deficit}</div>
+        </div>
+        <hr class="divider"/>
+        <div class="result-item">
+          <div class="result-key">Days to catch up</div>
+          <div class="result-val">${daysLeft.toFixed(1)}</div>
+        </div>`;
       }
 
       // ── EVENTS ──
@@ -555,6 +744,9 @@
         const v = solvedInput.value.trim();
         renderResult(v === "" ? null : v);
       });
+
+      document.getElementById("trackDate").addEventListener("input", computeOnTrack);
+      document.getElementById("trackSolved").addEventListener("input", computeOnTrack);
 
       // ── INIT ──
       tick();
