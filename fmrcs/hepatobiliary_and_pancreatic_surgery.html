@@ -1,0 +1,745 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hepatobiliary And Pancreatic Surgery</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f1e8;
+      --bg-accent: #ebe4d4;
+      --surface: rgba(255, 252, 246, 0.92);
+      --surface-strong: #fffdf7;
+      --border: #d9cfbd;
+      --text: #23313a;
+      --text-soft: #5f6c73;
+      --accent: #496a58;
+      --accent-strong: #2f5341;
+      --correct-bg: #e0f3e6;
+      --correct-border: #77b487;
+      --wrong-bg: #fbe0df;
+      --wrong-border: #dc7a73;
+      --note-bg: #f3eee2;
+      --shadow: 0 18px 40px rgba(76, 59, 37, 0.08);
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+      --page-width: 960px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.72), transparent 32%),
+        linear-gradient(180deg, #f8f4eb 0%, #f3ede0 100%);
+      line-height: 1.65;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, rgba(255, 255, 255, 0.14), transparent 18%, transparent 82%, rgba(255, 255, 255, 0.14)),
+        repeating-linear-gradient(
+          180deg,
+          rgba(73, 106, 88, 0.015) 0,
+          rgba(73, 106, 88, 0.015) 1px,
+          transparent 1px,
+          transparent 18px
+        );
+    }
+
+    a {
+      color: var(--accent-strong);
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 14px;
+    }
+
+    .score-badge,
+    .badge.rounded-pill.bg-danger {
+      display: none !important;
+    }
+
+    .page {
+      width: min(100% - 24px, var(--page-width));
+      margin: 0 auto;
+      padding: 18px 0 48px;
+    }
+
+    .topbar {
+      margin-bottom: 18px;
+      padding: 18px;
+      background: rgba(255, 252, 246, 0.9);
+      border: 1px solid rgba(217, 207, 189, 0.86);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+
+    .topbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .eyebrow {
+      margin: 0 0 4px;
+      font-size: 0.76rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .title {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+      font-size: clamp(1.5rem, 2vw + 1rem, 2.35rem);
+      line-height: 1.08;
+      font-weight: 700;
+    }
+
+    .meta {
+      margin: 8px 0 0;
+      color: var(--text-soft);
+      font-size: 0.96rem;
+    }
+
+    .mode-switch {
+      display: inline-flex;
+      padding: 6px;
+      border-radius: 999px;
+      background: var(--bg-accent);
+      border: 1px solid var(--border);
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .topic-actions {
+      display: inline-flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .utility-button {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: var(--surface-strong);
+      color: var(--text);
+      font: inherit;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .utility-button:hover {
+      transform: translateY(-1px);
+      border-color: #c7bba9;
+      box-shadow: 0 8px 18px rgba(70, 54, 34, 0.07);
+    }
+
+    .utility-button:focus-visible {
+      outline: 3px solid rgba(73, 106, 88, 0.22);
+      outline-offset: 2px;
+    }
+
+    .mode-button {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: var(--text-soft);
+      font: inherit;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 10px 16px;
+      min-width: 92px;
+      cursor: pointer;
+      transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .mode-button:hover {
+      transform: translateY(-1px);
+      color: var(--text);
+    }
+
+    .mode-button.active {
+      background: var(--surface-strong);
+      color: var(--accent-strong);
+      box-shadow: 0 8px 18px rgba(73, 106, 88, 0.14);
+    }
+
+    .topic-list {
+      display: grid;
+      gap: 18px;
+    }
+
+    .topic {
+      background: rgba(255, 252, 246, 0.78);
+      border: 1px solid rgba(217, 207, 189, 0.9);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .topic[open] {
+      background: rgba(255, 252, 246, 0.9);
+    }
+
+    .topic > summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      user-select: none;
+    }
+
+    .topic > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .topic-title {
+      margin: 0;
+      font-size: 1.08rem;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+    }
+
+    .topic-meta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-soft);
+      font-size: 0.94rem;
+    }
+
+    .chevron {
+      display: inline-block;
+      transition: transform 0.2s ease;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .topic[open] > summary .chevron {
+      transform: rotate(90deg);
+    }
+
+    .topic-notes {
+      background: rgba(243, 238, 226, 0.62);
+      border: 1px solid #e3d9c8;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .topic-notes > summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      user-select: none;
+    }
+
+    .topic-notes > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .topic-notes-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .topic-notes[open] > summary .chevron {
+      transform: rotate(90deg);
+    }
+
+    .topic-notes-body {
+      padding: 0 16px 16px;
+      color: var(--text);
+    }
+
+    .topic-body {
+      padding: 0 16px 16px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .question-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      box-shadow: 0 10px 24px rgba(70, 54, 34, 0.05);
+    }
+
+    .question-label {
+      margin: 0 0 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-soft);
+      font-size: 0.88rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .stem {
+      font-size: 1rem;
+    }
+
+    .stem > *:first-child,
+    .explanation > *:first-child {
+      margin-top: 0;
+    }
+
+    .stem > *:last-child,
+    .explanation > *:last-child {
+      margin-bottom: 0;
+    }
+
+    .options {
+      margin-top: 16px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .option {
+      width: 100%;
+      text-align: left;
+      border: 1px solid #d8d0c2;
+      background: #fffdf8;
+      color: var(--text);
+      border-radius: var(--radius-sm);
+      padding: 14px 15px;
+      font: inherit;
+      line-height: 1.45;
+      cursor: pointer;
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .option:hover {
+      transform: translateY(-1px);
+      border-color: #c7bba9;
+      box-shadow: 0 8px 18px rgba(70, 54, 34, 0.07);
+    }
+
+    .option:focus-visible {
+      outline: 3px solid rgba(73, 106, 88, 0.22);
+      outline-offset: 2px;
+    }
+
+    .option.correct {
+      background: var(--correct-bg);
+      border-color: var(--correct-border);
+      box-shadow: inset 0 0 0 1px rgba(119, 180, 135, 0.2);
+    }
+
+    .option.incorrect {
+      background: var(--wrong-bg);
+      border-color: var(--wrong-border);
+      box-shadow: inset 0 0 0 1px rgba(220, 122, 115, 0.2);
+    }
+
+    .option.neutral-revealed {
+      background: #faf6ee;
+      border-color: #d8d0c2;
+      color: #5f676a;
+    }
+
+    .option[disabled] {
+      cursor: default;
+      opacity: 1;
+    }
+
+    .explanation {
+      margin-top: 14px;
+      padding: 14px 16px;
+      background: var(--note-bg);
+      border: 1px solid #e3d9c8;
+      border-radius: 14px;
+      color: var(--text);
+    }
+
+    .question-card.is-hidden .explanation {
+      display: none;
+    }
+
+    .explanation-label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+      font-weight: 800;
+    }
+
+    .empty-state {
+      padding: 28px 22px;
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-lg);
+      color: var(--text-soft);
+    }
+
+    .rich-text table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      overflow: hidden;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.68);
+    }
+
+    .rich-text td,
+    .rich-text th {
+      border: 1px solid #ddd2bf;
+      padding: 10px 12px;
+      vertical-align: top;
+    }
+
+    .rich-text ul,
+    .rich-text ol {
+      padding-left: 20px;
+      margin: 10px 0;
+    }
+
+    .rich-text center {
+      display: block;
+      text-align: center;
+    }
+
+    .rich-text .table-responsive {
+      overflow-x: auto;
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        width: min(100% - 16px, var(--page-width));
+        padding-top: 10px;
+      }
+
+      .topbar {
+        padding: 14px;
+        border-radius: 18px;
+      }
+
+      .topbar-inner {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .controls {
+        justify-content: stretch;
+      }
+
+      .topic-actions {
+        width: 100%;
+      }
+
+      .utility-button {
+        flex: 1 1 0;
+      }
+
+      .mode-switch {
+        width: 100%;
+        justify-content: stretch;
+      }
+
+      .mode-button {
+        flex: 1 1 50%;
+      }
+
+      .topic > summary {
+        padding: 16px;
+        align-items: flex-start;
+      }
+
+      .topic-meta {
+        font-size: 0.88rem;
+      }
+
+      .topic-body {
+        padding: 0 12px 12px;
+      }
+
+      .question-card {
+        padding: 15px;
+      }
+
+      .option {
+        padding: 13px 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="topbar">
+      <div class="topbar-inner">
+        <div>
+          <p class="eyebrow">Study View</p>
+          <h1 class="title">Hepatobiliary And Pancreatic Surgery</h1>
+          <p class="meta">38 questions across 9 topics</p>
+        </div>
+        <div class="controls">
+          <div class="topic-actions" aria-label="Topic visibility controls">
+            <button class="utility-button" type="button" data-topic-action="expand">Expand all</button>
+            <button class="utility-button" type="button" data-topic-action="collapse">Collapse all</button>
+          </div>
+          <div class="mode-switch" role="tablist" aria-label="Question mode">
+            <button class="mode-button active" type="button" data-mode-button="solve" aria-pressed="true">Solve</button>
+            <button class="mode-button" type="button" data-mode-button="review" aria-pressed="false">Review</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="app"></section>
+  </main>
+
+  <script id="quiz-data" type="application/json">{"title": "Hepatobiliary And Pancreatic Surgery", "topics": [{"name": "Biliary disease", "questions": [{"number": 1, "topic": "Biliary disease", "stem_html": "A 34 year old lady is undergoing a laparoscopic cholecystectomy for cholecystitis. She has been unwell for the past 10 days. On attempting to dissect the gallbladder (which is distended), all that can be seen are the gallbladder fundus and dense adhesions make it difficult to dissect Calots triangle. What is the best course of action?", "options": [{"label_html": "Perform an operative cholecystostomy", "is_correct": true}, {"label_html": "Dissect the adhesions off Calots triangle and continue with the cholecystectomy", "is_correct": false}, {"label_html": "Dissect out the bile duct and perform a cholangiogram", "is_correct": false}, {"label_html": "Arrange an ERCP", "is_correct": false}, {"label_html": "Arrange a PTC", "is_correct": false}], "correct_index": 0, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Do not confuse cholecystostomy with cholecystectomy its a very common error and people lose easy marks as a result. Note the correct answer is cholecystostomy.<\/div>The timeframe  of 10 days makes attempts at proceeding with surgery hazardous even in experienced hands. However, the patient is unwell and this will not settle without some form of intervention. If only the fundus can be seen, then it may be difficult to even proceed with a sub total cholecystectomy. Therefore, a cholecystostomy can be performed and this will usually allow the situation to settle. Definitive surgery can then be undertaken in more favourable circumstances."}, {"number": 2, "topic": "Biliary disease", "stem_html": "A surgeon is undertaking a cholecystectomy for cholecystitis secondary to gallstones. The operation is difficult and views of Calots triangle are poor. Unfortunately the distal aspect of the bile duct is transected. What is the most appropriate course of action?", "options": [{"label_html": "Perform a primary sutured repair", "is_correct": false}, {"label_html": "Repair the defect over a T tube", "is_correct": false}, {"label_html": "Place drains and close the wounds and discuss with a hepatobiliary surgeon", "is_correct": true}, {"label_html": "Repair the defect with a Roux en Y choledochojejunostomy", "is_correct": false}, {"label_html": "Repair the defect with a choledochoduodenostomy", "is_correct": false}], "correct_index": 2, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Bile duct injuries have worse outcomes if the repair is performed by the surgeon who created the injury and also if the surgeon is not an HPB surgeon.<\/div>"}, {"number": 3, "topic": "Biliary disease", "stem_html": "An 82 year old lady is taken to theatre for a common bile duct exploration. She has a stone impacted at the distal aspect of the common bile duct and despite best efforts it proves impossible to remove it. What is the best course of action?", "options": [{"label_html": "Close the bile duct over a T Tube and arrange for a stent to be placed", "is_correct": false}, {"label_html": "Undertake a choledochoduodenostomy", "is_correct": true}, {"label_html": "Arrange for a repeat ERCP", "is_correct": false}, {"label_html": "Construct a hepaticojejunostomy", "is_correct": false}, {"label_html": "Bypass the gallbladder onto the jejunum", "is_correct": false}], "correct_index": 1, "explanation_html": "If a stone cannot be removed at surgery then the chances of succeeding at ERCP are slim. In this case, its probably best to bypass the distal bile duct and a choledochoduodenostomy is the best way of achieving this. There are long term risks of cholangitis which are less of a concern in older patients."}, {"number": 4, "topic": "Biliary disease", "stem_html": "A 73 year old lady undergoes a laparotomy and a gallstone ileus is identified. The gallbladder itself is densely adherent to the duodenum. What is the correct course of action?", "options": [{"label_html": "Milk the gallstones into the colon and leave the gallbladder", "is_correct": false}, {"label_html": "Remove the gallstones from the small bowel, resect the gallbladder and close the duodenal defect transversely", "is_correct": false}, {"label_html": "Remove the gallstones from the small bowel and perform a subtotal cholecystectomy", "is_correct": false}, {"label_html": "Remove the gallstones from the small bowel and undertake a cholcystostomy", "is_correct": false}, {"label_html": "Remove the gallstones from the small bowel and leave the gallbladder alone", "is_correct": true}], "correct_index": 4, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">In gallstone ileus leave the gallbladder alone<\/div>The gallstones should always be removed, the enterotomy site is proximal to the site of obstruction."}, {"number": 5, "topic": "Biliary disease", "stem_html": "A 43 year old woman is admitted with acute cholecystitis and fails to settle. A laparoscopic cholecystectomy is being performed. At operation, the gallbladder has evidence of an empyema and Calots triangle is inflamed and the surgeon suspects that a Mirizzi syndrome has occurred. What is the best course of action?", "options": [{"label_html": "Undertake an operative cholecystostomy", "is_correct": true}, {"label_html": "Perform a sub total cholecystectomy", "is_correct": false}, {"label_html": "Perform a laparotomy", "is_correct": false}, {"label_html": "Perform an exploration of the common bile duct", "is_correct": false}, {"label_html": "Continue to explore Calots triangle and complete the operation", "is_correct": false}], "correct_index": 0, "explanation_html": "This will address the acute sepsis and resolve the situation. Attempts at completing the surgery at this stage, even in expert hands carries a very high risk of bile duct injury. Do not confuse cholecystostomy with cholecystectomy."}, {"number": 6, "topic": "Biliary disease", "stem_html": "A 40 year old woman is admitted with 1 day history of abdominal pain. She has suffered from repeated episodes of this colicky right upper quadrant pain. On examination, she is pyrexial with right upper quadrant peritonism. Her blood tests show a white cell count of 23. However, the liver function tests are normal. An abdominal ultrasound scan done the day of admission, shows multiple gallstones in a thick walled gallbladder, the bile duct measures 4mm. What is the best course of action?", "options": [{"label_html": "Administration of broad spectrum intravenous antibiotics and perform a delayed open cholecystectomy in 3 months", "is_correct": false}, {"label_html": "Arrange a radiological cholecystotomy", "is_correct": false}, {"label_html": "Undertake a laparoscopic cholecystectomy", "is_correct": true}, {"label_html": "Undertake an open cholcystectomy", "is_correct": false}, {"label_html": "Administration of broad spectrum intravenous antibiotics and perform a delayed laparoscopic cholecystectomy in 3 months", "is_correct": false}], "correct_index": 2, "explanation_html": "This lady has acute cholecystitis and needs an acute cholecystectomy. This operation should usually be performed within 72 hours of admission. Delay beyond this timeframe will usually result in increased operative complications and most surgeons would administer antibiotics and perform an interval cholecystectomy if the early window for an acute procedure is missed. A bile duct measuring 4mm is usually normal."}, {"number": 7, "topic": "Biliary disease", "stem_html": "A 42 year old female presents with symptoms of biliary colic and on investigation is identified as having gallstones. Of the procedures listed below, which is most likely to increase the risk of gallstone formation?", "options": [{"label_html": "Partial gastrectomy", "is_correct": false}, {"label_html": "Jejunal resection", "is_correct": false}, {"label_html": "Liver lobectomy", "is_correct": false}, {"label_html": "Ileal resection", "is_correct": true}, {"label_html": "Left hemicolectomy", "is_correct": false}], "correct_index": 3, "explanation_html": "Bile salt reabsorption occurs at the ileum.  Therefore cholesterol gallstones form as a result of ileal resection."}, {"number": 8, "topic": "Biliary disease", "stem_html": "What proportion of patients presenting for cholecystectomy for treatment of biliary colic due to gallstones will have stones in the common bile duct?", "options": [{"label_html": "10%", "is_correct": true}, {"label_html": "30%", "is_correct": false}, {"label_html": "2%", "is_correct": false}, {"label_html": "50%", "is_correct": false}, {"label_html": "25%", "is_correct": false}], "correct_index": 0, "explanation_html": "Up to 10% of all patients may have stones in the CBD. Therefore, all patients should have their liver function tests checked prior to embarking on a cholecystectomy."}], "note_html": "<div class=\"table-responsive\"><table class=\"table table-bordered\"><tbody><tr><td><b>Diagnosis<\/b>\t<\/td><td><b>Typical features<\/b>\t<\/td><td><b>Pathogenesis<\/b><\/td><\/tr><tr><td>Gallstones<\/td><td>\tTypically history of biliary colic or episodes of chlolecystitis. Obstructive type history and test results.\t<\/td><td>Usually small calibre gallstones which can pass through the cystic duct. In Mirizzi syndrome the stone may compress the bile duct directly- one of the rare times that cholecystitis may present with jaundice<\/td><\/tr><tr><td>Cholangitis<\/td><td>\tUsually obstructive and will have Charcot's triad of symptoms (pain, fever, jaundice)\t<\/td><td>Ascending infection of the bile ducts usually by <i>E. coli<\/i> and by definition occurring in a pool of stagnant bile.<\/td><\/tr><tr><td>Pancreatic cancer\t<\/td><td>Typically painless jaundice with palpable gallbladder (Courvoisier's Law)<\/td><td>\tDirect occlusion of distal bile duct or pancreatic duct by tumour. Sometimes nodal disease at the portal hepatis may be the culprit in which case the bile duct may be of normal calibre.<\/td><\/tr><tr><td>TPN (total parenteral nutrition) associated jaundice\t<\/td><td>Usually follows long term use and is usually painless with non obstructive features<\/td><td>Often due to hepatic dysfunction and fatty liver which may occur with long term TPN usage.<\/td><\/tr><tr><td>Bile duct injury\t<\/td><td>Depending upon the type of injury may be of sudden or gradual onset and is usually of obstructive type<\/td><td>Often due to a difficult laparoscopic cholecystectomy when anatomy in Calots triangle is not appreciated. In the worst scenario the bile duct is excised and jaundice develops rapidly post operatively. More insidious is that of bile duct stenosis which may be caused by clips or diathermy injury.<\/td><\/tr><tr><td>Cholangiocarcinoma\t<\/td><td>Gradual onset obstructive pattern\t<\/td><td>Direct occlusion by disease and also extrinsic compression by nodal disease at the porta hepatis.<\/td><\/tr><tr><td>Septic surgical patient\t<\/td><td>Usually hepatic features\t<\/td><td>Combination of impaired biliary excretion and drugs such as ciprofloxacin which may cause cholestasis.<\/td><\/tr><tr><td>Metastatic disease\t<\/td><td>Mixed hepatic and post hepatic<\/td><td>\tCombination of liver synthetic failure (late) and extrinsic compression by nodal disease and anatomical compression of intra hepatic structures (earlier)<\/td><\/tr><\/tbody><\/table><\/div><br><i>A gallbladder may develop a thickened wall in chronic cholecystitis, microscopically Roikitansky-Aschoff Sinuses may be seen<\/i><br><center><table><tbody><tr><td align=\"left\" colspan=\"2\"><a data-fancybox=\"\" class=\"fancybox\" rel=\"group\" href=\"https://d2zgo9qer4wjf4.cloudfront.net/images_eMRCS/swb058b.jpg\"><img class=\"ajaximage\" src=\"https://d2zgo9qer4wjf4.cloudfront.net/images_eMRCS/swb058.jpg\"><\/a><\/td><\/tr><tr><td valign=\"top\" align=\"left\"> <span style=\"font-size:11px; color:LightGray;\">Image sourced from <\/span><a href=\"http://en.wikipedia.org/wiki/Gallstone\" target=\"_blank\" style=\"font-size:11px; color:LightGray;\">Wikipedia<\/a><\/td><td align=\"right\"><a data-fancybox=\"\" class=\"fancybox lbmagglasslink\" rel=\"group\" href=\"https://d2zgo9qer4wjf4.cloudfront.net/images_eMRCS/swb058b.jpg\"><img src=\"https://d2zgo9qer4wjf4.cloudfront.net/css/images/mag_glass.png\"><\/a><\/td><\/tr><\/tbody><\/table><\/center>"}, {"name": "Complications following cholecystectomy", "questions": [{"number": 9, "topic": "Complications following cholecystectomy", "stem_html": "Following an uncomplicated laparoscopic cholecystectomy a patient is found to have a bile leak. An ERCP is performed and leakage is noted from the cystic duct. What is the most appropriate course of action?", "options": [{"label_html": "Undertake a sphincterotomy and place a stent in the common bile duct", "is_correct": true}, {"label_html": "Undertake a laparoscopy and place a T tube into the bile duct", "is_correct": false}, {"label_html": "Start the patient on TPN and keep them nil by mouth", "is_correct": false}, {"label_html": "Transfer the patient for a biliary bypass procedure", "is_correct": false}, {"label_html": "Place a transhepatic biliary stent", "is_correct": false}], "correct_index": 0, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Cystic stump leaks following cholecystectomy can be managed with ERCP and stent<\/div>"}, {"number": 10, "topic": "Complications following cholecystectomy", "stem_html": "A 48 year old lady is admitted with attacks of biliary colic and investigations show gallstones. A laparoscopic cholecystectomy is performed. The operation is technically challenging due to a large stone impacted in Hartmans pouch. Following the operation she fails to settle and becomes jaundiced and has bile draining into a drain placed at the surgical site. What is the best course of action?", "options": [{"label_html": "Arrange an ERCP", "is_correct": true}, {"label_html": "Undertake a laparotomy", "is_correct": false}, {"label_html": "Arrange an abdominal USS", "is_correct": false}, {"label_html": "Arrange an MRCP", "is_correct": false}, {"label_html": "Arrange an abdominal CT scan", "is_correct": false}], "correct_index": 0, "explanation_html": "In this scenario it must be assumed that the bile duct has been damaged. In most cases an ERCP is the most appropriate investigation. This can also allow the passage of a stent if this is deemed to be safe and sensible. Other imaging modalities will add little to overall management and simply add delay."}], "note_html": "<b>Complications following cholecystectomy<\/b><br><b>Open conversion<\/b><br>One of the largest series, published by Shea in 1996 with a total of more than 70,000 cholecystectomies analysed by pooled studies tends to list most complications as having an incidence of &lt;1%. This includes open conversion which they identified as occurring in less than 1%. One of the interesting points raised by this data is that it covers an early period in laparoscopy and there is highly likely to be an element of selection bias in the cases put forward for laparoscopy. Indeed, some surgeons have noted their own institutions conversion rates increase (in this case 7%) as they take on increasingly complex cases. <br><br><b>Bile leaks<\/b><br>Where these occur they are usually the result of leakage from biliary radicles or cystic stump leaks. Many patients with a cystic stump leak can be managed with ERCP , sphincterotomy and stent. They are not common complications and have an incidence of around 1%.<br><br><b>Bile duct injury<\/b><br>Cholecystectomy remains the commonest cause of bile duct injury. Reported incidences range from 0.3-0.7%. The main reason is that biliary anatomy is not appreciated. Where they occur, the definitive management is reconstruction. If the operating surgeon does not regularly practise this type of surgery then the area should be drained and the patient transferred to an HPB unit."}, {"name": "Gallstones", "questions": [{"number": 11, "topic": "Gallstones", "stem_html": "A 43 year old lady with repeated episodes of abdominal pain is admitted with small bowel obstruction. A laparotomy is performed and at surgery a gallstone ileus is identified. What is the most appropriate course of action?", "options": [{"label_html": "Remove the gallstone via a proximally sited terminal ileal enterotomy and decompress the small bowel. Leave the gallbladder in situ.", "is_correct": true}, {"label_html": "Remove the gallstone via a proximally sited terminal ileal enterotomy and decompress the small bowel. Remove the gallbladder.", "is_correct": false}, {"label_html": "Remove the gallstone via a proximally sited terminal ileal enterotomy and decompress the small bowel. Perform a choledochoduodenostomy.", "is_correct": false}, {"label_html": "Remove the gallstone from an enterotomy at the site of the obstruction and leave the gallbladder in situ.", "is_correct": false}, {"label_html": "Remove the gallstone from an enterotomy at the site of the obstruction and remove the gallbladder.", "is_correct": false}], "correct_index": 0, "explanation_html": "Gallstone ileus occurs as a result of the fistula developing between the gallbladder and the duodenum. These tend to become impacted somewhat proximal to the ileocaecal valve and cause small bowel obstruction. The correct management is to remove the gallstone from an enterotomy proximal to the site of stone impaction. The bowel at the site of impaction itself may not heal well and an enterotomy performed at this site may well result in the need for a resection. The standard surgical teaching is that under almost all circumstances the gallbladder should be <i>left in situ<\/i>, as the anatomy in this area is often hostile and unpredictable. Disconnecting it from the duodenum leaves a large defect that is difficult to close."}, {"number": 12, "topic": "Gallstones", "stem_html": "A 41 year old lady with colicky right upper quadrant pain is identified as having gallstones on an abdominal ultrasound scan. What is the most appropriate initial course of action?", "options": [{"label_html": "Laparoscopic cholecystectomy", "is_correct": false}, {"label_html": "Open cholecystectomy", "is_correct": false}, {"label_html": "Liver function tests", "is_correct": true}, {"label_html": "MRCP", "is_correct": false}, {"label_html": "ERCP", "is_correct": false}], "correct_index": 2, "explanation_html": "Liver function testing is part of the core diagnostic work up of biliary colic and surgical planning cannot proceed until this (and the diameter of the CBD on USS) are known."}, {"number": 13, "topic": "Gallstones", "stem_html": "A 41 year old lady with colicky right upper quadrant pain is identified as having gallstones on an abdominal ultrasound scan. What is the most appropriate initial course of action?", "options": [{"label_html": "Laparoscopic cholecystectomy", "is_correct": false}, {"label_html": "Open cholecystectomy", "is_correct": false}, {"label_html": "Liver function tests", "is_correct": true}, {"label_html": "MRCP", "is_correct": false}, {"label_html": "ERCP", "is_correct": false}], "correct_index": 2, "explanation_html": "Liver function testing is part of the core diagnostic work up of biliary colic and surgical planning cannot proceed until this (and the diameter of the CBD on USS) are known."}, {"number": 14, "topic": "Gallstones", "stem_html": "A 41 year old lady with colicky right upper quadrant pain is identified as having gallstones on an abdominal ultrasound scan. What is the most appropriate initial course of action?", "options": [{"label_html": "Laparoscopic cholecystectomy", "is_correct": false}, {"label_html": "Open cholecystectomy", "is_correct": false}, {"label_html": "Liver function tests", "is_correct": true}, {"label_html": "MRCP", "is_correct": false}, {"label_html": "ERCP", "is_correct": false}], "correct_index": 2, "explanation_html": "Liver function testing is part of the core diagnostic work up of biliary colic and surgical planning cannot proceed until this (and the diameter of the CBD on USS) are known."}, {"number": 15, "topic": "Gallstones", "stem_html": "A 43 year old lady presents with 24 hour history of generalised right upper quadrant pain. On admission, she is septic and jaundiced and there is tenderness in the right upper quadrant. What is the most likely diagnosis?", "options": [{"label_html": "Cholecystitis", "is_correct": false}, {"label_html": "Cholangitis", "is_correct": true}, {"label_html": "Gallbladder empyema", "is_correct": false}, {"label_html": "Gallbladder abscess", "is_correct": false}, {"label_html": "Liver abscess", "is_correct": false}], "correct_index": 1, "explanation_html": "A combination of sepsis and jaundice generally favors a diagnosis of cholangitis. Conditions such as empyema may cause sepsis but not marked jaundice, the same is also true of the other differentials listed."}, {"number": 16, "topic": "Gallstones", "stem_html": "A 34 year old lady undergoes an elective cholecystectomy for attacks of recurrent cholecystitis due to gallstones. Microscopic assessment of the gallbladder is most likely to show which of the following?", "options": [{"label_html": "Dysplasia of the fundus", "is_correct": false}, {"label_html": "Widespread necrosis", "is_correct": false}, {"label_html": "Aschoff-Rokitansky sinuses", "is_correct": true}, {"label_html": "Metaplasia of the fundus", "is_correct": false}, {"label_html": "Gallbladder polyp", "is_correct": false}], "correct_index": 2, "explanation_html": "Aschoff-Rokitansky sinuses are the result of hyperplasia and herniation of epithelial cells through the fibromuscular layer of the gallbladder wall.  They may be macroscopic or microscopic.  Aschoff-Rokitansky sinuses may be identified in cases of chronic cholecystitis and gallstones. Although gallstones may predispose to the development of gallbladder cancer the actual incidence of dysplasia and metaplastic change is rare. In the elective setting described above necrosis would be rare."}], "note_html": "Up to 24% of women and 12% of men may have gallstones. Of these up to 30% may develop local infection and cholecystitis. In patients subjected to surgery 12% will have stones contained within the common bile duct. The majority of gallstones are of a mixed composition (50%) with pure cholesterol stones accounting for 20% of cases. <br>The aetiology of CBD stones differs in the world, in the West most CBD stones are the result of migration. In the East a far higher proportion arise in the CBD de novo.<br>The classical symptoms are of colicky right upper quadrant pain that occurs post prandially. The symptoms are usually worst following a fatty meal when cholecystokinin levels are highest and gallbladder contraction is maximal. <br><br><b>Investigation<\/b><br>In almost all suspected cases the standard diagnostic work up consists of abdominal ultrasound and liver function tests. Of patients who have stones within the bile duct, 60% will have at least one abnormal result on LFT's. Ultrasound is an important test, but is operator dependent and therefore may occasionally need to be repeated if a negative result is at odds with the clinical picture. Where stones are suspected in the bile duct, the options lie between magnetic resonance cholangiography and intraoperative imaging. The choice between these two options is determined by the skills and experience of the surgeon. The advantages of intra operative imaging are less useful in making therapeutic decisions if the operator is unhappy about proceeding the bile duct exploration, and in such circumstances pre operative MRCP is probably a better option.<br><br><b>Specific gallstone and gallbladder related disease<\/b><br><div class=\"table-responsive\"><table class=\"tlarge table table-striped table-bordered\" data-role=\"table\" id=\"tableid1\"><thead><tr><th><b>Disease<\/b><\/th><th><b>Features<\/b><\/th><th><b>Management<\/b><\/th><\/tr><\/thead><tbody><tr><td>Biliary colic<\/td><td>Colicky abdominal pain, worse post prandially, worse after fatty foods<\/td><td>If imaging shows gallstones and history compatible then laparoscopic cholecystectomy<\/td><\/tr><tr><td>Acute cholecystitis<\/td><td><ul><li>Right upper quadrant pain<\/li><li>Fever<\/li><li>Murphys sign on examination<\/li><li>Occasionally mildly deranged LFT's (especially if Mirizzi syndrome)<\/li><\/ul><\/td><td>Imaging (USS) and cholecystectomy (ideally within 48 hours of presentation) (2)<\/td><\/tr><tr><td>Gallbladder abscess<\/td><td><ul><li>Usually prodromal illness and right upper quadrant pain<\/li><li>Swinging pyrexia<\/li><li>Patient may be systemically unwell<\/li><li>Generalised peritonism not present<\/li><\/ul><\/td><td>Imaging with USS +/- CT Scanning<br>Ideally surgery, sub total cholecystectomy may be needed if Calots triangle is hostile<br>In unfit patients percutaneous drainage may be considered<\/td><\/tr><tr><td>Cholangitis<\/td><td><ul><li>Patient severely septic and unwell<\/li><li>Jaundice<\/li><li>Right upper quadrant pain<\/li><\/ul><\/td><td><li>Fluid resuscitation<\/li><li>Broad spectrum intravenous antibiotics<\/li><li>Correct any coagulopathy<\/li><li>Early ERCP<\/li><\/td><\/tr><tr><td>Gallstone ileus<\/td><td><ul><li>Patients may have a history of previous cholecystitis and known gallstones<\/li><li>Small bowel obstruction (may be intermittent)<\/li><\/ul><\/td><td>Laparotomy and removal of gallstone from small bowel, the enterotomy must be made proximal to the site of obstruction and not at the site of obstruction. The fistula between the gallbladder and duodenum should not be interfered with.<\/td><\/tr><tr><td>Acalculous cholecystitis<\/td><td><ul><li>Patients with inter current illness (e.g. diabetes, organ failure)<\/li><li>Patient of systemically unwell<\/li><li>Gallbladder inflammation in absence of stones<\/li><li>High fever<\/li><\/ul><\/td><td>If patient fit then cholecystectomy, if unfit then percutaneous cholecystostomy<\/td><\/tr><\/tbody><\/table><\/div><br><b>Treatment<\/b><br>Patients with asymptomatic gallstones rarely develop symptoms related to them (less than 2% per year) and may therefore be managed expectantly. In almost all cases of symptomatic gallstones the treatment of choice is cholecystectomy performed via the laparoscopic route. In the very frail patient there is sometimes a role for selective use of ultrasound guided cholecystostomy. <br><br>During the course of the procedure some surgeons will routinely perform either intra operative cholangiography or laparoscopic USS to either confirm anatomy or to exclude CBD stones. The latter may be more easily achieved by use of laparoscopic ultrasound. If stones are found then the options lie between early ERCP in the day or so following surgery or immediate surgical exploration of the bile duct. When performed via the trans cystic route this adds little in the way of morbidity and certainly results in faster recovery. Where transcystic exploration fails the alternative strategy is that of formal choledochotomy. The exploration of a small duct is challenging and ducts of less than 8mm should not be explored. Small stones that measure less than 5mm may be safely left and most will pass spontaneously. <br><br><b>Risks of ERCP(1)<\/b><br><ul><li>Bleeding 0.9% (rises to 1.5% if sphincterotomy performed)<\/li><li>Duodenal perforation 0.4%<\/li><li>Cholangitis 1.1%<\/li><li>Pancreatitis 1.5%<\/li><\/ul><br><b>References<\/b><br>1. Williams E <i>et al<\/i>. Guidelines on the management of common bile duct stones (CBDS)<i>Gut<\/i> 2008;57:10041021<br><br>2. Gurusamy KS, Samraj K. Early versus delayed laparoscopic cholecystectomy for acute cholecystitis. Cochrane Database Syst Rev. 2006 Oct 18;(4):CD005440.<br><br>3. Gurusamy K and Davidson B. Gallstones. <i>BMJ<\/i> 2014 (348):27-30."}, {"name": "Hepatocellular adenoma", "questions": [{"number": 17, "topic": "Hepatocellular adenoma", "stem_html": "A 53 year old man is referred because he was being investigated with an ultrasound scan for gallstone disease. Whilst a large gallstone was seen in a thin walled gallbladder, a lesion was also seen in the left lobe of the liver. On MRI this has been categorised as a 6cm hepatocellular adenoma. What is the most appropriate course of action?", "options": [{"label_html": "Discharge the patient", "is_correct": false}, {"label_html": "Surveillance with USS and measurement of alpha fetoprotein at 6 monthly intervals", "is_correct": false}, {"label_html": "Surgical resection", "is_correct": true}, {"label_html": "Further USS at 12 months and discharge if no changes seen", "is_correct": false}, {"label_html": "CT guided biopsy of the lesion", "is_correct": false}], "correct_index": 2, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Hepatocellular adenomas in males have a greater risk of malignant transformation and resection should be considered.<\/div>"}], "note_html": "<ul><li>90% develop in women in their third to fifth decade<\/li><li>Linked to use of oral contraceptive pill<\/li><li>Lesions are usually solitary<\/li><li>They are usually sharply demarcated from normal liver although they usually lack a fibrous capsule<\/li><li>On ultrasound the appearances are of mixed echoity and heterogeneous texture. On CT most lesions are hypodense when imaged prior to administration of IV contrast agents<\/li><li>In patients with haemorrhage or symptoms removal of the adenoma may be required<\/li><li>Asymptomatic adenomas &gt;5cm are usually excised<\/li><li>Adenomas in males are likely to be smaller but have a greater risk of malignant transformation<\/li><\/ul>    - Risk of rupture is greater in lesions larger than 5cm and those which are exophytic. Mortality rates from spontaneous rupture are 5-10%."}, {"name": "Hepatocellular carcinoma", "questions": [{"number": 18, "topic": "Hepatocellular carcinoma", "stem_html": "A 43 year old male with long standing chronic hepatitis is being followed up. Recently his AFP is noted to be increased and an abdominal USS demonstrates a 2cm lesion in segment V of the liver. What is the most appropriate course of action?", "options": [{"label_html": "PET CT scan", "is_correct": false}, {"label_html": "Liver MRI", "is_correct": true}, {"label_html": "USS guided liver biopsy", "is_correct": false}, {"label_html": "Laparoscopic biopsy", "is_correct": false}, {"label_html": "Segmental resection of segment V", "is_correct": false}], "correct_index": 1, "explanation_html": "Liver lesions that are suspicious of HCC should be scanned prior to resection as there is a risk of multifocal lesions that would either preclude or otherwise affect the decision to proceed with segmental resection."}, {"number": 19, "topic": "Hepatocellular carcinoma", "stem_html": "A 42 year old lady has suffered from hepatitis C for many years and has also developed cirrhosis. On routine follow up, an ultrasound has demonstrated a 2.5cm lesion in the right lobe of the liver. What is the most likely diagnosis?", "options": [{"label_html": "Liver metastasis", "is_correct": false}, {"label_html": "Liver abscess", "is_correct": false}, {"label_html": "Hepatocellular carcinoma", "is_correct": true}, {"label_html": "Mesenchymal hamartoma", "is_correct": false}, {"label_html": "Liver cyst", "is_correct": false}], "correct_index": 2, "explanation_html": "In patients with cirrhosis the presence of a lesion &gt;2cm is highly suggestive of malignancy. The diagnosis is virtually confirmed if the AFP is &gt;400ng/mL."}, {"number": 20, "topic": "Hepatocellular carcinoma", "stem_html": "A 56 year old man presents with jaundice. He has a long history of alcohol misuse. On examination he is jaundiced and ultrasound shows multiple echo dense lesions in both lobes of the liver. His alpha feto protein is elevated 6 times the normal range. What is the most likely diagnosis?", "options": [{"label_html": "Gallstones", "is_correct": false}, {"label_html": "Hepatocellular carcinoma", "is_correct": true}, {"label_html": "Metastatic pancreatic adenocarcinoma", "is_correct": false}, {"label_html": "Mirizzi syndrome", "is_correct": false}, {"label_html": "Benign bile duct stricture", "is_correct": false}], "correct_index": 1, "explanation_html": "HCC may complicate cirrhosis. AFP is often raised in HCC."}], "note_html": "Hepatocellular carcinoma is the second leading cause of cancer deaths globally.  Up to 750,000 cases are reported annually. Unfortunately the incidence approximates to the death rate so there are few long term survivors[1]. The disease occurs most commonly in those with chronic hepatitis and established liver cirrhosis. Therefore, these individuals should be closely screened for the development of HCC with serum AFP and liver USS every 6-12 months. Rising AFP and liver USS showing a nodule greater than 1cm in diameter makes HCC much more likely and such patients should then undergo MRI scanning. <br>The presence of adenomas in an otherwise healthy liver is a recognised risk factor for HCC [2, 3] and many surgeons will remove liver adenomas for this reason[4].<br><br><b>Diagnosis<\/b><br>The aim is to avoid unnecessary percutaneous biopsy. Radiologically on CT the classical feature is a suspicious lesion which is highlighted during the arterial phase with washout during the venous phase, this reflects the hypervascularity of the lesions.The risk of tumour seeding as a result of a liver biopsy is 2.7% with a median time interval between biopsy and seeding of 17 months[5].<br><br><b>Barcelona Clinic Liver Classification<\/b><br>There are many classification systems for addressing the management and prognosis, the BCLC system has the convenience of categorising disease extent with treatment and prognostic outcomes. In determining the ideal treatment modality for HCC the key points are not just disease extent, but also the functional state of the liver and patient.<br><br><div class=\"table-responsive\"><table class=\"tlarge table table-striped table-bordered\" data-role=\"table\" id=\"tableid1\"><thead><tr><th><b>Stage<\/b><\/th><th><b>Features<\/b><\/th><th><b>Treatment<\/b><\/th><th><b>Prognosis-5 yr survival<\/b><\/th><\/tr><\/thead><tbody><tr><td>Stage 0<\/td><td>Child-Pugh A<br>Single lesion (less than 2cm)<br>Normal portal pressures<\/td><td>Resection<\/td><td>40-70%<\/td><\/tr><tr><td>Stage A<\/td><td>Single nodule greater than 3cm or multiple nodules (no more than 3)<br>Child Pugh A/ B<\/td><td>If associated disease then radiofrequency ablation<br>If no associated disease then transplantation<\/td><td>May be up to 70% in some<\/td><\/tr><tr><td>Stage B<\/td><td>Multiple nodules<br>Child Pugh A/B<\/td><td>Trans arterial chemo-embolisation (usually with doxorubicin)<\/td><td>26% at 3 years<\/td><\/tr><tr><td>Stage C<\/td><td>Advanced tumours<br>Invasion of portal vein<br>Child Pugh A/B<\/td><td>Sorafenib<\/td><td>Usually survive 10.7 months<\/td><\/tr><tr><td>Stage D<\/td><td>Child Pugh stage C<br>Advanced tumours<\/td><td>Best supportive care<\/td><td>Less than 6 months survival<\/td><\/tr><\/tbody><\/table><\/div>[6]<br>In selected patients the best outcomes are achieved with surgical resection, or transplantation where surgical resection is precluded. Anatomical resections with minimum 2cm margins provide the best outcomes.<br>At the present time there is no evidence to recommend treatment with adjuvant chemotherapy[6]. <br><br><b>Sorafenib<\/b><br>This is an oral multi tyrosine kinase inhibitor. It is the only drug that has been currently demonstrated to extend survival in individuals with advanced hepatocellular cancer[7].  The improvement in survival is from a median of 7 months to 10 months.<br><br><b>References<\/b><br>1.\tJemal, A., et al., Global cancer statistics. CA Cancer J Clin, 2011. 61(2): p. 69-90.<br>2.\tLeese, T., O. Farges, and H. Bismuth, Liver cell adenomas. A 12-year surgical experience from a specialist hepato-biliary unit. Ann Surg, 1988. 208(5): p. 558-64.<br>3.\tFarges, O. and S. Dokmak, Malignant transformation of liver adenoma: an analysis of the literature. Dig Surg, 2010. 27(1): p. 32-8.<br>4.\tEhrl, D., et al., 'Incidentaloma' of the liver: management of a diagnostic and therapeutic dilemma. HPB Surg, 2012. 2012: p. 891787.<br>5.\tSilva, M.A., et al., Needle track seeding following biopsy of liver lesions in the diagnosis of hepatocellular cancer: a systematic review and meta-analysis. Gut, 2008. 57(11): p. 1592-6.<br>6.\tEASL-EORTC clinical practice guidelines: management of hepatocellular carcinoma. J Hepatol, 2012. 56(4): p. 908-43.<br>7.\tAbou-Alfa, G.K., et al., Phase II study of sorafenib in patients with advanced hepatocellular carcinoma. J Clin Oncol, 2006. 24(26): p. 4293-300."}, {"name": "Management of Pancreatitis", "questions": [{"number": 21, "topic": "Management of Pancreatitis", "stem_html": "A 34 year old lady is admitted with pancreatitis. The aetiology is unclear and it is classified as an attack of moderate severity. Her imaging shows no gallstones and fluid around the pancreas. Which of the following is the most appropriate initial management option?", "options": [{"label_html": "Laparotomy", "is_correct": false}, {"label_html": "Laparoscopy", "is_correct": false}, {"label_html": "Radiological aspiration of the fluid", "is_correct": false}, {"label_html": "Active observation", "is_correct": true}, {"label_html": "Administration of octreotide", "is_correct": false}], "correct_index": 3, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">LEARN THIS!<br><br>Mnemonic for the assessment of the severity of pancreatitis: PANCREAS<br>(Ann R Coll Surg Engl 2000; 82: 16-17<br><br>P a02 &lt; 60 mmHg<br>A ge &gt; 55 years<br>N eutrophils &gt; 15 x 10/l<br>C alcium &lt; 2 mmol/l<br>R aised urea &gt; 16 mmol/l<br>E nzyme (lactate dehydrogenase) &gt; 600 units/l<br>A lbumin &lt; 32 g/l<br>S ugar (glucose) &gt; 10 mmol/l<br><br>&gt; 3 positive criteria indicates severe pancreatitis.<\/div>Acute early fluid collections are seen in 25% of patients with pancreatitis and require no specific treatment. Attempts at drainage may introduce infection and result in pancreatic abscess formation."}, {"number": 22, "topic": "Management of Pancreatitis", "stem_html": "Which of the following is the most sensitive blood test for diagnosis of acute pancreatitis?", "options": [{"label_html": "Amylase", "is_correct": false}, {"label_html": "Lipase", "is_correct": true}, {"label_html": "C-peptide", "is_correct": false}, {"label_html": "Trypsin", "is_correct": false}, {"label_html": "Trysinogen", "is_correct": false}], "correct_index": 1, "explanation_html": "The serum amylase may rise and fall quite quickly and lead to a false negative result. Should the clinical picture not be concordant with the amylase level then serum lipase or a CT Scan should be performed."}, {"number": 23, "topic": "Management of Pancreatitis", "stem_html": "A 58 year old woman is admitted with an attack of severe acute pancreatitis. She is managed on the intensive care unit and is making progress. She then deteriorates and a CT scan shows extensive pancreatic necrosis (&gt;40%). There are concerns that this may have become infected. What is the correct course of action?", "options": [{"label_html": "Undertake a fine needle aspiration of the area", "is_correct": true}, {"label_html": "Perform a pancreatic necrosectomy", "is_correct": false}, {"label_html": "Perform a Whipples procedure", "is_correct": false}, {"label_html": "Arrange an ERCP", "is_correct": false}, {"label_html": "Perform a distal pancreatectomy", "is_correct": false}], "correct_index": 0, "explanation_html": "When there are concerns that pancreatic necrosis may have become infected the usual approach is to perform an image guided FNA for culture. There is always the risk of seeding infection with such a strategy so it must be performed with care. Pancreatic necrosectomy is not usually undertaken until the presence of infection is proven."}, {"number": 24, "topic": "Management of Pancreatitis", "stem_html": "A 58 year old woman is admitted with an attack of severe acute pancreatitis. She is managed on the intensive care unit and is making progress. She then deteriorates and a CT scan shows extensive pancreatic necrosis (&gt;40%). There are concerns that this may have become infected. What is the correct course of action?", "options": [{"label_html": "Undertake a fine needle aspiration of the area", "is_correct": true}, {"label_html": "Perform a pancreatic necrosectomy", "is_correct": false}, {"label_html": "Perform a Whipples procedure", "is_correct": false}, {"label_html": "Arrange an ERCP", "is_correct": false}, {"label_html": "Perform a distal pancreatectomy", "is_correct": false}], "correct_index": 0, "explanation_html": "When there are concerns that pancreatic necrosis may have become infected the usual approach is to perform an image guided FNA for culture. There is always the risk of seeding infection with such a strategy so it must be performed with care. Pancreatic necrosectomy is not usually undertaken until the presence of infection is proven."}, {"number": 25, "topic": "Management of Pancreatitis", "stem_html": "A 22 year old teacher is admitted with severe epigastric pain. Serum amylase is normal. You wish to exclude a perforated viscus, and determine whether pancreatitis is present. What is the best course of action?", "options": [{"label_html": "Order an erect CXR and plain abdominal film", "is_correct": false}, {"label_html": "Request an abdominal USS", "is_correct": false}, {"label_html": "Request a CT scan of the abdomen and pelvis with intravenous contrast", "is_correct": true}, {"label_html": "Request a non contrast CT scan of the abdomen and pelvis", "is_correct": false}, {"label_html": "Request a magnetic resonance cholangiopancreatography scan", "is_correct": false}], "correct_index": 2, "explanation_html": "A CT scan with IV contrast is needed, without contrast only the perforated viscus question can be answered."}, {"number": 26, "topic": "Management of Pancreatitis", "stem_html": "A 55 year old accountant has jaundice and a temperature of 39<sup>o<\/sup>C. He is known to have gallstones. Blood cultures have grown a gram negative bacilli. Imaging shows a bile duct measuring 1.2cm in diameter. What is the best treatment option?", "options": [{"label_html": "PTC and stent", "is_correct": false}, {"label_html": "PTC and drain", "is_correct": false}, {"label_html": "ERCP and stent", "is_correct": true}, {"label_html": "MRCP", "is_correct": false}, {"label_html": "USS", "is_correct": false}], "correct_index": 2, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">You should suspect cholangitis in a patient with fevers and jaundice. Charcot's triad may only be present in 20% of patients. <\/div>Note the question states treatment option, this excludes MRCP and USS which are not treatments. Whilst PTC may access the duct, the drains may displace easily and the transduodenal route is the preferred first line access."}, {"number": 27, "topic": "Management of Pancreatitis", "stem_html": "A 34 year old woman is admitted with cholangitis. Her bilirubin is 180 and alkaline phosphatase is 348. She becomes progressively more unwell and develops abdominal pain. The F1 checks her amylase which is elevated at 1080. Standard treatment is initiated and her Glasgow score is 3. What is the most appropriate course of action?", "options": [{"label_html": "ERCP", "is_correct": true}, {"label_html": "PTC", "is_correct": false}, {"label_html": "Laparotomy", "is_correct": false}, {"label_html": "Pancreatic necrosectomy", "is_correct": false}, {"label_html": "Cholecystectomy", "is_correct": false}], "correct_index": 0, "explanation_html": "She requires urgent decompression of her biliary system. An ERCP is the conventional method of performing this. It is important to ensure that her coagulation status is normalised prior to performing this procedure."}, {"number": 28, "topic": "Management of Pancreatitis", "stem_html": "A 53 year old alcoholic develops acute pancreatitis and is making slow but reasonable progress. He is troubled by persisting ileus and for this reason a CT scan is undertaken. This demonstrates a large pancreatic pseudocyst. This is monitored by repeat CT scanning which shows no resolution and he is now complaining of early satiety. What is the best course of action?", "options": [{"label_html": "Pancreatectomy", "is_correct": false}, {"label_html": "Emergency cystogastrostomy", "is_correct": false}, {"label_html": "Elective cystogastrostomy", "is_correct": true}, {"label_html": "ERCP", "is_correct": false}, {"label_html": "Staging laparotomy to assess severity", "is_correct": false}], "correct_index": 2, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">A pseudocyst is a late complication of pancreatitis and is managed in the elective setting.<\/div>Drainage of this man's pseudocyst is required. This could be accomplished radiologically or endoscopically or surgically. As the other options are not on the list this is the best option from those available."}, {"number": 29, "topic": "Management of Pancreatitis", "stem_html": "A 43 year old lady presents with an attack of acute pancreatitis. It is classified as a mild attack on severity scoring. Imaging identifies gallstones but a normal calibre bile duct, and a peripancreatic fluid collection. Which of the following management options is most appropriate?", "options": [{"label_html": "Intravenous octreotide", "is_correct": false}, {"label_html": "Cholecystectomy once the attack has settled", "is_correct": true}, {"label_html": "Nasogastric tube drainage of the stomach", "is_correct": false}, {"label_html": "Insertion of a radiological drain", "is_correct": false}, {"label_html": "Avoidance of enteral feeding", "is_correct": false}], "correct_index": 1, "explanation_html": "Patients with gallstone pancreatitis should undergo early cholecystectomy.<br>Enteral feeding helps minimise gut bacterial translocation and should be given to most patients with pancreatitis. Many studies have evaluated the role of octreotide in reducing pancreatic secretions and shown no benefit (Uhl W <i>et al<\/i> Gut 1999 45:97-104, McKay C <i>et al.<\/i> Int J Pancreatol 1997; 21: 13-19).<br>The use of antibiotics in pancreatitis is controversial. However, a Cochrane review has presented reasonable evidence in favor of administration of imipenem to prevent infection in established necrosis."}], "note_html": "<b>Management of Acute Pancreatitis in the UK<\/b><br><br><b>Diagnosis<\/b><br><ul><li>Traditionally hyperamylasaemia has been utilised with amylase being elevated three times the normal range.<\/li><li>However, amylase may give both false positive and negative results. <\/li><li>Serum lipase is both more sensitive and specific than serum amylase. It also has a longer half life.<\/li><li>Serum amylase levels do not correlate with disease severity.<\/li><\/ul><br><i>Differential causes of hyperamylasaemia<\/i><br><div class=\"table-responsive\"><table class=\"table table-bordered\"><tbody><tr><td>Acute pancreatitis<\/td><\/tr><tr><td>Pancreatic pseudocyst<\/td><\/tr><tr><td>Mesenteric infarct<\/td><\/tr><tr><td>Perforated viscus<\/td><\/tr><tr><td>Acute cholecystitis<\/td><\/tr><tr><td>Diabetic ketoacidosis<\/td><\/tr><\/tbody><\/table><\/div><br><b>Assessment of severity<\/b><br><ul><li>This is usually on scoring systems based around physiological parameters at the time of admission, cases will usually be initially classified as mild or moderate with severe cases becoming apparent over the following days<\/li><li>Biochemical scoring e.g. using CRP <\/li><\/ul><br><i>Features that may predict a severe attack within 48 hours of admission to hospital<\/i><br><div class=\"table-responsive\"><table class=\"table table-bordered\"><tbody><tr><td><b>Initial assessment<\/b><\/td><td><ul><li>Clinical impression of severity<\/li><li>Body mass index &gt;30<\/li><li>Pleural effusion<\/li><li>APACHE score &gt;8<\/li><\/ul><\/td><\/tr><tr><td><b>24 hours after admission<\/b><\/td><td><ul><li>Clinical impression of severity<\/li><li>APACHE II &gt;8<\/li><li>Persisting multiple organ failure<\/li><li>CRP&gt;150<\/li><\/ul><\/td><\/tr><tr><td><b>48 hours after admission<\/b><\/td><td><ul><li>CRP &gt;150<\/li><li>Persisting or progressive organ failure<\/li><\/ul><\/td><\/tr><\/tbody><\/table><\/div><i>Table adapted from UK guidelines for management of acute pancreatitis. GUT 2005, 54 suppl III<\/i><br><br><b>Management<\/b><br>Fluids should be administered as needed. The recent Waterfall study was not supportive of over zealous use of IV fluids. <br>In mild cases, patients can be managed on ambulatory pathways.<br>NSAIDS are safe and can be a useful adjunct in selected patients<br><br><b>Nutrition<\/b><br><ul><li>There is reasonable evidence to suggest that the use of enteral nutrition does not worsen the outcome in pancreatitis<\/li><li>Most trials to date were underpowered to demonstrate a conclusive benefit.<\/li><li>The rationale behind feeding is that it helps to prevent bacterial translocation from the gut, thereby contributing to the development of infected pancreatic necrosis. <\/li><\/ul><br><b>Use of antibiotic therapy<\/b><br><ul><li>Many UK surgeons administer antibiotics to patients with acute pancreatitis. However, there is very little evidence to support this practice.<\/li><li>A recent Cochrane review highlights the potential benefits of administering Imipenem to patients with established pancreatic necrosis in the hope of averting the progression to infection. <\/li><li>There are concerns that the administration of antibiotics in mild attacks of pancreatitis will not affect outcome and may contribute to antibiotic resistance and increase the risks of antibiotic associated diarrhoea.<\/li><\/ul><br><b>Surgery<\/b><br><ul><li>Patients with acute pancreatitis due to gallstones should undergo early cholecystectomy.<\/li><li>Patients with obstructed biliary system due to stones should undergo early ERCP.<\/li><li>Patients with extensive necrosis where infection is suspected should usually undergo FNA for culture.<\/li><li>Patients with infected necrosis should undergo either radiological drainage or surgical necrosectomy. The choice of procedure depends upon local expertise.<\/li><\/ul><br><b>References<\/b><br>www.bsg.org.uk/pdfworddocs/pancreatic.pdf<br><br><b>Antibiotic therapy for prophylaxis against infection of pancreatic necrosis in acute pancreatitis.<\/b> Villatoro <i>et al<\/i>. Cochrane Library DOI: 10.1002/14651858.CD002941.pub3. 2010 version."}, {"name": "Pancreatic stents", "questions": [{"number": 30, "topic": "Pancreatic stents", "stem_html": "A 43 year old lady presents with jaundice and is diagnosed as having a carcinoma of the head of the pancreas. Although she is deeply jaundiced, her staging investigations are negative for metastatic disease. What is the best method of biliary decompression in this case?", "options": [{"label_html": "ERCP and sphincterotomy alone", "is_correct": false}, {"label_html": "ERCP alone", "is_correct": false}, {"label_html": "ERCP and placement of stent", "is_correct": true}, {"label_html": "Cholecystostomy", "is_correct": false}, {"label_html": "Choledochoduodenostomy", "is_correct": false}], "correct_index": 2, "explanation_html": "A stent is the best option for biliary decompression in resectable disease. Surgical bypasses have no place in the management of operable malignancy as a bridge to definitive surgery."}], "note_html": "Both benign and malignant biliary obstruction may be treated by placement of stents. These may be either plastic tubes or self expanding metallic stents. They can be placed either percutaneously, at ERCP, or, less commonly now, open surgery. Complications include blockage, displacement and those related to the method of insertion.<br><br><b>Metallic Vs Plastic stents<\/b><br><div class=\"table-responsive\"><table class=\"tlarge table table-striped table-bordered\" data-role=\"table\" id=\"tableid1\"><thead><tr><th><b>Metallic stents<\/b><\/th><th><b>Plastic stents<\/b><\/th><\/tr><\/thead><tbody><tr><td>Expensive<\/td><td>Cheap<\/td><\/tr><tr><td>Embed in surrounding tissues<\/td><td>Do not usually embed<\/td><\/tr><tr><td>Displacement rare<\/td><td>Displacement common<\/td><\/tr><tr><td>Blockage rare<\/td><td>Blockage common<\/td><\/tr><\/tbody><\/table><\/div>"}, {"name": "Pancreatitis: sequelae", "questions": [{"number": 31, "topic": "Pancreatitis: sequelae", "stem_html": "A 45 year old man presents with an episode of alcoholic pancreatitis. He makes slow but steady progress. He is reviewed clinically at 6 weeks following admission. He has a diffuse fullness of his upper abdomen and on imaging a collection of fluid is found to be located behind the stomach. His serum amylase is mildly elevated. Which of the following is the most likely explanation?", "options": [{"label_html": "Early fluid collection", "is_correct": false}, {"label_html": "Pancreatic abscess", "is_correct": false}, {"label_html": "Peripancreatic necrosis", "is_correct": false}, {"label_html": "Pseudocyst", "is_correct": true}, {"label_html": "Sterile necrosis", "is_correct": false}], "correct_index": 3, "explanation_html": "Pseudocysts are unlikely to be present less than 4 weeks after an attack of acute pancreatitis. However, they are more common at this stage and are associated with a raised amylase."}], "note_html": "<b>Peripancreatic fluid collections<\/b><br><ul><li>Occur in 25% cases<\/li><li>Located in or near the pancreas and lack a wall of granulation or fibrous tissue<\/li><li>May resolve or develop into pseudocysts or abscesses<\/li><li>Since most resolve aspiration and drainage is best avoided as it may precipitate infection<\/li><\/ul><br><b>Pseudocysts<\/b><br><ul><li>In acute pancreatitis result from organisation of peripancreatic fluid collection. They may or may not communicate with the ductal system.<\/li><li>The collection is walled by fibrous or granulation tissue and typically occurs 4 weeks or more after an attack of acute pancreatitis<\/li><li>Most are retrogastric<\/li><li>75% are associated with persistent mild elevation of amylase<\/li><li>Investigation is with CT, ERCP and MRI or Endoscopic USS<\/li><li>Symptomatic cases may be observed for 12 weeks as up to 50% resolve<\/li><li>Treatment is either with endoscopic or surgical cystogastrostomy or aspiration<\/li><\/ul><br><b>Pancreatic necrosis<\/b><br><ul><li>Pancreatic necrosis may involve both the pancreatic parenchyma and surrounding fat<\/li><li>Complications are directly linked to extent of parenchymal necrosis and extent of necrosis overall<\/li><li>Early necrosectomy is associated with a high mortality rate (and should be avoided unless compelling indications for surgery exist)<\/li><li>Sterile necrosis should be managed conservatively (at least initially)<\/li><li>Some centres will perform fine needle aspiration sampling of necrotic tissue if infection is suspected. False negatives may occur. The extent of sepsis and organ dysfunction may be a better guide to surgery<\/li><\/ul><br><b>Pancreatic abscess<\/b><br><ul><li>Intra abdominal collection of pus associated with pancreas but in the absence of necrosis<\/li><li>Typically occur as a result of infected pseudocyst<\/li><li>They are usually managed by placement of percutaneous drains<\/li><\/ul><br><b>Haemorrhage<\/b><br><ul><li>Infected necrosis may involve vascular structures with resultant haemorrhage that may occur de novo or as a result of surgical necrosectomy.<\/li><li>When retroperitoneal haemorrhage occurs Grey Turners sign may be identified<\/li><\/ul>"}, {"name": "Surgical jaundice", "questions": [{"number": 32, "topic": "Surgical jaundice", "stem_html": "A 65 year old man is admitted with cholangitis and investigations demonstrate a carcinoma of the pancreatic head. An ERCP is attempted but the surgeon is unable to cannulate the ampulla. What is the best course of action?", "options": [{"label_html": "Whipples procedure", "is_correct": false}, {"label_html": "Laparotomy and formation of hepatico-jejunostomy", "is_correct": false}, {"label_html": "Percutaneous transhepatic cholangiogram and drain", "is_correct": true}, {"label_html": "External beam radiotherapy", "is_correct": false}, {"label_html": "Laparotomy and duodenoduodenostomy", "is_correct": false}], "correct_index": 2, "explanation_html": "Cancer of the pancreatic head will cause obstructive jaundice and intrahepatic duct dilatation. When an ERCP has failed the most appropriate option is to attempt a PTC. This procedure is always preceded by an ultrasound (which presumably this patient has already had or they would not be undergoing an ERCP). Prior to performing the PTC it is important to stage the disease and establish resectability or not. This is because the PTC drains frequently dislodge and fall out. It is usually desirable to pass a stent at the time of doing the PTC to mitigate the effects of this problem."}, {"number": 33, "topic": "Surgical jaundice", "stem_html": "A 34 year old lady is admitted with jaundice and undergoes an ERCP. The procedure is technically difficult and she is returned to the ward still jaundiced. Unfortunately she now has severe generalised abdominal pain. What is the best course of action?", "options": [{"label_html": "Arrange abdominal MRI scan", "is_correct": false}, {"label_html": "Arrange MRCP", "is_correct": false}, {"label_html": "Arrange an abdominal CT scan", "is_correct": true}, {"label_html": "Undertake a laparotomy", "is_correct": false}, {"label_html": "Undertake a laparotomy and biliary bypass", "is_correct": false}], "correct_index": 2, "explanation_html": "There are two main differential diagnoses here. One is pancreatitis, repeated trauma to the ampulla and duct (if partially cannulated) is a major risk factor for pancreatitis. The second is the possibility that the duodenum has been perforated. ERCP is performed using a side viewing endoscope, the manipulation of which can be technically challenging for the inexperienced operator in a patient with abnormal anatomy. A CT scan is the best investigation to distinguish between these two differential diagnoses."}, {"number": 34, "topic": "Surgical jaundice", "stem_html": "A 32 year old man who has suffered from Crohns disease for many years presents with intermittent jaundice. When it occurs, it is obstructive in nature. It then usually resolves spontaneously. What is the most likely cause?", "options": [{"label_html": "Crigler Najjar syndrome", "is_correct": false}, {"label_html": "Parasitic infection of the liver", "is_correct": false}, {"label_html": "Bile duct stones", "is_correct": true}, {"label_html": "Gilberts syndrome", "is_correct": false}, {"label_html": "Multi cystic liver disease", "is_correct": false}], "correct_index": 2, "explanation_html": "Bile salts are absorbed in the terminal ileum. When this process is impaired as in Crohns the patient may develop gallstones, if these pass into the CBD then obstructive jaundice will result."}, {"number": 35, "topic": "Surgical jaundice", "stem_html": "A 22 year old man returns to the UK from holiday in India. He presents with painless jaundice. On examination he is not deeply jaundiced and there is no organomegaly. What is the most likely cause?", "options": [{"label_html": "Hepatitis E infection", "is_correct": false}, {"label_html": "Hepatitis A infection", "is_correct": true}, {"label_html": "Malaria", "is_correct": false}, {"label_html": "Gilberts syndrome", "is_correct": false}, {"label_html": "Gallstones", "is_correct": false}], "correct_index": 1, "explanation_html": "Infective hepatitis is the most likely cause. In the UK, foreign travel is a common cause of developing infectious hepatitis, of which hepatitis A is the most common."}, {"number": 36, "topic": "Surgical jaundice", "stem_html": "A 22 year old man returns to the UK from holiday in India. He presents with painless jaundice. On examination he is not deeply jaundiced and there is no organomegaly. What is the most likely cause?", "options": [{"label_html": "Hepatitis E infection", "is_correct": false}, {"label_html": "Hepatitis A infection", "is_correct": true}, {"label_html": "Malaria", "is_correct": false}, {"label_html": "Gilberts syndrome", "is_correct": false}, {"label_html": "Gallstones", "is_correct": false}], "correct_index": 1, "explanation_html": "Infective hepatitis is the most likely cause. In the UK, foreign travel is a common cause of developing infectious hepatitis, of which hepatitis A is the most common."}, {"number": 37, "topic": "Surgical jaundice", "stem_html": "A 63 year old man is admitted with obstructive jaundice that has developed over the past 3 weeks. He was previously well and on examination has a smooth mass in his right upper quadrant. What is the most likely underlying diagnosis?", "options": [{"label_html": "Mirizzi syndrome", "is_correct": false}, {"label_html": "Bile duct stones", "is_correct": false}, {"label_html": "Carcinoma of the pancreas", "is_correct": true}, {"label_html": "Benign bile duct stricture", "is_correct": false}, {"label_html": "Chronic cholecystitis", "is_correct": false}], "correct_index": 2, "explanation_html": "Carcinoma of the pancreas (Courvoisiers law!). The development of jaundice in association with a smooth right upper quadrant mass is typical of distal biliary obstruction secondary to pancreatic malignancy. A bile duct stricture would not present in this way, all the other choices are related to gallstones."}, {"number": 38, "topic": "Surgical jaundice", "stem_html": "A 72 year old man undergoes a distal gastrectomy for carcinoma of the stomach. He presents with jaundice approximately 8 months post operatively. Ultrasound of the liver and bile ducts shows no focal liver lesion and normal calibre common bile duct with intra hepatic duct dilatation. What is the most likely explanation?", "options": [{"label_html": "Peri hilar lymphadenopathy", "is_correct": true}, {"label_html": "Fitz- Hugh Curtis syndrome", "is_correct": false}, {"label_html": "Gilberts syndrome", "is_correct": false}, {"label_html": "Mirizzi syndrome", "is_correct": false}, {"label_html": "Gallstones", "is_correct": false}], "correct_index": 0, "explanation_html": "Unfortunately metastatic disease is the most likely event. Peri hilar lymphadenopathy would be a common culprit."}], "note_html": "Jaundice can present in a manner of different surgical situations. As with all types of jaundice a careful history and examination will often give clues as to the most likely underlying cause. Liver function tests whilst conveying little in the way of information about liver synthetic function, will often facilitate classification as to whether the jaundice is pre hepatic, hepatic or post hepatic. The typical LFT patterns are given below:<br><br><div class=\"table-responsive\"><table class=\"tlarge table table-striped table-bordered\" data-role=\"table\" id=\"tableid1\"><thead><tr><th><b>Location\t<\/b><\/th><th><b>Bilirubin<\/b>\t<\/th><th><b>ALT/ AST<\/b><\/th><th><b>\tAlkaline phosphatase<\/b><\/th><\/tr><\/thead><tbody><tr><td>Pre hepatic<\/td><td>Normal or high\t<\/td><td>Normal\t<\/td><td>Normal<\/td><\/tr><tr><td>Hepatic\t<\/td><td>High<\/td><td>\tElevated (often very high)<\/td><td>\tElevated but seldom to very high levels<\/td><\/tr><tr><td>Post hepatic\t<\/td><td>High-very high<\/td><td>\tModerate elevation\t<\/td><td>High- very high<\/td><\/tr><\/tbody><\/table><\/div><br>In post hepatic jaundice the stools are often of pale colour and this feature should be specifically addressed in the history.<br><br><b>Modes of presentation<\/b><br>These are addressed in the table below:<br><br><div class=\"table-responsive\"><table class=\"tlarge table table-striped table-bordered\" data-role=\"table\" id=\"tableid2\"><thead><tr><th><b>Diagnosis<\/b>\t<\/th><th><b>Typical features<\/b>\t<\/th><th><b>Pathogenesis<\/b><\/th><\/tr><\/thead><tbody><tr><td>Gallstones<\/td><td>\tTypically history of biliary colic or episodes of chlolecystitis. Obstructive type history and test results.\t<\/td><td>Usually small calibre gallstones which can pass through the cystic duct. In Mirizzi syndrome the stone may compress the bile duct directly- one of the rare times that cholecystitis may present with jaundice<\/td><\/tr><tr><td>Cholangitis<\/td><td>\tUsually obstructive and will have Charcots triad of symptoms (pain, fever, jaundice)\t<\/td><td>Ascending infection of the bile ducts usually by <i>E. coli<\/i> and by definition occurring in a pool of stagnant bile.<\/td><\/tr><tr><td>Pancreatic cancer\t<\/td><td>Typically painless jaundice with palpable gallbladder (Courvoisier's Law)<\/td><td>\tDirect occlusion of distal bile duct or pancreatic duct by tumour. Sometimes nodal disease at the portal hepatis may be the culprit in which case the bile duct may be of normal calibre.<\/td><\/tr><tr><td>TPN associated jaundice\t<\/td><td>Usually follows long term use and is usually painless with non obstructive features<\/td><td>Often due to hepatic dysfunction and fatty liver which may occur with long term TPN usage.<\/td><\/tr><tr><td>Bile duct injury\t<\/td><td>Depending upon the type of injury may be of sudden or gradual onset and is usually of obstructive type<\/td><td>Often due to a difficult cholecystectomy when anatomy in Calots triangle is not appreciated. In the worst scenario the bile duct is excised and jaundice offers rapidly post operatively. More insidious is that of bile duct stenosis which may be caused by clips or diathermy injury.<\/td><\/tr><tr><td>Cholangiocarcinoma\t<\/td><td>Gradual onset obstructive pattern\t<\/td><td>Direct occlusion by disease and also extrinsic compression by nodal disease at the porta hepatis.<\/td><\/tr><tr><td>Septic surgical patient\t<\/td><td>Usually hepatic features\t<\/td><td>Combination of impaired biliary excretion and drugs such as ciprofloxacin which may cause cholestasis.<\/td><\/tr><tr><td>Metastatic disease\t<\/td><td>Mixed hepatic and post hepatic<\/td><td>\tCombination of liver synthetic failure (late) and extrinsic compression by nodal disease and anatomical compression of intra hepatic structures (earlier)<\/td><\/tr><\/tbody><\/table><\/div><br><b>Diagnosis<\/b><br>An ultrasound of the liver and biliary tree is the most commonly used first line test. This will establish bile duct calibre, often ascertain the presence of gallstones, may visualise pancreatic masses and other lesions. The most important clinical question is essentially the extent of biliary dilatation and its distribution. <br><br>Where pancreatic neoplasia is suspected, the next test should be a pancreatic protocol CT scan. With liver tumours and cholangiocarcinoma an MRI/ MRCP is often the preferred option. PET scans may be used to stage a number of malignancies but do not routinely form part of first line testing. <br><br>Where MRCP fails to give adequate information an ERCP may be necessary. In many cases this may form part of patient management. It is however, invasive and certainly not without risk and highly operator dependent. <br><br><b>Management<\/b><br>Clearly this will depend to an extent upon the underlying cause but relief of jaundice is important, even if surgery forms part of the planned treatment. Patients with unrelieved jaundice have a much higher incidence of septic complications, bleeding and death.<br><br>Screen for and address any clotting irregularities<br><br>In patients with malignancy a stent will need to be inserted. These come in two main types; metal and plastic. Plastic stents are cheap and easy to replace  and should be used if any surgical intervention (e.g. Whipples) is planned. However, they are prone to displacement and blockage. Metal stents are much more expensive and may compromise a surgical resection. However, they are far less prone to displacement and to a lesser extent blockage than their plastic counterparts.<br><br>If malignancy is in bile duct/ pancreatic head and stenting has been attempted and has failed, then an alternative strategy is to drain the biliary system percutaneously via a transhepatic route. It may also be possible to insert a stent in this way. One of the main problems with temporary PTC's is their propensity to displacement, which may result in a bile leak.<br><br>In patients who have a bile duct injury surgery will be required to repair the defect. If the bile duct has been inadvertently excised then a hepatico-jejunostomy will need to be created (difficult!)<br><br>If gallstones are the culprit, then these may be removed by ERCP and a cholecystectomy performed. Where there is doubt about the efficacy of the ERCP an operative cholangiogram should be performed and bile duct exploration undertaken where stones remain. When the bile duct has been formally opened the options are between closure over a T tube, a choledochoduodenostomy or choledochojejunostomy. <br><br>Patients with cholangitis should receive high dose broad spectrum antibiotics via the intravenous route. Biliary decompression should follow soon afterwards, instrumenting the bile duct of these patients will often provoke a septic episode (but should be done anyway)."}]}</script>
+  <script>
+    const quizData = JSON.parse(document.getElementById("quiz-data").textContent);
+    const app = document.getElementById("app");
+    const modeButtons = Array.from(document.querySelectorAll("[data-mode-button]"));
+    const topicActionButtons = Array.from(document.querySelectorAll("[data-topic-action]"));
+
+    const state = {
+      mode: "solve",
+      answers: new Map(),
+      questionRefs: [],
+    };
+
+    function buildTopic(topic, questionOffset) {
+      const details = document.createElement("details");
+      details.className = "topic";
+      details.open = true;
+
+      const summary = document.createElement("summary");
+      summary.innerHTML = `
+        <div>
+          <h2 class="topic-title">${topic.name}</h2>
+        </div>
+        <div class="topic-meta">
+          <span>${topic.questions.length} questions</span>
+          <span class="chevron" aria-hidden="true">></span>
+        </div>
+      `;
+
+      const body = document.createElement("div");
+      body.className = "topic-body";
+
+      if (topic.note_html) {
+        const notes = document.createElement("details");
+        notes.className = "topic-notes";
+
+        const notesSummary = document.createElement("summary");
+        notesSummary.innerHTML = `
+          <span class="topic-notes-title">Notes</span>
+          <span class="chevron" aria-hidden="true">></span>
+        `;
+
+        const notesBody = document.createElement("div");
+        notesBody.className = "topic-notes-body rich-text";
+        notesBody.innerHTML = topic.note_html;
+
+        notes.appendChild(notesSummary);
+        notes.appendChild(notesBody);
+        body.appendChild(notes);
+      }
+
+      topic.questions.forEach((question, indexInTopic) => {
+        const globalIndex = questionOffset + indexInTopic;
+        body.appendChild(buildQuestionCard(question, globalIndex));
+      });
+
+      details.appendChild(summary);
+      details.appendChild(body);
+      return details;
+    }
+
+    function buildQuestionCard(question, questionIndex) {
+      const card = document.createElement("article");
+      card.className = "question-card is-hidden";
+      card.dataset.questionIndex = String(questionIndex);
+
+      const label = document.createElement("p");
+      label.className = "question-label";
+      label.textContent = `Question ${question.number}`;
+
+      const stem = document.createElement("div");
+      stem.className = "stem rich-text";
+      stem.innerHTML = question.stem_html;
+
+      const options = document.createElement("div");
+      options.className = "options";
+
+      const optionButtons = question.options.map((option, optionIndex) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "option";
+        button.dataset.optionIndex = String(optionIndex);
+        button.innerHTML = option.label_html;
+        button.addEventListener("click", () => {
+          if (state.mode !== "solve") {
+            return;
+          }
+          state.answers.set(questionIndex, optionIndex);
+          applyQuestionState(questionIndex);
+        });
+        options.appendChild(button);
+        return button;
+      });
+
+      const explanation = document.createElement("div");
+      explanation.className = "explanation rich-text";
+      explanation.innerHTML = `<span class="explanation-label">Explanation</span>${question.explanation_html}`;
+
+      card.appendChild(label);
+      card.appendChild(stem);
+      card.appendChild(options);
+      card.appendChild(explanation);
+
+      state.questionRefs[questionIndex] = {
+        card,
+        explanation,
+        optionButtons,
+        question,
+      };
+
+      applyQuestionState(questionIndex);
+      return card;
+    }
+
+    function applyQuestionState(questionIndex) {
+      const ref = state.questionRefs[questionIndex];
+      if (!ref) {
+        return;
+      }
+
+      const { card, optionButtons, question } = ref;
+      const selectedIndex = state.answers.get(questionIndex);
+      const hasSelection = selectedIndex !== undefined;
+      const isReview = state.mode === "review";
+      const showExplanation = isReview || hasSelection;
+
+      card.classList.toggle("is-hidden", !showExplanation);
+
+      optionButtons.forEach((button, optionIndex) => {
+        button.classList.remove("correct", "incorrect", "neutral-revealed");
+
+        if (isReview) {
+          button.disabled = true;
+          if (optionIndex === question.correct_index) {
+            button.classList.add("correct");
+          } else {
+            button.classList.add("neutral-revealed");
+          }
+          return;
+        }
+
+        button.disabled = false;
+        if (!hasSelection) {
+          return;
+        }
+
+        if (optionIndex === question.correct_index) {
+          button.classList.add("correct");
+        } else if (optionIndex === selectedIndex) {
+          button.classList.add("incorrect");
+        } else {
+          button.classList.add("neutral-revealed");
+        }
+      });
+    }
+
+    function renderApp() {
+      if (!quizData.topics.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty-state";
+        empty.textContent = "No questions were found in this JSON file.";
+        app.replaceChildren(empty);
+        return;
+      }
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "topic-list";
+
+      let questionOffset = 0;
+      quizData.topics.forEach((topic) => {
+        wrapper.appendChild(buildTopic(topic, questionOffset));
+        questionOffset += topic.questions.length;
+      });
+
+      app.replaceChildren(wrapper);
+    }
+
+    function setMode(mode) {
+      state.mode = mode;
+      modeButtons.forEach((button) => {
+        const isActive = button.dataset.modeButton === mode;
+        button.classList.toggle("active", isActive);
+        button.setAttribute("aria-pressed", String(isActive));
+      });
+
+      state.questionRefs.forEach((_, index) => applyQuestionState(index));
+    }
+
+    function setAllTopics(open) {
+      document.querySelectorAll(".topic").forEach((topic) => {
+        topic.open = open;
+      });
+    }
+
+    modeButtons.forEach((button) => {
+      button.addEventListener("click", () => setMode(button.dataset.modeButton));
+    });
+
+    topicActionButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        setAllTopics(button.dataset.topicAction === "expand");
+      });
+    });
+
+    renderApp();
+    setMode("solve");
+  </script>
+</body>
+</html>

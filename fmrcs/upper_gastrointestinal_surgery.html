@@ -1,0 +1,745 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Upper Gastrointestinal Surgery</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f1e8;
+      --bg-accent: #ebe4d4;
+      --surface: rgba(255, 252, 246, 0.92);
+      --surface-strong: #fffdf7;
+      --border: #d9cfbd;
+      --text: #23313a;
+      --text-soft: #5f6c73;
+      --accent: #496a58;
+      --accent-strong: #2f5341;
+      --correct-bg: #e0f3e6;
+      --correct-border: #77b487;
+      --wrong-bg: #fbe0df;
+      --wrong-border: #dc7a73;
+      --note-bg: #f3eee2;
+      --shadow: 0 18px 40px rgba(76, 59, 37, 0.08);
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+      --page-width: 960px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.72), transparent 32%),
+        linear-gradient(180deg, #f8f4eb 0%, #f3ede0 100%);
+      line-height: 1.65;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, rgba(255, 255, 255, 0.14), transparent 18%, transparent 82%, rgba(255, 255, 255, 0.14)),
+        repeating-linear-gradient(
+          180deg,
+          rgba(73, 106, 88, 0.015) 0,
+          rgba(73, 106, 88, 0.015) 1px,
+          transparent 1px,
+          transparent 18px
+        );
+    }
+
+    a {
+      color: var(--accent-strong);
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 14px;
+    }
+
+    .score-badge,
+    .badge.rounded-pill.bg-danger {
+      display: none !important;
+    }
+
+    .page {
+      width: min(100% - 24px, var(--page-width));
+      margin: 0 auto;
+      padding: 18px 0 48px;
+    }
+
+    .topbar {
+      margin-bottom: 18px;
+      padding: 18px;
+      background: rgba(255, 252, 246, 0.9);
+      border: 1px solid rgba(217, 207, 189, 0.86);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+
+    .topbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .eyebrow {
+      margin: 0 0 4px;
+      font-size: 0.76rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .title {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+      font-size: clamp(1.5rem, 2vw + 1rem, 2.35rem);
+      line-height: 1.08;
+      font-weight: 700;
+    }
+
+    .meta {
+      margin: 8px 0 0;
+      color: var(--text-soft);
+      font-size: 0.96rem;
+    }
+
+    .mode-switch {
+      display: inline-flex;
+      padding: 6px;
+      border-radius: 999px;
+      background: var(--bg-accent);
+      border: 1px solid var(--border);
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .topic-actions {
+      display: inline-flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .utility-button {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: var(--surface-strong);
+      color: var(--text);
+      font: inherit;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .utility-button:hover {
+      transform: translateY(-1px);
+      border-color: #c7bba9;
+      box-shadow: 0 8px 18px rgba(70, 54, 34, 0.07);
+    }
+
+    .utility-button:focus-visible {
+      outline: 3px solid rgba(73, 106, 88, 0.22);
+      outline-offset: 2px;
+    }
+
+    .mode-button {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: var(--text-soft);
+      font: inherit;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 10px 16px;
+      min-width: 92px;
+      cursor: pointer;
+      transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .mode-button:hover {
+      transform: translateY(-1px);
+      color: var(--text);
+    }
+
+    .mode-button.active {
+      background: var(--surface-strong);
+      color: var(--accent-strong);
+      box-shadow: 0 8px 18px rgba(73, 106, 88, 0.14);
+    }
+
+    .topic-list {
+      display: grid;
+      gap: 18px;
+    }
+
+    .topic {
+      background: rgba(255, 252, 246, 0.78);
+      border: 1px solid rgba(217, 207, 189, 0.9);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .topic[open] {
+      background: rgba(255, 252, 246, 0.9);
+    }
+
+    .topic > summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      user-select: none;
+    }
+
+    .topic > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .topic-title {
+      margin: 0;
+      font-size: 1.08rem;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+    }
+
+    .topic-meta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-soft);
+      font-size: 0.94rem;
+    }
+
+    .chevron {
+      display: inline-block;
+      transition: transform 0.2s ease;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .topic[open] > summary .chevron {
+      transform: rotate(90deg);
+    }
+
+    .topic-notes {
+      background: rgba(243, 238, 226, 0.62);
+      border: 1px solid #e3d9c8;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .topic-notes > summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      user-select: none;
+    }
+
+    .topic-notes > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .topic-notes-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .topic-notes[open] > summary .chevron {
+      transform: rotate(90deg);
+    }
+
+    .topic-notes-body {
+      padding: 0 16px 16px;
+      color: var(--text);
+    }
+
+    .topic-body {
+      padding: 0 16px 16px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .question-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      box-shadow: 0 10px 24px rgba(70, 54, 34, 0.05);
+    }
+
+    .question-label {
+      margin: 0 0 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-soft);
+      font-size: 0.88rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .stem {
+      font-size: 1rem;
+    }
+
+    .stem > *:first-child,
+    .explanation > *:first-child {
+      margin-top: 0;
+    }
+
+    .stem > *:last-child,
+    .explanation > *:last-child {
+      margin-bottom: 0;
+    }
+
+    .options {
+      margin-top: 16px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .option {
+      width: 100%;
+      text-align: left;
+      border: 1px solid #d8d0c2;
+      background: #fffdf8;
+      color: var(--text);
+      border-radius: var(--radius-sm);
+      padding: 14px 15px;
+      font: inherit;
+      line-height: 1.45;
+      cursor: pointer;
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .option:hover {
+      transform: translateY(-1px);
+      border-color: #c7bba9;
+      box-shadow: 0 8px 18px rgba(70, 54, 34, 0.07);
+    }
+
+    .option:focus-visible {
+      outline: 3px solid rgba(73, 106, 88, 0.22);
+      outline-offset: 2px;
+    }
+
+    .option.correct {
+      background: var(--correct-bg);
+      border-color: var(--correct-border);
+      box-shadow: inset 0 0 0 1px rgba(119, 180, 135, 0.2);
+    }
+
+    .option.incorrect {
+      background: var(--wrong-bg);
+      border-color: var(--wrong-border);
+      box-shadow: inset 0 0 0 1px rgba(220, 122, 115, 0.2);
+    }
+
+    .option.neutral-revealed {
+      background: #faf6ee;
+      border-color: #d8d0c2;
+      color: #5f676a;
+    }
+
+    .option[disabled] {
+      cursor: default;
+      opacity: 1;
+    }
+
+    .explanation {
+      margin-top: 14px;
+      padding: 14px 16px;
+      background: var(--note-bg);
+      border: 1px solid #e3d9c8;
+      border-radius: 14px;
+      color: var(--text);
+    }
+
+    .question-card.is-hidden .explanation {
+      display: none;
+    }
+
+    .explanation-label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+      font-weight: 800;
+    }
+
+    .empty-state {
+      padding: 28px 22px;
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-lg);
+      color: var(--text-soft);
+    }
+
+    .rich-text table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      overflow: hidden;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.68);
+    }
+
+    .rich-text td,
+    .rich-text th {
+      border: 1px solid #ddd2bf;
+      padding: 10px 12px;
+      vertical-align: top;
+    }
+
+    .rich-text ul,
+    .rich-text ol {
+      padding-left: 20px;
+      margin: 10px 0;
+    }
+
+    .rich-text center {
+      display: block;
+      text-align: center;
+    }
+
+    .rich-text .table-responsive {
+      overflow-x: auto;
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        width: min(100% - 16px, var(--page-width));
+        padding-top: 10px;
+      }
+
+      .topbar {
+        padding: 14px;
+        border-radius: 18px;
+      }
+
+      .topbar-inner {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .controls {
+        justify-content: stretch;
+      }
+
+      .topic-actions {
+        width: 100%;
+      }
+
+      .utility-button {
+        flex: 1 1 0;
+      }
+
+      .mode-switch {
+        width: 100%;
+        justify-content: stretch;
+      }
+
+      .mode-button {
+        flex: 1 1 50%;
+      }
+
+      .topic > summary {
+        padding: 16px;
+        align-items: flex-start;
+      }
+
+      .topic-meta {
+        font-size: 0.88rem;
+      }
+
+      .topic-body {
+        padding: 0 12px 12px;
+      }
+
+      .question-card {
+        padding: 15px;
+      }
+
+      .option {
+        padding: 13px 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="topbar">
+      <div class="topbar-inner">
+        <div>
+          <p class="eyebrow">Study View</p>
+          <h1 class="title">Upper Gastrointestinal Surgery</h1>
+          <p class="meta">53 questions across 14 topics</p>
+        </div>
+        <div class="controls">
+          <div class="topic-actions" aria-label="Topic visibility controls">
+            <button class="utility-button" type="button" data-topic-action="expand">Expand all</button>
+            <button class="utility-button" type="button" data-topic-action="collapse">Collapse all</button>
+          </div>
+          <div class="mode-switch" role="tablist" aria-label="Question mode">
+            <button class="mode-button active" type="button" data-mode-button="solve" aria-pressed="true">Solve</button>
+            <button class="mode-button" type="button" data-mode-button="review" aria-pressed="false">Review</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="app"></section>
+  </main>
+
+  <script id="quiz-data" type="application/json">{"title": "Upper Gastrointestinal Surgery", "topics": [{"name": "Bariatric surgery", "questions": [{"number": 1, "topic": "Bariatric surgery", "stem_html": "Which of the following procedures is not performed for obesity?", "options": [{"label_html": "Sleeve gastrectomy", "is_correct": false}, {"label_html": "Gastric band", "is_correct": false}, {"label_html": "Intra gastric balloon", "is_correct": false}, {"label_html": "Mckeown procedure", "is_correct": true}, {"label_html": "Small bowel bypass", "is_correct": false}], "correct_index": 3, "explanation_html": "A McKeown procedure is a total oesophagectomy."}, {"number": 2, "topic": "Bariatric surgery", "stem_html": "Which of the following patients should be referred for 1st line bariatric surgery?", "options": [{"label_html": "BMI 30 kg/m<sup>2<\/sup> and hypertension", "is_correct": false}, {"label_html": "BMI 28 kg/m<sup>2<\/sup>", "is_correct": false}, {"label_html": "BMI 35 kg/m<sup>2<\/sup> and type 2 diabetes", "is_correct": true}, {"label_html": "BMI 32kg/m<sup>2<\/sup>", "is_correct": false}, {"label_html": "BMI 70kg/m<sup>2<\/sup>, COPD and type 2 diabetes", "is_correct": false}], "correct_index": 2, "explanation_html": "With all the other options the patient should have conservative management for a minimum of 6 months first. The patient with COPD should be considered for a less invasive intervention first e.g. intra gastric balloon."}, {"number": 3, "topic": "Bariatric surgery", "stem_html": "Which of the following criteria is not an indication for bariatric surgery to be performed in the UK National Institute of Clinical Excellence Guidelines?", "options": [{"label_html": "Patients must be non smoking for at least one year", "is_correct": true}, {"label_html": "Patients must have tried conservative management for at least 6 months", "is_correct": false}, {"label_html": "Commitment to long-term follow up", "is_correct": false}, {"label_html": "Surgery to be performed in a specialist unit", "is_correct": false}, {"label_html": "BMI &gt; 35 kg/m<sup>2<\/sup> and hypertensive", "is_correct": false}], "correct_index": 0, "explanation_html": "Being a non smoker is not included in the criteria, however poor respiratory function due to smoking may affect fitness for surgery."}, {"number": 4, "topic": "Bariatric surgery", "stem_html": "A 34 year old woman with morbid obesity is referred for consideration of bariatric surgery. Which of the following options is associated with the highest long term failure rates?", "options": [{"label_html": "Gastric band", "is_correct": false}, {"label_html": "Intra gastric balloon", "is_correct": true}, {"label_html": "Roux en Y bypass", "is_correct": false}, {"label_html": "Sleeve gastrectomy", "is_correct": false}, {"label_html": "Duodenal switch", "is_correct": false}], "correct_index": 1, "explanation_html": "Intragastric balloon is really only suitable as a bridge to a more definitive surgical solution.<br><br>Bariatric surgery: the main operations<br><br><b>Gastric banding<\/b>: band applied to upper stomach which can be inflated or deflated with normal saline.  This affects satiety.  Over a 5 year period complications requiring further surgery occur in up to 15% cases.<br><br><b>Roux-en-Y gastric bypass<\/b>: a gastric pouch is formed and connected to the jejunum.  Patients achieve greater and more longterm weight loss than gastric banding.<br><br><b>Sleeve gastrectomy<\/b>: body and fundus resected to leave a small section of stomach<br><br><b>Biliopancreatic diversion +/- duodenal switch<\/b>: bypass the small bowel.  Greatest weight loss but a very complex procedure associated with malnutrition and diarrhoea.<br><br><b>Vertical banded gastroplasty (stomach stapling)<\/b>: rarely performed due to longterm failure rate."}], "note_html": "Obesity is a major health problem in the Western world. Surgical solutions to the problem have evolved dramatically over the past few years. Randomised controlled trials have shown that dramatic weight loss can be achieved following surgical interventions compared with standard medical therapy. The weight loss process is also more durable following surgery than with non surgical interventions. <br><br><b>Case selection<\/b><br>BMI &gt;/= 40 kg/m<sup>2<\/sup> or between 35-40 kg/m<sup>2<\/sup> and other significant disease (for example, type 2 diabetes, hypertension) that could be improved with weight loss.<br><br><b>Pre-requisites to surgery (NICE UK Guidelines)<\/b><br><ul><li>All non-surgical measures have failed to achieve or maintain adequate clinically beneficial weight loss for at least 6 months.<\/li><li>Will receive intensive specialist management<\/li><li>They are generally fit for anaesthesia and surgery<\/li><li>They commit to the need for long-term follow-up<\/li><li>First-line option for adults with a BMI &gt; 40 kg/m<sup>2<\/sup> in whom surgical intervention is considered appropriate; consider orlistat if there is a long waiting list.<\/li><\/ul><br><b>Surgical options<\/b><br><div class=\"table-responsive\"><table class=\"table table-bordered\"><tbody><tr><td><b>Adjustable gastric band<\/b><\/td><td><ul><li>Laparoscopic placement of adjustable band around proximal stomach.<\/li><li>Contains an adjustable filling port<\/li><li>Effective method for lifestyle control<\/li><li>Reversible<\/li><li>Takes longer to achieve target weight<\/li><li>Complications such as band erosion (rare), slippage or loss of efficacy may require re-intervention<\/li><\/ul><\/td><\/tr><tr><td><b>Gastric bypass<\/b><\/td><td><ul><li>Combines changes to reservoir size with malabsorptive procedure for more enduring weight loss.<\/li><li>Technically more challenging<\/li><li> Risks related to anastomoses (2% leak rate)<\/li><li> Irreversible<\/li><li>Up to 50% may become B12 deficient<\/li><\/ul><\/td><\/tr><tr><td><b>Sleeve gastrectomy<\/b><\/td><td><ul><li>Resection of stomach using stapling devices<\/li><li>Less popular now as initial promising results not sustained<\/li><\/ul><\/td><\/tr><\/tbody><\/table><\/div><br><br><b>References<\/b><br>1. National Institute for Health and Clinical Excellence. Obesity: the prevention, identification, assessment and management of overweight and obesity in adults and children.  www.nice.org.uk/CG189<br><br>2. Leff DR, Heath D. Surgery for obesity in adulthood. BMJ 2009;339:b3402"}, {"name": "Barrett's oesophagus", "questions": [{"number": 5, "topic": "Barrett's oesophagus", "stem_html": "A 55 year old man with dyspepsia undergoes an upper GI endoscopy. An irregular erythematous area is seen to protrude proximally from the gastro-oesophageal junction. Apart from specialised intestinal metaplasia, which of the following cell types should also be present for a diagnosis of Barretts oesophagus to be made?", "options": [{"label_html": "Goblet cell", "is_correct": true}, {"label_html": "Neutrophil", "is_correct": false}, {"label_html": "Lymphocytes", "is_correct": false}, {"label_html": "Epithelial cells", "is_correct": false}, {"label_html": "Macrophages", "is_correct": false}], "correct_index": 0, "explanation_html": "Goblet cells need to be present for a diagnosis of Barrett's oesophagus to be made."}, {"number": 6, "topic": "Barrett's oesophagus", "stem_html": "A 55 year old man presents with symptoms of dyspepsia and on upper GI endoscopy an area of patchy erythematous tissue is identified extending proximally from the gastro oesophageal junction. A biopsy is diagnostic of Barretts oesophagus with low grade dysplasia. Which of the following is the most appropriate next step?", "options": [{"label_html": "Distal oesophagectomy", "is_correct": false}, {"label_html": "Upper GI endoscopy with quadrantic biopsies from the region", "is_correct": true}, {"label_html": "Photodynamic therapy", "is_correct": false}, {"label_html": "Endoscopic sub mucosal resection of the area", "is_correct": false}, {"label_html": "Argon plasma coagulation", "is_correct": false}], "correct_index": 1, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">In Barrett's surveillance the safest option is quadrantic (i.e. 4 biopsies, one from each quarter of the oesophagus at 2cm intervals)<\/div>Low grade dysplasia in conjunction with Barretts oesphagus should be monitored with regular (6 monthly) upper GI endoscopy and quadrantic biopsies. If the disease remains static at 2 years then the screening frequency may be decreased."}, {"number": 7, "topic": "Barrett's oesophagus", "stem_html": "A 58 year old man undergoes an upper GI endoscopy for the investigation of odynophagia. At endoscopy a reddish area is seen to extend into the oesophagus from the gastro-oesophageal junction. Which of the following pathological events is most likely to explain this process?", "options": [{"label_html": "Metaplasia", "is_correct": true}, {"label_html": "Anaplasia", "is_correct": false}, {"label_html": "Dysplasia", "is_correct": false}, {"label_html": "Hypoplasia", "is_correct": false}, {"label_html": "Hyperplasia", "is_correct": false}], "correct_index": 0, "explanation_html": "This is most likely to represent Barretts oesphagus and is thus metaplasia. Dysplasia is less likely in this setting although biopsies are mandatory."}], "note_html": "Barretts oesophagus is a condition characterised by the metaplastic transformation of squamous oesophageal epithelium to columnar gastric type epithelium. Three types of this metaplastic process are recognised; intestinal (high risk), cardiac and fundic. The latter two categories may cause difficulties in diagnosis. The most concrete diagnosis can be made when endoscopic features of Barretts oesophagus are present together with a deep biopsy that demonstrates not just goblet cell metaplasia but also oesophageal glands. <br><br>Barrett's can be sub divided into short (&lt;3cm) and long (&gt;3cm). The length of the affected segment correlates strongly with the chances of identifying metaplasia. The overall prevalence of Barrett's oesophagus is difficult to determine but may be in the region of 1 in 20 and is identified in up to 12% of those undergoing endoscopy for reflux. <br><br>A proportion of patients with metaplasia will progress to dysplasia and for this reason individuals identified as having Barrett's should undergo endoscopic surveillance (every 2-5 years). Biopsies should be quadrantic and taken at 2-3cm intervals. Biopsies need to be adequate. Where mass lesions are present consideration should be given to endoscopic sub mucosal resection. Up to 40% of patients will be upstaged from high grade dysplasia to invasive malignancy with such techniques.<br><br><b>Treatment<\/b><br><ul><li>Long term proton pump inhibitor<\/li><li>Consider pH and manometry studies in younger patients who may prefer to consider an anti reflux procedure<\/li><li>Regular endoscopic monitoring (more frequently if moderate dysplasia). With quadrantic biopsies every 2-3 cm<\/li><li>Many patients with Barretts and dysplasia can be offered radiofrequency ablation<\/li><li>If severe dysplasia be very wary of small foci of cancer<\/li><\/ul><br><b>References<\/b><br>A consensus statement of the British approach is provided by:<br>https://www.nice.org.uk/guidance/ng231/chapter/Recommendations#managing-barretts-oesophagus-with-dysplasia"}, {"name": "Disorders of gastric emptying", "questions": [{"number": 8, "topic": "Disorders of gastric emptying", "stem_html": "A 55 year old man is reviewed 3 months following a distal gastrectomy and gastro-jejunostomy for carcinoma of the gastric antrum. He complains of symptoms of dizziness, palpitations, sweating and occasional collapse after big meals. What is the most likely explanation for this presentation?", "options": [{"label_html": "Division of the vagus nerves", "is_correct": false}, {"label_html": "Increased release of insulin", "is_correct": true}, {"label_html": "Increased release of cholecystokinin", "is_correct": false}, {"label_html": "Increased release of gastrin", "is_correct": false}, {"label_html": "Increased release of glucagon", "is_correct": false}], "correct_index": 1, "explanation_html": "The effects of gastro-enterostomy (which is how the stomach was reconstructed in this case) have resulted in the late symptoms of dumping syndrome which occur as a result of excessive insulin release. A similar condition can be seen in patients who undergo bariatric procedures such as gastric bypass."}, {"number": 9, "topic": "Disorders of gastric emptying", "stem_html": "A 40 year old man is reviewed in the clinic 6 months after a redo fundoplication operation for gastro-oesophageal reflux disease. He complains of abdominal distension and bloating. Endoscopy shows a patent gastro-oesophageal junction and upper GI contrast studies show delayed gastric emptying. What is the most likely explanation for this?", "options": [{"label_html": "Excessive release of cholecystokinin", "is_correct": false}, {"label_html": "Excessive release of gastrin", "is_correct": false}, {"label_html": "Damage to the vagus nerve", "is_correct": true}, {"label_html": "Damage to the short gastric vessels", "is_correct": false}, {"label_html": "Excessive release of insulin", "is_correct": false}], "correct_index": 2, "explanation_html": "Redo fundoplication surgery carries with it a risk of damaging the vagus nerves. If both are damaged, there will be delay to gastric emptying. Its important to exclude issues at the gastro-oesophageal junction ( as these are more common, usually due to overtight wrap) these are excluded here with the OGD showing that it was normal."}], "note_html": "In the normal situation, gastric emptying is a carefully co-ordinated process. The stomach is innervated by the vagus nerves and these provide co-ordinated contractions together with timely relaxation of the pylorus to allow digestion to occur. <br><br><b>Effects of vagotomy<\/b><br>Surgery to the vagus nerves was undertaken prior to the advent of proton pump inhibitors as a means of decreasing gastric acid production. The operation of truncal vagotomy was effective at reducing gastric acid production. However, it did cause issues with delayed gastric emptying. As a result, surgery to disrupt or bypass the pylorus was often needed. These procedures comprised pyloroplasty and gastro-jejunostomy respectively. <br><br><br><b>Effects of surgical bypass<\/b><br>Following gastric surgery it is often necessary to provide some form of gastro-jejunostomy. The exception to this is where the pylorus is retained intact and the vagus nerves supplying the stomach are not disrupted. The effect of constructing a gastro-jejunostomy is that emptying of the stomach is less co-ordinated. As a result, carbohydrate rich loads enter the proximal small bowel rapidly. In the short term, this results in significant fluid shifts into the small bowel that can increase gut transit times. It also serves as a stimulus for increased insulin release, this can lead to rebound hypoglycaemia which accounts for the symptoms of late dumping syndrome that are sometimes seen."}, {"name": "Gastric emptying", "questions": [{"number": 10, "topic": "Gastric emptying", "stem_html": "Which of the following drugs increases the rate of gastric emptying in the vagotomised stomach?", "options": [{"label_html": "Ondansetron", "is_correct": false}, {"label_html": "Metoclopramide", "is_correct": false}, {"label_html": "Cyclizine", "is_correct": false}, {"label_html": "Erythromycin", "is_correct": true}, {"label_html": "Chloramphenicol", "is_correct": false}], "correct_index": 3, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Vagotomy seriously compromises gastric emptying which is why either a pyloroplasty or gastro-enterostomy is routinely performed at the same time.<\/div>Chloramphenicol has no effect on gastric emptying. Ondansetron slows gastric emptying slightly. Metoclopramide increases the rate of gastric emptying but its effects are mediated via the vagus nerve. Erythromycin enhances gastric emptying by acting via the motilin receptor in the gut."}, {"number": 11, "topic": "Gastric emptying", "stem_html": "Which of the following is not well absorbed following a gastrectomy?", "options": [{"label_html": "Vitamin c", "is_correct": false}, {"label_html": "Zinc", "is_correct": false}, {"label_html": "Vitamin B12", "is_correct": true}, {"label_html": "Copper", "is_correct": false}, {"label_html": "Molybdenum", "is_correct": false}], "correct_index": 2, "explanation_html": "Vitamin B12. The others are unaffected<br><br><b>Post gastrectomy syndrome<\/b><br><ul><li>Rapid emptying of food from stomach into the duodenum: diarrhoea, abdominal pain, hypoglycaemia<\/li><li>Complications: Vitamin B12 and iron malabsorption, osteoporosis<\/li><li>Treatment: High protein, low carbohydrate diet. Replace B12/Fe/Ca<\/li><\/ul>"}, {"number": 12, "topic": "Gastric emptying", "stem_html": "Which of the procedures listed below is most strongly associated with delayed gastric emptying?", "options": [{"label_html": "Posterior gastrojejunostomy", "is_correct": false}, {"label_html": "Pyloromyotomy", "is_correct": false}, {"label_html": "Pyloroplasty", "is_correct": false}, {"label_html": "Anterior gastrojejunostomy", "is_correct": true}, {"label_html": "Roux en Y gastrojejunostomy", "is_correct": false}], "correct_index": 3, "explanation_html": "Anterior gastrojejunostomy is one of the easiest gastric bypass procedures to perform and is still often used for reconstruction following distal gastrectomy. It is associated with impairment of gastric emptying and patients may have considerable problems with flatulent dyspepsia. Roux en Y methods provide the best function. Pyloroplasty enhances gastric emptying (and was historically performed following vagotomy for this reason). Pyloromyotomy is not associated with an increase in gastric transit times (though failed procedures may be)."}, {"number": 13, "topic": "Gastric emptying", "stem_html": "Which of the procedures listed below is most strongly associated with delayed gastric emptying?", "options": [{"label_html": "Posterior gastrojejunostomy", "is_correct": false}, {"label_html": "Pyloromyotomy", "is_correct": false}, {"label_html": "Pyloroplasty", "is_correct": false}, {"label_html": "Anterior gastrojejunostomy", "is_correct": true}, {"label_html": "Roux en Y gastrojejunostomy", "is_correct": false}], "correct_index": 3, "explanation_html": "Anterior gastrojejunostomy is one of the easiest gastric bypass procedures to perform and is still often used for reconstruction following distal gastrectomy. It is associated with impairment of gastric emptying and patients may have considerable problems with flatulent dyspepsia. Roux en Y methods provide the best function. Pyloroplasty enhances gastric emptying (and was historically performed following vagotomy for this reason). Pyloromyotomy is not associated with an increase in gastric transit times (though failed procedures may be)."}], "note_html": "<ul><li>The stomach serves both a mechanical and immunological function. Solid and liquid are retained in the stomach during which time repeated peristaltic activity against a closed pyloric sphincter will cause fragmentation of food bolus material. Contact with gastric acid will help to neutralise any pathogens present.<\/li><li>The amount of time material spends in the stomach is related to its composition and volume. For example a glass of water will empty more quickly than a large meal. The presence of amino acids and fat will all serve to delay gastric emptying. <\/li><\/ul><br><b>Controlling factors<\/b><br>Neuronal stimulation of the stomach is mediated via the vagus and the parasympathetic nervous system will tend to favor an increase in gastric motility. It is for this reason that individuals who have undergone truncal vagotomy will tend to routinely require either a pyloroplasty or gastro-enterostomy as they would otherwise have delayed gastric emptying. <br><br>The following hormonal factors are all involved:<br><br><div class=\"table-responsive\"><table class=\"tlarge table table-striped table-bordered\" data-role=\"table\" id=\"tableid1\"><thead><tr><th><b>Delay emptying<\/b><\/th><th><b>Increase emptying<\/b><\/th><\/tr><\/thead><tbody><tr><td>Gastric inhibitory peptide<\/td><td>Gastrin<\/td><\/tr><tr><td>Cholecystokinin<\/td><td><\/td><\/tr><tr><td>Enteroglucagon<\/td><td><\/td><\/tr><\/tbody><\/table><\/div> <br> <br><b>Diseases affecting gastric emptying<\/b><br>All diseases that affect gastric emptying may result in bacterial overgrowth, retained food and eventually the formation of bezoars that may occlude the pylorus and make gastric emptying even worse. Fermentation of food may cause dyspepsia, reflux and foul smelling belches of gas.<br><br><b>Iatrogenic<\/b><br>Gastric surgery can have profound effects on gastric emptying. As stated above any procedure that disrupts the vagus can cause delayed emptying. Whilst this is particularly true of vagotomy, this operation is now rarely performed. Surgeons are divided on the importance of vagal disruption that occurs during an oesophagectomy, some will routinely perform a pyloroplasty and others will not.<br><br>When a distal gastrectomy is performed, the type of anastomosis performed will impact on emptying. When a gastro-enterostomy is constructed, a posterior, retrocolic gastroenterostomy will empty better than an anterior one. <br><br><b>Diabetic gastroparesis<\/b><br>This is predominantly due to neuropathy affecting the vagus nerve. The stomach empties poorly and patients may have episodes of repeated and protracted vomiting. Diagnosis is made by upper GI endoscopy and contrast studies, in some cases a radio nucleotide scan is needed to demonstrate the abnormality more clearly.  In treating these conditions, drugs such as metoclopramide will be less effective as they exert their effect via the vagus nerve. One of the few prokinetic drugs that do not work in this way is the antibiotic erythromycin. <br><br><b>Malignancies<\/b><br>Obviously a distal gastric cancer may obstruct the pylorus and delay emptying. In addition, malignancies of the pancreas may cause extrinsic compression of the duodenum and delay emptying. Treatment in these cases is by gastric decompression using a wide bore nasogastric tube and insertion of a stent or, if that is not possible, by a surgical gastroenterostomy. As a general rule gastroenterostomies constructed for bypass of malignancy are usually placed on the anterior wall of the stomach (in spite of the fact that they empty less well). A Roux en Y bypass may also be undertaken, but the increased number of anastomoses for this, in malignant disease that is being palliated, is probably not justified.<br><br><b>Congenital Hypertrophic Pyloric Stenosis<\/b><br>This is typically a disease of infancy. Most babies will present around 6 weeks of age with projectile non bile stained vomiting. It has an incidence of 2.4 per 1000 live births and is more common in males. Diagnosis is usually made by careful history and examination and a mass may be palpable in the epigastrium (often cited seldom felt!). The most important diagnostic test is an ultrasound that usually demonstrates the hypertrophied pylorus. Blood tests may reveal a hypochloraemic metabolic alkalosis if the vomiting is long standing. Once the diagnosis is made the infant is resuscitated and a pyloromyotomy is performed (either open or laparoscopically). Once treated there are no long term sequelae."}, {"name": "Insulinoma", "questions": [{"number": 14, "topic": "Insulinoma", "stem_html": "A 45 year old man with recurrent episodes of confusion is found to have a 1.5cm insulinoma of the pancreatic head. What is the most appropriate management?", "options": [{"label_html": "Whipples procedure", "is_correct": false}, {"label_html": "Total pancreatectomy and en bloc splenectomy", "is_correct": false}, {"label_html": "Pylorus preserving pancreatico duodenectomy", "is_correct": false}, {"label_html": "Enucleation of the lesion", "is_correct": true}, {"label_html": "External beam radiotherapy", "is_correct": false}], "correct_index": 3, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Most insulinomas are benign and radical resection is therefore not justified.<\/div>"}], "note_html": "- Insulin producing tumours of the pancreatic β cells<br><ul><li>Incidence of 1 per 1,000,000 per year<\/li><li>90% of lesions are benign<\/li><li>Most tumours less than 2cm in size<\/li><li>Between 5 and 10% have MEN type 1<\/li><li>75% of patients with MEN 1 will develop pancreatic islet cell tumours<\/li><\/ul><br><b>Typical features of insulinoma<\/b><br><div class=\"table-responsive\"><table class=\"tb\"><tbody><tr><td>Symptomatic hypoglycaemia during fasting<br>Concomitant blood glucose of less than 3mmol/L<br>Relief of hypoglycaemia by use of glucose<\/td><\/tr><\/tbody><\/table><\/div><br><b>Testing<\/b><br>When neuroglycopenic symptoms occur blood is taken for serum insulin levels, serum glucose, C-peptide and pro insulin concentrations. The plasma insulin concentration is &gt;10 micro U/ml in patients with the disorder.<br><br><b>Tumour localisation<\/b><br><ul><li>USS (25% accuracy), endoscopic USS better (75% accuracy)<\/li><li>CT scanning (pancreatic protocol=40% accuracy)<\/li><li>Malignant insulinomas are larger and diagnostic accuracy with MRI is nearly 100% in such cases<\/li><li>Somatostatin receptor scintigraphy (50% accuracy)<\/li><\/ul><br><b>Treatment<\/b><br>Since the majority of tumours are benign; the blind segmental resection of the pancreas (e.g. Whipples) cannot be justified, this may be considered acceptable for malignant lesions. The best approach at laparotomy is to corroborate pre operative imaging with intraoperative ultrasonography to identify the lesion. Tumours may be close to the pancreatic duct and this must be appreciated by the operating surgeon. The perioperative use of octreotide reduces the amount of pancreatic drainage, but not overall complications."}, {"name": "HIV: biliary and pancreatic disease", "questions": [{"number": 15, "topic": "HIV: biliary and pancreatic disease", "stem_html": "A 34-year-old HIV positive man is referred to the surgical out patient department with jaundice and abnormal liver function tests.  Liver function tests are as follows:<br><br><div class=\"table-responsive\"><table class=\"tb\"><tbody><tr><td>Albumin<\/td><td>34 g/l<\/td><\/tr><tr><td>ALP<\/td><td>540 iu/l<\/td><\/tr><tr><td>Bilirubin<\/td><td>67 µmol/l<\/td><\/tr><tr><td>ALT<\/td><td>45 iu/l<\/td><\/tr><\/tbody><\/table><\/div><br>What is the most likely diagnosis?", "options": [{"label_html": "Hepatic abscess", "is_correct": false}, {"label_html": "Fungal obstruction of the bile duct", "is_correct": false}, {"label_html": "Duodenal adenoma", "is_correct": false}, {"label_html": "Primary biliary cirrhosis", "is_correct": false}, {"label_html": "Sclerosing cholangitis", "is_correct": true}], "correct_index": 4, "explanation_html": "The LFTs clearly show a cholestatic picture. Given the background of HIV the most likely cause is sclerosing cholangitis."}], "note_html": "The most common cause of biliary disease in patients with HIV is sclerosing cholangitis due to infections such as CMV, Cryptosporidium and Microsporidia<br><br>Pancreatitis in the context of HIV infection may be secondary to anti-retroviral treatment (especially didanosine) or by opportunistic infections e.g. CMV"}, {"name": "Nutrition options in surgical patients", "questions": [{"number": 16, "topic": "Nutrition options in surgical patients", "stem_html": "A 45 year old man undergoes an upper gastrointestinal endoscopy for a benign oesophageal stricture. This is dilated and he suffers an iatrogenic perforation at the site. His imaging shows a small contained leak and a small amount of surgical emphysema. What is the most appropriate nutritional option?", "options": [{"label_html": "Nil by mouth and intravenous fluids alone", "is_correct": false}, {"label_html": "Intravenous fluids and sips orally", "is_correct": false}, {"label_html": "Total parenteral nutrition", "is_correct": true}, {"label_html": "Nasogastric feeding", "is_correct": false}, {"label_html": "PEG tube feeding", "is_correct": false}], "correct_index": 2, "explanation_html": "Iatrogenic perforations of the oesophagus may be managed non operatively. This usually involves a nil by mouth regime, tube thoracostomy may be needed. Total parenteral nutrition is the safest option. Insertion of NG feeding tubes and PEG tubes may complicate the process or allow feed to enter the perforation site."}, {"number": 17, "topic": "Nutrition options in surgical patients", "stem_html": "A 70 year old lady has a cerebrovascular accident and has been recovering in hospital for the past 3 weeks. She has been deemed to have an unsafe swallow. What is the best option for long term feeding?", "options": [{"label_html": "Endoscopically inserted PEG feeding tube", "is_correct": true}, {"label_html": "Long term fine bore nasogastric feeding tube", "is_correct": false}, {"label_html": "Surgically inserted feeding jejunostomy tube", "is_correct": false}, {"label_html": "TPN via a central vein", "is_correct": false}, {"label_html": "TPN via a peripheral cannula", "is_correct": false}], "correct_index": 0, "explanation_html": "At 3 weeks, it is unlikely that feeding orally is going to resume and therefore a definitive long term feeding solution is needed. A PEG is favored over a feeding jejunostomy in such circumstances."}, {"number": 18, "topic": "Nutrition options in surgical patients", "stem_html": "A 73 year old man is recovering from a stroke but is deemed to have an unsafe swallow. Apart from his CVA his past medical history includes rate controlled atrial fibrillation and a previous oesophagectomy. What is the best option for long term feeding?", "options": [{"label_html": "Endoscopically inserted PEG tube", "is_correct": false}, {"label_html": "Surgically inserted PEG tube", "is_correct": false}, {"label_html": "Surgically inserted feeding jejunostomy tube", "is_correct": true}, {"label_html": "TPN via peripheral venous access system", "is_correct": false}, {"label_html": "TPN via a central line", "is_correct": false}], "correct_index": 2, "explanation_html": "Most patients with a previous CVA can undergo PEG tube insertion. However, an oesophagectomy will preclude this as the stomach will now be intrathoracic."}], "note_html": "<div class=\"table-responsive\"><table class=\"table table-bordered\"><tbody><tr><td><b>Oral intake<\/b><\/td><td><ul><li>Easiest option<\/li><li>May be supplemented by calorie rich dietary supplements<\/li><li>May contra indicated following certain procedures<\/li><\/ul><\/td><\/tr><tr><td><b>Naso gastric feeding<\/b><\/td><td><ul><li>Usually administered via fine bore naso gastric feeding tube<\/li><li>Complications relate to aspiration of feed or misplaced tube<\/li><li>May be safe to use in patients with impaired swallow<\/li><li>Often contra indicated following head injury due to risks associated with tube insertion<\/li><\/ul><\/td><\/tr><tr><td><b>Naso jejunal feeding<\/b><\/td><td><ul><li>Avoids problems of feed pooling in stomach (and risk of aspiration)<\/li><li>Insertion of feeding tube more technically complicated (easiest if done intra operatively)<\/li><li>Safe to use following oesophagogastric surgery<\/li><\/ul><\/td><\/tr><tr><td><b>Feeding jejunostomy<\/b><\/td><td><ul><li>Surgically sited feeding tube<\/li><li>May be used for long term feeding<\/li><li>Low risk of aspiration and thus safe for long term feeding following upper GI surgery<\/li><li>Main risks are those of tube displacement and peritubal leakage immediately following insertion, which carries a risk of peritonitis<\/li><\/ul><\/td><\/tr><tr><td><b>Percutaneous endoscopic gastrostomy<\/b><\/td><td><ul><li>Combined endoscopic and percutaneous tube insertion<\/li><li>May not be technically possible in those patients who cannot undergo successful endoscopy<\/li><li>Risks include aspiration and leakage at the insertion site<\/li><\/ul><\/td><\/tr><tr><td><b>Total parenteral nutrition<\/b><\/td><td><ul><li>The definitive option in those patients in whom enteral feeding is contra indicated<\/li><li>Individualised prescribing and monitoring needed<\/li><li>Should be administered via a central vein as it is strongly phlebitic<\/li><li>Long term use is associated with fatty liver and deranged LFT's<\/li><\/ul><\/td><\/tr><\/tbody><\/table><\/div>"}, {"name": "Oesophageal cancer - treatment", "questions": [{"number": 19, "topic": "Oesophageal cancer - treatment", "stem_html": "A 62 year old man presents with dysphagia and on investigation is found to have a stenosing tumour of the mid oesophagus with a single metastasis in the right lobe of the liver (segment VI). What is the most appropriate treatment?", "options": [{"label_html": "Radical radiotherapy to the oesophagus and liver resection", "is_correct": false}, {"label_html": "Insertion of self expanding metallic stent", "is_correct": true}, {"label_html": "Liver resection and subsequent oesophageal resection", "is_correct": false}, {"label_html": "Oesophageal resection and subsequent liver resection", "is_correct": false}, {"label_html": "Combined oesophageal and liver resection if cardiopulmonary exercise testing shows the patient is fit enough", "is_correct": false}], "correct_index": 1, "explanation_html": "Distant disease in patients with oesophageal cancer is a contra indication to a resectional strategy and downstaging with chemotherapy is not routinely undertaken in this age group as the results are poor. An expanding stent will provide rapid and durable palliation."}, {"number": 20, "topic": "Oesophageal cancer - treatment", "stem_html": "A 56 year old man presents with odynophagia and on investigation is found to have a squamous cell carcinoma of the upper third of the oesophagus. Staging investigations are negative for metastatic disease. What is the most appropriate course of action?", "options": [{"label_html": "Segmental resection of the proximal oesophagus", "is_correct": false}, {"label_html": "Radical radiotherapy alone", "is_correct": false}, {"label_html": "Combined radical radiotherapy and chemotherapy", "is_correct": true}, {"label_html": "Ivor Lewis oesophagectomy", "is_correct": false}, {"label_html": "Photodynamic therapy", "is_correct": false}], "correct_index": 2, "explanation_html": "Oesophageal SCC can be managed with radical chemoradiotherapy. Radiotherapy alone is not usually curative. Segmental resection of the upper oesophagus is not practiced. An Ivor Lewis oesophagectomy would only address distal disease."}, {"number": 21, "topic": "Oesophageal cancer - treatment", "stem_html": "A 58 year old man with long standing Barretts oesophagus is found to have a nodule on endoscopic surveillence. Biopsies and endoscopic USS suggest this is at most a 1cm foci of T1 disease in the distal oesophagus 4 cm proximal to the oesophagogastric junction. What is the most appropriate course of action?", "options": [{"label_html": "Radical radiotherapy alone", "is_correct": false}, {"label_html": "Total oesophagectomy and gastric pull up", "is_correct": false}, {"label_html": "Endoscopic mucosal resection", "is_correct": true}, {"label_html": "Combined radical chemo radiotherapy", "is_correct": false}, {"label_html": "Sub total oesophagectomy", "is_correct": false}], "correct_index": 2, "explanation_html": "EMR is an reasonable option for small areas of malignancy occurring on a background of Barretts change. Segmental resections of the oesophagus are not practised and the only resectional strategy in this scenario would be an Ivor- Lewis type resection. The morbidity such a strategy in T1 disease is probably not justified."}], "note_html": "Treatments for SCC's and adenocarcinomas of the oesophagus differ. This is primarily due to the positive outcomes that are observed when localised SCC's (particularly of the proximal oesophagus) are treated with radical chemoradiotherapy (obviating the need for surgery). <br>Only those patients whose staging investigations are negative for metastatic disease should be considered for surgery. <br><br><b>Surgical options<\/b><br><div class=\"table-responsive\"><table class=\"table table-bordered\"><tbody><tr><td><b>Endoscopic mucosal resection<\/b><\/td><td>Treatment for early localised adenocarcinoma of the distal oesophagus. Survival mirrors that of surgical resection for Tis and T1 disease<\/td><\/tr><tr><td><b>Transhiatal oeosphagectomy<\/b><\/td><td>Most commonly used for junctional (type II) (1) tumours where limited thoracic oesophageal resection is required. Less morbidity than two field oesophagectomy<\/td><\/tr><tr><td><b>Ivor Lewis oesophagectomy<\/b><\/td><td>Two stage approach for middle and distal tumours. Very commonly performed, intrathoracic anastomosis will result in mediastinitis in event of anastomotic leak. Lower incidence of recurrent laryngeal nerve injury<\/td><\/tr><tr><td><b>McKeown oesophagectomy<\/b><\/td><td>Three field approach, may be useful for proximal tumours. Anastomotic leakage is less serious. Higher incidence of recurrent laryngeal nerve injury<\/td><\/tr><\/tbody><\/table><\/div><br><b>Neoadjuvent and adjuvent treatment<\/b><br><ul><li>Neoadjuvent radiotherapy alone prior to resection confers little benefit and is not routinely performed (2)<\/li><li>Preoperative chemotherapy is associated with a survival advantage (OE02 trial)<\/li><li>Peri operative (pre and post operative) chemotherapy confers a survival advantage in junctional tumours<\/li><li>Post operative chemotherapy is not generally recommended following oesophageal resections outside clinical trials<\/li><\/ul><br><b>Palliation strategies<\/b><br><ul><li>Combination chemotherapy improves quality of life and survival in non operable disease (3)<\/li><li>Trastuzumab may improve survival in patients with HER 2 positive tumours<\/li><li>Oesophageal intubation with self expanding metal stents is the treatment of choice in patients with occluding tumours &gt;2cm from the cricopharyngeus<\/li><li>Covered metal stents are useful in cases of malignant fistulas<\/li><li>Laser therapy and argon plasma coagulation may be useful as therapies for tumour overgrowth and bleeding<\/li><li>Photodynamic therapy and ethanol injections confer little benefit and should not be routinely used<\/li><\/ul><br><b>References<\/b><br>1. Hulscher JB, van Sandick JW, de Boer AG, <i>et al<\/i>. Extended transthoracic resection compared with limited transhiatal resection for adenocarcinoma of the esophagus. <i>N Engl J Med<\/i> 2002;347:1662-9<br>2. Deng HY, Wang WP, Wang YC, Hu WP, Ni PZ, Lin YD, Chen LQ. Neoadjuvant chemoradiotherapy or chemotherapy? A comprehensive systematic review and meta-analysis of the options for neoadjuvant therapy for treating oesophageal cancer. <i>Eur J Cardiothorac<\/i> Surg. 2017 Mar 1;51(3):421-431. doi: 10.1093/ejcts/ezw315.<br>3.Khin MO, Bromham N, Harrison M, Eadon H. Assessment and management of oesophago-gastric cancer: summary of NICE guidance.  <i>BMJ<\/i>. 2018 Jan 29;360:k213. doi: 10.1136/bmj.k213."}, {"name": "Oesophageal disease", "questions": [{"number": 22, "topic": "Oesophageal disease", "stem_html": "A 45 year old man has been troubled with dysphagia for many years. He is known to have achalasia and has had numerous dilatations. Over the past 6 weeks his dysphagia has worsened. At endoscopy, a friable mass is noted in the proximal oesophagus. What is the most likely diagnosis?", "options": [{"label_html": "Adenocarcinoma", "is_correct": false}, {"label_html": "Squamous cell carcinoma", "is_correct": true}, {"label_html": "Leiomyoma", "is_correct": false}, {"label_html": "Barretts oesophagus", "is_correct": false}, {"label_html": "Sarcoma", "is_correct": false}], "correct_index": 1, "explanation_html": "The risk of squamous cell carcinoma of the oesophagus is increased in people with achalasia. The condition often presents late and has a poor prognosis."}, {"number": 23, "topic": "Oesophageal disease", "stem_html": "An 80 year old lady is being investigated for dysphagia of long duration. An OGD is attempted. The procedure is complicated and there is significant difficulty in intubating the oesophagus. Eventually, the procedure is abandoned and the patient returns to the ward. Here it is noted that a significant amount of surgical emphysema is present. Which of the diagnoses listed below is most likely to explain this presentation?", "options": [{"label_html": "Globus", "is_correct": false}, {"label_html": "Barretts oesophagus", "is_correct": false}, {"label_html": "Squamous cell carcinoma", "is_correct": false}, {"label_html": "Pharyngeal pouch", "is_correct": true}, {"label_html": "Schatzki ring", "is_correct": false}], "correct_index": 3, "explanation_html": "The early difficulty in intubation is most likely to be the result of pharyngeal pouch. Schatzki rings can cause problems but can usually be visualized. Whilst a squamous cell carcinoma can be perforated, it would be unusual for this to occur spontaneously as perforation of cancer typically occurs after attempted therapeutic intervention."}, {"number": 24, "topic": "Oesophageal disease", "stem_html": "An 80 year old lady is being investigated for dysphagia of long duration. An OGD is attempted. The procedure is complicated and there is significant difficulty in intubating the oesophagus. Eventually, the procedure is abandoned and the patient returns to the ward. Here it is noted that a significant amount of surgical emphysema is present. Which of the diagnoses listed below is most likely to explain this presentation?", "options": [{"label_html": "Globus", "is_correct": false}, {"label_html": "Barretts oesophagus", "is_correct": false}, {"label_html": "Squamous cell carcinoma", "is_correct": false}, {"label_html": "Pharyngeal pouch", "is_correct": true}, {"label_html": "Schatzki ring", "is_correct": false}], "correct_index": 3, "explanation_html": "The early difficulty in intubation is most likely to be the result of pharyngeal pouch. Schatzki rings can cause problems but can usually be visualized. Whilst a squamous cell carcinoma can be perforated, it would be unusual for this to occur spontaneously as perforation of cancer typically occurs after attempted therapeutic intervention."}, {"number": 25, "topic": "Oesophageal disease", "stem_html": "A 76 year old man presents with a 5 week history of progressive dysphagia. An upper GI endoscopy is performed and the surgeon notices changes that are compatible with Barretts oesophagus. The oesophagus is filled with food debris that cannot be cleared and the endoscope encounters a resistance that cannot be passed. What is the most likely underlying diagnosis?", "options": [{"label_html": "Adenocarcinoma", "is_correct": true}, {"label_html": "Squamous cell carcinoma", "is_correct": false}, {"label_html": "Achalasia cardia", "is_correct": false}, {"label_html": "Nutcracker oesophagus", "is_correct": false}, {"label_html": "Benign peptic stricture", "is_correct": false}], "correct_index": 0, "explanation_html": "A short history of dysphagia together with food debris and Barretts changes makes adenocarcinoma the most likely diagnosis."}, {"number": 26, "topic": "Oesophageal disease", "stem_html": "A 56 year old lady presents with a 6 month history of dysphagia to solids. She has a long history of retrosternal chest pain that is worse on lying flat and bending forwards. She undergoes an upper GI endoscopy where a smooth stricture is identified. What is the most likely diagnosis?", "options": [{"label_html": "Globus", "is_correct": false}, {"label_html": "Adenocarcinoma", "is_correct": false}, {"label_html": "Leiomyoma", "is_correct": false}, {"label_html": "Benign stricture", "is_correct": true}, {"label_html": "Squamous cell carcinoma", "is_correct": false}], "correct_index": 3, "explanation_html": "A six month history of dysphagia is a relatively long history and makes malignancy less likely. The lesion should be biopsied for histological confirmation. Long standing oesophagitis may be complicated by the development of strictures, Barretts oesophagus or both."}, {"number": 27, "topic": "Oesophageal disease", "stem_html": "A 55 year old man presents with dysphagia and is suspected of having achalasia. Which of the features listed below are seen in this condition?", "options": [{"label_html": "Lower oesophageal stricture", "is_correct": false}, {"label_html": "Hypertrophy of the lower oesophageal sphincter", "is_correct": false}, {"label_html": "Exaggerated oesophageal peristalsis", "is_correct": false}, {"label_html": "Degeneration of ganglion cells in the myenteric plexus in the oesophageal wall", "is_correct": true}, {"label_html": "Extrinsic compression of the mid oesophagus", "is_correct": false}], "correct_index": 3, "explanation_html": "Achalasia results from progressive degeneration of ganglion cells in the myenteric plexus in the oesophageal wall, leading to failure of relaxation of the lower oesophageal sphincter (LES), accompanied by a loss of peristalsis in the distal esophagus. There is not a stricture, is a failure of muscle relaxation. Decreased peristaltic waves are seen."}], "note_html": "<div class=\"table-responsive\"><table class=\"tlarge table table-striped table-bordered\" data-role=\"table\" id=\"tableid1\"><thead><tr><th><b>Disorder<\/b><\/th><th><b>Features<\/b><\/th><\/tr><\/thead><tbody><tr><td>Mallory-Weiss Tear<\/td><td>Usually history of antecedent vomiting. This is then followed by the vomiting of a small amount of blood. There is usually little in the way of systemic disturbance or prior symptoms.<\/td><\/tr><tr><td>Hiatus hernia of gastric cardia<\/td><td>Often longstanding history of dyspepsia, patients are often overweight. Uncomplicated hiatus hernias should not be associated with dysphagia or haematemesis.<\/td><\/tr><tr><td>Oesophageal rupture<\/td><td>Complete disruption of the oesophageal wall in absence of pre-existing pathology. Left postero-lateral oesophageal is commonest site (2-3cm from OG junction). Suspect in patients with severe chest pain without cardiac diagnosis and signs suggestive of pneumonia without convincing history, where there is history of vomiting. Erect CXR shows infiltrate or effusion in 90% of cases(1).<\/td><\/tr><tr><td>Squamous cell carcinoma of the oesophagus<\/td><td>History of progressive dysphagia. Often signs of weight loss. Usually little or no history of previous GORD type symptoms.<\/td><\/tr><tr><td>Adenocarcinoma of the oesophagus<\/td><td>Progressive dysphagia, may have previous symptoms of GORD or Barretts oesophagus.<\/td><\/tr><tr><td>Peptic stricture<\/td><td>Longer history of dysphagia, often not progressive. Usually symptoms of GORD. Often lack systemic features seen with malignancy<\/td><\/tr><tr><td>Dysmotility disorder<\/td><td>May have dysphagia that is episodic and non progressive. Retrosternal pain may accompany the episodes.<\/td><\/tr><\/tbody><\/table><\/div><br><b>Diagnosis<\/b><br>Most of the differential diagnoses listed above can be accurately categorised by upper GI endoscopy (usually most patients). Where this fails to demonstrate a mechanical stricture the use of pH and manometry studies together with radiological contrast swallows will facilitate the diagnosis.<br><br><b>References<\/b><br>Blencowe N <i> et al<\/i>. Spontaneous oesophageal rupture. <i> BMJ<\/i> 2013 (346):38-39."}, {"name": "Pancreatic cancer", "questions": [{"number": 28, "topic": "Pancreatic cancer", "stem_html": "A 55 year old male is diagnosed with carcinoma of the head of the pancreas. He reports that his stool sticks to the commode and will not flush away. Loss of which of the following enzymes is most likely to be responsible for this problem?", "options": [{"label_html": "Lipase", "is_correct": true}, {"label_html": "Amylase", "is_correct": false}, {"label_html": "Trypsin", "is_correct": false}, {"label_html": "Elastase", "is_correct": false}, {"label_html": "None of the above", "is_correct": false}], "correct_index": 0, "explanation_html": "Loss of lipase is one of the key features in the development of steatorrhoea which typically consists of pale and offensive stools that are difficult to flush away."}, {"number": 29, "topic": "Pancreatic cancer", "stem_html": "A 59 year old man is diagnosed as having carcinoma of the pancreas with two malignant deposits in the right lobe of the liver. What is the most appropriate treatment?", "options": [{"label_html": "Palliative chemotherapy", "is_correct": true}, {"label_html": "Liver resection followed by chemotherapy", "is_correct": false}, {"label_html": "Simultaneous resection of liver metastasis and en bloc segmental pancreatic resection", "is_correct": false}, {"label_html": "Pancreatic resection followed by liver resection once recovered", "is_correct": false}, {"label_html": "Radical radiotherapy followed by surgery", "is_correct": false}], "correct_index": 0, "explanation_html": "Pancreatic cancer has a poor prognosis and most cases have metastatic disease at presentation. There is no role in pancreatic cancer for liver resection together with pancreatic surgery as there is no survival benefit. Most centres will offer palliative chemotherapy which has improved both longevity and quality of life."}, {"number": 30, "topic": "Pancreatic cancer", "stem_html": "The cell of origin in virtually all pancreatic carcinomas is which of the following?", "options": [{"label_html": "The acinar cells", "is_correct": false}, {"label_html": "The islet beta cells", "is_correct": false}, {"label_html": "The islet alpha cells", "is_correct": false}, {"label_html": "The interstitial fibroblasts", "is_correct": false}, {"label_html": "The ductular epithelium", "is_correct": true}], "correct_index": 4, "explanation_html": "Over 90% of pancreatic carcinomas are adenocarcinomas and are thus of ductular epithelial origin."}, {"number": 31, "topic": "Pancreatic cancer", "stem_html": "A 67 year old lady presents with jaundice and abdominal pain. Her investigations show a dilated common bile duct, a carcinoma of the pancreatic head compressing the pancreatic duct. Her liver contains bi-lobar metastasis. What is the most appropriate course of action?", "options": [{"label_html": "Undertake synchronous resection of liver metastases and pancreatoduodenectomy", "is_correct": false}, {"label_html": "Resection of liver metastases, chemotherapy and then resection of the primary lesion", "is_correct": false}, {"label_html": "Insertion of endoscopic biliary stent and consideration of palliative chemotherapy", "is_correct": true}, {"label_html": "Palliation alone", "is_correct": false}, {"label_html": "Insertion of PTC drain and palliation", "is_correct": false}], "correct_index": 2, "explanation_html": "The presence of metastatic disease in the context of pancreatic cancer renders this incurable and resection of metastatic disease is not appropriate."}, {"number": 32, "topic": "Pancreatic cancer", "stem_html": "A 48 year old lady is admitted with abdominal distension. On examination, she is cachectic and has ascites. Her CA19-9 returns highly elevated. What is the most likely cause?", "options": [{"label_html": "Metastatic ovarian cancer", "is_correct": false}, {"label_html": "Metastatic pancreatic cancer", "is_correct": true}, {"label_html": "Metastatic gastric cancer", "is_correct": false}, {"label_html": "Metastatic colonic cancer", "is_correct": false}, {"label_html": "Pseudomyxoma peritoneii", "is_correct": false}], "correct_index": 1, "explanation_html": "Although not specific CA 19-9 in the context of this history is highly suggestive of pancreatic cancer over the other scenarios."}, {"number": 33, "topic": "Pancreatic cancer", "stem_html": "A 42 year old woman with known multiple gastric ulcers attends the surgical out patient unit.  She has not improved despite 2 months of proton pump inhibitor treatment. She is found to have a gastrinoma.  Where are these most often located?", "options": [{"label_html": "Duodenum", "is_correct": true}, {"label_html": "Pancreatic head", "is_correct": false}, {"label_html": "Pancreatic tail", "is_correct": false}, {"label_html": "Jejunum", "is_correct": false}, {"label_html": "Gastric antrum", "is_correct": false}], "correct_index": 0, "explanation_html": "Most commonly found in the duodenum (in up to 50% patients), then the pancreas (approximately 20%).  Other ectopic areas include stomach, spleen, gallbladder and ovary<br><ul><li>Greater than 4/5 of gastrinomas are found within the triangle bounded by:<\/li><\/ul>Cystic and common bile duct (Top)<br>2nd and 3rd part of the duodenum (Bottom)<br>Neck and body of pancreas (Medial)<br><ul><li>Pancreatic gastrinomas are normally solitary and display malignant behaviour.<\/li><li>Zollinger Ellison syndrome is composed of the triad of:<\/li><\/ul>1. Non beta islet cell tumours of the pancreas<br>2. Hypergastrinaemia<br>3. Severe ulcer disease<br><br>Clinical features related to peptic ulcer disease. Diagnosis is based on 3 criteria:<br>1. Fasting hypergastrinaemia<br>2. Increased basal acid output<br>3. Secretin stimulation test positive<br><br>Management<br><ul><li>Resection if localised disease<\/li><\/ul>"}, {"number": 34, "topic": "Pancreatic cancer", "stem_html": "A 56 year old man presents with epigastric discomfort and episodes of migratory thrombophlebitis. On examination he is mildly jaundiced. A CT scan shows lymphadenopathy at the porta hepatis and a mass in the pancreatic head. Which of the following is the most likely underlying diagnosis?", "options": [{"label_html": "Squamous cell carcinoma of the pancreas", "is_correct": false}, {"label_html": "Adenocarcinoma of the pancreas", "is_correct": true}, {"label_html": "Insulinoma", "is_correct": false}, {"label_html": "Glucagonoma", "is_correct": false}, {"label_html": "Gastrinoma", "is_correct": false}], "correct_index": 1, "explanation_html": "Adenocarcinoma of the pancreas is the most likely diagnosis and migratory thrombophlebitis is associated with the condition. Squamous cells carcinoma is extremely uncommon in the pancreas. Gastrinoma are extremely rare and thus not the <i>most likely <\/i>diagnosis."}, {"number": 35, "topic": "Pancreatic cancer", "stem_html": "A 56 year old man presents with epigastric discomfort and episodes of migratory thrombophlebitis. On examination he is mildly jaundiced. A CT scan shows lymphadenopathy at the porta hepatis and a mass in the pancreatic head. Which of the following is the most likely underlying diagnosis?", "options": [{"label_html": "Squamous cell carcinoma of the pancreas", "is_correct": false}, {"label_html": "Adenocarcinoma of the pancreas", "is_correct": true}, {"label_html": "Insulinoma", "is_correct": false}, {"label_html": "Glucagonoma", "is_correct": false}, {"label_html": "Gastrinoma", "is_correct": false}], "correct_index": 1, "explanation_html": "Adenocarcinoma of the pancreas is the most likely diagnosis and migratory thrombophlebitis is associated with the condition. Squamous cells carcinoma is extremely uncommon in the pancreas. Gastrinoma are extremely rare and thus not the <i>most likely <\/i>diagnosis."}], "note_html": "- Adenocarcinoma<br><ul><li>Risk factors:  Smoking, diabetes, adenoma, familial adenomatous polyposis<\/li><li>Mainly occur in the head of the pancreas (70%)<\/li><li>Spread locally and metastasizes to the liver<\/li><li>Carcinoma of the pancreas should be differentiated from other periampullary tumours with better prognosis<\/li><\/ul><br><b>Clinical features<\/b><br><ul><li>Weight loss<\/li><li>Painless jaundice<\/li><li>Epigastric discomfort (pain usually due to invasion of the coeliac plexus is a late feature)<\/li><li>Pancreatitis<\/li><li>Trousseau's sign: migratory superficial thrombophlebitis<\/li><\/ul><br><b>Investigations<\/b><br><ul><li>USS: May miss small lesions<\/li><li>CT Scanning (pancreatic protocol). If unresectable on CT then no further staging needed<\/li><li>PET/CT for those with operable disease on CT alone<\/li><li>ERCP/ MRI for bile duct assessment<\/li><li>Staging laparoscopy to exclude peritoneal disease<\/li><\/ul>   <br><b>Management<\/b><br><ul><li>Head of pancreas: Whipple's resection (SE dumping and ulcers). Newer techniques include pylorus preservation and SMA/ SMV resection<\/li><li>Carcinoma body and tail: poor prognosis, distal pancreatectomy, if operable<\/li><li>Usually adjuvent chemotherapy for resectable disease<\/li><li>ERCP and stent for jaundice and palliation<\/li><li>Surgical bypass may be needed for duodenal obstruction<\/li><\/ul>"}, {"name": "Post gastrectomy syndromes", "questions": [{"number": 36, "topic": "Post gastrectomy syndromes", "stem_html": "A 38 year old woman undergoes a gastric bypass procedure. Post operatively she attends the clinic and complains that following a meal she develops dizziness and develops crampy abdominal pain. What is the most likely underlying explanation?", "options": [{"label_html": "Insulin resistance", "is_correct": false}, {"label_html": "Irritable bowel syndrome", "is_correct": false}, {"label_html": "Biliary colic", "is_correct": false}, {"label_html": "Dumping syndrome", "is_correct": true}, {"label_html": "Enterogastric reflux", "is_correct": false}], "correct_index": 3, "explanation_html": "Dumping syndrome, which can be divided into early and late, may occur following gastric surgery. It occurs as a result of a hyperosmolar load rapidly entering the proximal jejunum. Osmosis drags water into the lumen, this results in lumen distension (pain) and then diarrhoea. Excessive insulin release also occurs and results in hypoglycaemic symptoms."}, {"number": 37, "topic": "Post gastrectomy syndromes", "stem_html": "A 63 year old man undergoes a sub total gastrectomy for carcinoma of the stomach. Which of the sequelae below is least likely to occur?", "options": [{"label_html": "Metabolic bone disease", "is_correct": false}, {"label_html": "Bile reflux", "is_correct": false}, {"label_html": "Dumping syndrome", "is_correct": false}, {"label_html": "Zinc deficiency", "is_correct": true}, {"label_html": "B12 deficiency", "is_correct": false}], "correct_index": 3, "explanation_html": "Zinc is mainly absorbed in the duodenum and jejunum. Bile reflux may occur post gastrectomy. The risk of bile reflux is lower if a Roux en Y reconstruction is used."}], "note_html": "Post gastrectomy syndromes may vary slightly depending upon whether a total or partial gastrectomy is performed. A Roux en Y reconstruction generally gives the best functional outcomes. Where a gastrojejunostomy is performed as reconstruction following a distal gastrectomy the gastric emptying is generally better if the jejunal limbs are tunneled in the retrocolic plane. <br><br>The following may occur following gastrectomy:<br><ul><li>Small capacity (early satiety)<\/li><li>Dumping syndrome<\/li><li>Bile gastritis<\/li><li>Afferent loop syndrome<\/li><li>Efferent loop syndrome<\/li><li>Anaemia (B12 deficiency)<\/li><li>Metabolic bone disease<\/li><\/ul>"}, {"name": "Treatment of oesophageal cancer", "questions": [{"number": 38, "topic": "Treatment of oesophageal cancer", "stem_html": "During an Ivor Lewis Oesophagectomy for carcinoma of the lower third of the oesophagus which structure is divided to allow mobilisation of the oesophagus?", "options": [{"label_html": "Vagus nerve", "is_correct": false}, {"label_html": "Azygos vein", "is_correct": true}, {"label_html": "Right inferior lobar bronchus", "is_correct": false}, {"label_html": "Phrenic nerve", "is_correct": false}, {"label_html": "Pericardiophrenic artery", "is_correct": false}], "correct_index": 1, "explanation_html": "The azygos vein is routinely divided during an oesophagectomy to allow mobilisation. It arches anteriorly to insert into the SVC on the right hand side."}, {"number": 39, "topic": "Treatment of oesophageal cancer", "stem_html": "A 52 year old man with long standing Barretts oesophagus is diagnosed with high grade dysplasia on recent endoscopy. The lesions are multifocal and mainly distally sited. What is the best course of action?", "options": [{"label_html": "Endoscopic surveillance at 3 monthly intervals", "is_correct": false}, {"label_html": "Photodynamic therapy", "is_correct": false}, {"label_html": "Nissens fundoplication", "is_correct": false}, {"label_html": "Oesophagectomy", "is_correct": true}, {"label_html": "External beam radiotherapy", "is_correct": false}], "correct_index": 3, "explanation_html": "Some may argue for local therapy. However, in young patients who are otherwise fit, multifocal disease such as this should probably be resected."}, {"number": 40, "topic": "Treatment of oesophageal cancer", "stem_html": "An 82 year old man presents with dysphagia. He is investigated and found to have an adenocarcinoma of the distal oesophagus. His staging investigations have revealed a solitary metastatic lesion in the right lobe of his liver. What is the best course of action?", "options": [{"label_html": "Arrange a PET CT scan", "is_correct": false}, {"label_html": "Arrange an endoscopic ultrasound", "is_correct": false}, {"label_html": "Assess fitness for liver resection prior to oesophagectomy", "is_correct": false}, {"label_html": "Assess fitness for oesophagectomy followed by liver resection", "is_correct": false}, {"label_html": "Insertion of metallic stent", "is_correct": true}], "correct_index": 4, "explanation_html": "The presence of distant disease in the context of oesophageal cancer renders him incurable. Further staging is not needed and surgery is not an option. Palliation is the preferred option and a metallic stent will achieve this."}, {"number": 41, "topic": "Treatment of oesophageal cancer", "stem_html": "An 83 year old lady with long standing Barretts oesophagus is diagnosed with a 1cm focus of high grade dysplasia 3cm from the gastrooesophageal junction. What is the best course of action?", "options": [{"label_html": "Endoscopic mucosal resection", "is_correct": true}, {"label_html": "Photodynamic therapy", "is_correct": false}, {"label_html": "Distal oesophagectomy", "is_correct": false}, {"label_html": "Total oesophagectomy", "is_correct": false}, {"label_html": "Radiotherapy", "is_correct": false}], "correct_index": 0, "explanation_html": "As she is elderly and the disease localised EMR is an appropriate first line step.<br>The technique involves raising the mucosa containing the lesion and then using an endoscopic snare to remove it. This technique is therefore minimally invasive. However, it is only suitable for early superficial lesions. Deeper invasion would carry a high risk of recurrence."}], "note_html": "- In general resections are not offered to those patients with distant metastasis, and usually not to those with N2 disease.<br><ul><li>Local nodal involvement is not in itself a contra indication to resection.<\/li><li>Surgical resection is the mainstay of treatment.<\/li><li>Neoadjuvent chemotherapy is given in most cases prior to surgery. <\/li><li>In situ disease may be managed by endoscopic mucosal resection, although this is still debated.<\/li><li>In patients with lower third lesions an Ivor - Lewis type procedure is most commonly performed. Very distal tumours may be suitable to a transhiatal procedure. Which is an attractive option as the penetration of two visceral cavities required for an Ivor- Lewis type procedure increases the morbidity considerably.<\/li><li>More proximal lesions will require a total oesphagectomy (Mckeown type) with anastomosis to the cervical oesophagus. <\/li><li>Patients with unresectable disease may derive benefit from local ablative procedures, palliative chemotherapy or stent insertion.<\/li><\/ul><br><b>Operative details of Ivor- Lewis procedure<\/b><br><ul><li>Combined laparotomy and right thoracotomy<\/li><\/ul><br><b>Indication<\/b><br><ul><li> Lower and middle third oesophageal tumours<\/li><\/ul><br><b>Preparation<\/b><br><ul><li>Staging with a combination of CT chest abdomen and pelvis- if no metastatic disease detected then patients will undergo a staging laparoscopy to detect peritoneal disease. <\/li><li>If both these modalities are negative then patients will finally undergo a PET CT scan to detect occult metastatic disease. Only in those whom no evidence of advanced disease is detected will proceed to resection.<\/li><li>Patients receive a GA, double lumen endotracheal tube to allow for lung deflation, CVP and arterial monitoring.<\/li><\/ul><br><b>Procedure<\/b> <br><ul><li>A rooftop incision is made to access the stomach and duodenum. <\/li><\/ul><br><b>Laparotomy<\/b>  To mobilize the stomach<br><ul><li>The greater omentum is incised away from its attachment to the right gastroepiploic vessels along the greater curvature of the stomach. <\/li><li>Then the short gastric vessels are ligated and detached from the greater curvature from the spleen. <\/li><li>The lesser omentum is incised, preserving the right gastric artery. <\/li><li>The retroperitoneal attachments of the duodenum in its second and third portions are incised, allowing the pylorus to reach the oesophageal hiatus.  Some surgeons perform a pyloroplasty at this point to facilitate gastric emptying.  <\/li><li>The left gastric vessels are then ligated, avoiding any injury to the common hepatic or splenic arteries. Care must be taken to avoid inadvertently devascularising the liver owing to variations in anatomy.<\/li><\/ul><br><b>Right Thoracotomy<\/b> Oesophageal resection and oesophagogastric anastomosis<br><ul><li>Through 5th intercostal space<\/li><li>Dissection performed 10cm above the tumour<\/li><li>This may involve transection of the azygos vein. <\/li><li>The oesophagus is then removed with the stomach creating a gastric tube.  <\/li><li>An anastomosis is created.<\/li><\/ul><br>The chest is closed with underwater seal drainage and tube drains to the abdominal cavity.<br><br><b>Post operatively<\/b><br><ul><li>Patients will typically recover in ITU initially.<\/li><li>A nasogastric tube will have been inserted intraoperatively and must remain in place during the early phases of recovery. <\/li><li>Post operatively these patients are at relatively high risk of developing complications:<\/li><\/ul><br>* Atelectasis- due to the effects of thoracotomy and lung collapse <br>* Anastomotic leakage. The risk is relatively high owing to the presence of a relatively devascularised stomach. Often the only blood supply is from the gastroepiploic artery as all others will have been divided. If a leak does occur then many will attempt to manage conservatively with prolonged nasogastric tube drainage and TPN. The reality is that up to 50% of patients developing an anastomotic leak will not survive to discharge.<br>* Delayed gastric emptying (may be avoided by performing a pyloroplasty)."}, {"name": "Upper gastrointestinal bleeding", "questions": [{"number": 42, "topic": "Upper gastrointestinal bleeding", "stem_html": "A 63 year old man is admitted with a hematemesis. An upper GI endoscopy is performed and an ulcer is seen at the greater curvature of the stomach that is actively bleeding. What vessel is most likely to be involved?", "options": [{"label_html": "Gastroduodenal artery", "is_correct": false}, {"label_html": "Gastroepiploic artery", "is_correct": true}, {"label_html": "Short gastric artery", "is_correct": false}, {"label_html": "Left gastric artery", "is_correct": false}, {"label_html": "Pancreaticoduodenal artery", "is_correct": false}], "correct_index": 1, "explanation_html": "The greater curvature of the stomach is closely related to the gastroepiploic artery. The short gastric vessels are closely related to the fundus."}, {"number": 43, "topic": "Upper gastrointestinal bleeding", "stem_html": "Which of the following variables is not included in the Rockall score?", "options": [{"label_html": "Congestive cardiac failure", "is_correct": false}, {"label_html": "Liver failure", "is_correct": false}, {"label_html": "Systolic blood pressure &lt; 100mmHg", "is_correct": false}, {"label_html": "Aspirin usage", "is_correct": true}, {"label_html": "Age", "is_correct": false}], "correct_index": 3, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Patients should have their Rockall score calculated following endoscopy for upper GI haemorrhage<br><br><b>Mnemonic for Rockall score<\/b><br>ABCDE <br>A: Age <br>B: Blood pressure drop (Shock) <br>C: Co-morbidity <br>D: Diagnosis <br>E: Evidence of bleeding<\/div>Rockall Score<br><br>Applies to upper gastrointestinal bleeding<br><br><div class=\"table-responsive\"><table class=\"tlarge table table-striped table-bordered\" data-role=\"table\" id=\"tableid1\"><thead><tr><th><b>Variable<\/b><\/th><th><b>\tScore 0<\/b><\/th><th><b>\tScore 1<\/b><\/th><th><b>\tScore 2\t<\/b><\/th><th><b>Score 3<\/b><\/th><\/tr><\/thead><tbody><tr><td>Age<\/td><td>\t&lt;60<\/td><td>\t60-79\t<\/td><td>&gt;80\t<\/td><td><\/td><\/tr><tr><td>Shock<\/td><td>\tNone\t<\/td><td>Pulse &gt;100\t<\/td><td>Hypotension (systolic &lt;100mmHg)\t<\/td><td><\/td><\/tr><tr><td>Co-Morbidity\t<\/td><td>Nil or minimal\t<\/td><td><\/td><td>\tMajor organ disease  e.g. IHD, CCF<\/td><td>Renal or liver failure, metastatic cancer<\/td><\/tr><tr><td>Diagnosis<\/td><td>\tMallory-Weiss<\/td><td>\tAll<\/td><td>GI Cancer\t<\/td><td><\/td><\/tr><tr><td>Evidence of Bleeding<\/td><td>\tNone\t<\/td><td>\t<\/td><td>Clot, Blood, spurting vessel\t<\/td><td><\/td><\/tr><\/tbody><\/table><\/div><br>Score &lt;3 = Good prognosis (mortality approx. 2%)<br><br>Score &gt;8= High mortality (Mortality approx. 40%)"}, {"number": 44, "topic": "Upper gastrointestinal bleeding", "stem_html": "A 35 year old man is admitted with an episode of collapse and passage of malaena. He has been suffering from post prandial abdominal pain for 5 weeks and this is most marked several hours after eating. What is the most likely cause?", "options": [{"label_html": "Anterior duodenal ulcer", "is_correct": false}, {"label_html": "Posterior duodenal ulcer", "is_correct": true}, {"label_html": "Oesophageal varices", "is_correct": false}, {"label_html": "Dieulafoy lesion", "is_correct": false}, {"label_html": "Carcinoma of the stomach", "is_correct": false}], "correct_index": 1, "explanation_html": "Patients with duodenal ulcers will usually have a history of epigastric pain that occurs several hours after eating. The pain is often improved by eating food. They are most frequently located in the first part of the duodenum. Anteriorly sited ulcers may perforate and result in peritonitis, posteriorly sited ulcers may erode the gastroduodenal artery and present with haematemesis and/ or malaena."}, {"number": 45, "topic": "Upper gastrointestinal bleeding", "stem_html": "A 72 year old man is admitted with an episode of brisk haematemesis. Following resuscitation an upper GI endoscopy is performed and a prominent blood vessel is identified in the sub mucosa approximately 6 cm from the O-G junction on the lesser curve of the stomach. What is the most likely explanation for the bleeding?", "options": [{"label_html": "Gastric cancer", "is_correct": false}, {"label_html": "Portal gastropathy", "is_correct": false}, {"label_html": "Dieulafoy lesion", "is_correct": true}, {"label_html": "Linitis plastica", "is_correct": false}, {"label_html": "Gastritis", "is_correct": false}], "correct_index": 2, "explanation_html": "These small arterial lesions are a rare cause of bleeding and are characterised by a single large tortuous arteriole in the sub mucosa. Extra gastric lesions may occur."}, {"number": 46, "topic": "Upper gastrointestinal bleeding", "stem_html": "A 72 year old man is admitted with an episode of brisk haematemesis. Following resuscitation an upper GI endoscopy is performed and a prominent blood vessel is identified in the sub mucosa approximately 6 cm from the O-G junction on the lesser curve of the stomach. What is the most likely explanation for the bleeding?", "options": [{"label_html": "Gastric cancer", "is_correct": false}, {"label_html": "Portal gastropathy", "is_correct": false}, {"label_html": "Dieulafoy lesion", "is_correct": true}, {"label_html": "Linitis plastica", "is_correct": false}, {"label_html": "Gastritis", "is_correct": false}], "correct_index": 2, "explanation_html": "These small arterial lesions are a rare cause of bleeding and are characterised by a single large tortuous arteriole in the sub mucosa. Extra gastric lesions may occur."}, {"number": 47, "topic": "Upper gastrointestinal bleeding", "stem_html": "A 56 year old man is admitted with a profuse upper gastro intestinal haemorrhage. He is relatively malnourished and has evidence of gynaecomastia. An upper GI endoscopy is performed and views are limited because of the extensive amount of blood present. What is the most likely underlying cause?", "options": [{"label_html": "Boerhaave's perforation", "is_correct": false}, {"label_html": "Mallory Weiss tear", "is_correct": false}, {"label_html": "Oesophageal varices", "is_correct": true}, {"label_html": "Oesophageal cancer", "is_correct": false}, {"label_html": "Oesophagitis", "is_correct": false}], "correct_index": 2, "explanation_html": "Patients presenting with gastrointestinal bleeding and evidence of established liver disease may have portal hypertension and develop variceal haemorrhage. The patient may have evidence of jaundice, gynaecomastia, spider naevia, caput medusae and ascites. The bleeding is usually profuse and painless."}, {"number": 48, "topic": "Upper gastrointestinal bleeding", "stem_html": "A 53 year old man presents with dyspepsia. At upper GI endoscopy he has a punched out ulcer on the lesser curve of the stomach. It measures approximately 2cm in diameter and is seen to penetrate muscle with fibrosis present at the base. What is the most likely diagnosis?", "options": [{"label_html": "Curlings ulcer", "is_correct": false}, {"label_html": "Cushings ulcer", "is_correct": false}, {"label_html": "Chronic ulcer", "is_correct": true}, {"label_html": "Adenocarcinoma", "is_correct": false}, {"label_html": "Gastric lymphoma", "is_correct": false}], "correct_index": 2, "explanation_html": "Fibrosis is usually a sign of chronic ulcer. It should be biopsied carefully, a proton pump inhibitor started and re endoscopy should occur at 6 weeks."}, {"number": 49, "topic": "Upper gastrointestinal bleeding", "stem_html": "A 70 year old lady presents with an upper gastrointestinal haemorrhage. This surprises the surgical team as she has been taking a proton pump inhibitor at high dose since a recent admission with epigastric pain. At endoscopy, the duodenum is found to contain multiple ulcers. What is the most likely explanation?", "options": [{"label_html": "Infection with helicobacter pylori", "is_correct": false}, {"label_html": "Gastrinoma", "is_correct": true}, {"label_html": "Duodenal lymphoma", "is_correct": false}, {"label_html": "Adenocarcinoma of the duodenum", "is_correct": false}, {"label_html": "Alcoholism", "is_correct": false}], "correct_index": 1, "explanation_html": "Gastrinomas are typically the source of gastrin in Zollinger Ellison syndrome."}, {"number": 50, "topic": "Upper gastrointestinal bleeding", "stem_html": "Which of the following strategies is not employed in the management of acutely bleeding oesophageal varices?", "options": [{"label_html": "Endoscopic sclerotherapy", "is_correct": false}, {"label_html": "Intravenous vasopressin", "is_correct": false}, {"label_html": "Intravenous beta blockers", "is_correct": true}, {"label_html": "Endoscopic rubber band ligation of varices", "is_correct": false}, {"label_html": "Insertion of Sengstaken Blakemore tube", "is_correct": false}], "correct_index": 2, "explanation_html": "Intravenous beta blockers are not typically used to manage an acute event, their value lies in prophylaxis by lowering portal venous pressure."}, {"number": 51, "topic": "Upper gastrointestinal bleeding", "stem_html": "A 63 year old man undergoes an upper GI endoscopy and adrenaline injection for a large actively bleeding duodenal ulcer. He remains stable for 6 hours and the nurses then call because he has passed 400ml malaena and has become tachycardic (pulse rate 120) and hypotensive (Bp 80/40). What is the best option?", "options": [{"label_html": "Reassure that blood trapped in the upper portion of the gastrointestinal system will pass and that this episode will resolve with phosphate enema", "is_correct": false}, {"label_html": "Perform a repeat upper GI endoscopy", "is_correct": false}, {"label_html": "Perform a laparotomy and under-running of the ulcer", "is_correct": true}, {"label_html": "Administer tranexamic acid and intravenous proton pump inhibitors", "is_correct": false}, {"label_html": "Insert a Minnesota tube", "is_correct": false}], "correct_index": 2, "explanation_html": "The decision as to how best to manage patients with re-bleeding is difficult. Whilst it is tempting to offer repeat endoscopy, this intervention is best used on those with small ulcers. Large posteriorly sited duodenal ulcers are at high risk for re-bleeding and the timeframe of this event suggests that primary endoscopic haemostasis was inadequate. Surgery thus represents the safest way forward."}, {"number": 52, "topic": "Upper gastrointestinal bleeding", "stem_html": "A 45 year old man has a 4 week history of epigastric discomfort which is relieved by eating. He develops haematemesis and undergoes an upper GI endoscopy. An actively bleeding ulcer is noted in the first part of the duodenum. What is the best management?", "options": [{"label_html": "Whipples procedure", "is_correct": false}, {"label_html": "Truncal vagotomy and drainage", "is_correct": false}, {"label_html": "Distal gastrectomy", "is_correct": false}, {"label_html": "Injection with tranexamic acid", "is_correct": false}, {"label_html": "Injection with adrenaline", "is_correct": true}], "correct_index": 4, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Current guidance is that bleeding peptic ulcers should be treated with dual therapeutic modalities. Adrenaline injection should be augmented with an additional therapy such as endoscopic clipping where this is available. <\/div>Bleeding duodenal ulcers will usually undergo adrenaline injection. This may be augmented by the placement of endoscopic clips or heat therapy with endoscopic heater probes. Following these interventions patients should receive a proton pump inhibitor infusion. Those who re-bleed, may require surgery. For ulcers in this location, laparotomy, duodenotomy and under-running of the ulcer is usually performed."}], "note_html": "Patients may present with the following:<br><ul><li>Haematemesis and/ or malaena<\/li><li>Epigastric discomfort<\/li><li>Sudden collapse<\/li><\/ul><br>The extent to which these will occur will depend upon the source. Mortality is higher in patients presenting with haematemesis than malaena alone.<br><br><b>Oesophageal bleeding<\/b><br><div class=\"table-responsive\"><table class=\"table table-bordered\"><tbody><tr><td><b>Cause<\/b><\/td><td><b>\tPresenting features<\/b><\/td><\/tr><tr><td>Oesophagitis\t<\/td><td>Small volume of fresh blood, often streaking vomit. Malaena rare. Often ceases spontaneously. Usually history of antecedent GORD type symptoms.<\/td><\/tr><tr><td>Cancer<\/td><td>\tUsually small volume of blood, except as pre terminal event with erosion of major vessels. Often associated symptoms of dysphagia and constitutional symptoms such as weight loss. May be recurrent until malignancy managed.<\/td><\/tr><tr><td>Mallory Weiss Tear<\/td><td>\tTypically brisk small to moderate volume of bright red blood following bout of repeated vomiting. Malaena rare. Usually ceases spontaneously.<\/td><\/tr><tr><td>Varices\t<\/td><td>Usually large volume of fresh blood. Swallowed blood may cause malaena.  Often associated with haemodynamic compromise. May stop spontaneously but re-bleeds are common until appropriately managed.<\/td><\/tr><\/tbody><\/table><\/div><br><b>Gastric Bleeding<\/b><br><div class=\"table-responsive\"><table class=\"table table-bordered\"><tbody><tr><td><b>Cause<\/b><\/td><td><b>\tPresenting features<\/b><\/td><\/tr><tr><td>Gastric cancer\t<\/td><td>May be frank haematemesis or altered blood mixed with vomit. Usually prodromal features of dyspepsia and may have constitutional symptoms. Amount of bleeding variable but erosion of major vessel may produce considerable haemorrhage.<\/td><\/tr><tr><td>Dieulafoy Lesion\t<\/td><td>Often no prodromal features prior to haematemesis and malaena, but this arteriovenous malformation may produce quite considerable haemorrhage and may be difficult to detect endoscopically.<\/td><\/tr><tr><td>Diffuse erosive gastritis\t<\/td><td>Usually haematemesis and epigastric discomfort. Usually there is an underlying cause such as recent NSAID usage. Large volume haemorrhage may occur with considerable haemodynamic compromise.<\/td><\/tr><tr><td>Gastric ulcer<\/td><td>\tSmall low volume bleeds more common so would tend to present as iron deficiency anaemia. Erosion into a significant vessel may produce considerable haemorrhage and haematemesis.<\/td><\/tr><\/tbody><\/table><\/div><br><b>Duodenum<\/b><br>Most common cause of major haemorrhage is a posteriorly sited duodenal ulcer. However, ulcers at any site in the duodenum may present with haematemesis, malaena and epigastric discomfort. The pain of duodenal ulcer is slightly different to that of gastric ulcers and often occurs several hours after eating. Peri ampullary tumours may bleed but these are rare. In patients with previous abdominal aortic aneurysm surgery aorto-enteric fistulation remains a rare but important cause of major haemorrhage associated with high mortality.<br><br><b>Management<\/b><br><ul><li>Admission to hospital careful monitoring, cross match blood, check FBC, LFTs, U+E and Clotting (as a minimum)<\/li><li>Patients with on-going bleeding and haemodynamic instability are likely to require O negative blood pending cross matched blood<\/li><li>Early control of airway is vital (e.g. Drowsy patient with liver failure)<\/li><li>Patients with suspected varices should receive terlipressin prior to endoscopy<\/li><li>Ideally all patients admitted with upper gastrointestinal haemorrhage should undergo Upper GI endoscopy within 24 hours of admission. In those who are unstable this should occur immediately after resuscitation or in tandem with it. The endoscopy department is a potentially dangerous place for unstable patients and it may be safer to perform the endoscopy in theatre with an anaesthetist present.<\/li><li>Varices should be banded or subjected to sclerotherapy. If this is not possible owing to active bleeding then a Sengstaken- Blakemore tube (or Minnesota tube) should be inserted. This should be done with care; gastric balloon should be inflated first and oesophageal balloon second. Remember the balloon will need deflating after 12 hours (ideally sooner) to prevent necrosis. Portal pressure should be lowered by combination of medical therapy +/- TIPSS.<\/li><li>Patients with erosive oesophagitis / gastritis should receive a proton pump inhibitor.<\/li><li>Mallory Weiss tears will typically resolve spontaneously<\/li><li>Identifiable bleeding points should receive combination therapy of injection of adrenaline and either a thermal or mechanical treatment. All who have received intervention should receive a continuous infusion of a proton pump inhibitor (IV omeprazole for 72 hours) to reduce the re-bleeding rate. <\/li><li>Patients with diffuse erosive gastritis who cannot be managed endoscopically and continue to bleed may require gastrectomy<\/li><li>Bleeding ulcers that cannot be controlled endoscopically may require laparotomy and ulcer underruning<\/li><\/ul><br><b>Indications for surgery<\/b><br><ul><li>Patients &gt; 60 years<\/li><li>Continued bleeding despite endoscopic intervention <\/li><li>Recurrent bleeding <\/li><li>Known cardiovascular disease with poor response to hypotension <\/li><\/ul><br><b>Surgery<\/b><br><b>Duodenal ulcer<\/b><br>Laparotomy, duodenotomy and under running of the ulcer. If bleeding is brisk then the ulcer is almost always posteriorly sited and will have invaded the gastroduodenal artery. Large bites using 0 Vicryl are taken above and below the ulcer base to occlude the vessel.  The duodenotomy should be longitudinal but closed transversely to avoid stenosis. <br><br><b>For gastric ulcer<\/b><br>Under-running of the bleeding site <br>Partial gastrectomy-antral ulcer<br>Partial gastrectomy or under running the ulcer- lesser curve ulcer (involving left gastric artery)<br>Total gastrectomy if bleeding persists<br><br><br><b>Summary of Acute Upper GI bleeding recommendations:<\/b><br>The need for admission and timing of endoscopic intervention may be predicted by using the Blatchford score. This considers a patients Hb, serum urea, pulse rate and blood pressure. Those patients with a score of 0 are low risk, all others are considered high risk and require admission and endoscopy. <br>The requirement for pre endoscopic proton pump inhibition is contentious. In the UK the National Institute of Clinical Excellence guidelines suggest the pre endoscopic PPI  therapy is unnecessary. Whilst it is accepted that such treatment has no impact on mortality or morbidity a Cochrane review of this practice in 2007 did suggest that it reduced the stigmata of recent haemorrhage at endoscopy. As a result many will still administer PPI to patients prior to endoscopic intervention. <br>Following endoscopy it is important to calculate the Rockall score for patients to determine their risk of rebleeding and mortality. A score of 3 or less is associated with a rebleeding rate of 4% and a very low risk of mortality and identifies a group of patients suitable for early discharge. <br><br><b>References<\/b><br>1. http://www.sign.ac.uk/guidelines/fulltext/105/index.html<br>2. Joint Advisory Group on Endoscopy (JAG) Guidelines - http://www.thejag.org.uk<br>3. NICE Guideline: Management of acute upper GI bleeding. July 2012."}, {"name": "Zollinger - Ellison syndrome", "questions": [{"number": 53, "topic": "Zollinger - Ellison syndrome", "stem_html": "A 34 year old woman presents with recurrent peptic ulceration. She is on proton pump inhibitors and previously received Helicobacter pylori eradication therapy three months ago. Which of the following is likely to be raised on venous blood testing?", "options": [{"label_html": "Secretin", "is_correct": false}, {"label_html": "Cholecystokinin", "is_correct": false}, {"label_html": "Gastrin", "is_correct": true}, {"label_html": "Amylase", "is_correct": false}, {"label_html": "Histamine", "is_correct": false}], "correct_index": 2, "explanation_html": "It is likely that this patient has an MEN I type gastrinoma (female, young age). As such, the serum gastrin levels are likely to be elevated."}], "note_html": "- Gastrin-secreting tumor (gastrinoma) of pancreas or duodenum. Acid hypersecretion causes recurrent ulcers in duodenum and jejunum. Presents with abdominal pain (peptic ulcer disease, distal ulcers), diarrhoea (malabsorption)<br><ul><li>75% are sporadic and the 25% associated with MEN I<\/li><li>Mean age of presentation is 50 years (earlier in MEN I)<\/li><li>60% are malignant<\/li><li>They are typically found in the gastrinoma triangle. This is formed by the junction of cystic duct and CBD, junction of D2 and D3, junction of neck and body of pancreas.<\/li><li>Imaging is with triple phase CT and endoscopic USS<\/li><li>Serum sampling of serum gastrin levels will show these to be elevated. A secretin stimulation test is sometimes performed as gastrin levels will remain elevated following administration of secretin which usually suppresses gastrin.<\/li><li>Treatment is with resection.<\/li><\/ul>"}]}</script>
+  <script>
+    const quizData = JSON.parse(document.getElementById("quiz-data").textContent);
+    const app = document.getElementById("app");
+    const modeButtons = Array.from(document.querySelectorAll("[data-mode-button]"));
+    const topicActionButtons = Array.from(document.querySelectorAll("[data-topic-action]"));
+
+    const state = {
+      mode: "solve",
+      answers: new Map(),
+      questionRefs: [],
+    };
+
+    function buildTopic(topic, questionOffset) {
+      const details = document.createElement("details");
+      details.className = "topic";
+      details.open = true;
+
+      const summary = document.createElement("summary");
+      summary.innerHTML = `
+        <div>
+          <h2 class="topic-title">${topic.name}</h2>
+        </div>
+        <div class="topic-meta">
+          <span>${topic.questions.length} questions</span>
+          <span class="chevron" aria-hidden="true">></span>
+        </div>
+      `;
+
+      const body = document.createElement("div");
+      body.className = "topic-body";
+
+      if (topic.note_html) {
+        const notes = document.createElement("details");
+        notes.className = "topic-notes";
+
+        const notesSummary = document.createElement("summary");
+        notesSummary.innerHTML = `
+          <span class="topic-notes-title">Notes</span>
+          <span class="chevron" aria-hidden="true">></span>
+        `;
+
+        const notesBody = document.createElement("div");
+        notesBody.className = "topic-notes-body rich-text";
+        notesBody.innerHTML = topic.note_html;
+
+        notes.appendChild(notesSummary);
+        notes.appendChild(notesBody);
+        body.appendChild(notes);
+      }
+
+      topic.questions.forEach((question, indexInTopic) => {
+        const globalIndex = questionOffset + indexInTopic;
+        body.appendChild(buildQuestionCard(question, globalIndex));
+      });
+
+      details.appendChild(summary);
+      details.appendChild(body);
+      return details;
+    }
+
+    function buildQuestionCard(question, questionIndex) {
+      const card = document.createElement("article");
+      card.className = "question-card is-hidden";
+      card.dataset.questionIndex = String(questionIndex);
+
+      const label = document.createElement("p");
+      label.className = "question-label";
+      label.textContent = `Question ${question.number}`;
+
+      const stem = document.createElement("div");
+      stem.className = "stem rich-text";
+      stem.innerHTML = question.stem_html;
+
+      const options = document.createElement("div");
+      options.className = "options";
+
+      const optionButtons = question.options.map((option, optionIndex) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "option";
+        button.dataset.optionIndex = String(optionIndex);
+        button.innerHTML = option.label_html;
+        button.addEventListener("click", () => {
+          if (state.mode !== "solve") {
+            return;
+          }
+          state.answers.set(questionIndex, optionIndex);
+          applyQuestionState(questionIndex);
+        });
+        options.appendChild(button);
+        return button;
+      });
+
+      const explanation = document.createElement("div");
+      explanation.className = "explanation rich-text";
+      explanation.innerHTML = `<span class="explanation-label">Explanation</span>${question.explanation_html}`;
+
+      card.appendChild(label);
+      card.appendChild(stem);
+      card.appendChild(options);
+      card.appendChild(explanation);
+
+      state.questionRefs[questionIndex] = {
+        card,
+        explanation,
+        optionButtons,
+        question,
+      };
+
+      applyQuestionState(questionIndex);
+      return card;
+    }
+
+    function applyQuestionState(questionIndex) {
+      const ref = state.questionRefs[questionIndex];
+      if (!ref) {
+        return;
+      }
+
+      const { card, optionButtons, question } = ref;
+      const selectedIndex = state.answers.get(questionIndex);
+      const hasSelection = selectedIndex !== undefined;
+      const isReview = state.mode === "review";
+      const showExplanation = isReview || hasSelection;
+
+      card.classList.toggle("is-hidden", !showExplanation);
+
+      optionButtons.forEach((button, optionIndex) => {
+        button.classList.remove("correct", "incorrect", "neutral-revealed");
+
+        if (isReview) {
+          button.disabled = true;
+          if (optionIndex === question.correct_index) {
+            button.classList.add("correct");
+          } else {
+            button.classList.add("neutral-revealed");
+          }
+          return;
+        }
+
+        button.disabled = false;
+        if (!hasSelection) {
+          return;
+        }
+
+        if (optionIndex === question.correct_index) {
+          button.classList.add("correct");
+        } else if (optionIndex === selectedIndex) {
+          button.classList.add("incorrect");
+        } else {
+          button.classList.add("neutral-revealed");
+        }
+      });
+    }
+
+    function renderApp() {
+      if (!quizData.topics.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty-state";
+        empty.textContent = "No questions were found in this JSON file.";
+        app.replaceChildren(empty);
+        return;
+      }
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "topic-list";
+
+      let questionOffset = 0;
+      quizData.topics.forEach((topic) => {
+        wrapper.appendChild(buildTopic(topic, questionOffset));
+        questionOffset += topic.questions.length;
+      });
+
+      app.replaceChildren(wrapper);
+    }
+
+    function setMode(mode) {
+      state.mode = mode;
+      modeButtons.forEach((button) => {
+        const isActive = button.dataset.modeButton === mode;
+        button.classList.toggle("active", isActive);
+        button.setAttribute("aria-pressed", String(isActive));
+      });
+
+      state.questionRefs.forEach((_, index) => applyQuestionState(index));
+    }
+
+    function setAllTopics(open) {
+      document.querySelectorAll(".topic").forEach((topic) => {
+        topic.open = open;
+      });
+    }
+
+    modeButtons.forEach((button) => {
+      button.addEventListener("click", () => setMode(button.dataset.modeButton));
+    });
+
+    topicActionButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        setAllTopics(button.dataset.topicAction === "expand");
+      });
+    });
+
+    renderApp();
+    setMode("solve");
+  </script>
+</body>
+</html>

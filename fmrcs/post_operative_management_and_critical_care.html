@@ -1,0 +1,745 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Post Operative Management And Critical Care</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f1e8;
+      --bg-accent: #ebe4d4;
+      --surface: rgba(255, 252, 246, 0.92);
+      --surface-strong: #fffdf7;
+      --border: #d9cfbd;
+      --text: #23313a;
+      --text-soft: #5f6c73;
+      --accent: #496a58;
+      --accent-strong: #2f5341;
+      --correct-bg: #e0f3e6;
+      --correct-border: #77b487;
+      --wrong-bg: #fbe0df;
+      --wrong-border: #dc7a73;
+      --note-bg: #f3eee2;
+      --shadow: 0 18px 40px rgba(76, 59, 37, 0.08);
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+      --page-width: 960px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.72), transparent 32%),
+        linear-gradient(180deg, #f8f4eb 0%, #f3ede0 100%);
+      line-height: 1.65;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, rgba(255, 255, 255, 0.14), transparent 18%, transparent 82%, rgba(255, 255, 255, 0.14)),
+        repeating-linear-gradient(
+          180deg,
+          rgba(73, 106, 88, 0.015) 0,
+          rgba(73, 106, 88, 0.015) 1px,
+          transparent 1px,
+          transparent 18px
+        );
+    }
+
+    a {
+      color: var(--accent-strong);
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 14px;
+    }
+
+    .score-badge,
+    .badge.rounded-pill.bg-danger {
+      display: none !important;
+    }
+
+    .page {
+      width: min(100% - 24px, var(--page-width));
+      margin: 0 auto;
+      padding: 18px 0 48px;
+    }
+
+    .topbar {
+      margin-bottom: 18px;
+      padding: 18px;
+      background: rgba(255, 252, 246, 0.9);
+      border: 1px solid rgba(217, 207, 189, 0.86);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+
+    .topbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .eyebrow {
+      margin: 0 0 4px;
+      font-size: 0.76rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .title {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+      font-size: clamp(1.5rem, 2vw + 1rem, 2.35rem);
+      line-height: 1.08;
+      font-weight: 700;
+    }
+
+    .meta {
+      margin: 8px 0 0;
+      color: var(--text-soft);
+      font-size: 0.96rem;
+    }
+
+    .mode-switch {
+      display: inline-flex;
+      padding: 6px;
+      border-radius: 999px;
+      background: var(--bg-accent);
+      border: 1px solid var(--border);
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .topic-actions {
+      display: inline-flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .utility-button {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: var(--surface-strong);
+      color: var(--text);
+      font: inherit;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .utility-button:hover {
+      transform: translateY(-1px);
+      border-color: #c7bba9;
+      box-shadow: 0 8px 18px rgba(70, 54, 34, 0.07);
+    }
+
+    .utility-button:focus-visible {
+      outline: 3px solid rgba(73, 106, 88, 0.22);
+      outline-offset: 2px;
+    }
+
+    .mode-button {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: var(--text-soft);
+      font: inherit;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 10px 16px;
+      min-width: 92px;
+      cursor: pointer;
+      transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .mode-button:hover {
+      transform: translateY(-1px);
+      color: var(--text);
+    }
+
+    .mode-button.active {
+      background: var(--surface-strong);
+      color: var(--accent-strong);
+      box-shadow: 0 8px 18px rgba(73, 106, 88, 0.14);
+    }
+
+    .topic-list {
+      display: grid;
+      gap: 18px;
+    }
+
+    .topic {
+      background: rgba(255, 252, 246, 0.78);
+      border: 1px solid rgba(217, 207, 189, 0.9);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .topic[open] {
+      background: rgba(255, 252, 246, 0.9);
+    }
+
+    .topic > summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      user-select: none;
+    }
+
+    .topic > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .topic-title {
+      margin: 0;
+      font-size: 1.08rem;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+    }
+
+    .topic-meta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-soft);
+      font-size: 0.94rem;
+    }
+
+    .chevron {
+      display: inline-block;
+      transition: transform 0.2s ease;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .topic[open] > summary .chevron {
+      transform: rotate(90deg);
+    }
+
+    .topic-notes {
+      background: rgba(243, 238, 226, 0.62);
+      border: 1px solid #e3d9c8;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .topic-notes > summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      user-select: none;
+    }
+
+    .topic-notes > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .topic-notes-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .topic-notes[open] > summary .chevron {
+      transform: rotate(90deg);
+    }
+
+    .topic-notes-body {
+      padding: 0 16px 16px;
+      color: var(--text);
+    }
+
+    .topic-body {
+      padding: 0 16px 16px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .question-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      box-shadow: 0 10px 24px rgba(70, 54, 34, 0.05);
+    }
+
+    .question-label {
+      margin: 0 0 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-soft);
+      font-size: 0.88rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .stem {
+      font-size: 1rem;
+    }
+
+    .stem > *:first-child,
+    .explanation > *:first-child {
+      margin-top: 0;
+    }
+
+    .stem > *:last-child,
+    .explanation > *:last-child {
+      margin-bottom: 0;
+    }
+
+    .options {
+      margin-top: 16px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .option {
+      width: 100%;
+      text-align: left;
+      border: 1px solid #d8d0c2;
+      background: #fffdf8;
+      color: var(--text);
+      border-radius: var(--radius-sm);
+      padding: 14px 15px;
+      font: inherit;
+      line-height: 1.45;
+      cursor: pointer;
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .option:hover {
+      transform: translateY(-1px);
+      border-color: #c7bba9;
+      box-shadow: 0 8px 18px rgba(70, 54, 34, 0.07);
+    }
+
+    .option:focus-visible {
+      outline: 3px solid rgba(73, 106, 88, 0.22);
+      outline-offset: 2px;
+    }
+
+    .option.correct {
+      background: var(--correct-bg);
+      border-color: var(--correct-border);
+      box-shadow: inset 0 0 0 1px rgba(119, 180, 135, 0.2);
+    }
+
+    .option.incorrect {
+      background: var(--wrong-bg);
+      border-color: var(--wrong-border);
+      box-shadow: inset 0 0 0 1px rgba(220, 122, 115, 0.2);
+    }
+
+    .option.neutral-revealed {
+      background: #faf6ee;
+      border-color: #d8d0c2;
+      color: #5f676a;
+    }
+
+    .option[disabled] {
+      cursor: default;
+      opacity: 1;
+    }
+
+    .explanation {
+      margin-top: 14px;
+      padding: 14px 16px;
+      background: var(--note-bg);
+      border: 1px solid #e3d9c8;
+      border-radius: 14px;
+      color: var(--text);
+    }
+
+    .question-card.is-hidden .explanation {
+      display: none;
+    }
+
+    .explanation-label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+      font-weight: 800;
+    }
+
+    .empty-state {
+      padding: 28px 22px;
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-lg);
+      color: var(--text-soft);
+    }
+
+    .rich-text table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      overflow: hidden;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.68);
+    }
+
+    .rich-text td,
+    .rich-text th {
+      border: 1px solid #ddd2bf;
+      padding: 10px 12px;
+      vertical-align: top;
+    }
+
+    .rich-text ul,
+    .rich-text ol {
+      padding-left: 20px;
+      margin: 10px 0;
+    }
+
+    .rich-text center {
+      display: block;
+      text-align: center;
+    }
+
+    .rich-text .table-responsive {
+      overflow-x: auto;
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        width: min(100% - 16px, var(--page-width));
+        padding-top: 10px;
+      }
+
+      .topbar {
+        padding: 14px;
+        border-radius: 18px;
+      }
+
+      .topbar-inner {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .controls {
+        justify-content: stretch;
+      }
+
+      .topic-actions {
+        width: 100%;
+      }
+
+      .utility-button {
+        flex: 1 1 0;
+      }
+
+      .mode-switch {
+        width: 100%;
+        justify-content: stretch;
+      }
+
+      .mode-button {
+        flex: 1 1 50%;
+      }
+
+      .topic > summary {
+        padding: 16px;
+        align-items: flex-start;
+      }
+
+      .topic-meta {
+        font-size: 0.88rem;
+      }
+
+      .topic-body {
+        padding: 0 12px 12px;
+      }
+
+      .question-card {
+        padding: 15px;
+      }
+
+      .option {
+        padding: 13px 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="topbar">
+      <div class="topbar-inner">
+        <div>
+          <p class="eyebrow">Study View</p>
+          <h1 class="title">Post Operative Management And Critical Care</h1>
+          <p class="meta">72 questions across 33 topics</p>
+        </div>
+        <div class="controls">
+          <div class="topic-actions" aria-label="Topic visibility controls">
+            <button class="utility-button" type="button" data-topic-action="expand">Expand all</button>
+            <button class="utility-button" type="button" data-topic-action="collapse">Collapse all</button>
+          </div>
+          <div class="mode-switch" role="tablist" aria-label="Question mode">
+            <button class="mode-button active" type="button" data-mode-button="solve" aria-pressed="true">Solve</button>
+            <button class="mode-button" type="button" data-mode-button="review" aria-pressed="false">Review</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="app"></section>
+  </main>
+
+  <script id="quiz-data" type="application/json">{"title": "Post Operative Management And Critical Care", "topics": [{"name": "Acute dystonic reaction", "questions": [{"number": 1, "topic": "Acute dystonic reaction", "stem_html": "A 56 year old man with chronic schizophrenia undergoes a cholecystectomy. He receives metoclopramide for post operative nausea. Twenty minutes later he becomes agitated and develops marked oculogyric crises and oromandibular dystonia. Which of the following drugs may best alleviate his symptoms?", "options": [{"label_html": "Procyclidine", "is_correct": true}, {"label_html": "Lorazepam", "is_correct": false}, {"label_html": "Chlorpromazine", "is_correct": false}, {"label_html": "Haloperidol", "is_correct": false}, {"label_html": "Sulpiride", "is_correct": false}], "correct_index": 0, "explanation_html": "This man has developed an acute dystonic reaction. Administration of further anti dopaminergic drugs will worsen the situation. Procyclidine will help to reverse the event. This is most likely to have occurred because the patient is on long term anti psychotics and has then received metoclopramide."}], "note_html": "The anti dopaminergic drugs (such as antipsychotics) may result in extrapyramidal side effects. These may range from mild parkinsonian symptoms such as resting tremor and bradykinesia. Through to acute dystonic reactions which are characterised by abnormal and involuntary facial and bodily movements, such as spasmodic torticollis, oculogyric crisis and oromandibular dystonia.<br><br>Chronic cases are generally only encountered in psychiatric units. In surgical practice the administration of the anti dopaminergic drug metoclopramide may be sufficient to precipitate an attack.<br><br>Treatment may be required if symptoms are sufficiently troublesome; benzhexol and procyclidine are two drugs which may be used."}, {"name": "Acute Renal Failure", "questions": [{"number": 2, "topic": "Acute Renal Failure", "stem_html": "A 37 year old man is involved in a road traffic accident and his spleen is ruptured. There is major haemorrhage and he requires a splenectomy. In the days following surgery, his renal function is noted to deteriorate. What is the most likely reason for this?", "options": [{"label_html": "Glomerulonephritis", "is_correct": false}, {"label_html": "Nephrotic syndrome", "is_correct": false}, {"label_html": "Acute tubular necrosis", "is_correct": true}, {"label_html": "Interstitial nephritis", "is_correct": false}, {"label_html": "Nephrosclerosis", "is_correct": false}], "correct_index": 2, "explanation_html": "Acute haemorrhage and associated shock exceed the renovascular compensatory mechanisms. This results in renovascular vasoconstriction of glomerulotubular hypoperfusion. This can result is acute tubular necrosis. An acute inflammatory nephritis is less likely in this setting."}, {"number": 3, "topic": "Acute Renal Failure", "stem_html": "A 78 year old man presents with a ruptured aortic aneurysm. This is repaired but the operation is difficult as it has a juxtarenal location. A supra renal cross clamp is applied. Post operatively he is found to be oliguric and acute renal failure is suspected. Which of the following statements relating to acute post-operative renal failure are untrue?", "options": [{"label_html": "Intravenous dopamine does not prevent acute renal failure.", "is_correct": false}, {"label_html": "It is more common after emergency surgery.", "is_correct": false}, {"label_html": "Use of excessive amounts of intravenous fluids may lead to falsely normal serum creatinine measurements.", "is_correct": false}, {"label_html": "Vasopressor drugs have a strong renoprotective effect", "is_correct": true}, {"label_html": "It is minimised by normalisation of haemodynamic status.", "is_correct": false}], "correct_index": 3, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Key points : Renal injury and acute renal failure: RIFLE Classification. <br>R=Risk (Serum Creatinine x1.5)<br>I=Injury (Serum Creatinine x 2)<br>F=Failure (Serum Creatinine x3)<br>L=Loss (Loss of renal function &gt;4weeks)<br>E=End stage kidney disease<\/div>Vasopressor use is linked to renal failure as they are a marker of haemodynamic compromise."}, {"number": 4, "topic": "Acute Renal Failure", "stem_html": "A 25 year old man is injured in a road traffic accident. His right tibia is fractured and is managed by fasciotomies and application of an external fixator. Over the next 48 hours his serum creatinine rises and urine is sent for microscopy, muddy brown casts are identified. What is the most likely underlying diagnosis?", "options": [{"label_html": "Acute interstitial nephritis", "is_correct": false}, {"label_html": "Acute tubular necrosis", "is_correct": true}, {"label_html": "Glomerulonephritis", "is_correct": false}, {"label_html": "IgA Nephropathy", "is_correct": false}, {"label_html": "Thin basement membrane disease", "is_correct": false}], "correct_index": 1, "explanation_html": "This patient is likely to have had compartment syndrome (tibial fracture + fasciotomies) which may produce myoglobinuria. The presence of worsening renal function, together with muddy brown casts is strongly suggestive of acute tubular necrosis. Acute interstitial nephritis usually arises from drug toxicity and does not usually produce urinary muddy brown casts. Thin basement membrane disease is an autosomal dominant condition that causes persistent microscopic haematuria, but not worsening renal function."}], "note_html": "- Final pathway is tubular cell death.<br><ul><li>Renal medulla is a relatively hypoxic environment making it susceptible to renal tubular hypoxia.<\/li><li>Renovascular autoregulation maintains renal blood flow across a range of arterial pressures.<\/li><li>Estimates of GFR are best indices of level of renal function. Useful clinical estimates can be obtained by considering serum creatinine, age, race, gender and body size. eGFR calculations such as the Cockcroft and Gault equation are less reliable in populations with high GFR's. <\/li><li>Nephrotoxic stimuli such as aminoglycosides and radiological contrast media induce apoptosis. Myoglobinuria and haemolysis result in necrosis. Overlap exists and proinflammatory cytokines play an important role in potentiating ongoing damage.<\/li><li>Post-operative renal failure is more likely to occur in patients who are elderly, have peripheral vascular disease, high BMI, have COPD, receive vasopressors, are on nephrotoxic medication or undergo emergency surgery.<\/li><li>Avoiding hypotension will reduce risk of renal tubular damage.<\/li><li>There is no evidence that administration of ACE inhibitors or dopamine reduces the incidence of post-operative renal failure.<\/li><\/ul>"}, {"name": "Adult respiratory distress syndrome", "questions": [{"number": 5, "topic": "Adult respiratory distress syndrome", "stem_html": "A 25 year old male pedestrian is involved in a road traffic accident. He sustains multiple injuries and is admitted to the intensive care unit, intubated and ventilated. Over the next week he develops adult respiratory distress syndrome. What is the main reason for hypoxaemia in this condition?", "options": [{"label_html": "Increased lung compliance", "is_correct": false}, {"label_html": "Reduced diffusion", "is_correct": true}, {"label_html": "Reduced surfactant", "is_correct": false}, {"label_html": "Reduced elastase", "is_correct": false}, {"label_html": "Left to right shunt", "is_correct": false}], "correct_index": 1, "explanation_html": "The diffuse lung injury, which is associated with loss of surfactant and increased elastase release from neutrophils, results in fluid accumulation. This leads to reduced diffusion, which is the main reason for hypoxaemia."}, {"number": 6, "topic": "Adult respiratory distress syndrome", "stem_html": "A 32 year old man presents to the acute surgical unit with acute pancreatitis.  Over the next few days he becomes dyspnoeic and his saturations are 89% on air.  A CXR shows bilateral pulmonary infiltrates.  His CVP pressure is 16mmHg. What is the most likely diagnosis?", "options": [{"label_html": "Cardiac failure", "is_correct": false}, {"label_html": "Pneumococcal pneumonia", "is_correct": false}, {"label_html": "Staphylococcal pneumonia", "is_correct": false}, {"label_html": "<i>Pneumocystis carinii<\/i>", "is_correct": false}, {"label_html": "Adult respiratory distress syndrome", "is_correct": true}], "correct_index": 4, "explanation_html": "Acute pancreatitis is known to precipitate ARDS.  ARDS is characterised by bilateral pulmonary infiltrates and hypoxaemia.  Note that pulmonary oedema is excluded by the CVP reading &lt; 18mmHg."}], "note_html": "Defined as an acute condition characterized by bilateral pulmonary infiltrates and severe hypoxemia (PaO<sub>2<\/sub>/FiO<sub>2<\/sub> ratio &lt; 200) in the absence of evidence for cardiogenic pulmonary oedema (clinically or pulmonary capillary wedge pressure of less than 18 mm Hg).<br>It is subdivided into two stages. Early stages consist of an exudative phase of injury with associated oedema. The later stage is one of repair and consists of fibroproliferative changes. Subsequent scarring may result in poor lung function. <br><br><b>Causes<\/b><br><ul><li>Sepsis<\/li><li>Direct lung injury<\/li><li>Trauma<\/li><li>Acute pancreatitis<\/li><li>Long bone fracture or multiple fractures (through fat embolism)<\/li><li>Head injury (causes sympathetic nervous stimulation which leads to acute pulmonary hypertension)<\/li><\/ul><br><b>Clinical features<\/b><br><ul><li>Acute dyspnoea and hypoxaemia hours/days after event<\/li><li>Multi organ failure<\/li><li>Rising ventilatory pressures<\/li><\/ul><br><b>Management<\/b><br><ul><li>Treat the underlying cause<\/li><li>Antibiotics (if signs of sepsis)<\/li><li>Negative fluid balance i.e. Diuretics<\/li><li>Recruitment manoeuvres such as prone ventilation, use of positive end expiratory pressure<\/li><li>Mechanical ventilation strategy using low tidal volumes, as conventional tidal volumes may cause lung injury (only treatment found to improve survival rates)<\/li><\/ul>"}, {"name": "Airway management", "questions": [{"number": 7, "topic": "Airway management", "stem_html": "A 63 year old man has been on the intensive care unit for a week with adult respiratory distress syndrome complicating acute pancreatitis. He has required ventilation and is still being mechanically ventilated. What is the best option for maintenance of his airway?", "options": [{"label_html": "Nasotracheal tube", "is_correct": false}, {"label_html": "Endotracheal tube", "is_correct": false}, {"label_html": "Tracheostomy", "is_correct": true}, {"label_html": "Guedel airway", "is_correct": false}, {"label_html": "Laryngeal mask", "is_correct": false}], "correct_index": 2, "explanation_html": "Tracheostomy is often used to facilitate long term weaning. The percutaneous devices are popular. These involve a seldinger type insertion of the tube. A second operator inserts a bronchoscope to ensure the device is not advanced through the posterior wall of the trachea. Complications include damage to adjacent structures and bleeding (contra indication in coagulopathy)."}, {"number": 8, "topic": "Airway management", "stem_html": "A 23 year old man is undergoing an open inguinal hernia repair as a daycase procedure and is being given sevoflurane. What is the best option for maintaining his airway during the procedure?", "options": [{"label_html": "Insertion of endotracheal tube", "is_correct": false}, {"label_html": "Insertion of nasotracheal tube", "is_correct": false}, {"label_html": "Insertion of nasopharyngeal airway", "is_correct": false}, {"label_html": "Insertion of laryngeal mask", "is_correct": true}, {"label_html": "Use of Guedel airway", "is_correct": false}], "correct_index": 3, "explanation_html": "This procedure will be associated with requirement for swift onset of anaesthesia and recovery. Muscle paralysis is not required and this would an ideal case for laryngeal mask airway."}, {"number": 9, "topic": "Airway management", "stem_html": "A 48 year old man is due to undergo a laparotomy for small bowel obstruction. What is the best option for maintaining his airway?", "options": [{"label_html": "Insertion of cuffed endotracheal tube", "is_correct": true}, {"label_html": "Insertion of uncuffed endotracheal tube", "is_correct": false}, {"label_html": "Insertion of laryngeal mask", "is_correct": false}, {"label_html": "Insertion of nasopharyngeal airway", "is_correct": false}, {"label_html": "Percutaneous tracheostomy", "is_correct": false}], "correct_index": 0, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Uncuffed endotracheal tubes are used in small children to reduce the risk of tracheal injury.<\/div>Patients who are due to undergo laparotomies for bowel obstruction have either been vomiting or at high risk of regurgitation of gastric contents on induction of anaesthesia. A rapid sequence induction with cricothyroid pressure applied to occlude the oesophagus is performed. A cuffed endotracheal tube is then inserted. Once correct placement of the ET tube is confirmed the cricothyroid pressure can be removed."}], "note_html": "<div class=\"table-responsive\"><table class=\"table table-bordered\"><tbody><tr><td><b>Oropharyngeal airway<\/b><\/td><td><ul><li>Easy to insert and use<\/li><li>No paralysis required<\/li><li>Ideal for very short procedures<\/li><li>Most often used as bridge to more definitive airway<\/li><\/ul><\/td><\/tr><tr><td><b>Laryngeal mask<\/b><\/td><td><ul><li>Widely used<\/li><li>Very easy to insert<\/li><li>Device sits in pharynx and aligns to cover the airway<\/li><li>Poor control against reflux of gastric contents<\/li><li>Paralysis not usually required<\/li><li>Commonly used for wide range of anaesthetic uses, especially in day surgery<\/li><li>Not suitable for high pressure ventilation (small amount of PEEP often possible)<\/li><\/ul><\/td><\/tr><tr><td><b>Tracheostomy<\/b><\/td><td><ul><li>Reduces the work of breathing (and dead space)<\/li><li>May be useful in slow weaning<\/li><li>Percutaneous tracheostomy widely used in ITU<\/li><li>Dries secretions, humidified air usually required<\/li><\/ul><\/td><\/tr><tr><td><b>Endotracheal tube<\/b><\/td><td><ul><li>Provides optimal control of the airway once cuff inflated<\/li><li>May be used for long or short term ventilation<\/li><li>Errors in insertion may result in oesophageal intubation (therefore end tidal CO<sub>2<\/sub> usually measured)<\/li><li>Paralysis often required<\/li><li>Higher ventilation pressures can be used<\/li><\/ul><\/td><\/tr><\/tbody><\/table><\/div>"}, {"name": "American Society of anesthesiologists physical status scoring system (ASA)", "questions": [{"number": 10, "topic": "American Society of anesthesiologists physical status scoring system (ASA)", "stem_html": "A 66 year old man is admitted following a collapse whilst waiting for a bus. Clinical examination confirms a ruptured abdominal aortic aneurysm. He is moribund and hypotensive. What is his ASA?", "options": [{"label_html": "1", "is_correct": false}, {"label_html": "2", "is_correct": false}, {"label_html": "3", "is_correct": false}, {"label_html": "4", "is_correct": false}, {"label_html": "5", "is_correct": true}], "correct_index": 4, "explanation_html": "Patients who are moribund and will not survive without surgery are graded as ASA 5."}, {"number": 11, "topic": "American Society of anesthesiologists physical status scoring system (ASA)", "stem_html": "A 23 year old man with a 4cm lipoma on his flank is due to have this removed as a daycase. He is otherwise well. What is his ASA?", "options": [{"label_html": "2", "is_correct": false}, {"label_html": "3", "is_correct": false}, {"label_html": "1", "is_correct": true}, {"label_html": "5", "is_correct": false}, {"label_html": "4", "is_correct": false}], "correct_index": 2, "explanation_html": "Absence of co-morbidities and small procedure with no systemic compromise will equate to an ASA score of 1."}, {"number": 12, "topic": "American Society of anesthesiologists physical status scoring system (ASA)", "stem_html": "A 72 year old man is due to undergo an inguinal hernia repair. He suffers from COPD and has an exercise tolerance of 10 yards. He also has pitting oedema to the thighs. What is his ASA?", "options": [{"label_html": "5", "is_correct": false}, {"label_html": "1", "is_correct": false}, {"label_html": "3", "is_correct": false}, {"label_html": "4", "is_correct": true}, {"label_html": "2", "is_correct": false}], "correct_index": 3, "explanation_html": "Severe systemic disease of this nature is a constant threat to life. Especially as he also has evidence of cardiac failure."}], "note_html": "<div class=\"table-responsive\"><table class=\"table table-bordered\"><tbody><tr><td><b>ASA grade<\/b><\/td><td><b>Description<\/b><\/td><\/tr><tr><td>1<\/td><td>No organic physiological, biochemical or psychiatric disturbance. The surgical pathology is localised and has not invoked systemic disturbance<\/td><\/tr><tr><td>2<\/td><td>Mild or moderate systemic disruption caused either by the surgical disease process or though underlying pre-existing disease<\/td><\/tr><tr><td>3<\/td><td>Severe systemic disruption caused either by the surgical pathology or pre-existing disease<\/td><\/tr><tr><td>4<\/td><td>Patient has severe systemic disease that is a constant threat to life<\/td><\/tr><tr><td>5<\/td><td>A patient who is moribund and will not survive without surgery<\/td><\/tr><\/tbody><\/table><\/div>"}, {"name": "Anaesthetic agents", "questions": [{"number": 13, "topic": "Anaesthetic agents", "stem_html": "Which of the following is a recognised feature of ketamine when used as an anaesthetic agent?", "options": [{"label_html": "Malignant hyperpyrexia", "is_correct": false}, {"label_html": "Adrenal suppression", "is_correct": false}, {"label_html": "Myocardial depression", "is_correct": false}, {"label_html": "Dissociative anaesthesia", "is_correct": true}, {"label_html": "Marked respiratory depression", "is_correct": false}], "correct_index": 3, "explanation_html": "Unlike most anaesthetic agents ketamine does not cause myocardial or marked respiratory depression. It is not associated with the adrenal suppression that may occur with etomidate. It is however, associated with a state of dissociative anaesthesia which patients may find distressing."}, {"number": 14, "topic": "Anaesthetic agents", "stem_html": "Which of the anaesthetic agents listed below is associated with hepatotoxicity?", "options": [{"label_html": "Halothane", "is_correct": true}, {"label_html": "Sevoflurane", "is_correct": false}, {"label_html": "Propofol", "is_correct": false}, {"label_html": "Ketamine", "is_correct": false}, {"label_html": "Desflurane", "is_correct": false}], "correct_index": 0, "explanation_html": "Halothane is largely of historical interest and that is because of its hepatotoxicity."}, {"number": 15, "topic": "Anaesthetic agents", "stem_html": "Which of the agents listed below is associated with the strongest anti emetic properties?", "options": [{"label_html": "Sodium thiopentone", "is_correct": false}, {"label_html": "Propofol", "is_correct": true}, {"label_html": "Etomidate", "is_correct": false}, {"label_html": "Ketamine", "is_correct": false}, {"label_html": "Sevoflurane", "is_correct": false}], "correct_index": 1, "explanation_html": "Propofol has anti emetic properties which is of considerable advantage in day case anaesthesia."}, {"number": 16, "topic": "Anaesthetic agents", "stem_html": "A 63 year old lady is undergoing colonoscopy with midazolam sedation. Her respiratory rate slows and she becomes hypoxic and the decision is made to reverse her sedation. What is the most appropriate agent to administer?", "options": [{"label_html": "Flumazenil", "is_correct": true}, {"label_html": "Doxapram", "is_correct": false}, {"label_html": "Naloxone", "is_correct": false}, {"label_html": "Procyclidine", "is_correct": false}, {"label_html": "Etomidate", "is_correct": false}], "correct_index": 0, "explanation_html": "Flumazenil antagonises the effects of benzodiazepines by competition at GABA binding sites. Since many benzodiazepines have longer half lives than flumazenil patients still require close monitoring after receiving the drug. Whilst doxapram would increase the respiratory rate, it is not an agent for reversal of midazolam."}, {"number": 17, "topic": "Anaesthetic agents", "stem_html": "A 25 year old man is involved in a road traffic accident. He is evacuated from the scene by helicopter. En route to the regional trauma centre, he becomes more unstable and hypotensive. Due to agitation, the decision is made to intubate him to achieve a secure airway. Which of these agents is likely to be required first?", "options": [{"label_html": "Propofol", "is_correct": false}, {"label_html": "Ketamine", "is_correct": true}, {"label_html": "Vecuronium", "is_correct": false}, {"label_html": "Suxamethonium", "is_correct": false}, {"label_html": "Etomidate", "is_correct": false}], "correct_index": 1, "explanation_html": "It is standard practice to administer a sedative drug prior to achieving paralysis. Ketamine causes the least haemodynamic instability and would usually be used first. A paralysing agent is then used."}, {"number": 18, "topic": "Anaesthetic agents", "stem_html": "Which of the following anaesthetic agents is least likely to be associated with depression of myocardial contractility?", "options": [{"label_html": "Propofol", "is_correct": false}, {"label_html": "Etomidate", "is_correct": true}, {"label_html": "Sodium thiopentone", "is_correct": false}, {"label_html": "Ether", "is_correct": false}, {"label_html": "None of the above", "is_correct": false}], "correct_index": 1, "explanation_html": "Of the agents mentioned, etomidate has the most favorable cardiac safety profile."}, {"number": 19, "topic": "Anaesthetic agents", "stem_html": "Which of the  anaesthetic agents below is most likely to induce adrenal suppression?", "options": [{"label_html": "Sodium thiopentone", "is_correct": false}, {"label_html": "Midazolam", "is_correct": false}, {"label_html": "Propofol", "is_correct": false}, {"label_html": "Etomidate", "is_correct": true}, {"label_html": "Ketamine", "is_correct": false}], "correct_index": 3, "explanation_html": "Etomidate is a recognised cause of adrenal suppression, this has been associated with increased mortality when used as a sedation agent in the critically ill."}, {"number": 20, "topic": "Anaesthetic agents", "stem_html": "Which of the following anaesthetic agents has the strongest analgesic effect?", "options": [{"label_html": "Sodium thiopentone", "is_correct": false}, {"label_html": "Ketamine", "is_correct": true}, {"label_html": "Midazolam", "is_correct": false}, {"label_html": "Etomidate", "is_correct": false}, {"label_html": "None of the above", "is_correct": false}], "correct_index": 1, "explanation_html": "Ketamine has a moderate to strong analgesic effect. It may be used for emergency procedures outside the hospital environment to induce anaesthesia for procedures such as emergency amputation."}], "note_html": "The table below summarises some of the more commonly used IV induction agents<br><div class=\"table-responsive\"><table class=\"table table-bordered\"><tbody><tr><td><b>Agent<\/b><\/td><td><b>Specific features<\/b><\/td><\/tr><tr><td>Propofol<\/td><td><ul><li>Rapid onset of anaesthesia<\/li><li>Pain on IV injection<\/li><li>Rapidly metabolised with little accumulation of metabolites<\/li><li>Proven anti emetic properties<\/li><li>Moderate myocardial depression<\/li><li>Widely used especially for maintaining sedation on ITU, total IV anaesthesia and for daycase surgery<\/li><\/ul><\/td><\/tr><tr><td>Sodium thiopentone<\/td><td><ul><li>Extremely rapid onset of action making it the agent of choice for rapid sequence of induction<\/li><li>Marked myocardial depression may occur<\/li><li>Metabolites build up quickly<\/li><li>Unsuitable for maintenance infusion<\/li><li>Little analgesic effects<\/li><\/ul><\/td><\/tr><tr><td>Ketamine<\/td><td><ul><li>May be used for induction of anaesthesia<\/li><li>Has moderate to strong analgesic properties<\/li><li>Produces little myocardial depression making it a suitable agent for anaesthesia in those who are haemodynamically unstable<\/li><li>May induce state of dissociative anaesthesia resulting in nightmares<\/li><\/ul><\/td><\/tr><tr><td>Etomidate<\/td><td><ul><li>Has favorable cardiac safety profile with very little haemodynamic instability<\/li><li>No analgesic properties<\/li><li>Unsuitable for maintaining sedation as prolonged (and even brief) use may result in adrenal suppression<\/li><li>Post operative vomiting is common<\/li><\/ul><\/td><\/tr><\/tbody><\/table><\/div>"}, {"name": "Brain death", "questions": [{"number": 21, "topic": "Brain death", "stem_html": "Which of the following is not a diagnostic criteria for brain death?", "options": [{"label_html": "No response to sound", "is_correct": true}, {"label_html": "No corneal reflex", "is_correct": false}, {"label_html": "Absent oculo-vestibular reflexes", "is_correct": false}, {"label_html": "No response to supraorbital pressure", "is_correct": false}, {"label_html": "No cough reflex to bronchial stimulation", "is_correct": false}], "correct_index": 0, "explanation_html": "<p>No explanation provided.<\/p>"}], "note_html": "<b>Criteria for brain stem death testing<\/b><br><ul><li>Deep coma of known aetiology.<\/li><li>Reversible causes excluded<\/li><li>No sedation <\/li><li>Normal electrolytes<\/li><\/ul><br><b>Testing for brain death<\/b><br><ul><li>Fixed pupils which do not respond to sharp changes in the intensity of incident light<\/li><li>No corneal reflex<\/li><li>Absent oculo-vestibular reflexes - no eye movements following the slow injection of at least 50ml of ice-cold water into each ear in turn (the caloric test)<\/li><li>No response to supraorbital pressure<\/li><li>No cough reflex to bronchial stimulation or gagging response to pharyngeal stimulation<\/li><li>No observed respiratory effort in response to disconnection of the ventilator for long enough (typically 5 minutes) to ensure elevation of the arterial partial pressure of carbon dioxide to at least 6.0 kPa (6.5 kPa in patients with chronic carbon dioxide retention). Adequate oxygenation is ensured by pre-oxygenation and diffusion oxygenation during the disconnection (so the brain stem respiratory centre is not challenged by the ultimate, anoxic, drive stimulus)<\/li><\/ul><br>The test should be undertaken by two appropriately experienced doctors on two separate occasions. Both should be experienced in performing brain stem death testing and have at least 5 years post graduate experience. One of them must be a consultant. Neither can be a member of the transplant team (if organ donation contemplated)."}, {"name": "Circulatory support of the critically ill", "questions": [{"number": 22, "topic": "Circulatory support of the critically ill", "stem_html": "Which of the agents listed below is a phosphodiesterase inhibitor?", "options": [{"label_html": "Milrinone", "is_correct": true}, {"label_html": "Metaraminol", "is_correct": false}, {"label_html": "Dopamine", "is_correct": false}, {"label_html": "Dobutamine", "is_correct": false}, {"label_html": "Adrenaline", "is_correct": false}], "correct_index": 0, "explanation_html": "<p>No explanation provided.<\/p>"}, {"number": 23, "topic": "Circulatory support of the critically ill", "stem_html": "Which of the agents listed below can be administered via the peripheral intra venous route in the non cardiac arrest setting?", "options": [{"label_html": "Milrinone", "is_correct": false}, {"label_html": "Noradrenaline", "is_correct": false}, {"label_html": "Adrenaline", "is_correct": false}, {"label_html": "Metaraminol", "is_correct": true}, {"label_html": "Dobutamine", "is_correct": false}], "correct_index": 3, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Metaraminol is an alpha receptor agonist.<\/div>As a general rule, inotropes and vasopressors can only be administered via a central vein. Metaraminol is an exception to this as it can be administered via a peripheral line."}, {"number": 24, "topic": "Circulatory support of the critically ill", "stem_html": "Which of the following agents is most likely to be helpful in controlling refractory hypotension in a 23 year old female with severe pyelonephritis?", "options": [{"label_html": "Noradrenaline", "is_correct": true}, {"label_html": "Adrenaline", "is_correct": false}, {"label_html": "Dobutamine", "is_correct": false}, {"label_html": "Dopamine", "is_correct": false}, {"label_html": "Milrinone", "is_correct": false}], "correct_index": 0, "explanation_html": "Since the main issue here is vasodilation, a vasoconstrictor is most likely to be helpful."}], "note_html": "<b>Circulatory support<\/b><br>Impaired tissue oxygenation may occur as a result of circulatory shock. Shock is considered further under its own topic heading. <br><br>Patients requiring circulatory support require haemodynamic monitoring. At its simplest level this may simply be in the form of regular urine output measurements and blood pressure monitoring. In addition ECG monitoring will allow the identification of cardiac arrhythmias. Pulse oximeter measurements will allow quick estimation haemoglobin oxygen saturation in arterial blood. <br><br>Invasive arterial blood pressure monitoring is undertaken by the use of an indwelling arterial line. Most arterial sites can be used although the radial artery is the commonest. It is important not to cannulate end arteries.  The arterial trace can be tracked to ventilation phases and those patients whose systolic pressure varies with changes in intrathoracic pressure may benefit from further intravenous fluids.<br><br>Central venous pressure is measured using a CVP line that is usually sited in the superior vena cava via the internal jugular route. The CVP will demonstrate right atrial filling pressure and volume status. When adequate intra vascular volume is present a fluid challenge will typically cause a prolonged rise in CVP (usually greater than 6-8mmHg).  <br><br>To monitor the cardiac output a Swan-Ganz catheter is traditionally inserted (other devices may be used and are less invasive). Inflation of the distal balloon will provide the pulmonary artery occlusion pressure and the pressure distal to the balloon will equate to the left atrial pressure. This gives a measure of left ventricular preload. Because the Swan-Ganz catheter can measure several variables it can be used to calculate:<br><ul><li>Stroke volume<\/li><li>Systemic vascular resistance<\/li><li>Pulmonary artery resistance<\/li><li>Oxygen delivery (and consumption)<\/li><\/ul> <br><b>Inotropes<\/b><br>In patients with an adequate circulating volume but on-going circulatory compromise a vasoactive drug may be considered. These should usually be administered via the central venous route. Commonly used inotropes include:<br><div class=\"table-responsive\"><table class=\"tlarge table table-striped table-bordered\" data-role=\"table\" id=\"tableid1\"><thead><tr><th><b>Agent<\/b><\/th><th><b>Mode of action<\/b><\/th><th><b>Effect<\/b><\/th><\/tr><\/thead><tbody><tr><td>Noradrenaline<\/td><td>α agonist<\/td><td>Vasopressor action, minimal effect on cardiac output<\/td><\/tr><tr><td>Adrenaline<\/td><td>α and β receptor agonist<\/td><td>Increases cardiac output and peripheral vascular resistance<\/td><\/tr><tr><td>Dopamine<\/td><td>β1 agonist<\/td><td>Increases contractility and rate<\/td><\/tr><tr><td>Dobutamine<\/td><td>β1 and β2 agonist<\/td><td>Increases cardiac output and decreases SVR<\/td><\/tr><tr><td>Milrinone<\/td><td>Phosphodiesterase inhibitor<\/td><td>Elevation of cAMP levels improves muscular contractility, short half life and acts as vasodilator<\/td><\/tr><\/tbody><\/table><\/div>"}, {"name": "Clopidogrel", "questions": [{"number": 25, "topic": "Clopidogrel", "stem_html": "A 74 year old man is admitted for an inguinal hernia repair. His past medical history includes transient ischaemic attacks for which he takes clopidogrel. This is stopped 36 hours prior to surgery. In the recovery room, he is noted to have signs of bleeding from the wound. What is the most likely explanation?", "options": [{"label_html": "Reduced Factor Xa levels", "is_correct": false}, {"label_html": "Platelet dysfunction", "is_correct": true}, {"label_html": "Reduced Factor IX levels", "is_correct": false}, {"label_html": "Injury to the epigastric vein", "is_correct": false}, {"label_html": "Injury to the femoral artery", "is_correct": false}], "correct_index": 1, "explanation_html": "The clopidogrel should have been stopped sooner. Vascular injuries are usually evident intraoperatively."}], "note_html": "Clopidogrel is an antiplatelet agent that is usually administered orally in doses of 75mg. It is converted by the P450 enzymes in the liver into the active drug. It decreases ADP induced platelet aggregation persisting for 120 hours after the final dose. This last point is especially relevant for surgeons as it means that it needs to be stopped around 5-7 days prior to surgery. Its effects are very potent and failure to adhere to this can result in significant increases in perioperative bleeding that can be difficult to control."}, {"name": "Complications following colorectal surgery", "questions": [{"number": 26, "topic": "Complications following colorectal surgery", "stem_html": "A 56 year old man is on the ward 5 days following a high anterior resection for a carcinoma of the recto sigmoid junction. Over the past 12 hours, he has developed increasing lower abdominal pain, a fever of 37.8<sup>o<\/sup>C and fast atrial fibrillation. Of the investigations listed below, which is likely to be the most useful?", "options": [{"label_html": "Abdominal X-ray", "is_correct": false}, {"label_html": "Abdominal ultrasound scan", "is_correct": false}, {"label_html": "Abdominal CT scan", "is_correct": true}, {"label_html": "Echocardiogram", "is_correct": false}, {"label_html": "Measurement of cardiac enzymes in the blood", "is_correct": false}], "correct_index": 2, "explanation_html": "New AF following a colonic resection is most likely to represent an anastomotic leak and this will be best seen on CT scanning."}], "note_html": "<b>Bleeding<\/b><br>Resections of the colon and rectum can result in immediate complications such as bleeding. The two main sites for this are the spleen which can be injured when the splenic flexure of the colon is mobilized and the pre sacral veins in the pelvis that can be injured in resections of the rectum. Other causes of bleeding include slipped ties. Where bleeding is suspected, the correct course of action is to resuscitate the patient and arrange a return to theatre.<br><br><b>Infection<\/b><br>Wound infections are not uncommon following colonic resections, this is particularly true in the emergency setting when there may be extensive contamination of the wound by virtue of the underlying disease process. In all cases of bowel resection, it is important to administer broad spectrum intravenous antibiotics before starting the case, if the case is a long one, additional doses of antibiotics may be needed intra operatively.<br>Post operatively, wound infections may manifest as cellulitis or wound collections. These will usually respond to measures such as draining the collections on the ward and administration of antibiotics. <br>Where the patient is more unwell, there is usually concern about intra abdominal infection, in such cases, cross sectional imaging with CT scanning with contrast is commonly performed.<br><br><b>Anastomotic leak<\/b><br>Any bowel anastomosis can leak, sometimes as a result of technical failings, at other times, its patient factors such as background disease that contribute. As a general rule, rectal resections carry the highest risk of anastomotic leak. Indeed, low anterior resections are routinely defunctioned with loop ileostomy to mitigate the clinically effects of a leak. Left sided colonic resections carry a higher risk of anastomotic leak than right sided resections. The reason for this is that an ileocolic anastomosis (or indeed any small bowel anastomosis) has a very low risk of leak (provided the small bowel is otherwise healthy). <br>Where a leak is suspected (new AF and raised inflammatory markers 5 days post resection), the correct course of action is to arrange cross sectional imaging with a CT scan. If a leak is confirmed and the patient septic, then they should go back to theatre, the anastomosis taken down and the bowel ends exteriorized."}, {"name": "Cryoprecipitate", "questions": [{"number": 27, "topic": "Cryoprecipitate", "stem_html": "A 73 year old man develops disseminated intravascular coagulation following an abdominal aortic aneurysm repair. He receives an infusion of cryoprecipitate. What is the major constituent of this infusion?", "options": [{"label_html": "Factor VIII", "is_correct": true}, {"label_html": "Factor IX", "is_correct": false}, {"label_html": "Protein C", "is_correct": false}, {"label_html": "Protein S", "is_correct": false}, {"label_html": "Factor V", "is_correct": false}], "correct_index": 0, "explanation_html": "<p>No explanation provided.<\/p>"}], "note_html": "- Blood product made from plasma<br><ul><li>Usually transfused as 6 unit pool<\/li><li>Indications include massive haemorrhage and uncontrolled bleeding due to haemophilia<\/li><\/ul><br><b>Composition<\/b><br><div class=\"table-responsive\"><table class=\"tlarge table table-striped table-bordered\" data-role=\"table\" id=\"tableid1\"><thead><tr><th><b>Agent<\/b><\/th><th><b>Quantity<\/b><\/th><\/tr><\/thead><tbody><tr><td>Factor VIII<\/td><td>100IU<\/td><\/tr><tr><td>Fibrinogen<\/td><td>250mg<\/td><\/tr><tr><td>von Willebrand factor<\/td><td>Variable<\/td><\/tr><tr><td>Factor XIII<\/td><td>Variable<\/td><\/tr><\/tbody><\/table><\/div>"}, {"name": "ECG features in hyperkalaemia", "questions": [{"number": 28, "topic": "ECG features in hyperkalaemia", "stem_html": "A 63 year old man undergoes a subtotal colectomy and iatrogenic injury to both ureters is sustained. He develops renal failure and his serum potassium is found to be elevated at 6.9 mmol/L. An ECG is performed, what is the most likely finding?", "options": [{"label_html": "Increased PR interval", "is_correct": false}, {"label_html": "Prominent U waves", "is_correct": false}, {"label_html": "Narrow QRS complexes", "is_correct": false}, {"label_html": "Peaked T waves", "is_correct": true}, {"label_html": "Low ST segments", "is_correct": false}], "correct_index": 3, "explanation_html": "Peaked T waves are the first and most common finding in hyperkalaemia."}], "note_html": "<ul><li>Peaking of T waves (occurs first)<\/li><li>Loss of P waves<\/li><li>Broad QRS complexes<\/li><li>Ventricullar fibrillation<\/li><\/ul>"}, {"name": "Enhanced recovery programmes", "questions": [{"number": 29, "topic": "Enhanced recovery programmes", "stem_html": "A 58 year old man is due to undergo a right hemicolectomy to treat an ascending colon cancer. This is a planned procedure and the surgeon decides to enroll the patient in an enhanced recovery programme following the surgery. Which of the interventions listed below is associated with reduced efficacy of enhanced recovery regimes?", "options": [{"label_html": "Carbohydrate loading drinks prior to surgery", "is_correct": false}, {"label_html": "Early light diet following the procedure", "is_correct": false}, {"label_html": "Early mobilisation", "is_correct": false}, {"label_html": "IV fluid loading regimes during the procedure", "is_correct": true}, {"label_html": "Oral fluids rather than IV fluids post procedure", "is_correct": false}], "correct_index": 3, "explanation_html": "Enhanced recovery regimes try and avoid excessive IV fluids. These increase the rates of ileus in GI surgery. The oral route is preferred where possible."}], "note_html": "Many surgical specialties have developed or adopted an enhanced recovery approach following procedures. Whilst the exact aspects differ according to the specialty involved, the broad principles remain the same.<br><br><b>Pre admission<\/b><br>Aim to optimise nutrition and any pre existing conditions. Prehabilitation programmes are used in some centres. Unit visits can be helpful to ensure patients know what to expect following the procedure.<br><br><b>Admission<\/b><br>In many cases admission on the day of the procedure is desirable and as near to the time of the procedure as possible.<br><br><b>Procedure related preparation<\/b><br>Try to minimise starvation times if GA is to be used. In many cases a carbohydrate loading drink is given 2 hours pre procedure. This is usually omitted in diabetic patients who are on complex insulin regimes.<br><br>For GI surgery, it is desirable to avoid mechanical bowel preparation unless this is essential.<br><br><b>Procedure<\/b><br>Minimally invasive procedures are preferred and sufficient analgesia to facilitate early ambulation. Avoid excessive IV fluids during the procedure as this can result in interstitial oedema and increase complication rates. <br><br><b>Post procedure<\/b><br>Aim for early ambulation, early removal of drains, catheters and IV lines where possible. Restart oral nutrition as soon as possible. Encourage patients to dress and walk about ward."}, {"name": "Enteral Feeding", "questions": [{"number": 30, "topic": "Enteral Feeding", "stem_html": "A 72 year old man is due to undergo an oesophagectomy for malignancy. His BMI is 17.5. What is the best feeding regime immediately following surgery?", "options": [{"label_html": "Total parenteral nutrition.", "is_correct": false}, {"label_html": "Feeding jejunostomy.", "is_correct": true}, {"label_html": "Feeding duodenostomy.", "is_correct": false}, {"label_html": "Liquid diet orally.", "is_correct": false}, {"label_html": "Soft solids orally.", "is_correct": false}], "correct_index": 1, "explanation_html": "This patient has a condition causing poor absorption, loss of nutrients and high metabolism. Enteral feeds should be used where possible and many surgeons will site a jejunostomy for this purpose. Oral diet is not permitted following a resection until the anastamosis has had time to heal."}, {"number": 31, "topic": "Enteral Feeding", "stem_html": "A 72 year old man is recovering from an inguinal hernia repair when he suffers from an extensive CVA. He is managed on the rehabilitation unit. However, he is still not able to feed safely and repeated swallowing assessments have shown that he tends to aspirate. Which of the following is the best option for long term feeding?", "options": [{"label_html": "PEG tube feeding", "is_correct": true}, {"label_html": "Feeding jejunostomy", "is_correct": false}, {"label_html": "Total parenteral nutrition", "is_correct": false}, {"label_html": "Long term naso gastric tube feeding", "is_correct": false}, {"label_html": "Withold feeding and palliate", "is_correct": false}], "correct_index": 0, "explanation_html": "A PEG tube is the best long term option although they are associated with a significant degree of morbidity. A feeding jejunostomy would require a general anaesthetic. TPN is not a good option. Long term naso gastric feeding is usually unsatisfactory."}], "note_html": "<ul><li>Identify patients as malnourished or at risk (see below)<\/li><li>Identify unsafe or inadequate oral intake with functional GI tract<\/li><li>Consider for enteral feeding<\/li><li>Gastric feeding unless upper GI dysfunction (then for duodenal or jejunal tube)<\/li><li>Check NG placement using aspiration and pH (check post pyloric tubes with AXR)<\/li><li>Gastric feeding &gt; 4 weeks consider long-term gastrostomy<\/li><li>Consider bolus or continuous feeding into the stomach<\/li><li>ITU patients should have continuous feeding for 16-24h (24h if on insulin)<\/li><li>Consider motility agent in ITU or acute patients for delayed gastric emptying.  If this doesn't work then try post pyloric feeding or parenteral feeding.<\/li><li>PEG can be used 4 hours after insertion, but should not be removed until &gt;2 weeks after insertion.<\/li><\/ul><br>Surgical patients due to have major abdominal surgery: if malnourished, unsafe swallow/inadequate oral intake and functional GI tract then consider pre operative enteral feeding.<br><br><b>Patients identified as being malnourished<\/b><br><ul><li>BMI &lt; 18.5 kg/m<sup>2<\/sup><\/li><li>unintentional weight loss of &gt; 10% over 3-6/12<\/li><li>BMI &lt; 20 kg/m<sup>2<\/sup> and unintentional weight loss of &gt; 5% over 3-6/12<\/li><\/ul><br><b>AT RISK of malnutrition<\/b><br><ul><li>Eaten nothing or little &gt; 5 days, who are likely to eat little for a further 5 days<\/li><li>Poor absorptive capacity<\/li><li>High nutrient losses<\/li><li>High metabolism<\/li><\/ul><br><b>Reference<\/b><br>Stroud M <i>et al<\/i>. Guidelines for enteral feeding in adult hospital patients. <i>Gut<\/i> 2003; 52(Suppl VII):vii1 - vii12."}, {"name": "Hypovolaemia and the surgical patient", "questions": [{"number": 32, "topic": "Hypovolaemia and the surgical patient", "stem_html": "A 48 year old man is recovering on the high dependency unit following a long and complex laparotomy. His preoperative medication includes an ACE inhibitor for blood pressure control. For the past two hours he has been oliguric with a urine output of 10ml/hr<sup>-1<\/sup>. What the most appropriate immediate course of action?", "options": [{"label_html": "Stop the ACE inhibitor", "is_correct": false}, {"label_html": "Administer a fluid challenge", "is_correct": true}, {"label_html": "Start an infusion of nor adrenaline", "is_correct": false}, {"label_html": "Administer intravenous frusemide", "is_correct": false}, {"label_html": "Insert a Swann-Ganz Catheter", "is_correct": false}], "correct_index": 1, "explanation_html": "Hypovolaemia is the most likely cause for oliguria and a fluid challenge is the most appropriate action. Blind administration of inotropes to hypovolaemic patients is unwise, with the possible exception of cardiac patients."}], "note_html": "Hypovolaemia often represents the end point of multiple pathological processes. It may be divided into the following categories; overt compensated hypovolaemia, covert compensated hypovolaemia and decompensated hypovolaemia. Of these three categories the covert compensated subtype of hypovolaemia remains the commonest and is accounted for by the fact that class I shock will often produce no overtly discernible clinical signs. This is due, in most cases, to a degree of splanchnic autotransfusion. The most useful diagnostic test for detection of covert compensated hypovolaemia remains urinanalysis. This often shows increased urinary osmolality and decreased sodium concentration.<br><br>In overt compensated hypovolaemia the blood pressure is maintained although other haemodynamic parameters may be affected. This correlates to class II shock. In most cases assessment can be determined clinically. Where underlying cardiopulmonary disease may be present the placement of a CVP line may guide fluid resuscitation. Severe pulmonary disease may produce discrepancies between right and left atrial filling pressures. This problem was traditionally overcome through the use of Swann-Ganz catheters. <br><br>Untreated, hypovolaemia may ultimately become uncompensated with resultant end organ dysfunction. Microvascular hypoperfusion may result in acidosis with a subsequent myocardial depressive effect, thereby producing a vicious circle. <br><br>The treatment of hypovolaemia is with intravenous fluids. In the first instance a fluid challenge such as the rapid infusion of 250ml of crystalloid will often serve as both a diagnostic and resuscitative measure. In the event that this fails to produce the desired response the patient will need to be re-evaluated clinically. More fluid may be needed. However, it is important not to overlook mechanical ureteric obstruction in the anuric, normotensive patient."}, {"name": "Malignant hyperthermia", "questions": [{"number": 33, "topic": "Malignant hyperthermia", "stem_html": "A 22 year old fit and well male undergoes an emergency appendicectomy.  He is given suxamethonium.  An inflamed appendix is removed and the patient is returned to recovery.  On arrival in the recovery area; the patient develops a tachycardia of 120 bpm and a temperature of 40 <sup>o<\/sup>C.  He has generalised muscular rigidity.  What is the most likely diagnosis?", "options": [{"label_html": "Acute dystonic reaction", "is_correct": false}, {"label_html": "Malignant hyperthermia", "is_correct": true}, {"label_html": "Pelvic abscess", "is_correct": false}, {"label_html": "Epilepsy", "is_correct": false}, {"label_html": "Serotonin syndrome", "is_correct": false}], "correct_index": 1, "explanation_html": "Anaesthetic agents, such as suxamethonium, can cause malignant hyperthermia in patients with a genetic defect.  Acute dystonic reaction normally is associated with antipsychotics (haloperidol) and metoclopramide. These lead to marked extrapyramidal effects. Serotonin syndrome is associated with the antidepressants selective serotonin reuptake inhibitors (SSRIs) and selective serotonin/norepinephrine reuptake inhibitors (SSNRIs).  This causes a syndrome of agitation, tachycardia, hallucinations and hyper-reflexia."}], "note_html": "<b>Overview<\/b><br><ul><li>Condition seen following administration of anaesthetic agents ( rate of 1 in 15,000)<\/li><li>Characterised by hyperpyrexia and muscle rigidity<\/li><li>Cause by excessive release of Ca<sup>2+<\/sup> from the sarcoplasmic reticulum of skeletal muscle<\/li><li>Associated with defects in a gene on chromosome 19 encoding the ryanodine receptor, which controls Ca<sup>2+<\/sup> release from the sarcoplasmic reticulum<\/li><li>Neuroleptic malignant syndrome may have a similar aetiology<\/li><\/ul><br><b>Causative agents<\/b><br><ul><li>Halothane<\/li><li>Suxamethonium<\/li><li>Other drugs: antipsychotics (neuroleptic malignant syndrome)<\/li><\/ul><br><b>Investigations<\/b><br><ul><li>CK raised<\/li><li>Contracture tests with halothane and caffeine<\/li><\/ul><br><b>Management<\/b><br><ul><li>Dantrolene - prevents Ca<sup>2+<\/sup> release from the sarcoplasmic reticulum<\/li><\/ul>"}, {"name": "Management of pain", "questions": [{"number": 34, "topic": "Management of pain", "stem_html": "A 55 year old man with no co-morbidity is due to undergo a Milligan Morgan haemorrhoidectomy, what is the most appropriate method of delivering immediate post operative analgesia?", "options": [{"label_html": "Pudendal nerve release", "is_correct": false}, {"label_html": "Caudal block", "is_correct": true}, {"label_html": "Rectal NSAIDS", "is_correct": false}, {"label_html": "IV fentanyl", "is_correct": false}, {"label_html": "Paracetamol", "is_correct": false}], "correct_index": 1, "explanation_html": "Following excisional haemorrhoidectomy, severe pain is not unusual, a well placed caudal anaesthetic will counter this. A pudendal nerve block is an alternative but is less effective than a caudal."}, {"number": 35, "topic": "Management of pain", "stem_html": "A 55 year old man undergoes an appendicectomy through a lower midline laparotomy incision. What is the most appropriate modality for providing post operative analgesia?", "options": [{"label_html": "Epidural", "is_correct": false}, {"label_html": "Spinal", "is_correct": false}, {"label_html": "Patient controlled analgesic infusion", "is_correct": true}, {"label_html": "Oral tramadol alone", "is_correct": false}, {"label_html": "Oral NSAID's alone", "is_correct": false}], "correct_index": 2, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Active infection (severe appendicitis would be included in this category) is a relative contra indication to epidural anaesthesia.<\/div>"}, {"number": 36, "topic": "Management of pain", "stem_html": "A 72 year old man with prostate cancer is admitted to urology with urinary retention. He complains of back pain which is not responding to ward analgesia. Imaging shows several lumbar vertebral body metastasis. What is the most appropriate management?", "options": [{"label_html": "Commence a bisphosphonate", "is_correct": false}, {"label_html": "Arrange radiotherapy to the lumbar spine", "is_correct": true}, {"label_html": "Surgical resection and reconstruction of the vertebral body", "is_correct": false}, {"label_html": "Administration of pregabalin", "is_correct": false}, {"label_html": "Chemotherapy", "is_correct": false}], "correct_index": 1, "explanation_html": "The fact that ward based analgesia has been tried suggests that the patient be considered for palliative radiotherapy. Surgical resection of prostate cancer bony metastatic disease is not generally performed."}, {"number": 37, "topic": "Management of pain", "stem_html": "What is the most appropriate management for a 56 year old lady who has shooting pains in her arm following a mastectomy and axillary node clearance?", "options": [{"label_html": "Carbamazepine", "is_correct": false}, {"label_html": "Pregabalin", "is_correct": true}, {"label_html": "Oramorph", "is_correct": false}, {"label_html": "Diclofenac", "is_correct": false}, {"label_html": "Chemical neurectomy", "is_correct": false}], "correct_index": 1, "explanation_html": "Pregabalin is generally the first line agent for neuropathic pain."}, {"number": 38, "topic": "Management of pain", "stem_html": "What is the most appropriate analgesic to administer to a term neonate who is recovering following an inguinal herniotomy?", "options": [{"label_html": "Co-codamol", "is_correct": false}, {"label_html": "Paracetamol", "is_correct": true}, {"label_html": "Ibuprofen", "is_correct": false}, {"label_html": "Carbamazepine", "is_correct": false}, {"label_html": "Codeine", "is_correct": false}], "correct_index": 1, "explanation_html": "Paracetamol is an effective analgesic in children and pain following herniotomy is relatively minor. Note that codeine is contra indicated in neonates. The child is too young to receive ibuprofen."}, {"number": 39, "topic": "Management of pain", "stem_html": "What is the most appropriate method of delivering early post-operative analgesia to a 6 month old child following an orchidopexy?", "options": [{"label_html": "TAP block", "is_correct": false}, {"label_html": "Caudal block", "is_correct": true}, {"label_html": "Wound analgesic infusion catheter", "is_correct": false}, {"label_html": "Spinal block", "is_correct": false}, {"label_html": "Epidural block", "is_correct": false}], "correct_index": 1, "explanation_html": "Orchidopexy can be quite uncomfortable immediately following surgery. A caudal block can be a very effective adjunct and provides good analgesia. A spinal block and epidural would be inappropriate. A TAP block may cover the inguinal canal but this is not generally reliable and wound catheters are not used."}, {"number": 40, "topic": "Management of pain", "stem_html": "A 72 year old man attends vascular clinic after having an amputation 2 months ago. He is having difficulty sleeping at night due to persistent tingling at the amputation site. He is known to have orthostatic hypotension. What is the most appropriate analgesic modality?", "options": [{"label_html": "Amitriptylline", "is_correct": false}, {"label_html": "Pregabalin", "is_correct": true}, {"label_html": "Duloxetine", "is_correct": false}, {"label_html": "Morphine", "is_correct": false}, {"label_html": "Diclofenac", "is_correct": false}], "correct_index": 1, "explanation_html": "This patient has phantom limb pain which is a neuropathic pain. First line management is with amitriptylline or pregabalin. However this patient has orthostatic hypotension, which is a side effect of amitriptylline, therefore pregabalin is the treatment of choice."}, {"number": 41, "topic": "Management of pain", "stem_html": "A patient with locally advanced pancreatic cancer has persistent back pain. Which of the following is the appropriate treatment?", "options": [{"label_html": "Systemic steroids", "is_correct": false}, {"label_html": "Nerve block", "is_correct": true}, {"label_html": "NSAIDS", "is_correct": false}, {"label_html": "Paracetamol", "is_correct": false}, {"label_html": "Transcutaneous electric nerve stimulation", "is_correct": false}], "correct_index": 1, "explanation_html": "Pancreatic cancer can cause severe pain as a result of retroperitoneal nerve infiltration. It can be managed with chemical neurectomy/ nerve blocks."}, {"number": 42, "topic": "Management of pain", "stem_html": "Which statement is false about pethidine?", "options": [{"label_html": "It is thirty times more lipid soluble than morphine", "is_correct": false}, {"label_html": "Structurally similar to morphine", "is_correct": true}, {"label_html": "Pethidine has a toxic metabolite (norpethidine) which is cleared by the kidney", "is_correct": false}, {"label_html": "Pethidine is metabolized by the liver", "is_correct": false}, {"label_html": "Can be given intramuscularly", "is_correct": false}], "correct_index": 1, "explanation_html": "It has a different structure. It is much more lipid soluble than morphine. It produces less biliary tract spasm than morphine."}], "note_html": "<b>World Health Organisation Analgesic Ladder<\/b><br><ul><li>Initially peripherally acting drugs such as paracetamol or non-steroidal anti-inflammatory drugs (NSAIDs) are given. <\/li><li>If pain control is not achieved, the second part of the ladder is to introduce weak opioid drugs such as codeine or dextropropoxyphene together with appropriate agents to control and minimise side effects. <\/li><li>The final rung of the ladder is to introduce strong opioid drugs such as morphine. Analgesia from peripherally acting drugs may be additive to that from centrally-acting opioids and thus, the two are given together. <\/li><\/ul><br><b>The World Federation of Societies of Anaesthesiologists (WFSA) Analgesic Ladder<\/b> <br><ul><li>For management of acute pain<\/li><li>Initially, the pain can be expected to be severe and may need controlling with strong analgesics in combination with local anaesthetic blocks and peripherally acting drugs.  <\/li><li>The second rung on the postoperative pain ladder is the restoration of the use of the oral route to deliver analgesia. Strong opioids may no longer be required and adequate analgesia can be obtained by using combinations of peripherally acting agents and weak opioids. <\/li><li>The final step is when the pain can be controlled by peripherally acting agents alone.  <\/li><\/ul><br><b>Local anaesthetics<\/b><br><ul><li>Infiltration of a wound with a long-acting local anaesthetic such as Bupivacaine<\/li><li>Analgesia for several hours<\/li><li>Further pain relief can be obtained with repeat injections or by infusions via a thin catheter<\/li><li>Blockade of plexuses or peripheral nerves will provide selective analgesia in those parts of the body supplied by the plexus or nerves<\/li><li>Can either be used to provide anaesthesia for the surgery or specifically for postoperative pain relief<\/li><li>Especially useful where a sympathetic block is needed to improve postoperative blood supply or where central blockade such as spinal or epidural blockade is contraindicated. <\/li><\/ul><br><b>Spinal anaesthesia<\/b><br>Provides excellent analgesia for surgery in the lower half of the body and pain relief can last many hours after completion of the operation if long-acting drugs containing vasoconstrictors are used. <br><br>- Side effects of spinal anaesthesia include: hypotension, sensory and motor block, nausea and urinary retention. <br><br><b>Epidural anaesthesia<\/b><br>An indwelling epidural catheter inserted. This can then be used to provide a continuous infusion of analgesic agents. It can provide excellent analgesia. They are still the preferred option following major open abdominal procedures and help prevent post operative respiratory compromise resulting from pain.<br><br>- Disadvantages of epidurals is that they usually confine patients to bed, especially if a motor block is present. In addition an indwelling urinary catheter is required. Which may not only impair mobility but also serve as a conduit for infection. They are contraindicated in coagulopathies.<br><br><b>Transversus Abdominal Plane block (TAP)<\/b><br>In this technique an ultrasound is used to identify the correct muscle plane and local anaesthetic (usually bupivicaine) is injected. The agent diffuses in the plane and blocks many of the spinal nerves. It is an attractive technique as it provides a wide field of blockade but does not require the placement of any indwelling devices. There is no post operative motor impairment. For this reason it is the preferred technique when extensive laparoscopic abdominal procedures are performed. They will then provide analgesia immediately following surgery but as they do not confine the patient to bed, the focus on enhanced recovery can begin sooner. <br><br>-The main disadvantage is that their duration of action is limited to the half life of the local anaesthetic agent chosen. In addition some anaesthetists do not have the USS skills required to site the injections.<br><br><b>Patient Controlled Analgesia (PCA)<\/b><br> <br>- Patients administer their own intravenous analgesia and titrate the dose to their own end-point of pain relief using a small microprocessor - controlled pump. Morphine is the most popular drug used.<br><br><br><b>Strong Opioids<\/b><br>  <br>Severe pain arising from deep or visceral structures requires the use of strong opioids<br><br><b>Morphine<\/b><br><ul><li>Short half life and poor bioavailability. <\/li><li>Metabolised in the liver and clearance is reduced in patients with liver disease, in the elderly and the debilitated<\/li><li>Side effects include nausea, vomiting, constipation and respiratory depression. <\/li><li>Tolerance may occur with repeated dosage <\/li><\/ul><br><b>Pethidine<\/b><br><ul><li>Synthetic opioid which is structurally different from morphine but which has similar actions. Has 10% potency of morphine.<\/li><li>Short half life and similar bioavailability and clearance to morphine. <\/li><li>Short duration of action and may need to be given hourly. <\/li><li>Pethidine has a toxic metabolite (norpethidine) which is cleared by the kidney, but which accumulates in renal failure or following frequent and prolonged doses and may lead to muscle twitching and convulsions. Extreme caution is advised if pethidine is used over a prolonged period or in patients with renal failure. <\/li><\/ul><br><br><b>Weak opioids<\/b><br>Codeine: markedly less active than morphine, has predictable effects when given orally and is effective against mild to moderate pain. <br><br><b>Non opioid analgesics<\/b><br>-  Mild to moderate pain. <br><br><b>Paracetamol<\/b><br><ul><li>Inhibits prostaglandin synthesis.  <\/li><li>Analgesic and antipyretic properties but little anti-inflammatory effect<\/li><li>It is well absorbed orally and is metabolised almost entirely in the liver<\/li><li>Side effects in normal dosage and is widely used for the treatment of minor pain. It causes hepatotoxicity in over dosage by overloading the normal metabolic pathways with the formation of a toxic metabolite. <\/li><\/ul><br><b>NSAIDs<\/b><br><ul><li>Analgesic and anti-inflammatory actions<\/li><li>Inhibition of prostaglandin synthesis by the enzyme Cyclooxygenase which catalyses the conversion of arachidonic acid to the various prostaglandins that are the chief mediators of inflammation. All NSAIDs work in the same way and thus there is no point in giving more than one at a time. . <\/li><li>NSAIDs are, in general, more useful for superficial pain arising from the skin, buccal mucosa, joint surfaces and bone. <\/li><li>Relative contraindications: history of peptic ulceration, gastrointestinal bleeding or bleeding diathesis; operations associated with high blood loss, asthma, moderate to severe renal impairment, dehydration and any history of hypersensitivity to NSAIDs or aspirin. <\/li><\/ul><br> <br><b>Neuropathic pain<\/b><br>National Institute of Clinical Excellence (UK) guidelines:<br><ul><li>First line: Amitriptyline (Imipramine if cannot tolerate) or pregabalin<\/li><li>Second line: Amitriptyline AND pregabalin<\/li><li>Third line: refer to pain specialist. Give tramadol in the interim (avoid morphine)<\/li><li>If diabetic neuropathic pain: Duloxetine<\/li><li>As of 1 April 2019, pregabalin and gabapentin are Class C controlled substances (under the Misuse of Drugs Act 1971) and scheduled under the Misuse of Drugs Regulations 2001 as Schedule 3. Evaluate patients carefully for a history of drug abuse before prescribing and observe patients for development of signs of abuse and dependence (MHRA, Drug Safety Update April 2019).<\/li><\/ul><br><b>References<\/b><br>1. http://guidance.nice.org.uk/CG173/Guidance/pdf/English<br>2. Lovich-Sapola J, Smith CE, Brandt CP. Post operative pain control. <i>Surg Clin North Am<\/i>. 2015 Apr;95(2):301-183. Finnerup N <i>et al<\/i>. Pharmacotherapy for neuropathic pain in adults: a systematic review and meta-analysis. <i>Lancet Neurol<\/i>. 2015 Feb;14(2):162-73."}, {"name": "Massive haemorrhage", "questions": [{"number": 43, "topic": "Massive haemorrhage", "stem_html": "A 45 year old man is involved in a polytrauma and requires a massive transfusion of packed red cells and fresh frozen plasma. Three hours later he develops marked hypoxia and his CVP is noted to be 10mm Hg. A chest x-rays shows bilateral diffuse pulmonary infiltrates. What is the most likely diagnosis?", "options": [{"label_html": "Pulmonary embolus", "is_correct": false}, {"label_html": "Myocardial stunning", "is_correct": false}, {"label_html": "Myocardial infarct", "is_correct": false}, {"label_html": "Fluid overload", "is_correct": false}, {"label_html": "Transfusion associated lung injury", "is_correct": true}], "correct_index": 4, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">The risk of transfusion associated lung injury is greatest with plasma components.<\/div>Transfusion lung injury may occur after infusion of plasma components. Microvascular damage occurs in the lungs leading to diffuse infiltrates on imaging. Mortality is high."}, {"number": 44, "topic": "Massive haemorrhage", "stem_html": "A 43 year old lady presents in a state of cardiovascular collapse. She is stabilized by the ambulance crew prior to transfer to hospital. In the emergency department, a CT scan of the chest, abdomen and pelvis is performed. The scan shows a large volume of blood in the abdomen the cause of which is not immediately apparent. An infusion of packed red cells is ongoing. Her current observations demonstrate a pulse rate of 120 beats per minute. Her blood pressure is 80/60 mm Hg, respiratory rate is 23 breaths per minute. What is the most appropriate course of action?", "options": [{"label_html": "Immediate laparotomy", "is_correct": true}, {"label_html": "Administration of intravenous volume replacement to achieve a systolic blood pressure of &gt;100 mmHg and then proceed to laparotomy", "is_correct": false}, {"label_html": "Undertake a diagnostic laparoscopy", "is_correct": false}, {"label_html": "Administration of intravenous volume replacement to achieve a systolic blood pressure of &gt;100mmHg and then proceed to diagnostic laparoscopy", "is_correct": false}, {"label_html": "Undertake a mesenteric angiogram", "is_correct": false}], "correct_index": 0, "explanation_html": "The patient has large volume blood loss and is unstable in spite of volume replacement. A laparoscopy is unlikely to demonstrate clear operative views to allow assessment. At laparotomy, there will need to be evacuation of blood (the use of a cell saver can be considered). Damage control principles should be followed in such cases."}], "note_html": "<b>Definition<\/b><br>This is the loss of one blood volume in a 24 hour period or the loss of 50% of the circulating blood volume in 3 hours. A blood loss of 150ml/ minute is also included. The normal adult blood volume is 7% of total adult body weight. The blood volume equates to between 8 and 9% of a child's body weight. <br><br><b>Complications of massive transfusion<\/b><br><div class=\"table-responsive\"><table class=\"tlarge table table-striped table-bordered\" data-role=\"table\" id=\"tableid1\"><thead><tr><th><b>Complication<\/b><\/th><th><b>Key points<\/b><\/th><\/tr><\/thead><tbody><tr><td>Hypothermia<\/td><td>Blood is refrigerated<br>Hypothermic blood impairs homeostasis <br>Shifts Bohr curve to the left<\/td><\/tr><tr><td>Hypocalcaemia<\/td><td>Both FFP and platelets contain citrate anticoagulant, this may chelate calcium<\/td><\/tr><tr><td>Hyperkalaemia<\/td><td>Plasma of red cells stored for 4-5 weeks contains 5-10 mmol K<sup>+<\/sup><\/td><\/tr><tr><td>Delayed type transfusion reactions<\/td><td>Due to minor incompatibility issues especially if urgent or non cross matched blood used<\/td><\/tr><tr><td>Transfusion related lung injury<\/td><td>Acute onset non cardiogenic pulmonary oedema<br>Leading cause of transfusion related deaths<br>Greatest risk posed with plasma components<br>Occurs as a result of leucocyte antibodies in transfused plasma<br>Aggregation and degranulation of leucocytes in lung tissue accounts for lung injury<\/td><\/tr><tr><td>Coagulopathy<\/td><td>Anticipate once circulating blood volume transfused<br>1 blood volume usually drops platelet count to 100 or less<br>1 blood volume will both dilute and not replace clotting factors<br>Fibrinogen concentration halves per 0.75 blood volume transfused<\/td><\/tr><\/tbody><\/table><\/div><br><b>References<\/b><br>Stanworth S <i> et al<\/i>. Haematological management of major haemorrhage: a British Society for Haematology Guideline <i>British Journal of Haematology<\/i> 2022 (198): 654 to 667."}, {"name": "Midazolam", "questions": [{"number": 45, "topic": "Midazolam", "stem_html": "An 83 year old lady attends the endoscopy department for a flexible sigmoidoscopy. The endoscopist administers 7mg of intravenous midazolam for sedation. Approximately 3 minutes later the patient is noted to be hypoxic and has a respiratory rate of 5 breaths per minute. What is the most useful agent to administer at this point?", "options": [{"label_html": "Intravenous naloxone", "is_correct": false}, {"label_html": "Oral naloxone", "is_correct": false}, {"label_html": "Intravenous flumazenil", "is_correct": true}, {"label_html": "Intravenous doxapram", "is_correct": false}, {"label_html": "Nebulised adrenaline", "is_correct": false}], "correct_index": 2, "explanation_html": "Benzodiazepine overdose with marked suppression of respiratory activity should be managed with IV flumazenil."}], "note_html": "Midazolam is a short acting benzodiazepine. It is usually administered intravenously, when administered orally, dosing is less reliable. It is eliminated via the cytochrome P450 pathway in the liver. It is often used for procedural related sedation purposes. It is generally administered in doses of 2-5mg for this purpose. It is often given in combination with a short acting opiate such as fentanyl for analgesic purposes. One of the main reasons that midazolam is preferred for procedural related sedation is due to a degree of amnesia that can accompany it. If administered in excess, most patients can be managed with simple airway support measures an monitoring. However, if there is significant respiratory compromise, it can be reversed with the agent flumazenil which is a selective GABA receptor antagonist."}, {"name": "Muscle relaxants", "questions": [{"number": 46, "topic": "Muscle relaxants", "stem_html": "Which of the following muscle relaxants will tend to incite neuromuscular excitability following administration?", "options": [{"label_html": "Atracurium", "is_correct": false}, {"label_html": "Suxamethonium", "is_correct": true}, {"label_html": "Vecuronium", "is_correct": false}, {"label_html": "Pancuronium", "is_correct": false}, {"label_html": "None of the above", "is_correct": false}], "correct_index": 1, "explanation_html": "Suxamethonium may induce generalised muscular contractions following administration. This may raise serum potassium levels."}, {"number": 47, "topic": "Muscle relaxants", "stem_html": "Which of the following muscle relaxants is an agent that is degraded by hydrolysis and may produce histamine release?", "options": [{"label_html": "Atracurium", "is_correct": true}, {"label_html": "Panciuronium", "is_correct": false}, {"label_html": "Curare", "is_correct": false}, {"label_html": "Suxamethonium", "is_correct": false}, {"label_html": "Vecuronium", "is_correct": false}], "correct_index": 0, "explanation_html": "Atracurium is degraded by a process of ester hydrolysis. This uses non specific plasma esterases."}, {"number": 48, "topic": "Muscle relaxants", "stem_html": "Which of the following agents is least suitable for a 23 year old man with burns and bilateral tibial fractures after being trapped in a car accident for 2 hours?", "options": [{"label_html": "Suxamethonium", "is_correct": true}, {"label_html": "Atracurium", "is_correct": false}, {"label_html": "Vecuronium", "is_correct": false}, {"label_html": "Pancuronium", "is_correct": false}, {"label_html": "Propofol", "is_correct": false}], "correct_index": 0, "explanation_html": "Suxamethonium may induce hyperkalaemia as it induces generalised muscular contractions. In patients with likely extensive tissue necrosis this may be sufficient to produce cardiac arrest."}, {"number": 49, "topic": "Muscle relaxants", "stem_html": "Use of which of the following muscle relaxants is least likely to result in histamine release?", "options": [{"label_html": "Atracurium", "is_correct": false}, {"label_html": "Tubocurarine", "is_correct": false}, {"label_html": "Doxacurium", "is_correct": false}, {"label_html": "Mivacurium", "is_correct": false}, {"label_html": "Suxamethonium", "is_correct": true}], "correct_index": 4, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Drugs in the tetrahydroisoquinoline such as atracurium cause histamine release. Vecuronium and suxamethonium do not do this.<\/div>"}, {"number": 50, "topic": "Muscle relaxants", "stem_html": "Which of the drugs listed below confers the greatest risk of malignant hyperthermia?", "options": [{"label_html": "Decamethonium halides", "is_correct": false}, {"label_html": "Suxamethonium", "is_correct": true}, {"label_html": "Benzquinonium", "is_correct": false}, {"label_html": "Gallamine", "is_correct": false}, {"label_html": "Vecuronium", "is_correct": false}], "correct_index": 1, "explanation_html": "Suxamethonium may cause malignant hyperthermia and 1 in 2800 will have abnormal cholinesterase enzyme and prolonged clinical effect."}, {"number": 51, "topic": "Muscle relaxants", "stem_html": "Administration of neostigmine to a patient who has received a non depolarizing muscle relaxant is most likely to result in which of the following?", "options": [{"label_html": "Prolongation of muscle relaxation", "is_correct": false}, {"label_html": "Tachycardia", "is_correct": false}, {"label_html": "Hypertension", "is_correct": false}, {"label_html": "Bradycardia", "is_correct": true}, {"label_html": "Decreased gut peristalsis", "is_correct": false}], "correct_index": 3, "explanation_html": "Neostigmine can cause bradycardia and atropine is often administered concomitantly to counter this effect."}], "note_html": "<div class=\"table-responsive\"><table class=\"table table-bordered\"><tbody><tr><td><b>Suxamethonium<\/b><\/td><td><ul><li>Depolarising neuromuscular blocker<\/li><li>Inhibits action of acetylcholine at the neuromuscular junction<\/li><li>Degraded by plasma cholinesterase and acetylcholinesterase (affected by lack of acetylcholinesterase)<\/li><li>Fastest onset and shortest duration of action of all muscle relaxants<\/li><li>Produces generalised muscular contraction prior to paralysis<\/li><li>Adverse effects include hyperkalaemia, malignant hyperthermia, delayed recovery<\/li><\/ul><\/td><\/tr><tr><td><b>Atracurium<\/b><\/td><td><ul><li>Non depolarising neuromuscular blocking drug<\/li><li>Duration of action usually 30-45 minutes<\/li><li>Generalised histamine release on administration may produce facial flushing, tachycardia and hypotension<\/li><li>Not excreted by liver or kidney, broken down in tissues by hydrolysis<\/li><li>Reversed by neostigmine<\/li><\/ul><\/td><\/tr><tr><td><b>Vecuronium<\/b><\/td><td><ul><li>Non depolarising neuromuscular blocking drug<\/li><li>Duration of action approximately 30 - 40 minutes<\/li><li>Degraded by liver and kidney and effects prolonged in organ dysfunction<\/li><li>Effects may be reversed by neostigmine<\/li><\/ul><\/td><\/tr><tr><td><b>Pancuronium<\/b><\/td><td><ul><li>Non depolarising neuromuscular blocker<\/li><li>Onset of action approximately 2-3 minutes<\/li><li>Duration of action up to 2 hours<\/li><li>Effects may be partially reversed with drugs such as neostigmine<\/li><\/ul><\/td><\/tr><\/tbody><\/table><\/div>"}, {"name": "Neuromuscular blocking drugs", "questions": [{"number": 52, "topic": "Neuromuscular blocking drugs", "stem_html": "A 45 year old man undergoes a general anaesthetic and a depolarising muscle relaxation agent is used. At the conclusion of the procedure which comprises the removal of a small simple skin lesion, the patient does not resume spontaneous respiration. A deficiency in which of the enzymes listed below is likely to account for this process?", "options": [{"label_html": "P450 cytochrome oxidase", "is_correct": false}, {"label_html": "Lipase", "is_correct": false}, {"label_html": "Catalase", "is_correct": false}, {"label_html": "Glucose-6-phosphate dehydrogenase", "is_correct": false}, {"label_html": "Pseudocholinesterase", "is_correct": true}], "correct_index": 4, "explanation_html": "<p>No explanation provided.<\/p>"}], "note_html": "These drugs work by preventing acetylcholine interacting with the post synaptic (nicotinic) receptors on the motor end plate of skeletal muscle. They are described as being either depolarising or non depolarising according to their mode of action. <br><br><b>Depolarising neuromuscular blocking drugs<\/b><br>Suxamethonium is the only commonly used drug in this category. Following injection there is a brief period of muscular fasciculation as the membrane is depolarised followed by paralysis. Recovery occurs spontaneously as the suxamethonium is hydrolysed by the enzyme plasma pseudocholinesterase. This process typically takes 4-6 minutes. <br>Suxamethonium has a number of important side effects which include malignant hyperpyrexia in susceptible patients, increased intra ocular pressure, prolonged apoea in those with pseudocholinesterase deficiency, a rise in serum potassium (which is most marked in burns and crush injury patients).<br><br><b>Pseudocholinesterase deficiency<\/b><br>Approximately 50 in 1000 will have slightly reduced enzyme activity and the paralysis effects may last for up to 20 minutes. In those with true and complete enzyme deficiency the apnoea can lasts for up to 2 hours, the incidence of this is &lt;1 per 1000. Patients who display an enzyme lack will require prolonged ventillatory support subsequently and should be warned of this. This should then be clearly recorded in patient notes.<br><br><b>Non depolarising neuromuscular blocking drugs<\/b><br>These drugs compete with acetylcholine and block its access at the post synaptic receptor sites on the muscle. They do not cause depolarisation. They have a slower duration of onset and a longer duration of action than suxamethonium. In many cases an anticholinesterase may be administered to hasten recovery. This results in an increase in acetylcholine at the receptor site which then competes with the paralysing drug at the receptor site. Reversal drugs are not administered until there is some evidence of returning neuromuscular function to avoid rebound paralysis following recovery from anaesthesia. An antimuscarinic drug is used concomitantly with reversal agents to avoid the parsympathetic surge that would otherwise accompany a rise in AcH levels at the parasympathetic receptors with associated bradycardia and salivation.  Neostigmine is the reversal agent in common use and it is often administered with atropine or glycopyrrolate to avoid the adverse effects outline above."}, {"name": "Neuropathic pain", "questions": [{"number": 53, "topic": "Neuropathic pain", "stem_html": "A 73 year old man undergoes a right below knee amputation for end stage peripheral vascular disease.  He is reviewed in the clinic 8 weeks post operatively and complains of a persistent, burning discomfort over his amputation site stump.  On examination, his wound has healed and proximal pulses have a biphasic signal on doppler ultrasound.  What is the most appropriate management?", "options": [{"label_html": "Commence amitryptyline", "is_correct": true}, {"label_html": "Commence fentanyl patch", "is_correct": false}, {"label_html": "Arrange duplex scan", "is_correct": false}, {"label_html": "Arrange MRI scan of the stump", "is_correct": false}, {"label_html": "Commence carbamazepine", "is_correct": false}], "correct_index": 0, "explanation_html": "This patient has neuropathic pain.  Amitryptyline is the treatment of choice.  Carbamazepine is mainly used for trigeminal neuralgia."}], "note_html": "Neuropathic pain may be defined as pain which arises following damage or disruption of the nervous system. It is often difficult to treat and responds poorly to standard analgesia.<br><br>Examples include:<br><ul><li>diabetic neuropathy<\/li><li>post-herpetic neuralgia<\/li><li>trigeminal neuralgia<\/li><li>prolapsed intervertebral disc<\/li><\/ul><br>NICE issued guidance in 2010 on the management of neuropathic pain:<br><ul><li>first-line treatment*: oral amitriptyline or pregabalin<\/li><li>if satisfactory pain reduction is obtained with amitriptyline but the person cannot tolerate the adverse effects, consider oral imipramine or nortriptyline as an alternative<\/li><li>second-line treatment: if first-line treatment was with amitriptyline, switch to or combine with pregabalin. If first-line treatment was with pregabalin, switch to or<\/li><\/ul>combine with amitriptyline<br><ul><li>other options: pain management clinic, tramadol (not other strong opioids), topical lidocaine for localised pain if patients unable to take oral medication<\/li><\/ul><br>*please note that for some specific conditions the guidance may vary. For example carbamazepine is used first-line for trigeminal neuralgia, duloxetine for diabetic neuropathy"}, {"name": "Nutrition Monitoring-NICE guidelines", "questions": [{"number": 54, "topic": "Nutrition Monitoring-NICE guidelines", "stem_html": "Which of the following statements relating to use of total parenteral nutrition is untrue?", "options": [{"label_html": "It may cause steatosis and derangement of liver function tests", "is_correct": false}, {"label_html": "Administration via a central line or PICC line is preferable to peripheral administration", "is_correct": false}, {"label_html": "It is highly irritant to vessel walls", "is_correct": false}, {"label_html": "It should be administered when a patient has an albumin less than15", "is_correct": true}, {"label_html": "Administration of TPN for periods of less than 1 week is unlikely to produce noticable benefits", "is_correct": false}], "correct_index": 3, "explanation_html": "Albumin is a poor indicator of overall nutrition and the decision to start TPN should not be based on this parameter alone. Patients should ideally be fed enterally where possible and if this is likely to occur within 5-7 days then starting TPN is unlikely to confer benefit."}, {"number": 55, "topic": "Nutrition Monitoring-NICE guidelines", "stem_html": "Which of the following does not need monitoring during home parenteral nutritional support?", "options": [{"label_html": "Folate levels", "is_correct": false}, {"label_html": "Zinc levels", "is_correct": false}, {"label_html": "Vitamin D", "is_correct": false}, {"label_html": "Thyroid function", "is_correct": true}, {"label_html": "Bone densitometry", "is_correct": false}], "correct_index": 3, "explanation_html": "<p>No explanation provided.<\/p>"}], "note_html": "<ul><li>Weight: daily if fluid balance concerns, otherwise weekly reducing to monthly<\/li><li>BMI: at start of feeding and then monthly<\/li><li>If weight cannot be obtained: monthly mid arm circumference or triceps skin fold thickness<\/li><li>Daily electrolytes until levels stable.  Then once or twice a week.<\/li><li>Weekly glucose, phosphate, magnesium, LFTs, Ca, albumin, FBC, MCV <\/li><\/ul>levels if stable<br><ul><li>2-4 weekly Zn, Folate, B12 and Cu levels if stable<\/li><li>3-6 monthly iron and ferritin levels, manganese (if on home parenteral regime)<\/li><li>6 monthly vitamin D<\/li><li>Bone densitometry initially on starting home parenteral nutrition then every 2 years<\/li><\/ul>"}, {"name": "Nutrition prescriptions", "questions": [{"number": 56, "topic": "Nutrition prescriptions", "stem_html": "A 50 year old male who weighs 70Kg is severely unwell with intestinal failure and cannot receive enteral nutrition. He has become malnourished and the decision is made to commence total parenteral nutrition. What is the most appropriate initial dose of calories which should be administered via this route over 24 hours?", "options": [{"label_html": "700 Kcal", "is_correct": true}, {"label_html": "2000 Kcal", "is_correct": false}, {"label_html": "3000 Kcal", "is_correct": false}, {"label_html": "500 Kcal", "is_correct": false}, {"label_html": "2500 Kcal", "is_correct": false}], "correct_index": 0, "explanation_html": "As this person is severely ill and malnourished, the initial calories administered is reduced by 50% in the first few days."}], "note_html": "<b> National institute of clinical excellence (NICE) guidelines<\/b><br><br><b>For people not severely ill and not at risk of refeeding syndrome aim to give<\/b><br><ul><li>25-35 kcal/kg/day (lower if BMI &gt; 25)<\/li><li>0.8-1.5g protein /kg/day<\/li><li>30-35 ml fluid/kg/day<\/li><li>Adequate electrolytes, minerals, vitamins<\/li><li>Severely ill patients aim to give &lt; 50% of the energy and protein levels over the first 24-48h.<\/li><\/ul><br><b>For people at high risk of refeeding syndrome:<\/b><br><ul><li>Start at up to 10 kcal/kg/day increasing to full needs over 4-7 days<\/li><li>Start immediately before and during feeding:  oral thiamine 200-300mg/day, vitamin B co strong 1 tds and supplements<\/li><li>Give K<sup>+<\/sup> (2-4 mmol/kg/day), phosphate (0.3-0.6 mmol/kg/day), magnesium (0.2-0.4 mmol/kg/day)<\/li><\/ul>"}, {"name": "Oral Nutrition", "questions": [{"number": 57, "topic": "Oral Nutrition", "stem_html": "A 52 year old man is recovering following an elective right hemicolectomy for carcinoma of the caecum. His surgery is uncomplicated, when should oral intake resume?", "options": [{"label_html": "Only once bowels have been opened to stool", "is_correct": false}, {"label_html": "Only once the patient has passed flatus", "is_correct": false}, {"label_html": "Between 24 and 48 hours of surgery", "is_correct": false}, {"label_html": "More than 48 hours after surgery", "is_correct": false}, {"label_html": "Within 24 hours of surgery", "is_correct": true}], "correct_index": 4, "explanation_html": "As part of the enhanced recovery principles oral intake in this setting should resume soon after surgery. Administration of liquid and even light diet does not increase the risk of anastomotic leak."}], "note_html": "<b>Oral nutrition: a summary of NICE guidelines<\/b><br><ul><li>Identify patients who are or at risk of being malnourished  (see below for definitions)<\/li><li>Check for dysphagia<\/li><li>If safe swallow, provide food and fluid in adequate quantity and quality<\/li><li>Give a balanced diet<\/li><li>Offer multivitamins and minerals<\/li><\/ul><br>Surgical patients: <br><ul><li>If malnourished and safe swallow and post op caesarean, gynaecological or abdominal surgery, aim for oral intake within 24h<\/li><\/ul><br>Patients identified as being malnourished:<br><ul><li>BMI &lt; 18.5 kg/m<sup>2<\/sup><\/li><li>unintentional weight loss of &gt; 10% over 3-6/12<\/li><li>BMI &lt; 20 kg/m<sup>2<\/sup> and unintentional weight loss of &gt; 5% over 3-6/12<\/li><\/ul><br>AT RISK of malnutrition:<br><ul><li>eaten nothing or little &gt; 5 days, who are likely to eat little for a further 5 days<\/li><li>poor absorptive capacity<\/li><li>high nutrient losses<\/li><li>high metabolism<\/li><\/ul>"}, {"name": "Parenteral feeding-NICE guidelines", "questions": [{"number": 58, "topic": "Parenteral feeding-NICE guidelines", "stem_html": "A 28 year old man with Crohn's disease has undergone a number of resections. His BMI is currently 18 and his albumin is 18. He feels well but does have a small localised perforation of his small bowel. The gastroenterologists are giving azathioprine. What is the most appropriate advice regarding feeding?", "options": [{"label_html": "Nil by mouth", "is_correct": false}, {"label_html": "Nil by mouth and continuous intra venous fluids until surgery", "is_correct": false}, {"label_html": "Enteral feeding", "is_correct": false}, {"label_html": "Parenteral feeding", "is_correct": true}, {"label_html": "Nutritional supplements", "is_correct": false}], "correct_index": 3, "explanation_html": "This man is malnourished, although he is likely to require surgery it is best for him to be nutritionally optimised first. As he may have reduced surface area for absorption and has a localised perforation TPN is likely to be the best feeding modality."}, {"number": 59, "topic": "Parenteral feeding-NICE guidelines", "stem_html": "A 28 year old man with poorly controlled Crohns disease is nutritionally compromised. The decision is made to start TPN, via which of the following routes should it be best administered?", "options": [{"label_html": "Internal jugular vein via a central venous catheter", "is_correct": true}, {"label_html": "Internal carotid artery", "is_correct": false}, {"label_html": "Cephalic vein via peripheral cannula", "is_correct": false}, {"label_html": "Basilic vein via peripheral cannula", "is_correct": false}, {"label_html": "Common femoral vein via a central venous catheter", "is_correct": false}], "correct_index": 0, "explanation_html": "Since TPN solutions are irritant to veins they are best administered via a central line. The femoral route has a higher incidence of line associated sepsis and is thus best avoided in this setting."}], "note_html": "<b>Parenteral nutrition: NICE guidelines summary<\/b><br><br><b>Identify patients as malnourished or at risk<\/b><br><br>Patients identified as being malnourished-<br><ul><li>BMI &lt; 18.5 kg/m<sup>2<\/sup><\/li><li>unintentional weight loss of &gt; 10% over 3-6/12<\/li><li>BMI &lt; 20 kg/m<sup>2<\/sup> and unintentional weight loss of &gt; 5% over 3-6/12<\/li><\/ul><br>AT RISK of malnutrition-<br><ul><li>eaten nothing or little &gt; 5 days, who are likely to eat little for a further 5 days<\/li><li>poor absorptive capacity<\/li><li>high nutrient losses<\/li><li>high metabolism<\/li><\/ul><br><b>Identify unsafe/inadequate oral intake OR a non functional GI tract/perforation/inaccessible<\/b><br><br><b>Consider parenteral nutrition:<\/b><br><ul><li>for feeding &lt; 14 days consider feeding via a peripheral venous catheter<\/li><li>for feeding &gt; 30 days use a tunneled subclavian line<\/li><li>continuous administration in severely unwell patients<\/li><li>if feed needed &gt; 2 weeks consider changing from continuous to cyclical feeding<\/li><li>don't give &gt; 50% of daily regime to unwell patients in first 24-48 hours<\/li><\/ul><br>Surgical patients:  if malnourished with unsafe swallow OR a non functional GI tract/perforation/inaccessible then consider peri operative parenteral feeding."}, {"name": "Post operative fluid management", "questions": [{"number": 60, "topic": "Post operative fluid management", "stem_html": "A 24 year old man is recovering from a right hemicolectomy for Crohns disease. He is oliguric and dehydrated owing to a high output ileostomy. His electrolytes are normal. Which of the following intravenous fluids should be administered?", "options": [{"label_html": "0.9% sodium chloride", "is_correct": false}, {"label_html": "Hartmanns solution", "is_correct": true}, {"label_html": "0.45% sodium chloride", "is_correct": false}, {"label_html": "5% dextrose", "is_correct": false}, {"label_html": "10% dextrose", "is_correct": false}], "correct_index": 1, "explanation_html": "Of the solutions given Hartmans is the most suitable. Consideration should also be given to potassium supplementation."}, {"number": 61, "topic": "Post operative fluid management", "stem_html": "A 23 year old man is recovering from an appendicectomy. The operation was complicated by the presence of perforation. He is now recovering on the ward. However, his urine output is falling and he has been vomiting. Which of the following intravenous fluids should be initially administered, pending analysis of his urea and electrolyte levels?", "options": [{"label_html": "Hartmans solution", "is_correct": true}, {"label_html": "Dextran 70", "is_correct": false}, {"label_html": "Pentastarch", "is_correct": false}, {"label_html": "Gelofusin", "is_correct": false}, {"label_html": "5% Dextrose", "is_correct": false}], "correct_index": 0, "explanation_html": "He will have sequestration of electrolyte rich fluids in the abdomen and gut lumen. These are best replaced by use of Hartmans solution in the first instance."}, {"number": 62, "topic": "Post operative fluid management", "stem_html": "A 17 year old man undergoes an elective right hemicolectomy. Post operatively he receives a total of 6 litres of 0.9% sodium chloride solution, over 24 hours. Which of the following complications may ensue?", "options": [{"label_html": "Hyperchloraemic acidosis", "is_correct": true}, {"label_html": "Hypochloraemic alkalosis", "is_correct": false}, {"label_html": "Hyperchloraemic alkalosis", "is_correct": false}, {"label_html": "Acute renal failure", "is_correct": false}, {"label_html": "None of the above", "is_correct": false}], "correct_index": 0, "explanation_html": "Normal saline has a higher chloride content (154 mEq/L) compared to plasma. The administration of large volumes of saline can result in specific metabolic disturbances: Hyperchloremic acidosis: This is a common complication associated with the infusion of large volumes of normal saline. The excess chloride disrupts the normal balance between sodium and chloride ions, which can reduce the strong ion difference and lead to a non-anion gap metabolic acidosis. This condition is characterized by a normal anion gap (difference between the concentrations of serum sodium and the sum of chloride and bicarbonate) but decreased serum bicarbonate due to the dilution and relative increase in chloride. Hypochloremic alkalosis: This condition would generally be seen in scenarios involving excessive loss of chloride, such as through gastric suctioning or chronic vomiting, not from saline infusion which actually increases chloride levels. Hyperchloremic alkalosis: This term is contradictory in terms, as hyperchloremia typically leads to acidosis, not alkalosis, because of the reasons explained above regarding the impact of chloride on acid-base balance. Acute renal failure: While not directly caused by hyperchloremic acidosis, excessive infusion of fluids, especially in the context of other underlying conditions or surgical complications, could contribute to fluid overload. However, acute renal failure wouldn’t be a direct consequence of hyperchloremia alone unless other factors such as hypotension, nephrotoxic agents, or sepsis were also present. Given these options and the clinical context, the most likely complication from receiving a total of 6 liters of 0.9% sodium chloride solution over 24 hours is Hyperchloremic acidosis. This condition arises due to the high chloride content relative to sodium in normal saline, leading to acid-base balance disruptions as described."}, {"number": 63, "topic": "Post operative fluid management", "stem_html": "A 34 year old man is suffering from septic shock and receives an infusion of Dextran 70. Which of the following complications may potentially ensue?", "options": [{"label_html": "Anaphylaxis", "is_correct": true}, {"label_html": "Vomiting", "is_correct": false}, {"label_html": "Acute hepatic failure", "is_correct": false}, {"label_html": "Digital necrosis", "is_correct": false}, {"label_html": "Deep vein thrombosis", "is_correct": false}], "correct_index": 0, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Dextran 40 and 70 have higher incidence of anaphylaxis than either gelatins or starches.<\/div>Dextrans are branched polysaccharide molecules. Dextran 40 and 70 are available. The higher molecular weight dextran 70 may persist for up to 8 hours. They inhibit platelet aggregation and leucocyte plugging in the microcirculation. Thereby improving flow through the microcirculation, primarily of use in sepsis.<br>Unlike many other intravenous fluids Dextrans are a recognised cause of anaphylaxis."}], "note_html": "<b>Composition of commonly used intravenous fluids mmol<sup>-1<\/sup><\/b><br><br><div class=\"table-responsive\"><table class=\"table table-bordered\"><tbody><tr><td><\/td><td><b>Na<\/b><\/td><td><b>K<\/b><\/td><td><b>Cl<\/b><\/td><td><b>Bicarbonate<\/b><\/td><td><b>Lactate<\/b><\/td><\/tr><tr><td>Plasma<\/td><td>137-147<\/td><td>4-5.5<\/td><td>95-105<\/td><td>22-25<\/td><td>-<\/td><\/tr><tr><td>0.9% Saline<\/td><td>153<\/td><td>-<\/td><td>153<\/td><td>-<\/td><td>-<\/td><\/tr><tr><td>Dextrose / saline<\/td><td>30.6<\/td><td>-<\/td><td>30.6<\/td><td>-<\/td><td>-<\/td><\/tr><tr><td>Hartmans<\/td><td>130<\/td><td>4<\/td><td>110<\/td><td>-<\/td><td>28<\/td><\/tr><\/tbody><\/table><\/div><br><br><b>Post operative fluid management<\/b><br>In the UK the GIFTASUP and NICE (CG174 2017) guidelines (see reference below) were devised to try and provide some consensus guidance as to how intravenous fluids should be administered. Some time ago it was a commonly held belief that little harm would occur as a result of excessive administration of normal saline and many oliguric post operative patients received enormous quantities of IV fluids. As a result they developed hyperchloraemic acidosis. With greater understanding of this potential complication, the use of electrolyte balanced solutions (Ringers lactate/ Hartmans) is now favored over normal saline. <br>The other guidance includes:<br><ul><li>Fluids given should be documented clearly and easily available<\/li><li>Assess the patient's fluid status when they leave theatre<\/li><li>If a patient is haemodynamically stable and euvolaemic, aim to restart oral fluid intake as soon as possible<\/li><li>Review patients whose urinary sodium is  &lt; 20<\/li><li>If a patient is oedematous, hypovolaemia if present should be treated first.  This should then be followed by a negative balance of sodium and water, monitored using urine Na excretion levels<\/li><li>Solutions such as Dextran 70 should be used in caution in patients with sepsis as there is a risk of developing acute renal injury<\/li><\/ul><br><b>References<\/b><br>NICE guidance CG174. Intravenous fluid therapy in adults. May 2017.<br>NICE guidance NG29. Intravenous fluid therapy in children and young people in hospital (2020)<br>British Consensus Guidelines on Intravenous Fluid Therapy for Adult Surgical Patients. GIFTASUP (2009)"}, {"name": "Postoperative cognitive dysfunction management", "questions": [{"number": 64, "topic": "Postoperative cognitive dysfunction management", "stem_html": "Which statement regarding post operative cognitive impairment is true?", "options": [{"label_html": "Use of Benzodiazepines preoperatively (in those already taking them long term) reduces post operative cognitive dysfunction", "is_correct": true}, {"label_html": "Pain does not cause delirium", "is_correct": false}, {"label_html": "Delirium has no impact on length of hospital stay", "is_correct": false}, {"label_html": "A regional anaesthetic rather than a general anaesthetic is more likely to contribute to post operative cognitive impairment", "is_correct": false}, {"label_html": "Visual hallucinations are not a feature of delirium", "is_correct": false}], "correct_index": 0, "explanation_html": "Anaesthetic technique and Post operative cognitive impairment (POCD):<br>Use of benzodiazepines preoperatively reduces long-term POCD (9.9% vs. 5%) <br>Do not stop drugs for cognitive function<br>Regional techniques reduce POCD in first week, but no difference at 3 months<br><i>References<\/i><br>Fines DP &amp; Severn A.  Anaesthesia and cognitive disturbance in the elderly Continuing Education in Anaesthesia, Critical Care &amp; Pain 2006 6(1):37-40"}], "note_html": "<b>Definition<\/b><br><ul><li>Deterioration in performance in a battery of neuropsychological tests that would be expected in &lt; 3.5% of controls<\/li><\/ul>Or<br><ul><li>Long term, possibly permanent disabling deterioration in cognitive function following surgery<\/li><\/ul><br><b>Early POCD<\/b><br><ul><li>Increasing age<\/li><li>GA rather than regional<\/li><li>Duration of anaesthesia<\/li><li>Reoperation<\/li><li>Postoperative infection<\/li><\/ul><br><b>Late POCD<\/b><br><ul><li>Increasing age<\/li><li>Emboli<\/li><li>Biochemical disturbances<\/li><\/ul>"}, {"name": "Pulmonary artery occlusion pressure monitoring", "questions": [{"number": 65, "topic": "Pulmonary artery occlusion pressure monitoring", "stem_html": "A 45 year old man is admitted to the intensive care unit following a laparotomy. He has a central line, pulmonary artery catheter and arterial lines inserted. The following results are obtained:<br><div class=\"table-responsive\"><table class=\"tb\"><tbody><tr><td><b>Pulmonary artery occlusion pressure<\/b><\/td><td><b>Cardiac output<\/b><\/td><td><b>Systemic vascular resistance<\/b><\/td><\/tr><tr><td>Low<\/td><td>Low<\/td><td>High<\/td><\/tr><\/tbody><\/table><\/div>What is the most likely interpretation of this?", "options": [{"label_html": "Normal", "is_correct": false}, {"label_html": "Cardiogenic shock", "is_correct": false}, {"label_html": "Septic shock", "is_correct": false}, {"label_html": "Fluid overload", "is_correct": false}, {"label_html": "Hypovolaemia", "is_correct": true}], "correct_index": 4, "explanation_html": "Cardiac output is lowered in hypovolaemia due to decreased preload."}, {"number": 66, "topic": "Pulmonary artery occlusion pressure monitoring", "stem_html": "A 75 year old man is admitted to the intensive care unit following a laparotomy. He has a central line, pulmonary artery catheter and arterial lines inserted. The following results are obtained:<br><div class=\"table-responsive\"><table class=\"tb\"><tbody><tr><td><b>Pulmonary artery occlusion pressure<\/b><\/td><td><b>Cardiac output<\/b><\/td><td><b>Systemic vascular resistance<\/b><\/td><\/tr><tr><td>High<\/td><td>Low<\/td><td>High<\/td><\/tr><\/tbody><\/table><\/div>How may these findings be best interpreted?", "options": [{"label_html": "Hypovolaemia", "is_correct": false}, {"label_html": "Normal", "is_correct": false}, {"label_html": "Neurogenic shock", "is_correct": false}, {"label_html": "Septic shock", "is_correct": false}, {"label_html": "Cardiogenic shock", "is_correct": true}], "correct_index": 4, "explanation_html": "In cardiogenic shock pulmonary pressures are often high. This is the basis for the use of venodilators in the treatment of pulmonary oedema."}, {"number": 67, "topic": "Pulmonary artery occlusion pressure monitoring", "stem_html": "A 22 year old lady is admitted to the intensive care unit following a laparotomy. She has a central line, pulmonary artery catheter and arterial lines inserted. The following results are obtained:<br><div class=\"table-responsive\"><table class=\"tb\"><tbody><tr><td><b>Pulmonary artery occlusion pressure<\/b><\/td><td><b>Cardiac output<\/b><\/td><td><b>Systemic vascular resistance<\/b><\/td><\/tr><tr><td>Low<\/td><td>High<\/td><td>Low<\/td><\/tr><\/tbody><\/table><\/div>How may these findings be best interpreted?", "options": [{"label_html": "Hypovolaemia", "is_correct": false}, {"label_html": "Septic shock", "is_correct": true}, {"label_html": "Normal", "is_correct": false}, {"label_html": "Fluid overload", "is_correct": false}, {"label_html": "Cardiogenic shock", "is_correct": false}], "correct_index": 1, "explanation_html": "Decreased SVR is a major feature of sepsis. A hyperdynamic circulation is often present. This is the reason for the use of vasoconstrictors."}], "note_html": "The pulmonary artery occlusion pressure  is an indirect measure of left atrial pressure, and thus filling pressure of the left heart. The low resistance within the pulmonary venous system allows this useful measurement to be made. The most accurate trace is made by inflating the balloon at the catheter tip and 'floating' it so that it occludes the vessel. If it is not possible to occlude the vessel in this way then the measurement gained will be the pulmonary artery end diastolic pressure.<br><br><b>Interpretation of PAOP<\/b><br><div class=\"table-responsive\"><table class=\"table table-bordered\"><tbody><tr><td><b>PAOP<\/b><\/td><td><b>mmHg<\/b><\/td><td><b>Scenario<\/b><\/td><\/tr><tr><td>Normal<\/td><td>8-12<\/td><td><\/td><\/tr><tr><td>Low<\/td><td>&lt;5<\/td><td>Hypovolaemia<\/td><\/tr><tr><td>Low with pulmonary oedema<\/td><td>&lt;5<\/td><td>ARDS<\/td><\/tr><tr><td>High<\/td><td>&gt;18<\/td><td>Overload<\/td><\/tr><\/tbody><\/table><\/div><br>When combined with measurements of systemic vascular resistance and cardiac output it is possible to accurately classify patients.<br><br><b>Systemic vascular resistance<\/b><br>Derived from aortic pressure, right atrial pressure and cardiac output.<br><br>SVR=80(mean aortic pressure-mean right atrial pressure)/cardiac output"}, {"name": "Pulmonary embolism: investigation", "questions": [{"number": 68, "topic": "Pulmonary embolism: investigation", "stem_html": "A 54-year-old man is admitted for an elective hip replacement. Three days post operatively you suspect he has had a pulmonary embolism. He has no past medical history of note. Blood pressure is 120/80 mmHg with a pulse of 90/min. The chest x-ray is normal. Following treatment with low-molecular weight heparin, what is the most appropriate initial lung imaging investigation to perform?", "options": [{"label_html": "Pulmonary angiography", "is_correct": false}, {"label_html": "Echocardiogram", "is_correct": false}, {"label_html": "MRI thorax", "is_correct": false}, {"label_html": "Ventilation-perfusion scan", "is_correct": false}, {"label_html": "Computed tomographic pulmonary angiography", "is_correct": true}], "correct_index": 4, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">CTPA is the first line investigation for PE according to current BTS guidelines<\/div>Current UK NICE guidance supports CTPA as first line investigation now. Pulmonary angiography is of course the 'gold standard' but this is not what the question asks for"}], "note_html": "UK 2020 NICE guidance endorses CTPA is most cases of suspected PE.<br><br>Key points from the guidelines include:<br><ul><li>computed tomographic pulmonary angiography (CTPA) is now the recommended initial lung-imaging modality for non-massive PE. Advantages compared to V/Q scans include speed, easier to perform out-of-hours, a reduced need for further imaging and the possibility of providing an alternative diagnosis if PE is excluded <\/li><li>if the CTPA is negative then patients do not need further investigations or treatment for PE<\/li><li>ventilation-perfusion scanning may be used initially if appropriate facilities exist, the chest x-ray is normal, and there is no significant symptomatic concurrent cardiopulmonary disease<\/li><\/ul><br><b>Some other points<\/b><br>Clinical probability scores based on risk factors and history and now widely used to help decide on further investigation/management<br><br>D-dimers<br><ul><li>sensitivity = 95-98%, but poor specificity<\/li><\/ul><br>V/Q scan<br><ul><li>sensitivity = 98%; specificity = 40% - high negative predictive value, i.e. if normal virtually excludes PE<\/li><li>other causes of mismatch in V/Q include old pulmonary embolisms, AV malformations, vasculitis, previous radiotherapy<\/li><li>COPD gives matched defects<\/li><\/ul><br>CTPA<br><ul><li>peripheral emboli affecting subsegmental arteries may be missed<\/li><\/ul><br>Pulmonary angiography<br><ul><li>the gold standard<\/li><li>significant complication rate compared to other investigations<\/li><\/ul>"}, {"name": "Pulmonary function tests", "questions": [{"number": 69, "topic": "Pulmonary function tests", "stem_html": "You are the cardiothoracic surgical registrar reviewing a patient referred for an aortic valve replacement.  The 40-year-old man is being investigated for progressive breathlessness in a previous respiratory clinic. The notes show he has smoked for the past 25 years. Pulmonary function tests reveal the following:<br><br><div class=\"table-responsive\"><table class=\"tb\"><tbody><tr><td>FEV1<\/td><td>1.4 L<\/td><\/tr><tr><td>FVC<\/td><td>1.7 L<\/td><\/tr><tr><td>FEV1/FVC<\/td><td>82%<\/td><\/tr><\/tbody><\/table><\/div><br>What is the most likely explanation?", "options": [{"label_html": "Asthma", "is_correct": false}, {"label_html": "Bronchiectasis", "is_correct": false}, {"label_html": "Kyphoscoliosis", "is_correct": true}, {"label_html": "Chronic obstructive pulmonary disease", "is_correct": false}, {"label_html": "Laryngeal malignancy", "is_correct": false}], "correct_index": 2, "explanation_html": "These results show a restrictive picture, which may result from a number of conditions including kyphoscoliosis. The other answers cause an obstructive picture.<br><br>We note that most people have chosen COPD as the answer.  In COPD the FEV1/FVC would show an obstructive picture with the FEV1/FVC value being low (approximately less than 70%).  In restrictive conditions the FEV1/FVC is normal or increased (greater than 70%).  With the FEV1/FVC being over 70% the most likely answer is kyphoscoliosis."}], "note_html": "Pulmonary function tests can be used to determine whether a respiratory disease is obstructive or restrictive. The table below summarises the main findings and gives some example conditions:<br><br><div class=\"table-responsive\"><table class=\"table table-bordered\"><tbody><tr><td><b>Obstructive lung disease<\/b><\/td><td><b>Restrictive lung disease<\/b><\/td><\/tr><tr><td>FEV1 - significantly reduced<br>FVC - reduced or normal <br>FEV1% (FEV1/FVC) - reduced (less than approx. 70%)<\/td><td>FEV1 - reduced<br>FVC - significantly reduced<br>FEV1% (FEV1/FVC) - normal or increased (over approx. 70%)<\/td><\/tr><tr><td>Asthma<br>COPD<br>Bronchiectasis<br>Bronchiolitis obliterans<\/td><td>Pulmonary fibrosis<br>Asbestosis<br>Sarcoidosis<br>Acute respiratory distress syndrome<br>Infant respiratory distress syndrome<br>Kyphoscoliosis<br>Neuromuscular disorders<\/td><\/tr><\/tbody><\/table><\/div><br>If you would like to read more about pulmonary function tests, here is a link that may be useful:<br><br><i>Interpreting pulmonary function tests: Recognize the pattern, and the diagnosis will follow<\/i> http://www.ccjm.org/content/70/10/866.full.pdf"}, {"name": "Severe infections", "questions": [{"number": 70, "topic": "Severe infections", "stem_html": "Which of the variables listed below is not considered in the sequential organ failure assessment (SOFA) tool?", "options": [{"label_html": "Bilirubin", "is_correct": false}, {"label_html": "Urea", "is_correct": true}, {"label_html": "Mean arterial pressure", "is_correct": false}, {"label_html": "Platelet count", "is_correct": false}, {"label_html": "Creatinine", "is_correct": false}], "correct_index": 1, "explanation_html": "Urea is not one of the variables considered."}], "note_html": "Sepsis is a multifaceted syndrome which arises as a result of an infective process. Historically, the main focus was on the pro-inflammatory nature of the process, accordingly, 2 of the 4 SIRS criteria were related solely to inflammatory excesses. More modern systems take into account the fact that some of the effects of sepsis are suppressive from an immunological perspective and effects on organ function can be widespread. Sepsis is now defined as life-threatening organ dysfunction caused by a dysregulated host response to infection. This new definition emphasizes the primacy of the non homeostatic host response to infection, the potential lethality that is considerably in excess of a straightforward infection, and the need for urgent recognition. To help identify and categorise patients the Sequential (Sepsis-Related) Organ Failure Assessment Score (SOFA) is increasingly used. The score grades abnormality by organ system and accounts for clinical interventions. However, laboratory variables, namely, PaO<sub>2<\/sub>, platelet count, creatinine level, and bilirubin level, are needed for full computation.<br><br><b>SOFA Score<\/b><br><div class=\"table-responsive\"><table class=\"tlarge table table-striped table-bordered\" data-role=\"table\" id=\"tableid1\"><thead><tr><th><b>System<\/b><\/th><th><b>Score 0<\/b><\/th><th><b>Score 1<\/b><\/th><th><b>Score 2<\/b><\/th><th><b>Score 3<\/b><\/th><th><b>Score 4<\/b><\/th><\/tr><\/thead><tbody><tr><td>PaO<sub>2<\/sub> /FI O<sub>2<\/sub><\/td><td>&gt;400<\/td><td>&lt;400<\/td><td>&lt;300<\/td><td>&lt;200<\/td><td>&lt;100<\/td><\/tr><tr><td>Platelets x10<sup>3<\/sup> microlitres<\/td><td>&gt;150<\/td><td>&lt;150<\/td><td>&lt;100<\/td><td>&lt;50<\/td><td>&lt;20<\/td><\/tr><tr><td>Bilirubin micro Mol/L<\/td><td>20<\/td><td>20-32<\/td><td>33-101<\/td><td>102-204<\/td><td>&gt;204<\/td><\/tr><tr><td>Cardiovascular<\/td><td>MAP &gt;70mmHg<\/td><td>MAP 70mmHg<\/td><td>Dopamine &lt;5 or dobutamine (any dose)<\/td><td>Dopamine 5.1-15<br>or epinephrine 0.1<br>or norepinephrine 0.1<\/td><td>Dopamine &gt;15 or<br>epinephrine &gt;0.1<br>or norepinephrine &gt;0.1<\/td><\/tr><tr><td>GCS<\/td><td>15<\/td><td>13-14<\/td><td>10-12<\/td><td>6-9<\/td><td>&lt;6<\/td><\/tr><tr><td>Creatinine micro mol/L<\/td><td>&lt;110<\/td><td>110-170<\/td><td>171-299<\/td><td>300-440<\/td><td>&gt;440<\/td><\/tr><tr><td>Urine output ml/day<\/td><td>&gt;500<\/td><td>&gt;500<\/td><td>&gt;500<\/td><td>&lt;500<\/td><td>&lt;200<\/td><\/tr><\/tbody><\/table><\/div><br>A SOFA score of 2 or more reflects an overall mortality risk of approximately 10% in a general hospital population with suspected infection. Even patients presenting with modest dysfunction can deteriorate further, emphasizing the seriousness of this condition and the need for prompt and appropriate intervention, if not already being instituted.<br><br>The qSOFA score (also known as quickSOFA) is a bedside prompt that may identify patients with suspected infection who are at greater risk for a poor outcome outside the intensive care unit (ICU). It uses three criteria, assigning one point for low blood pressure (SBP&lt;100 mmHg), high respiratory rate (&gt;22 breaths per min), or altered mentation (Glasgow coma scale&lt;15).<br><br><div class=\"alert alert-warning\"><b>qSOFA score<\/b><br>Respiratory rate 22/min<br>Altered mentation<br>Systolic blood pressure 100 mm Hg<br><\/div><br>Patients with septic shock can be identified with a clinical construct of sepsis with persisting hypotension requiring vasopressors to maintain MAP 65 mm Hg and having a serum lactate level &gt;2 mmol/L (18mg/dL) despite adequate volume resuscitation. With these criteria, hospital mortality is in excess of 40%.<br><br><b>Resuscitation goals<\/b><br><ul><li>CVP 8-12mmHg<\/li><li>MAP &gt;65mmHg<\/li><li>Urine output &gt;0.5ml/kg per hour<\/li><li>Superior vena cava oxygen saturation &gt;70%<\/li><li>Normal lactate<\/li><\/ul><br><b>References<\/b><br>Singer M, Deutschman C, Seymour C et al. The third international consensus definitions for sepsis and septic shock (Sepsis 3). JAMA 2016; 315(8):801-810."}, {"name": "Total parenteral nutrition", "questions": [{"number": 71, "topic": "Total parenteral nutrition", "stem_html": "A 51 year old man is shot in the abdomen and sustains a significant intra abdominal injury. A laparotomy, bowel resection and end colostomy are performed. An associated vascular injury necessitates a 6 unit blood transfusion. He has a prolonged recovery and is paralysed and ventilated for 2 weeks on intensive care. He receives total parenteral nutrition and is eventually weaned from the ventilator and transferred to the ward. On reviewing his routine blood tests the following results are noted:<br><br>Full blood count<br><div class=\"table-responsive\"><table class=\"tb\"><tbody><tr><td>Hb<\/td><td>11.3  g/dl<\/td><\/tr><tr><td>Platelets<\/td><td>267 x 10<sup>9<\/sup>/l<\/td><\/tr><tr><td>WBC<\/td><td>10.1 x10<sup>9<\/sup>/l<\/td><\/tr><\/tbody><\/table><\/div><br>Urea and electrolytes<br><div class=\"table-responsive\"><table class=\"tb\"><tbody><tr><td>Na<sup>+<\/sup><\/td><td>131 mmol/l<\/td><\/tr><tr><td>K<sup>+<\/sup><\/td><td>4.6 mmol/l<\/td><\/tr><tr><td>Urea<\/td><td>2.3 mmol/l<\/td><\/tr><tr><td>Creatinine<\/td><td>78 µmol/l<\/td><\/tr><\/tbody><\/table><\/div><br>Liver function tests<br><div class=\"table-responsive\"><table class=\"tb\"><tbody><tr><td>Bilirubin<\/td><td>25 µmol/l<\/td><\/tr><tr><td>ALP<\/td><td>445 u/l<\/td><\/tr><tr><td>ALT<\/td><td>89 u/l<\/td><\/tr><tr><td>γGT<\/td><td>103  u/l<\/td><\/tr><\/tbody><\/table><\/div><br>What is the most likely underlying cause for the abnormalities noted?", "options": [{"label_html": "Delayed type blood transfusion reaction", "is_correct": false}, {"label_html": "Bile leak", "is_correct": false}, {"label_html": "Anastomotic leak", "is_correct": false}, {"label_html": "Total parenteral nutrition", "is_correct": true}, {"label_html": "Gallstones", "is_correct": false}], "correct_index": 3, "explanation_html": "TPN is known to result in derangement of liver function tests. Although, cholestasis may result from TPN, it would be very unusual for gallstones to form and result in the picture above. Blood transfusion reactions typically present earlier and with changes in the haemoglobin and although they may cause hepatitis this is rare nowadays."}, {"number": 72, "topic": "Total parenteral nutrition", "stem_html": "Which of the following is not typically included in total parenteral nutritional solutions?", "options": [{"label_html": "Fibre", "is_correct": true}, {"label_html": "Lipid", "is_correct": false}, {"label_html": "Potassium", "is_correct": false}, {"label_html": "Glucose", "is_correct": false}, {"label_html": "Magnesium", "is_correct": false}], "correct_index": 0, "explanation_html": "There is no indication for inclusion of fibre in solutions of TPN, nor would it be safe to do so."}], "note_html": "<ul><li>Commonly used in nutritionally compromised surgical patients.<\/li><li>Bags contain combinations of glucose, lipids and essential electrolytes, the exact composition is determined by the patients nutritional requirements.<\/li><li>Although it may be infused peripherally, this may result in thrombophlebitis. <\/li><li>Longer term infusions should be administered into a central vein (preferably via a PICC line).<\/li><li>Complications are related to sepsis, re-feeding syndromes and hepatic dysfunction.<\/li><\/ul>"}]}</script>
+  <script>
+    const quizData = JSON.parse(document.getElementById("quiz-data").textContent);
+    const app = document.getElementById("app");
+    const modeButtons = Array.from(document.querySelectorAll("[data-mode-button]"));
+    const topicActionButtons = Array.from(document.querySelectorAll("[data-topic-action]"));
+
+    const state = {
+      mode: "solve",
+      answers: new Map(),
+      questionRefs: [],
+    };
+
+    function buildTopic(topic, questionOffset) {
+      const details = document.createElement("details");
+      details.className = "topic";
+      details.open = true;
+
+      const summary = document.createElement("summary");
+      summary.innerHTML = `
+        <div>
+          <h2 class="topic-title">${topic.name}</h2>
+        </div>
+        <div class="topic-meta">
+          <span>${topic.questions.length} questions</span>
+          <span class="chevron" aria-hidden="true">></span>
+        </div>
+      `;
+
+      const body = document.createElement("div");
+      body.className = "topic-body";
+
+      if (topic.note_html) {
+        const notes = document.createElement("details");
+        notes.className = "topic-notes";
+
+        const notesSummary = document.createElement("summary");
+        notesSummary.innerHTML = `
+          <span class="topic-notes-title">Notes</span>
+          <span class="chevron" aria-hidden="true">></span>
+        `;
+
+        const notesBody = document.createElement("div");
+        notesBody.className = "topic-notes-body rich-text";
+        notesBody.innerHTML = topic.note_html;
+
+        notes.appendChild(notesSummary);
+        notes.appendChild(notesBody);
+        body.appendChild(notes);
+      }
+
+      topic.questions.forEach((question, indexInTopic) => {
+        const globalIndex = questionOffset + indexInTopic;
+        body.appendChild(buildQuestionCard(question, globalIndex));
+      });
+
+      details.appendChild(summary);
+      details.appendChild(body);
+      return details;
+    }
+
+    function buildQuestionCard(question, questionIndex) {
+      const card = document.createElement("article");
+      card.className = "question-card is-hidden";
+      card.dataset.questionIndex = String(questionIndex);
+
+      const label = document.createElement("p");
+      label.className = "question-label";
+      label.textContent = `Question ${question.number}`;
+
+      const stem = document.createElement("div");
+      stem.className = "stem rich-text";
+      stem.innerHTML = question.stem_html;
+
+      const options = document.createElement("div");
+      options.className = "options";
+
+      const optionButtons = question.options.map((option, optionIndex) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "option";
+        button.dataset.optionIndex = String(optionIndex);
+        button.innerHTML = option.label_html;
+        button.addEventListener("click", () => {
+          if (state.mode !== "solve") {
+            return;
+          }
+          state.answers.set(questionIndex, optionIndex);
+          applyQuestionState(questionIndex);
+        });
+        options.appendChild(button);
+        return button;
+      });
+
+      const explanation = document.createElement("div");
+      explanation.className = "explanation rich-text";
+      explanation.innerHTML = `<span class="explanation-label">Explanation</span>${question.explanation_html}`;
+
+      card.appendChild(label);
+      card.appendChild(stem);
+      card.appendChild(options);
+      card.appendChild(explanation);
+
+      state.questionRefs[questionIndex] = {
+        card,
+        explanation,
+        optionButtons,
+        question,
+      };
+
+      applyQuestionState(questionIndex);
+      return card;
+    }
+
+    function applyQuestionState(questionIndex) {
+      const ref = state.questionRefs[questionIndex];
+      if (!ref) {
+        return;
+      }
+
+      const { card, optionButtons, question } = ref;
+      const selectedIndex = state.answers.get(questionIndex);
+      const hasSelection = selectedIndex !== undefined;
+      const isReview = state.mode === "review";
+      const showExplanation = isReview || hasSelection;
+
+      card.classList.toggle("is-hidden", !showExplanation);
+
+      optionButtons.forEach((button, optionIndex) => {
+        button.classList.remove("correct", "incorrect", "neutral-revealed");
+
+        if (isReview) {
+          button.disabled = true;
+          if (optionIndex === question.correct_index) {
+            button.classList.add("correct");
+          } else {
+            button.classList.add("neutral-revealed");
+          }
+          return;
+        }
+
+        button.disabled = false;
+        if (!hasSelection) {
+          return;
+        }
+
+        if (optionIndex === question.correct_index) {
+          button.classList.add("correct");
+        } else if (optionIndex === selectedIndex) {
+          button.classList.add("incorrect");
+        } else {
+          button.classList.add("neutral-revealed");
+        }
+      });
+    }
+
+    function renderApp() {
+      if (!quizData.topics.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty-state";
+        empty.textContent = "No questions were found in this JSON file.";
+        app.replaceChildren(empty);
+        return;
+      }
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "topic-list";
+
+      let questionOffset = 0;
+      quizData.topics.forEach((topic) => {
+        wrapper.appendChild(buildTopic(topic, questionOffset));
+        questionOffset += topic.questions.length;
+      });
+
+      app.replaceChildren(wrapper);
+    }
+
+    function setMode(mode) {
+      state.mode = mode;
+      modeButtons.forEach((button) => {
+        const isActive = button.dataset.modeButton === mode;
+        button.classList.toggle("active", isActive);
+        button.setAttribute("aria-pressed", String(isActive));
+      });
+
+      state.questionRefs.forEach((_, index) => applyQuestionState(index));
+    }
+
+    function setAllTopics(open) {
+      document.querySelectorAll(".topic").forEach((topic) => {
+        topic.open = open;
+      });
+    }
+
+    modeButtons.forEach((button) => {
+      button.addEventListener("click", () => setMode(button.dataset.modeButton));
+    });
+
+    topicActionButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        setAllTopics(button.dataset.topicAction === "expand");
+      });
+    });
+
+    renderApp();
+    setMode("solve");
+  </script>
+</body>
+</html>

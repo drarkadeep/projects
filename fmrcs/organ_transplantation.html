@@ -1,0 +1,745 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Organ Transplantation</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f1e8;
+      --bg-accent: #ebe4d4;
+      --surface: rgba(255, 252, 246, 0.92);
+      --surface-strong: #fffdf7;
+      --border: #d9cfbd;
+      --text: #23313a;
+      --text-soft: #5f6c73;
+      --accent: #496a58;
+      --accent-strong: #2f5341;
+      --correct-bg: #e0f3e6;
+      --correct-border: #77b487;
+      --wrong-bg: #fbe0df;
+      --wrong-border: #dc7a73;
+      --note-bg: #f3eee2;
+      --shadow: 0 18px 40px rgba(76, 59, 37, 0.08);
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+      --page-width: 960px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.72), transparent 32%),
+        linear-gradient(180deg, #f8f4eb 0%, #f3ede0 100%);
+      line-height: 1.65;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, rgba(255, 255, 255, 0.14), transparent 18%, transparent 82%, rgba(255, 255, 255, 0.14)),
+        repeating-linear-gradient(
+          180deg,
+          rgba(73, 106, 88, 0.015) 0,
+          rgba(73, 106, 88, 0.015) 1px,
+          transparent 1px,
+          transparent 18px
+        );
+    }
+
+    a {
+      color: var(--accent-strong);
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 14px;
+    }
+
+    .score-badge,
+    .badge.rounded-pill.bg-danger {
+      display: none !important;
+    }
+
+    .page {
+      width: min(100% - 24px, var(--page-width));
+      margin: 0 auto;
+      padding: 18px 0 48px;
+    }
+
+    .topbar {
+      margin-bottom: 18px;
+      padding: 18px;
+      background: rgba(255, 252, 246, 0.9);
+      border: 1px solid rgba(217, 207, 189, 0.86);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+
+    .topbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .eyebrow {
+      margin: 0 0 4px;
+      font-size: 0.76rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .title {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+      font-size: clamp(1.5rem, 2vw + 1rem, 2.35rem);
+      line-height: 1.08;
+      font-weight: 700;
+    }
+
+    .meta {
+      margin: 8px 0 0;
+      color: var(--text-soft);
+      font-size: 0.96rem;
+    }
+
+    .mode-switch {
+      display: inline-flex;
+      padding: 6px;
+      border-radius: 999px;
+      background: var(--bg-accent);
+      border: 1px solid var(--border);
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .topic-actions {
+      display: inline-flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .utility-button {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: var(--surface-strong);
+      color: var(--text);
+      font: inherit;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .utility-button:hover {
+      transform: translateY(-1px);
+      border-color: #c7bba9;
+      box-shadow: 0 8px 18px rgba(70, 54, 34, 0.07);
+    }
+
+    .utility-button:focus-visible {
+      outline: 3px solid rgba(73, 106, 88, 0.22);
+      outline-offset: 2px;
+    }
+
+    .mode-button {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: var(--text-soft);
+      font: inherit;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 10px 16px;
+      min-width: 92px;
+      cursor: pointer;
+      transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .mode-button:hover {
+      transform: translateY(-1px);
+      color: var(--text);
+    }
+
+    .mode-button.active {
+      background: var(--surface-strong);
+      color: var(--accent-strong);
+      box-shadow: 0 8px 18px rgba(73, 106, 88, 0.14);
+    }
+
+    .topic-list {
+      display: grid;
+      gap: 18px;
+    }
+
+    .topic {
+      background: rgba(255, 252, 246, 0.78);
+      border: 1px solid rgba(217, 207, 189, 0.9);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .topic[open] {
+      background: rgba(255, 252, 246, 0.9);
+    }
+
+    .topic > summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      user-select: none;
+    }
+
+    .topic > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .topic-title {
+      margin: 0;
+      font-size: 1.08rem;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+    }
+
+    .topic-meta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-soft);
+      font-size: 0.94rem;
+    }
+
+    .chevron {
+      display: inline-block;
+      transition: transform 0.2s ease;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .topic[open] > summary .chevron {
+      transform: rotate(90deg);
+    }
+
+    .topic-notes {
+      background: rgba(243, 238, 226, 0.62);
+      border: 1px solid #e3d9c8;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .topic-notes > summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      user-select: none;
+    }
+
+    .topic-notes > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .topic-notes-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .topic-notes[open] > summary .chevron {
+      transform: rotate(90deg);
+    }
+
+    .topic-notes-body {
+      padding: 0 16px 16px;
+      color: var(--text);
+    }
+
+    .topic-body {
+      padding: 0 16px 16px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .question-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      box-shadow: 0 10px 24px rgba(70, 54, 34, 0.05);
+    }
+
+    .question-label {
+      margin: 0 0 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-soft);
+      font-size: 0.88rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .stem {
+      font-size: 1rem;
+    }
+
+    .stem > *:first-child,
+    .explanation > *:first-child {
+      margin-top: 0;
+    }
+
+    .stem > *:last-child,
+    .explanation > *:last-child {
+      margin-bottom: 0;
+    }
+
+    .options {
+      margin-top: 16px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .option {
+      width: 100%;
+      text-align: left;
+      border: 1px solid #d8d0c2;
+      background: #fffdf8;
+      color: var(--text);
+      border-radius: var(--radius-sm);
+      padding: 14px 15px;
+      font: inherit;
+      line-height: 1.45;
+      cursor: pointer;
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .option:hover {
+      transform: translateY(-1px);
+      border-color: #c7bba9;
+      box-shadow: 0 8px 18px rgba(70, 54, 34, 0.07);
+    }
+
+    .option:focus-visible {
+      outline: 3px solid rgba(73, 106, 88, 0.22);
+      outline-offset: 2px;
+    }
+
+    .option.correct {
+      background: var(--correct-bg);
+      border-color: var(--correct-border);
+      box-shadow: inset 0 0 0 1px rgba(119, 180, 135, 0.2);
+    }
+
+    .option.incorrect {
+      background: var(--wrong-bg);
+      border-color: var(--wrong-border);
+      box-shadow: inset 0 0 0 1px rgba(220, 122, 115, 0.2);
+    }
+
+    .option.neutral-revealed {
+      background: #faf6ee;
+      border-color: #d8d0c2;
+      color: #5f676a;
+    }
+
+    .option[disabled] {
+      cursor: default;
+      opacity: 1;
+    }
+
+    .explanation {
+      margin-top: 14px;
+      padding: 14px 16px;
+      background: var(--note-bg);
+      border: 1px solid #e3d9c8;
+      border-radius: 14px;
+      color: var(--text);
+    }
+
+    .question-card.is-hidden .explanation {
+      display: none;
+    }
+
+    .explanation-label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+      font-weight: 800;
+    }
+
+    .empty-state {
+      padding: 28px 22px;
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-lg);
+      color: var(--text-soft);
+    }
+
+    .rich-text table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      overflow: hidden;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.68);
+    }
+
+    .rich-text td,
+    .rich-text th {
+      border: 1px solid #ddd2bf;
+      padding: 10px 12px;
+      vertical-align: top;
+    }
+
+    .rich-text ul,
+    .rich-text ol {
+      padding-left: 20px;
+      margin: 10px 0;
+    }
+
+    .rich-text center {
+      display: block;
+      text-align: center;
+    }
+
+    .rich-text .table-responsive {
+      overflow-x: auto;
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        width: min(100% - 16px, var(--page-width));
+        padding-top: 10px;
+      }
+
+      .topbar {
+        padding: 14px;
+        border-radius: 18px;
+      }
+
+      .topbar-inner {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .controls {
+        justify-content: stretch;
+      }
+
+      .topic-actions {
+        width: 100%;
+      }
+
+      .utility-button {
+        flex: 1 1 0;
+      }
+
+      .mode-switch {
+        width: 100%;
+        justify-content: stretch;
+      }
+
+      .mode-button {
+        flex: 1 1 50%;
+      }
+
+      .topic > summary {
+        padding: 16px;
+        align-items: flex-start;
+      }
+
+      .topic-meta {
+        font-size: 0.88rem;
+      }
+
+      .topic-body {
+        padding: 0 12px 12px;
+      }
+
+      .question-card {
+        padding: 15px;
+      }
+
+      .option {
+        padding: 13px 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="topbar">
+      <div class="topbar-inner">
+        <div>
+          <p class="eyebrow">Study View</p>
+          <h1 class="title">Organ Transplantation</h1>
+          <p class="meta">24 questions across 6 topics</p>
+        </div>
+        <div class="controls">
+          <div class="topic-actions" aria-label="Topic visibility controls">
+            <button class="utility-button" type="button" data-topic-action="expand">Expand all</button>
+            <button class="utility-button" type="button" data-topic-action="collapse">Collapse all</button>
+          </div>
+          <div class="mode-switch" role="tablist" aria-label="Question mode">
+            <button class="mode-button active" type="button" data-mode-button="solve" aria-pressed="true">Solve</button>
+            <button class="mode-button" type="button" data-mode-button="review" aria-pressed="false">Review</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="app"></section>
+  </main>
+
+  <script id="quiz-data" type="application/json">{"title": "Organ Transplantation", "topics": [{"name": "Complications following renal transplant", "questions": [{"number": 1, "topic": "Complications following renal transplant", "stem_html": "A 45 year old man with end stage renal failure undergoes a cadaveric renal transplant. The transplanted organ has a cold ischaemic time of 26 hours and a warm ischaemic time of 54 minutes. Post operatively the patient receives immunosuppressive therapy. Ten days later the patient has gained weight, becomes oliguric and feels systemically unwell. He also complains of swelling over the transplant site that is painful. What is the most likely cause?", "options": [{"label_html": "Acute tubular necrosis", "is_correct": false}, {"label_html": "Hyperacute rejection", "is_correct": false}, {"label_html": "Ureteric occlusion", "is_correct": false}, {"label_html": "Acute on chronic rejection", "is_correct": false}, {"label_html": "Acute rejection", "is_correct": true}], "correct_index": 4, "explanation_html": "The features described are those of worsening graft function and acute rejection. The fact that there is a 10 day delay goes against hyperacute rejection. Cold ischaemic times are a major factor for delayed graft function. However, even 26 hours is not incompatible with graft survival."}, {"number": 2, "topic": "Complications following renal transplant", "stem_html": "A 44 year old man with end stage renal failure undergoes a live donor renal transplant. During the immediate post operative period a good urine output is recorded. However, on return to the ward the nursing staff notice that the urinary catheter is no longer draining. Which of the interventions listed below is most likely to be required?", "options": [{"label_html": "Bladder wash out", "is_correct": true}, {"label_html": "Revision of the ureteric anastomosis", "is_correct": false}, {"label_html": "Revision of the venous anastomosis", "is_correct": false}, {"label_html": "Revision of the arterial anastomosis", "is_correct": false}, {"label_html": "Graft nephrectomy", "is_correct": false}], "correct_index": 0, "explanation_html": "The most likely explanation for this event is a blocked catheter. This may be the result of blood clot from the ureteric anastomosis. Bladder irrigation will usually resolve the problem."}, {"number": 3, "topic": "Complications following renal transplant", "stem_html": "A 43 year old man undergoes a live donor renal transplant. The donor's right kidney is anastomosed to the recipient. On removal of the arterial clamps there is good urinary flow noted and the wounds are closed. On return to the ward the nurses notice that the patient suddenly becomes anuric and irrigation of the bladder does not improve the situation. What is the most likely cause?", "options": [{"label_html": "Renal artery thrombosis", "is_correct": true}, {"label_html": "Acute rejection", "is_correct": false}, {"label_html": "Blocked catheter", "is_correct": false}, {"label_html": "Renal vein thrombosis", "is_correct": false}, {"label_html": "Chronic rejection", "is_correct": false}], "correct_index": 0, "explanation_html": "Right sided live donor transplants are extremely rare. This is because the vena cava precludes mobilisation of the right renal artery. The short right renal artery that is produced therefore presents a major challenge. The sudden cessation of urine output in this context is highly suggestive of an acute thrombosis. Delay in thrombectomy beyond 1 hour almost inevitably results in graft loss."}], "note_html": "Renal transplantation is widely practised. The commonest technical related complications are related to the ureteric anastomosis. The warm ischaemic time is also of considerable importance and graft survival is directly related to this. Long warm ischaemic times increase the risk of acute tubular necrosis which may occur in all types of renal transplanation and provided other insults are minimised, will usually recover. Organ rejection may occur at any phase following the transplantation process. <br><br><b>Immunological complications<\/b><br><b>Types of organ rejection<\/b><br><ul><li>Hyperacute. This occurs immediately through presence of pre formed antibody (such as ABO incompatibility).<\/li><li>Acute. Occurs during the first 6 months and is usually T cell mediated. Usually tissue infiltrates and vascular lesions.<\/li><li>Chronic. Occurs after the first 6 months. Vascular changes predominate. <\/li><\/ul><br><b>Hyperacute<\/b><br>Renal transplants are most susceptible to this process. Risk factors include major HLA mismatch and ABO incompatibility. The rejection occurs almost immediately and the macroscopic features may become manifest following completion of the vascular anastomosis and removal of clamps. The kidney becomes mottled, dusky and the vessels will thrombose. The only treatment is removal of the graft, if left in situ it will result in abscess formation.<br><br><b>Acute<\/b><br>All organs may undergo acute rejection. Mononuclear cell infiltrates predominate. All types of transplanted organ are susceptible and it may occur in up to 50% cases. Most cases can be managed medically. <br><br><b>Chronic<\/b><br>Again all transplants with HLA mismatch may suffer this fate. Previous acute rejections and other immunosensitising events all increase the risk. Vascular changes are most prominent with myointimal proliferation leading to organ ischaemia. Organ specific changes are also seen such as loss of acinar cells in pancreas transplants and rapidly progressive coronary artery disease in cardiac transplants.<br><br><b>Technical complications<\/b><br><div class=\"table-responsive\"><table class=\"tlarge table table-striped table-bordered\" data-role=\"table\" id=\"tableid1\"><thead><tr><th><b>Complication<\/b><\/th><th><b>Presenting features<\/b><\/th><th><b>Treatment<\/b><\/th><\/tr><\/thead><tbody><tr><td>Renal artery thrombosis<\/td><td>Sudden complete loss of urine output<\/td><td>Immediate surgery may salvage the graft, delays beyond 30 minutes are associated with a high rate of graft loss<\/td><\/tr><tr><td>Renal artery stenosis<\/td><td>Uncontrolled hypertension, allograft dysfunction and oedema<\/td><td>Angioplasty is the treatment of choice<\/td><\/tr><tr><td>Renal vein thrombosis<\/td><td>Pain and swelling over the graft site, haematuria and oliguria<\/td><td>The graft is usually lost<\/td><\/tr><tr><td>Urine leaks<\/td><td>Diminished urine output, rising creatinine, fever and abdominal pain<\/td><td>USS shows perigraft collection, necrosis of ureter tip is the commonest cause and the anastomosis may need revision<\/td><\/tr><tr><td>Lymphocele<\/td><td>Common complication (occurs in 15%), may present as a mass, if large may compress ureter<\/td><td>May be drained with percutaneous technique and sclerotherapy, or intraperitoneal drainage<\/td><\/tr><\/tbody><\/table><\/div>"}, {"name": "Complications of renal transplantation", "questions": [{"number": 4, "topic": "Complications of renal transplantation", "stem_html": "A 45 year old lady undergoes a renal transplant from a living related donor. She is well for several months, but on review in the outpatient department is noted to have persistent hypertension and a slight deterioration in renal function. What is the most likely explanation for this?", "options": [{"label_html": "Renal vein thrombosis", "is_correct": false}, {"label_html": "Acute rejection", "is_correct": false}, {"label_html": "Renal artery thrombosis", "is_correct": false}, {"label_html": "Lymphocele", "is_correct": false}, {"label_html": "Renal artery stenosis", "is_correct": true}], "correct_index": 4, "explanation_html": "Renal artery stenosis typically occurs over several months and will usually result in the development of hypertension. Most cases can be assessed using duplex scanning and managed with angioplasty."}, {"number": 5, "topic": "Complications of renal transplantation", "stem_html": "A 43 year old lady undergoes a live related renal transplant. At the conclusion of the operation she has a good urine output and the graft appeared well perfused. On the ward she suddenly becomes anuric. What is the most likely cause?", "options": [{"label_html": "Renal artery stenosis", "is_correct": false}, {"label_html": "Renal vein thrombosis", "is_correct": false}, {"label_html": "Renal artery thrombosis", "is_correct": true}, {"label_html": "Hyperacute rejection", "is_correct": false}, {"label_html": "Acute rejection", "is_correct": false}], "correct_index": 2, "explanation_html": "Sudden loss of urine output is most commonly due to a blocked catheter. However, if this is excluded (and is not included in the options) the most worrisome cause is arterial thrombosis. This will often be a delayed diagnosis and the rate of graft loss is high."}, {"number": 6, "topic": "Complications of renal transplantation", "stem_html": "A 39 year old lady undergoes a live related renal transplant. She progresses well. Two weeks following the transplant she is noted to have swelling overlying the transplant site and swelling of the ipsilateral limb.Urine output is acceptable and creatinine unchanged. What is the most likely cause?", "options": [{"label_html": "Lymphocele", "is_correct": true}, {"label_html": "Renal vein thrombosis", "is_correct": false}, {"label_html": "Renal artery stenosis", "is_correct": false}, {"label_html": "Acute rejection", "is_correct": false}, {"label_html": "Renal artery thrombosis", "is_correct": false}], "correct_index": 0, "explanation_html": "Swelling over the graft site is often due to a lymphocele and this is further suggested by the normal renal function. They cause symptoms through mass effect and limb swelling may occur. Treatment is often surgical."}], "note_html": "A number of complications may occur following renal transplantation. A critical aspect of post operative care is evaluation of graft function. Post operatively, urine output is the most readily available, and easily measured, indicator of graft function. If an individual was relatively anuric pre-transplant and has a good urine output following surgery then this is more useful than it would be in someone who had a higher volume diuresis prior to transplantation. Recipients can be divided into three main groups following renal transplantation, with regard to their graft function:<br><ul><li>Immediate graft function; brisk diuresis and falling serum creatinine<\/li><li>Slow graft function; modest urine output and slowly falling creatinine levels<\/li><li>Delayed graft function; defined as need for dialysis post transplant<\/li><\/ul><br>Decreased urine output following surgery can be the result of hypovolvaemia or a blocked catheter (commonest causes). Other important causes include rejection, or a vascular complication. <br><br><b>Vascular complications<\/b><br>These may involve the donor vessels, those of the recipient or both. Renal artery thrombosis usually occurs early post transplant, but is uncommon with an incidence of less than 1%. It typically results in graft loss. It usually occurs as a result of a technical problem such a vessel torsion or sub intimal flaps. The usual presenting feature is a sudden cessation of urine output. When suspected, the occlusion is usually well demonstrated with duplex scanning. Ideally immediate surgical re-exploration should occur. Sadly, the graft has usually been lost by this stage and will require graft nephrectomy. Renal vein thrombosis is not as common as arterial graft thrombosis and the usual presenting features include discomfort at the graft site and swelling of the graft associated with loss of urine output. Again, duplex scanning is indicated. Unfortunately, this complication is also associated with a high incidence of graft loss. <br>Over a longer time frame (typically months) some individuals will develop renal artery stenosis. These individuals will typically develop hypertension and over time graft function will decline as hypertensive nephropathy occurs. It is usually demonstrated by duplex scanning and is usually amenable to endovascular intervention. <br><br><b>Urological complications<\/b><br>Urinary tract complications manifesting as leakage or obstruction are common complications following renal transplantation and occur in up to 10% of patients. The main underlying cause is the relatively poor blood supply to the transplanted ureter. Patients typically present relatively early in the first 5 weeks following transplantation with pain and swelling at the graft site. Imaging with USS is often the initial test. Therapeutic options include surgical re-implantation of the ureter for large leaks and stent insertion and nephrostomy placement for smaller leaks. <br><br><b>Lymphocele<\/b><br>These do not generally occur until 2 weeks or longer after surgery. They are, however, relatively common and may be seen in up to 18% of patients. Symptoms usually occur as a result of mass effect with compression of adjacent structures. These include the vessels supplying both the graft, with deterioration in graft function, the ureter, with alteration in urine output and the recipients lower limb vessels, with development of leg swelling. Creation of a laparoscopic or open peritoneal window is a favored treatment. <br><br><b>Rejection<\/b><br>Four types of graft rejection are recognised; hyperacute, accelerated acute, acute and chronic.<br><br><div class=\"table-responsive\"><table class=\"tlarge table table-striped table-bordered\" data-role=\"table\" id=\"tableid1\"><thead><tr><th><b>Type of rejection<\/b><\/th><th><b>Key features<\/b><\/th><\/tr><\/thead><tbody><tr><td>Hyperacute<\/td><td>Occurs within minutes of clamp release<br>Due to pre formed antibodies<br>Immediate loss of graft occurs<\/td><\/tr><tr><td>Accelerated acute<\/td><td>Occurs in first few days following surgery<br>Involved both cellular and antibody mediated injury<br>Pre-sensitisation of the donor is a common cause<\/td><\/tr><tr><td>Acute<\/td><td>Traditionally the most common type of rejection<br>Seen days to weeks after surgery<br>Predominantly a cell mediated process mediated by lymphocytes<br>Organ biopsy demonstrates cellular infiltrates and graft cell apoptosis<\/td><\/tr><tr><td>Chronic<\/td><td>Increasingly common problem<br>Typically; graft atrophy and atherosclerosis are seen. Fibrosis often occurs as a late event<\/td><\/tr><\/tbody><\/table><\/div>"}, {"name": "Organ Transplant", "questions": [{"number": 7, "topic": "Organ Transplant", "stem_html": "A 43 year old lady undergoes a live donor related renal transplant. Over the next few years it is noted that her renal function progressively deteriorates. What is the most likely underlying explanation?", "options": [{"label_html": "Type I hypersensitivity reaction", "is_correct": false}, {"label_html": "Type III hypersensitivity reaction", "is_correct": false}, {"label_html": "Type II hypersensitivity reaction", "is_correct": false}, {"label_html": "Type IV hypersensitivity reaction", "is_correct": true}, {"label_html": "None of the above", "is_correct": false}], "correct_index": 3, "explanation_html": "Chronic rejection of renal transplants is mediated via T lymphocytes and is therefore a type IV hypersensitivity reaction. This process can be mitigated by immunosupression."}, {"number": 8, "topic": "Organ Transplant", "stem_html": "Which of the following is not true of hyper acute solid organ transplant rejection?", "options": [{"label_html": "It may occur during the surgical procedure itself.", "is_correct": false}, {"label_html": "May occur as a result of blood group A, B or O incompatibility.", "is_correct": false}, {"label_html": "May be due to pre existing anti HLA antibodies.", "is_correct": false}, {"label_html": "On biopsy will typically show neo intimal hyperplasia of donor arterioles.", "is_correct": true}, {"label_html": "Complement system activation is one of the key mediators.", "is_correct": false}], "correct_index": 3, "explanation_html": "These changes are more often seen in the chronic setting. Thrombosis is more commonly seen in the hyperacute phase."}, {"number": 9, "topic": "Organ Transplant", "stem_html": "Which of the following transplants is most susceptible to donor- recipient HLA mismatches?", "options": [{"label_html": "Autologous skin graft", "is_correct": false}, {"label_html": "Renal allograft", "is_correct": true}, {"label_html": "Liver allograft", "is_correct": false}, {"label_html": "Corneal allograft", "is_correct": false}, {"label_html": "Cardiac valve allograft", "is_correct": false}], "correct_index": 1, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Autologous transplant- same individual (genetically identical)<br>Allograft - Genetically different<\/div>The kidney is highly susceptible to HLA mismatches and hyperacute rejection may occur in patients with IgG anti HLA Class I antibodies. The liver is at far lower risk of rejection of this nature. Although the heart is sensitive to HLA mismatches this is less than the kidney. Cardiac valves and the cornea incite little immunological response."}, {"number": 10, "topic": "Organ Transplant", "stem_html": "A 43 year old lady is recovering following a live donor related renal transplant. She has significant abdominal pain. Which of the following analgesic drugs should be avoided?", "options": [{"label_html": "Paracetamol", "is_correct": false}, {"label_html": "Morphine", "is_correct": false}, {"label_html": "Nefopam", "is_correct": false}, {"label_html": "Diclofenac", "is_correct": true}, {"label_html": "Co-codamol", "is_correct": false}], "correct_index": 3, "explanation_html": "Non steroidal anti inflammatory drugs may be nephrotoxic and therefore are usually avoided in patients who have undergone renal transplants. Paracetamol and morphine are metabolised predominantly in the liver. There is some renal contribution to morphine metabolism and excretion and the drug should be administered in reduced doses or avoided if the transplanted kidney stops functioning."}, {"number": 11, "topic": "Organ Transplant", "stem_html": "A 38 year old man is recovering following a live donor related renal transplant. The surgeon prescribes corticosteroids to reduce the risk of graft rejection. Which of the following will not occur as a result of their administration?", "options": [{"label_html": "Suppression of macrophage activation", "is_correct": false}, {"label_html": "Reduction of expression of major histocompatibility complex antigens on the graft", "is_correct": false}, {"label_html": "Reduction in the proliferation of lymphocytes", "is_correct": false}, {"label_html": "Necrosis of activated lymphocytes", "is_correct": true}, {"label_html": "Reduction of expression of endothelial cell adhesion molecules", "is_correct": false}], "correct_index": 3, "explanation_html": "Corticosteroids at higher doses are able to induce apoptosis of activated lymphocytes. Necrosis is a different process and not induced by steroids."}, {"number": 12, "topic": "Organ Transplant", "stem_html": "A 43 year old man undergoes a cadaveric renal transplant. The operation is uncomplicated. On removal of the vascular clamps the transplanted kidney immediately turns dusky and over the ensuing hours appears non viable. Which of the following best explains this event?", "options": [{"label_html": "Chronic rejection", "is_correct": false}, {"label_html": "Hyper acute rejection", "is_correct": true}, {"label_html": "Acute rejection", "is_correct": false}, {"label_html": "Sub chronic rejection", "is_correct": false}, {"label_html": "Infection of the graft", "is_correct": false}], "correct_index": 1, "explanation_html": "Immediate rejection is due to the presence of pre-existing antibodies e.g. ABO mismatch. The transplanted organ should be removed."}, {"number": 13, "topic": "Organ Transplant", "stem_html": "A 43 year old man undergoes a cadaveric renal transplant. The operation is uncomplicated. On removal of the vascular clamps the transplanted kidney immediately turns dusky and over the ensuing hours appears non viable. Which of the following best explains this event?", "options": [{"label_html": "Chronic rejection", "is_correct": false}, {"label_html": "Hyper acute rejection", "is_correct": true}, {"label_html": "Acute rejection", "is_correct": false}, {"label_html": "Sub chronic rejection", "is_correct": false}, {"label_html": "Infection of the graft", "is_correct": false}], "correct_index": 1, "explanation_html": "Immediate rejection is due to the presence of pre-existing antibodies e.g. ABO mismatch. The transplanted organ should be removed."}, {"number": 14, "topic": "Organ Transplant", "stem_html": "A 43 year old man undergoes a cadaveric renal transplant. The operation is uncomplicated. On removal of the vascular clamps the transplanted kidney immediately turns dusky and over the ensuing hours appears non viable. Which of the following best explains this event?", "options": [{"label_html": "Chronic rejection", "is_correct": false}, {"label_html": "Hyper acute rejection", "is_correct": true}, {"label_html": "Acute rejection", "is_correct": false}, {"label_html": "Sub chronic rejection", "is_correct": false}, {"label_html": "Infection of the graft", "is_correct": false}], "correct_index": 1, "explanation_html": "Immediate rejection is due to the presence of pre-existing antibodies e.g. ABO mismatch. The transplanted organ should be removed."}, {"number": 16, "topic": "Organ Transplant", "stem_html": "A 48 year old lady with end stage renal failure receives a cadaveric renal transplant. The organ is ABO group matched only. On completion of the vascular anastomoses the surgeons remove the clamps. Over the course of the next twelve minutes the donated kidney becomes dusky and swollen and appears non viable. Which of the following is the most likely process that has caused this event?", "options": [{"label_html": "IgG anti HLA Class I antibodies in the recipient", "is_correct": true}, {"label_html": "IgM anti HLA Class I antibodies in the recipient", "is_correct": false}, {"label_html": "IgG anti HLA Class I antibodies from the donor", "is_correct": false}, {"label_html": "IgM anti HLA Class I antibodies from the donor", "is_correct": false}, {"label_html": "IgM anti HLA Class II antibodies from the recipient", "is_correct": false}], "correct_index": 0, "explanation_html": "Episodes of hyperacute rejection are typically due to preformed antibodies. ABO mismatch is the best example. However, IgG anti HLA Class I antibodies are another potential cause. These events are now seen less commonly because the cross matching process generally takes this possibility into account."}], "note_html": "A number of different organ and tissue transplants are now available. In many cases an allograft is performed, where an organ is transplanted from one individual to another. Allografts will elicit an immune response and this is one of the main reasons for organ rejection. <br><br>Graft rejection occurs because allografts have allelic differences at genes that code immunohistocompatability complex genes. The main antigens that give rise to rejection are:<br><ul><li>ABO blood group<\/li><li>Human leucocyte antigens (HLA)<\/li><li>Minor histocompatability antigens<\/li><\/ul><br><b>ABO Matching<\/b><br>ABO incompatibility will result in early organ rejection (hyperacute) because of pre existing antibodies to other groups. Group O donors can give organs to any type of ABO recipient whereas group AB donor can only donate to AB recipient.<br><br><b>HLA System<\/b><br>The four most important HLA alleles are:  <br><br><ul><li>HLA A<\/li><li>HLA B<\/li><li>HLA C<\/li><li>HLA DR<\/li><\/ul><br>An ideal organ match would be one in which all 8 alleles are matched (remember 2 from each parent, four each = 8 alleles). Modern immunosuppressive regimes help to manage the potential rejection due to HLA mismatching. However, the greater the number of mismatches the worse the long term outcome will be. T lymphocytes will recognise antigens bound to HLA molecules and will then become activated. Clonal expansion then occurs with a response directed against that antigen. <br><br><b>Types of organ rejection<\/b><br><ul><li>Hyperacute. This occurs immediately through presence of pre formed antibodies (such as ABO incompatibility).<\/li><li>Acute. Occurs during the first 6 months and is usually T cell mediated. Usually tissue infiltrates and vascular lesions.<\/li><li>Chronic. Occurs after the first 6 months. Vascular changes predominate. <\/li><\/ul><br><b>Hyperacute<\/b><br>Renal transplants at greatest risk and liver transplants at least risk. Although ABO incompatibility and HLA Class I incompatible transplants will all fare worse in long term. <br><br><b>Acute<\/b><br>All organs may undergo acute rejection. Mononuclear cell infiltrates predominate. All types of transplanted organ are susceptible and it may occur in up to 50% cases. <br><br><b>Chronic<\/b><br>Again all transplants with HLA mismatch may suffer this fate. Previous acute rejections and other immunosensitising events all increase the risk. Vascular changes are most prominent with myointimal proliferation leading to organ ischaemia. Organ specific changes are also seen such as loss of acinar cells in pancreas transplants and rapidly progressive coronary artery disease in cardiac transplants.<br><br><br><b>Surgical overview-Renal transplantation<\/b><br>A brief overview of the steps involved in renal transplantation is given. <br>Patients with end stage renal failure who are dialysis dependent or likely to become so in the immediate future are considered for transplant. Exclusion criteria include; active malignancy, old age (due to limited organ availability). Patients are medically optimised. <br>Donor kidneys, these may be taken from live related donors and close family, members may have less HLA mismatch than members of the general population. Laparoscopic donor nephrectomy further minimises the operative morbidity for the donor. Other organs are typically taken from brain dead or dying patients who have a cardiac arrest and in whom resuscitation is futile. The key event is to minimise the warm ischaemic time in the donor phase. <br><br>The kidney once removed is usually prepared on the bench in theatre by the transplant surgeon immediately prior to implantation and factors such as accessory renal arteries and vessel length are assessed and managed.<br><br>For first time recipients the operation is performed under general anaesthesia. A Rutherford-Morison incision is made on the preferred side. This provides excellent extraperitoneal access to the iliac vessels. The external iliac artery and vein are dissected out and following systemic heparinisation are cross clamped. The vein and artery are anastamosed to the iliacs and the clamps removed. The ureter is then implanted into the bladder and a stent is usually placed to maintain patency. The wounds are then closed and the patient recovered from surgery. <br><br>In the immediate phase a common problem encountered in cadaveric kidneys is acute tubular necrosis and this tends to resolve. <br><br>Graft survival times from cadaveric donors are typically of the order of 9 years and monozygotic twin transplant (live donor) may survive as long as 25 years."}, {"name": "Organ transplantation: immunosuppressants", "questions": [{"number": 15, "topic": "Organ transplantation: immunosuppressants", "stem_html": "A 52 year old male attends renal transplant clinic for a post operative assessment.  You note that he is on ciclosporin and that a recent blood test shows that the ciclosporin level is elevated.  Of the adverse effects noted below, which is the greatest concern?", "options": [{"label_html": "Hyperthyroidism", "is_correct": false}, {"label_html": "Diabetes", "is_correct": false}, {"label_html": "Alopecia", "is_correct": false}, {"label_html": "Hypothermia", "is_correct": false}, {"label_html": "Nephrotoxicity", "is_correct": true}], "correct_index": 4, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Ciclosporin- nephrotoxicity<\/div>This patient is at risk of nephrotoxicity and should be referred to the renal team as soon as possible.  Alopecia is associated with azathioprine and diabetes is associated with long term use."}], "note_html": "A number of drugs are available which help to mitigate the processes resulting in acute rejection. Cyclosporin and tacrolimus are commonly used drugs. <br><br>Example regime<br><ul><li>Initial: ciclosporin/tacrolimus with a monoclonal antibody<\/li><li>Maintenance: ciclosporin/tacrolimus with MMF or sirolimus<\/li><li>Add steroids if more than one steroid responsive acute rejection episode<\/li><\/ul><br><b>Ciclosporin<\/b><br><ul><li>Inhibits calcineurin, a phosphatase involved in T cell activation<\/li><li>Nephrotoxic <\/li><li>Monitor levels<\/li><\/ul><br><b>Azathioprine<\/b><br><ul><li>Metabolised to form 6 mercaptopurine which inhibits DNA synthesis and cell division<\/li><li>Side effects include myelosupression, alopecia and nausea <\/li><\/ul><br><b>Tacrolimus<\/b><br><ul><li>Lower incidence of acute rejection compared to ciclosporin<\/li><li>Also less hypertension and hyperlipidaemia<\/li><li>However, high incidence of impaired glucose tolerance and diabetes<\/li><\/ul><br><b>Mycophenolate mofetil (MMF)<\/b><br><ul><li>Blocks purine synthesis by inhibition of IMPDH<\/li><li>Therefore inhibits proliferation of B and T cells<\/li><li>Side-effects: GI and marrow suppression<\/li><\/ul><br><b>Sirolimus (rapamycin)<\/b><br><ul><li>Blocks T cell proliferation by blocking the IL-2 receptor<\/li><li>Can cause hyperlipidaemia<\/li><\/ul><br><b>Monoclonal antibodies<\/b><br><ul><li>Selective inhibitors of IL-2 receptor<\/li><li>Daclizumab<\/li><li>Basilximab<\/li><\/ul>"}, {"name": "Renal transplant:HLA typing and graft failure", "questions": [{"number": 17, "topic": "Renal transplant:HLA typing and graft failure", "stem_html": "You review a 42-year-old woman six weeks following a renal transplant for focal segmental glomerulosclerosis. Following the procedure she was discharged on a combination of tacrolimus, mycophenolate, and prednisolone. She has now presented with a five day history of feeling generally unwell with anorexia, fatigue and arthralgia. On examination, she has a temperature of 37.9 and has widespread lymphadenopathy. What is the most likely diagnosis?", "options": [{"label_html": "Hepatitis C", "is_correct": false}, {"label_html": "Coxsackie virus", "is_correct": false}, {"label_html": "HIV", "is_correct": false}, {"label_html": "Hepatitis B", "is_correct": false}, {"label_html": "Cytomegalovirus", "is_correct": true}], "correct_index": 4, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Cytomegalovirus is the most common and important viral infection in solid organ transplant recipients<\/div>Primary infection with CMV typically occurs 6 weeks post transplantation in a seronegative individual who receives an organ from a seropositive donor. Symptoms may occur as early as 20 days but can occur up to 6 months post transplant . Symptoms are often vague, retinitis can be pathognomonic, but is rarely seen in the transplant population. CMV disease is seen in 8% of renal transplant patients. Intravenous ganciclovir is the treatment of choice in such patients. Unfortunately, relapses are not uncommon."}, {"number": 18, "topic": "Renal transplant:HLA typing and graft failure", "stem_html": "A 54-year-old man who has end stage diabetic nephropathy is being assessed for a renal transplant. When assessing the HLA matching between donor and recipient what is the most important HLA antigen to match?", "options": [{"label_html": "DP", "is_correct": false}, {"label_html": "B", "is_correct": false}, {"label_html": "DR", "is_correct": true}, {"label_html": "C", "is_correct": false}, {"label_html": "A", "is_correct": false}], "correct_index": 2, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Renal transplant HLA matching - DR is the most important<\/div>"}, {"number": 19, "topic": "Renal transplant:HLA typing and graft failure", "stem_html": "A 28-year-old female undergoes a renal transplant for focal segmental glomerulosclerosis. Within hours of the operation the patient becomes unwell with features consistent with severe systemic inflammatory response syndrome. The patient is immediately taken back to theatre and the transplanted kidney is removed. What type of immunoglobulins are responsible for the graft rejection?", "options": [{"label_html": "IgE", "is_correct": false}, {"label_html": "IgM", "is_correct": false}, {"label_html": "IgG", "is_correct": true}, {"label_html": "IgD", "is_correct": false}, {"label_html": "IgA", "is_correct": false}], "correct_index": 2, "explanation_html": "Hyperacute graft rejection is due to pre-existent antibodies to HLA antigens and is therefore IgG mediated"}, {"number": 20, "topic": "Renal transplant:HLA typing and graft failure", "stem_html": "You review a 42-year-old woman 8 months following a renal transplant for focal segmental glomerulosclerosis. She is on a combination of tacrolimus, mycophenolate, and prednisolone. She has now presented with a five day history of feeling generally unwell with jaundice, fatigue and arthralgia. On examination she has jaundice, widespread lymphadenopathy and hepatomegaly. What is the most likely diagnosis?", "options": [{"label_html": "Hepatitis C", "is_correct": false}, {"label_html": "Epstein-Barr virus", "is_correct": true}, {"label_html": "HIV", "is_correct": false}, {"label_html": "Hepatitis B", "is_correct": false}, {"label_html": "Cytomegalovirus", "is_correct": false}], "correct_index": 1, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Post transplant complications<br><br>CMV:  4 weeks to 6 months post transplant<br>EBV: post transplant lymphoproliferative disease.  &gt; 6 months post transplant<\/div>Post transplant lymphoproliferative disorder is most commonly associated with Epstein-Barr virus.  It typically occurs 6 months post transplant and is associated with high dose immunosupressant therapy.  Remember cytomegalovirus presents within the first 4 weeks to 6 months post transplant."}, {"number": 21, "topic": "Renal transplant:HLA typing and graft failure", "stem_html": "In matching donated kidneys to the most appropriate recipient, apart from ABO matching, which of the following is most important?", "options": [{"label_html": "HLA DR", "is_correct": true}, {"label_html": "Rhesus", "is_correct": false}, {"label_html": "HLA A", "is_correct": false}, {"label_html": "HLA B", "is_correct": false}, {"label_html": "Duffy antigen", "is_correct": false}], "correct_index": 0, "explanation_html": "The rhesus group is not important in matching donor and recipient kidneys."}], "note_html": "The human leucocyte antigen (HLA) system is the name given to the major histocompatibility complex (MHC) in humans. It is coded for on chromosome 6.<br><br>Some basic points on the HLA system<br><ul><li>Class 1 antigens include A, B and C. Class 2 antigens include DP,DQ and DR<\/li><li>When HLA matching for a renal transplant the relative importance of the HLA antigens are as follows DR &gt; B &gt; A<\/li><\/ul><br>Graft survival<br><ul><li>1 year = 90%, 10 years = 60% for cadaveric transplants<\/li><li>1 year = 95%, 10 years = 70% for living-donor transplants<\/li><\/ul><br>Post-op problems<br><ul><li>ATN of graft<\/li><li>Vascular thrombosis<\/li><li>Urine leakage<\/li><li>UTI<\/li><\/ul><br><b>Hyperacute acute rejection<\/b><br><ul><li>Due to antibodies against donor HLA type 1 antigens<\/li><li>Rarely seen due to HLA matching<\/li><\/ul><br><b>Acute graft failure (&lt; 6 months)<\/b><br><ul><li>Usually due to mismatched HLA<\/li><li>Other causes include cytomegalovirus infection<\/li><li>Management: give steroids, if resistant use monoclonal antibodies<\/li><\/ul>   <br><b>Causes of chronic graft failure (&gt; 6 months)<\/b><br><ul><li>Chronic allograft nephropathy<\/li><li>Ureteric obstruction<\/li><li>Recurrence of original renal disease (MCGN &gt; IgA &gt; FSGS)<\/li><\/ul>"}, {"name": "Transplant types", "questions": [{"number": 22, "topic": "Transplant types", "stem_html": "What type of transplant best describes a 27 year old lady donating her right kidney to her identical twin sister?", "options": [{"label_html": "Autograft", "is_correct": false}, {"label_html": "Isograft", "is_correct": true}, {"label_html": "Allograft", "is_correct": false}, {"label_html": "Xenograft", "is_correct": false}, {"label_html": "None of the above", "is_correct": false}], "correct_index": 1, "explanation_html": "Identical twin to twin donations are usually genetically identical and are therefore isografts."}, {"number": 23, "topic": "Transplant types", "stem_html": "A 63 year old woman with severe angina undergoes a coronary artery bypass procedure and her long saphenous vein is used as a bypass conduit. Which of the types of transplant listed below best describes this?", "options": [{"label_html": "Allograft", "is_correct": false}, {"label_html": "Isograft", "is_correct": false}, {"label_html": "Xenograft", "is_correct": false}, {"label_html": "Autograft", "is_correct": true}, {"label_html": "None of the above", "is_correct": false}], "correct_index": 3, "explanation_html": "The long saphenous vein is one of the commonest autografts in surgery."}, {"number": 24, "topic": "Transplant types", "stem_html": "A 38 year old lady donates her kidney to her niece. What type of transplant is this?", "options": [{"label_html": "Xenograft", "is_correct": false}, {"label_html": "Allograft", "is_correct": true}, {"label_html": "Autograft", "is_correct": false}, {"label_html": "Isograft", "is_correct": false}, {"label_html": "None of the above", "is_correct": false}], "correct_index": 1, "explanation_html": "Though related this donor will not be genetically identical and thus this will be an allograft."}], "note_html": "<div class=\"table-responsive\"><table class=\"tlarge table table-striped table-bordered\" data-role=\"table\" id=\"tableid1\"><thead><tr><th><b>Graft<\/b><\/th><th><b>Features<\/b><\/th><th><b>Uses<\/b><\/th><\/tr><\/thead><tbody><tr><td>Allograft<\/td><td>Transplant of tissue from genetically non identical donor from the same species<\/td><td>Solid organ transplant from non related donor<\/td><\/tr><tr><td>Isograft<\/td><td>Graft of tissue between two individuals who are genetically identical<\/td><td>Solid organ transplant in identical twins<\/td><\/tr><tr><td>Autograft<\/td><td>Transplantation of organs or tissues from one part of the body to another in the same individual<\/td><td>Skin graft<\/td><\/tr><tr><td>Xenograft<\/td><td>Tissue transplanted from another species<\/td><td>Porcine heart valve<\/td><\/tr><\/tbody><\/table><\/div>"}]}</script>
+  <script>
+    const quizData = JSON.parse(document.getElementById("quiz-data").textContent);
+    const app = document.getElementById("app");
+    const modeButtons = Array.from(document.querySelectorAll("[data-mode-button]"));
+    const topicActionButtons = Array.from(document.querySelectorAll("[data-topic-action]"));
+
+    const state = {
+      mode: "solve",
+      answers: new Map(),
+      questionRefs: [],
+    };
+
+    function buildTopic(topic, questionOffset) {
+      const details = document.createElement("details");
+      details.className = "topic";
+      details.open = true;
+
+      const summary = document.createElement("summary");
+      summary.innerHTML = `
+        <div>
+          <h2 class="topic-title">${topic.name}</h2>
+        </div>
+        <div class="topic-meta">
+          <span>${topic.questions.length} questions</span>
+          <span class="chevron" aria-hidden="true">></span>
+        </div>
+      `;
+
+      const body = document.createElement("div");
+      body.className = "topic-body";
+
+      if (topic.note_html) {
+        const notes = document.createElement("details");
+        notes.className = "topic-notes";
+
+        const notesSummary = document.createElement("summary");
+        notesSummary.innerHTML = `
+          <span class="topic-notes-title">Notes</span>
+          <span class="chevron" aria-hidden="true">></span>
+        `;
+
+        const notesBody = document.createElement("div");
+        notesBody.className = "topic-notes-body rich-text";
+        notesBody.innerHTML = topic.note_html;
+
+        notes.appendChild(notesSummary);
+        notes.appendChild(notesBody);
+        body.appendChild(notes);
+      }
+
+      topic.questions.forEach((question, indexInTopic) => {
+        const globalIndex = questionOffset + indexInTopic;
+        body.appendChild(buildQuestionCard(question, globalIndex));
+      });
+
+      details.appendChild(summary);
+      details.appendChild(body);
+      return details;
+    }
+
+    function buildQuestionCard(question, questionIndex) {
+      const card = document.createElement("article");
+      card.className = "question-card is-hidden";
+      card.dataset.questionIndex = String(questionIndex);
+
+      const label = document.createElement("p");
+      label.className = "question-label";
+      label.textContent = `Question ${question.number}`;
+
+      const stem = document.createElement("div");
+      stem.className = "stem rich-text";
+      stem.innerHTML = question.stem_html;
+
+      const options = document.createElement("div");
+      options.className = "options";
+
+      const optionButtons = question.options.map((option, optionIndex) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "option";
+        button.dataset.optionIndex = String(optionIndex);
+        button.innerHTML = option.label_html;
+        button.addEventListener("click", () => {
+          if (state.mode !== "solve") {
+            return;
+          }
+          state.answers.set(questionIndex, optionIndex);
+          applyQuestionState(questionIndex);
+        });
+        options.appendChild(button);
+        return button;
+      });
+
+      const explanation = document.createElement("div");
+      explanation.className = "explanation rich-text";
+      explanation.innerHTML = `<span class="explanation-label">Explanation</span>${question.explanation_html}`;
+
+      card.appendChild(label);
+      card.appendChild(stem);
+      card.appendChild(options);
+      card.appendChild(explanation);
+
+      state.questionRefs[questionIndex] = {
+        card,
+        explanation,
+        optionButtons,
+        question,
+      };
+
+      applyQuestionState(questionIndex);
+      return card;
+    }
+
+    function applyQuestionState(questionIndex) {
+      const ref = state.questionRefs[questionIndex];
+      if (!ref) {
+        return;
+      }
+
+      const { card, optionButtons, question } = ref;
+      const selectedIndex = state.answers.get(questionIndex);
+      const hasSelection = selectedIndex !== undefined;
+      const isReview = state.mode === "review";
+      const showExplanation = isReview || hasSelection;
+
+      card.classList.toggle("is-hidden", !showExplanation);
+
+      optionButtons.forEach((button, optionIndex) => {
+        button.classList.remove("correct", "incorrect", "neutral-revealed");
+
+        if (isReview) {
+          button.disabled = true;
+          if (optionIndex === question.correct_index) {
+            button.classList.add("correct");
+          } else {
+            button.classList.add("neutral-revealed");
+          }
+          return;
+        }
+
+        button.disabled = false;
+        if (!hasSelection) {
+          return;
+        }
+
+        if (optionIndex === question.correct_index) {
+          button.classList.add("correct");
+        } else if (optionIndex === selectedIndex) {
+          button.classList.add("incorrect");
+        } else {
+          button.classList.add("neutral-revealed");
+        }
+      });
+    }
+
+    function renderApp() {
+      if (!quizData.topics.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty-state";
+        empty.textContent = "No questions were found in this JSON file.";
+        app.replaceChildren(empty);
+        return;
+      }
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "topic-list";
+
+      let questionOffset = 0;
+      quizData.topics.forEach((topic) => {
+        wrapper.appendChild(buildTopic(topic, questionOffset));
+        questionOffset += topic.questions.length;
+      });
+
+      app.replaceChildren(wrapper);
+    }
+
+    function setMode(mode) {
+      state.mode = mode;
+      modeButtons.forEach((button) => {
+        const isActive = button.dataset.modeButton === mode;
+        button.classList.toggle("active", isActive);
+        button.setAttribute("aria-pressed", String(isActive));
+      });
+
+      state.questionRefs.forEach((_, index) => applyQuestionState(index));
+    }
+
+    function setAllTopics(open) {
+      document.querySelectorAll(".topic").forEach((topic) => {
+        topic.open = open;
+      });
+    }
+
+    modeButtons.forEach((button) => {
+      button.addEventListener("click", () => setMode(button.dataset.modeButton));
+    });
+
+    topicActionButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        setAllTopics(button.dataset.topicAction === "expand");
+      });
+    });
+
+    renderApp();
+    setMode("solve");
+  </script>
+</body>
+</html>

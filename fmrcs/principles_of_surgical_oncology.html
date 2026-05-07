@@ -1,0 +1,745 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Principles Of Surgical Oncology</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f1e8;
+      --bg-accent: #ebe4d4;
+      --surface: rgba(255, 252, 246, 0.92);
+      --surface-strong: #fffdf7;
+      --border: #d9cfbd;
+      --text: #23313a;
+      --text-soft: #5f6c73;
+      --accent: #496a58;
+      --accent-strong: #2f5341;
+      --correct-bg: #e0f3e6;
+      --correct-border: #77b487;
+      --wrong-bg: #fbe0df;
+      --wrong-border: #dc7a73;
+      --note-bg: #f3eee2;
+      --shadow: 0 18px 40px rgba(76, 59, 37, 0.08);
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+      --page-width: 960px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.72), transparent 32%),
+        linear-gradient(180deg, #f8f4eb 0%, #f3ede0 100%);
+      line-height: 1.65;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, rgba(255, 255, 255, 0.14), transparent 18%, transparent 82%, rgba(255, 255, 255, 0.14)),
+        repeating-linear-gradient(
+          180deg,
+          rgba(73, 106, 88, 0.015) 0,
+          rgba(73, 106, 88, 0.015) 1px,
+          transparent 1px,
+          transparent 18px
+        );
+    }
+
+    a {
+      color: var(--accent-strong);
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 14px;
+    }
+
+    .score-badge,
+    .badge.rounded-pill.bg-danger {
+      display: none !important;
+    }
+
+    .page {
+      width: min(100% - 24px, var(--page-width));
+      margin: 0 auto;
+      padding: 18px 0 48px;
+    }
+
+    .topbar {
+      margin-bottom: 18px;
+      padding: 18px;
+      background: rgba(255, 252, 246, 0.9);
+      border: 1px solid rgba(217, 207, 189, 0.86);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+
+    .topbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .eyebrow {
+      margin: 0 0 4px;
+      font-size: 0.76rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .title {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+      font-size: clamp(1.5rem, 2vw + 1rem, 2.35rem);
+      line-height: 1.08;
+      font-weight: 700;
+    }
+
+    .meta {
+      margin: 8px 0 0;
+      color: var(--text-soft);
+      font-size: 0.96rem;
+    }
+
+    .mode-switch {
+      display: inline-flex;
+      padding: 6px;
+      border-radius: 999px;
+      background: var(--bg-accent);
+      border: 1px solid var(--border);
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .topic-actions {
+      display: inline-flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .utility-button {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: var(--surface-strong);
+      color: var(--text);
+      font: inherit;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .utility-button:hover {
+      transform: translateY(-1px);
+      border-color: #c7bba9;
+      box-shadow: 0 8px 18px rgba(70, 54, 34, 0.07);
+    }
+
+    .utility-button:focus-visible {
+      outline: 3px solid rgba(73, 106, 88, 0.22);
+      outline-offset: 2px;
+    }
+
+    .mode-button {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: var(--text-soft);
+      font: inherit;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 10px 16px;
+      min-width: 92px;
+      cursor: pointer;
+      transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .mode-button:hover {
+      transform: translateY(-1px);
+      color: var(--text);
+    }
+
+    .mode-button.active {
+      background: var(--surface-strong);
+      color: var(--accent-strong);
+      box-shadow: 0 8px 18px rgba(73, 106, 88, 0.14);
+    }
+
+    .topic-list {
+      display: grid;
+      gap: 18px;
+    }
+
+    .topic {
+      background: rgba(255, 252, 246, 0.78);
+      border: 1px solid rgba(217, 207, 189, 0.9);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .topic[open] {
+      background: rgba(255, 252, 246, 0.9);
+    }
+
+    .topic > summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      user-select: none;
+    }
+
+    .topic > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .topic-title {
+      margin: 0;
+      font-size: 1.08rem;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+    }
+
+    .topic-meta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-soft);
+      font-size: 0.94rem;
+    }
+
+    .chevron {
+      display: inline-block;
+      transition: transform 0.2s ease;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .topic[open] > summary .chevron {
+      transform: rotate(90deg);
+    }
+
+    .topic-notes {
+      background: rgba(243, 238, 226, 0.62);
+      border: 1px solid #e3d9c8;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .topic-notes > summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      user-select: none;
+    }
+
+    .topic-notes > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .topic-notes-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .topic-notes[open] > summary .chevron {
+      transform: rotate(90deg);
+    }
+
+    .topic-notes-body {
+      padding: 0 16px 16px;
+      color: var(--text);
+    }
+
+    .topic-body {
+      padding: 0 16px 16px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .question-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      box-shadow: 0 10px 24px rgba(70, 54, 34, 0.05);
+    }
+
+    .question-label {
+      margin: 0 0 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-soft);
+      font-size: 0.88rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .stem {
+      font-size: 1rem;
+    }
+
+    .stem > *:first-child,
+    .explanation > *:first-child {
+      margin-top: 0;
+    }
+
+    .stem > *:last-child,
+    .explanation > *:last-child {
+      margin-bottom: 0;
+    }
+
+    .options {
+      margin-top: 16px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .option {
+      width: 100%;
+      text-align: left;
+      border: 1px solid #d8d0c2;
+      background: #fffdf8;
+      color: var(--text);
+      border-radius: var(--radius-sm);
+      padding: 14px 15px;
+      font: inherit;
+      line-height: 1.45;
+      cursor: pointer;
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .option:hover {
+      transform: translateY(-1px);
+      border-color: #c7bba9;
+      box-shadow: 0 8px 18px rgba(70, 54, 34, 0.07);
+    }
+
+    .option:focus-visible {
+      outline: 3px solid rgba(73, 106, 88, 0.22);
+      outline-offset: 2px;
+    }
+
+    .option.correct {
+      background: var(--correct-bg);
+      border-color: var(--correct-border);
+      box-shadow: inset 0 0 0 1px rgba(119, 180, 135, 0.2);
+    }
+
+    .option.incorrect {
+      background: var(--wrong-bg);
+      border-color: var(--wrong-border);
+      box-shadow: inset 0 0 0 1px rgba(220, 122, 115, 0.2);
+    }
+
+    .option.neutral-revealed {
+      background: #faf6ee;
+      border-color: #d8d0c2;
+      color: #5f676a;
+    }
+
+    .option[disabled] {
+      cursor: default;
+      opacity: 1;
+    }
+
+    .explanation {
+      margin-top: 14px;
+      padding: 14px 16px;
+      background: var(--note-bg);
+      border: 1px solid #e3d9c8;
+      border-radius: 14px;
+      color: var(--text);
+    }
+
+    .question-card.is-hidden .explanation {
+      display: none;
+    }
+
+    .explanation-label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+      font-weight: 800;
+    }
+
+    .empty-state {
+      padding: 28px 22px;
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-lg);
+      color: var(--text-soft);
+    }
+
+    .rich-text table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      overflow: hidden;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.68);
+    }
+
+    .rich-text td,
+    .rich-text th {
+      border: 1px solid #ddd2bf;
+      padding: 10px 12px;
+      vertical-align: top;
+    }
+
+    .rich-text ul,
+    .rich-text ol {
+      padding-left: 20px;
+      margin: 10px 0;
+    }
+
+    .rich-text center {
+      display: block;
+      text-align: center;
+    }
+
+    .rich-text .table-responsive {
+      overflow-x: auto;
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        width: min(100% - 16px, var(--page-width));
+        padding-top: 10px;
+      }
+
+      .topbar {
+        padding: 14px;
+        border-radius: 18px;
+      }
+
+      .topbar-inner {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .controls {
+        justify-content: stretch;
+      }
+
+      .topic-actions {
+        width: 100%;
+      }
+
+      .utility-button {
+        flex: 1 1 0;
+      }
+
+      .mode-switch {
+        width: 100%;
+        justify-content: stretch;
+      }
+
+      .mode-button {
+        flex: 1 1 50%;
+      }
+
+      .topic > summary {
+        padding: 16px;
+        align-items: flex-start;
+      }
+
+      .topic-meta {
+        font-size: 0.88rem;
+      }
+
+      .topic-body {
+        padding: 0 12px 12px;
+      }
+
+      .question-card {
+        padding: 15px;
+      }
+
+      .option {
+        padding: 13px 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="topbar">
+      <div class="topbar-inner">
+        <div>
+          <p class="eyebrow">Study View</p>
+          <h1 class="title">Principles Of Surgical Oncology</h1>
+          <p class="meta">19 questions across 8 topics</p>
+        </div>
+        <div class="controls">
+          <div class="topic-actions" aria-label="Topic visibility controls">
+            <button class="utility-button" type="button" data-topic-action="expand">Expand all</button>
+            <button class="utility-button" type="button" data-topic-action="collapse">Collapse all</button>
+          </div>
+          <div class="mode-switch" role="tablist" aria-label="Question mode">
+            <button class="mode-button active" type="button" data-mode-button="solve" aria-pressed="true">Solve</button>
+            <button class="mode-button" type="button" data-mode-button="review" aria-pressed="false">Review</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="app"></section>
+  </main>
+
+  <script id="quiz-data" type="application/json">{"title": "Principles Of Surgical Oncology", "topics": [{"name": "Breast cancer treatment", "questions": [{"number": 1, "topic": "Breast cancer treatment", "stem_html": "A 45 year old woman with breast cancer is started on a chemotherapy regime containing epirubicin. What is the primary mode of action of this drug?", "options": [{"label_html": "Intercalation of DNA", "is_correct": true}, {"label_html": "Antimetabolite", "is_correct": false}, {"label_html": "Monoclonal antibody to epidermal growth factor", "is_correct": false}, {"label_html": "Inhibition of DNA gyrase", "is_correct": false}, {"label_html": "Inhibition of topoisomerase 1", "is_correct": false}], "correct_index": 0, "explanation_html": "<div class=\"table-responsive\"><table class=\"tlarge table table-striped table-bordered\" data-role=\"table\" id=\"tableid1\"><thead><tr><th><b>Class<\/b><\/th><th><b>Example<\/b><\/th><th><b>Mode of action<\/b><\/th><\/tr><\/thead><tbody><tr><td>Antimetabolites<\/td><td>5 FU<\/td><td>S Phase specific drug, mimics uracil and is incorporated into RNA<\/td><\/tr><tr><td>Anthracyclines<sup>*<\/sup><\/td><td>Doxorubicin<\/td><td>Inhibits DNA and RNA synthesis by intercalating base pairs<\/td><\/tr><tr><td>Topoisomerase inhibitors<sup>**<\/sup><\/td><td>Etoposide<\/td><td>Inhibits topoisomerase II, prevents efficient DNA coiling<\/td><\/tr><tr><td>Platinum<\/td><td>Cisplatin<\/td><td>Crosslinks DNA, this then distorts molecule and induces apoptosis (similar to alkylating agents)<\/td><\/tr><tr><td>Alkylating agent<\/td><td>Cyclophosphamide<\/td><td>Phosphoramide mustard forms DNA crosslinks and then cell death<\/td><\/tr><tr><td>Taxanes<\/td><td>Docetaxal<\/td><td>Disrupts microtubule formation<\/td><\/tr><\/tbody><\/table><\/div><br>*=Main adverse effect cardiotoxicity<br>**=Irinotecan is a similar drug which works by inhibition of topoisomerase I"}, {"number": 2, "topic": "Breast cancer treatment", "stem_html": "A 55 year old lady has undergone a wide local excision and sentinel lymph node biopsy for breast cancer. The histology report shows a completely excised 1.3cm grade 1 invasive ductal carcinoma. The sentinel node contained no evidence of metastatic disease. The tumour is oestrogen receptor positive. What is the next course of action?", "options": [{"label_html": "Monitor in clinic with annual review and mammography", "is_correct": false}, {"label_html": "Arrange radiotherapy", "is_correct": true}, {"label_html": "Arranged combined chemoradiotherapy", "is_correct": false}, {"label_html": "Arrange chemotherapy", "is_correct": false}, {"label_html": "Administration of GnRH analogue", "is_correct": false}], "correct_index": 1, "explanation_html": "Radiotherapy is routine following breast conserving surgery. Without irradiation the local recurrence rates are approximately 40%. These rates are potentially lower in older patients who receive endocrine therapy and who have small low grade tumours. Alongside this, an anti oestrogen will be needed."}, {"number": 3, "topic": "Breast cancer treatment", "stem_html": "An 88 year old lady presents with a large mass in the upper inner quadrant of her right breast. Investigations confirm an oestrogen receptor positive, invasive ductal carcinoma. She has declined operative treatment. What is the best course of action?", "options": [{"label_html": "Combined chemoradiotherapy", "is_correct": false}, {"label_html": "Radical radiotherapy", "is_correct": false}, {"label_html": "Administration of letrozole", "is_correct": true}, {"label_html": "Best supportive care", "is_correct": false}, {"label_html": "Chemotherapy alone", "is_correct": false}], "correct_index": 2, "explanation_html": "Elderly patients may be managed using endocrine therapy alone. Eventually most will escape hormonal control. In post menopausal women oestrogens are produced by the peripheral aromatization of androgens and aromatase inhibitors are therefore the most popular agent in this age group."}, {"number": 4, "topic": "Breast cancer treatment", "stem_html": "A 38 year old lady has undergone a mastectomy and axillary node clearance for invasive ductal carcinoma. The histology report shows a completely excised 3.5cm lesion which is grade 3. Two of the axillary lymph nodes contain metastatic disease. The tumour is oestrogen receptor negative. What should be the next course of action?", "options": [{"label_html": "Axillary radiotherapy", "is_correct": false}, {"label_html": "Administration of cytotoxic chemotherapy", "is_correct": true}, {"label_html": "Chest wall irradiation", "is_correct": false}, {"label_html": "Administration of letrozole", "is_correct": false}, {"label_html": "Surveillance alone", "is_correct": false}], "correct_index": 1, "explanation_html": "The combination of a grade 3 tumour and axillary nodal metastasis in a young female would attract a recommendation for chemotherapy. Some may also add herceptin (if they are HER 2 positive)."}], "note_html": "<div class=\"table-responsive\"><table class=\"tlarge table table-striped table-bordered\" data-role=\"table\" id=\"tableid1\"><thead><tr><th><b>Treatment<\/b><\/th><th><b>Indication<\/b><\/th><\/tr><\/thead><tbody><tr><td>Endocrine therapy<\/td><td><ul><li>Oestrogen receptor positive tumours<\/li><li>Downstaging primary lesions <\/li><li>Definitive treatment in old, infirm patients<\/li><\/ul><\/td><\/tr><tr><td>Irradiation<\/td><td><ul><li>Wide local excision<\/li><li>Large lesion, high grade or marked vascular invasion following mastectomy<\/li><\/ul><\/td><\/tr><tr><td>Chemotherapy<\/td><td><ul><li>Downstaging advanced lesions to facilitate breast conserving surgery<\/li><li>Patients with grade 3 lesions or axillary nodal disease<\/li><\/ul><\/td><\/tr><\/tbody><\/table><\/div><br><b>Endocrine agents<\/b><br>Tamoxifen is used and works as a partial oestrogen receptor agonist. It will typically block activity at the breast. It does, however, stimulate the receptors at other sites and it is this that accounts for its association with endometrial cancer. In post menopausal women the process of aromatisation accounts for most oestrogen production. Therefore in this group aromatase inhibitors are the preferred agents. Women who are perimenopausal start on tamoxifen and switch at 3 years.<br>More recent studies (aTTom and ATLAS) have demonstrated benefits for continuing the drug for 10 years. In pre-menopausal women, there is increasing preference for the use of Exemestane over tamoxifen.<br><br><b>Chemotherapy<\/b><br>The FEC regime is most commonly used (Fluorouracil, epirubicin and cyclophosphamide). This was found to be superior to the older CMF regime. The Taxanes are commonly used in high risk patients and in this setting a regime of docetaxal, doxorubicin and cyclophosphamide may be used. The anthracycline class drugs have marked cardiotoxicity (a property that they share with trastuzumab) and this can limit their use."}, {"name": "Chordoma", "questions": [{"number": 5, "topic": "Chordoma", "stem_html": "Chordoma may typically occur at the following sites, except?", "options": [{"label_html": "Ribs", "is_correct": true}, {"label_html": "Clivus", "is_correct": false}, {"label_html": "Sacrum", "is_correct": false}, {"label_html": "Lumbar vertebra", "is_correct": false}, {"label_html": "Cervical vertebra", "is_correct": false}], "correct_index": 0, "explanation_html": "Chordoma is a neoplasm originating from ectopic cellular remnants of the notochord and therefore arises from the midline of the axial skeleton. It accounts for 24% of all primary malignant bone tumours. Chordoma is the second commonest primary malignancy of the spine and accounts for over 50% of primary sacral tumours. The neoplasm has a predilection for the sacrococcygeal (50%) and clival (40%) regions, with other areas of the spine rarely involved. More than one vertebral body can be affected in half the cases. Chordomas most commonly present between 50 and 70 years of age. Sex incidence is equal below 40 years, but men are affected twice as often at older ages, particularly in the sacral region.<br><br>The most frequent radiographic appearance of chordoma is that of a destructive lesion of a vertebral body centered in the midline, with a large, associated soft-tissue mass."}], "note_html": "Chordoma is a rare slow-growing bone tumour. Their favored origin is remnants of the notochord. <br><br>Chordomas can arise anywhere from the skull base to the sacrum. The two most common locations are the skull base and sacrum. <br><br>There are three histological variants of chordoma: classical (or 'conventional'), chondroid and de-differentiated.<br><ul><li>The histological appearance of classical chordoma is of a lobulated tumor composed of groups of cells separated by fibrous septa. The cells have small round nuclei and abundant vacuolated cytoplasm.<\/li><li>Chondroid chordomas histologically show features of both chordoma and chondrosarcoma.<\/li><\/ul><br>The 10-year tumor free survival rate for sacral chordoma was 46%. Chondroid chordomas appear to have a more indolent clinical course.<br><br>In most cases, complete surgical resection followed by radiation therapy offers the best chance of long-term control. Unfortunately, the lesion has a close proximity to the spine itself and this can compromise resection margins.<br><br>Chordomas are relatively radioresistant, requiring high doses of radiation to be controlled. The proximity of chordomas to vital neurological structures such as the brain stem and nerves limits the dose of radiation that can safely be delivered. Therefore, highly focused radiation such as proton therapy and carbon ion therapy are more effective than conventional x-ray radiation."}, {"name": "Colorectal cancer screening and diagnosis", "questions": [{"number": 6, "topic": "Colorectal cancer screening and diagnosis", "stem_html": "A 55 year old man is found to have a carcinoma of the sigmoid colon on screening colonoscopy. How should this be staged?", "options": [{"label_html": "MRI of the abdomen and CT of the chest", "is_correct": false}, {"label_html": "Liver MRI and Chest CT", "is_correct": false}, {"label_html": "CT scanning of the chest, abdomen and pelvis alone", "is_correct": true}, {"label_html": "MRI of the rectum and CT of the abdomen and chest", "is_correct": false}, {"label_html": "Endoluminal USS and CT scanning of the abdomen", "is_correct": false}], "correct_index": 2, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Colonic cancers are staged with CT scanning of the chest, abdomen and pelvis.<\/div>Rectal cancer is staged with MRI rectum (and sometimes endoluminal USS for low T1 lesions) together with CT scanning of the chest, abdomen and pelvis. Historically, colonic cancer was staged with liver USS and CXR. However, modern imaging has made this practice obsolete."}, {"number": 7, "topic": "Colorectal cancer screening and diagnosis", "stem_html": "Which of the following group of patients are not screened for colorectal cancer?", "options": [{"label_html": "Peutz Jeghers syndrome", "is_correct": false}, {"label_html": "Asymptomatic patients aged 45 years", "is_correct": true}, {"label_html": "Acromegaly", "is_correct": false}, {"label_html": "Ureterosigmoidostomy", "is_correct": false}, {"label_html": "Inflammatory bowel disease", "is_correct": false}], "correct_index": 1, "explanation_html": "Other disorders which are screened for colorectal malignancy include:<br>Familial adenomatous polyposis, Hereditary non polyposis colorectal cancer. The NHS screening programme starts at 50 in the UK. FIT testing is used. In selected high prevalence areas, younger targeted programmes are sometimes used."}, {"number": 8, "topic": "Colorectal cancer screening and diagnosis", "stem_html": "A 45 year old man has widespread metastatic adenocarcinoma of the colon. Which of these tumour markers is most likely to be elevated?", "options": [{"label_html": "CA19-9", "is_correct": false}, {"label_html": "Carcinoembryonic antigen", "is_correct": true}, {"label_html": "Alpha Feto Protein", "is_correct": false}, {"label_html": "CA 125", "is_correct": false}, {"label_html": "Beta HCG", "is_correct": false}], "correct_index": 1, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Screening for colonic cancer using CEA is not justified<\/div>Carcinoembryonic antigen is elevated in colonic cancer, typically in relation to disease extent with highest serum levels noted in metastatic disease. It is falsely elevated in a number of non-malignant disease states such as cirrhosis and colitis and for this reason it has no role in monitoring colitics for colonic cancer[1].<br><b>Reference<\/b><br>1.\tSturgeon, C.M., L.C. Lai, and M.J. Duffy. Serum tumour markers: how to order and interpret them. BMJ, 2009. 339: p. b3527."}], "note_html": "<b>Overview<\/b><br><ul><li>Most cancers develop from adenomatous polyps. Screening for colorectal cancer has been shown to reduce mortality by 16%<\/li><li>The NHS now has a national screening programme offering screening every 2 years to all men and women aged 50 to 69 years. Patients aged over 70 years may request screening<\/li><li>Eligible patients are sent faecal immunohistochemical (FIT) tests through the post. <\/li><li>Patients with abnormal results are offered a colonoscopy<\/li><\/ul><br>At colonoscopy, approximately:<br><ul><li>5 out of 10 patients will have a normal exam<\/li><li>4 out of 10 patients will be found to have polyps which may be removed due to their premalignant potential<\/li><li>1 out of 10 patients will be found to have cancer<\/li><\/ul><br><b>Diagnosis<\/b><br>Essentially the following patients need referral:<br> - Altered bowel habit for more than six weeks<br> - New onset of rectal bleeding <br> - Symptoms of tenesmus <br><br>Colonoscopy is the gold standard, provided it is complete and good mucosal visualisation is achieved. Other options include double contrast barium enema and CT colonography. <br><br><b>Staging<\/b><br>Once a malignant diagnosis is made patients with colonic cancer will be staged using chest / abdomen and pelvic CT. Patients with rectal cancer will also undergo evaluation of the mesorectum with pelvic MRI scanning.<br><br>For examination purposes the Dukes and TNM systems are preferred.<br><br><b>Tumour markers<\/b><br>Carcinoembryonic antigen (CEA) is the main tumour marker in colorectal cancer. Not all tumours secrete this, and it may be raised in conditions such as IBD. However, absolute levels do correlate (roughly) with disease burden and it is once again being used routinely in follow up."}, {"name": "Extravasation injury", "questions": [{"number": 9, "topic": "Extravasation injury", "stem_html": "A 43 year old lady is receiving chemotherapy for the treatment of metastatic breast cancer. You are called because it has become apparent that her doxorubicin infusion has extravasated. What is the most appropriate course of action?", "options": [{"label_html": "Stop the infusion and administer dexamethasone through the infusion device", "is_correct": false}, {"label_html": "Stop the infusion and administer hyaluronidase through the infusion device", "is_correct": false}, {"label_html": "Stop the infusion and apply a cold compress to the site", "is_correct": true}, {"label_html": "Stop the infusion and apply a warm compress to the site", "is_correct": false}, {"label_html": "Stop the infusion and administer sodium bicarbonate through the infusion device", "is_correct": false}], "correct_index": 2, "explanation_html": "The application of cold compresses is indicated in doxorubicin extravasation. Warm compresses increase the risk of doxorubicin ulceration. Hyaluronidase is indicated in the extravasation of contrast media, TPN and vinca alkaloids. However, if administered following doxorubicin extravasation it will dramatically worsen the situation and is contra indicated. <br>Up to 50% of those sustaining severe injuries will require delayed surgical reconstruction."}], "note_html": "Chemotherapy may be complicated by extravasation reactions in up to 6% of cases. The following chemotherapy agents are recognised causes of extravasation reactions; doxorubicin, vincristine, vinblastine, cisplatin, mitomycin and mithramycin. <br>Up to 30% of extravasation reactions may be complicated by the development of ulceration. <br>When an extravasation reaction is suspected, the infusion should be stopped and the infusing device aspirated. The extremity should be elevated. As a general rule cold compresses have been shown to reduce the incidence of subsequent ulceration with doxorubicin. Warm compresses have been found to be beneficial in extravasation of vinca alkaloids. Dimethylsulfoxide may be infused in some cases, ideally within 5 hours of the event occurring. No conclusive evidence exists to support the use of corticosteroids or sodium bicarbonate for extravasation injuries. <br><br>Extravasation of total parenteral nutrition solutions is usually managed by the local administration of hyaluronidase to the infusion site."}, {"name": "Lung cancer: non-small cell management", "questions": [{"number": 10, "topic": "Lung cancer: non-small cell management", "stem_html": "A 45 year old male is referred to clinic for consideration of resection of a lung malignancy.  He reports shortness of breath and haemoptysis.  Investigations reveal a corrected calcium of 2.84 mmol/l, an FEV 1 of 1.9L and histology of a squamous cell carcinoma.  The patient is noted to have a hoarse voice.  Which one of the following is a contraindication to surgical resection in lung cancer?", "options": [{"label_html": "Haemoptysis", "is_correct": false}, {"label_html": "FEV 1 of 1.9 litres", "is_correct": false}, {"label_html": "Histology shows squamous cell cancer", "is_correct": false}, {"label_html": "Vocal cord paralysis", "is_correct": true}, {"label_html": "Calcium = 2.84 mmol/L", "is_correct": false}], "correct_index": 3, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Contraindications to lung cancer surgery include SVC obstruction, FEV &lt; 1.5, MALIGNANT pleural effusion, and vocal cord paralysis<\/div>Paralysis of a vocal cord implies extracapsular spread to mediastinal nodes and is an indication of inoperability."}], "note_html": "Management<br><ul><li>Only 20% suitable for surgery<\/li><li>Mediastinoscopy performed prior to surgery as CT does not always show mediastinal lymph node involvement<\/li><li>Curative or palliative radiotherapy<\/li><li>Poor response to chemotherapy<\/li><\/ul><br>Surgery contraindications<br><ul><li>Assess general health<\/li><li>Stage IIIb or IV (i.e. metastases present)<\/li><li>FEV1 &lt; 1.5 litres is considered a general cut-off point*<\/li><li>Malignant pleural effusion<\/li><li>Tumour near hilum<\/li><li>Vocal cord paralysis<\/li><li>SVC obstruction<\/li><\/ul><br>* However if FEV1 &lt; 1.5 for lobectomy or &lt; 2.0 for pneumonectomy then some authorities advocate further lung function tests as operations may still go ahead based on the results"}, {"name": "Palliative care prescribing: pain", "questions": [{"number": 11, "topic": "Palliative care prescribing: pain", "stem_html": "A 56-year-old man with metastatic prostate cancer comes for review. He is known to have spinal metastases but until now has not had any significant problems with pain control. Unfortunately he is now getting regular back pain despite taking paracetamol 1g qds. Neurological examination is unremarkable. What is the most appropriate next step?", "options": [{"label_html": "Switch to co-codamol 30/500", "is_correct": false}, {"label_html": "Refer for radiotherapy", "is_correct": false}, {"label_html": "Add oral bisphosphonate", "is_correct": false}, {"label_html": "Add non steroidal anti inflammatory drug", "is_correct": true}, {"label_html": "Add dexamethasone", "is_correct": false}], "correct_index": 3, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Metastatic bone pain may respond to NSAIDs, bisphosphonates or radiotherapy<\/div>Bone pain often responds well to NSAIDs. Both radiotherapy and bisphosphonates have a role in managing bony pain but these are not first-line treatments."}], "note_html": "SIGN issued guidance on the control of pain in adults with cancer in 2008. Selected points<br><ul><li>the breakthrough dose of morphine is one-sixth the daily dose of morphine<\/li><li>all patients who receive opioids should be prescribed a laxative<\/li><li>opioids should be used with caution in patients with chronic kidney disease. Alfentanil, buprenorphine and fentanyl are preferred<\/li><li>metastatic bone pain may respond to NSAIDs, bisphosphonates or radiotherapy <\/li><\/ul><br>When increasing the dose of opioids the next dose should be increased by 30-50%.<br><br><b>Conversion between opioids<\/b><br><div class=\"table-responsive\"><table class=\"tlarge table table-striped table-bordered\" data-role=\"table\" id=\"tableid1\"><thead><tr><th>From<\/th><th>To<\/th><th><\/th><\/tr><\/thead><tbody><tr><td>Oral codeine<\/td><td>Oral morphine<\/td><td>Divide by 10<\/td><\/tr><tr><td>Oral tramadol<\/td><td>Oral morphine<\/td><td>Divide by 5<\/td><\/tr><\/tbody><\/table><\/div><br><div class=\"table-responsive\"><table class=\"tlarge table table-striped table-bordered\" data-role=\"table\" id=\"tableid2\"><thead><tr><th>From<\/th><th>To<\/th><th><\/th><\/tr><\/thead><tbody><tr><td>Oral morphine<\/td><td>Oral oxycodone<\/td><td>Divide by 2<\/td><\/tr><\/tbody><\/table><\/div><br>The BNF states that oral morphine sulphate 80-90mg over 24 hours is approximately equivalent to one '25 mcg/hour' fentanyl patch, therefore product literature should be consulted.<br><br><div class=\"table-responsive\"><table class=\"tlarge table table-striped table-bordered\" data-role=\"table\" id=\"tableid3\"><thead><tr><th>From<\/th><th>To<\/th><th><\/th><\/tr><\/thead><tbody><tr><td>Oral morphine<\/td><td>Subcutaneous diamorphine<\/td><td>Divide by 3<\/td><\/tr><tr><td>Oral oxycodone<\/td><td>Subcutaneous diamorphine<\/td><td>Divide by 1.5<\/td><\/tr><\/tbody><\/table><\/div>"}, {"name": "Secondary malignant tumours of bone", "questions": [{"number": 12, "topic": "Secondary malignant tumours of bone", "stem_html": "What is the most common cause of osteolytic bone metastasis in children?", "options": [{"label_html": "Osteosarcoma", "is_correct": false}, {"label_html": "Neuroblastoma", "is_correct": true}, {"label_html": "Leukaemia", "is_correct": false}, {"label_html": "Rhabdomyosarcoma", "is_correct": false}, {"label_html": "Medulloblastoma", "is_correct": false}], "correct_index": 1, "explanation_html": "Neuroblastomas are a relatively common childhood tumour and have a strong tendency to developing widespread lytic metastasis. It is unusual for CNS tumours to spread to involve the skeleton."}, {"number": 13, "topic": "Secondary malignant tumours of bone", "stem_html": "What is the most common cause of osteolytic bone metastasis in children?", "options": [{"label_html": "Osteosarcoma", "is_correct": false}, {"label_html": "Neuroblastoma", "is_correct": true}, {"label_html": "Leukaemia", "is_correct": false}, {"label_html": "Rhabdomyosarcoma", "is_correct": false}, {"label_html": "Medulloblastoma", "is_correct": false}], "correct_index": 1, "explanation_html": "Neuroblastomas are a relatively common childhood tumour and have a strong tendency to developing widespread lytic metastasis. It is unusual for CNS tumours to spread to involve the skeleton."}, {"number": 14, "topic": "Secondary malignant tumours of bone", "stem_html": "A 50 year old lady presents with pain in her proximal femur. Imaging demonstrates a bone metastasis from an unknown primary site. CT scanning with arterial phase contrast shows that the lesion is hypervascular. From which of the following primary sites is the lesion most likely to have originated?", "options": [{"label_html": "Breast", "is_correct": false}, {"label_html": "Renal", "is_correct": true}, {"label_html": "Bronchus", "is_correct": false}, {"label_html": "Thyroid", "is_correct": false}, {"label_html": "Colon", "is_correct": false}], "correct_index": 1, "explanation_html": "Renal metastases have a tendency to be hypervascular. This is of considerable importance if surgical fixation is planned."}, {"number": 15, "topic": "Secondary malignant tumours of bone", "stem_html": "A 63 year old lady with metastatic breast cancer presents with bone pain. Radiological tests show a metastatic lytic deposit to her femoral shaft. The lesion occupies 75% of the bone diameter. What is the most appropriate management?", "options": [{"label_html": "Surgical fixation with a dynamic compression plate", "is_correct": false}, {"label_html": "Hemi-arthroplasty", "is_correct": false}, {"label_html": "Fixation with intramedullary nail", "is_correct": true}, {"label_html": "Radical radiotherapy", "is_correct": false}, {"label_html": "Chemotherapy", "is_correct": false}], "correct_index": 2, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Even with surgical fixation only 30% of pathological fractures unite. The type of fixation should be chosen accordingly.<\/div>A lesion of this nature is at high risk of spontaneous fracture. Whilst radiotherapy may palliate her symptoms of pain it will not reduce the risk of fracture. In fit patients, an intramedullary nail should be inserted. Very proximal lesions may be best managed by a total hip replacement"}], "note_html": "Metastatic lesions affecting bone are more common than primary bone tumours.<br><br>The typical tumours that spread to bone include:<br><ul><li>Breast<\/li><li>Bronchus<\/li><li>Renal<\/li><li>Thyroid<\/li><li>Prostate<\/li><\/ul><br>75% cases will affect those over the age of 50<br><br>The commonest bone sites affected are:<br><ul><li>Vertebrae (usually thoracic)<\/li><li>Proximal femur<\/li><li>Ribs<\/li><li>Sternum <\/li><li>Pelvis <\/li><li>Skull<\/li><\/ul><br><b>Pathological fracture<\/b><br>Osteolytic lesions are the greatest risk for pathological fracture<br>The risk and load required to produce fracture varies according to bone site. Bones with lesions that occupy 50% or less will be prone to fracture under loading (Harrington). When 75% of the bone is affected the process of torsion about a bony fulcrum may produce a fracture. <br><br>The Mirel scoring[1] system may be used to help determine the risk of fracture and is more systematic than the Harrington system described above. <br><br><b>Mirel Scoring system<\/b><br><br><div class=\"table-responsive\"><table class=\"tlarge table table-striped table-bordered\" data-role=\"table\" id=\"tableid1\"><thead><tr><th><b>Score points<\/b><\/th><th><b>Site<\/b><\/th><th><b>Radiographic appearance<\/b><\/th><th><b>Width of bone involved<\/b><\/th><th><b>Pain<\/b><\/th><\/tr><\/thead><tbody><tr><td>1<\/td><td>Upper extremity<\/td><td>\t Blastic<\/td><td>Less than 1/3<\/td><td>Mild<\/td><\/tr><tr><td>2<\/td><td>Lower extremity<\/td><td>Mixed<\/td><td>\t 1/3 to 2/3<\/td><td>Moderate<\/td><\/tr><tr><td>3<\/td><td>Peritrochanteric\t<\/td><td>Lytic\t<\/td><td>More than 2/3<\/td><td>Aggravated by function<\/td><\/tr><\/tbody><\/table><\/div><br>Depending upon the score the treatment should be as follows:<br><br><div class=\"table-responsive\"><table class=\"tlarge table table-striped table-bordered\" data-role=\"table\" id=\"tableid2\"><thead><tr><th><b>Score<\/b><\/th><th><b>Risk of fracture<\/b><\/th><th><b>Treatment<\/b><\/th><\/tr><\/thead><tbody><tr><td>9 or greater<\/td><td>Impending (33%)<\/td><td>Prophylactic fixation<\/td><\/tr><tr><td>8<\/td><td>Borderline<\/td><td>Consider fixation<\/td><\/tr><tr><td>7 or less<\/td><td>Not impending (4%)<\/td><td>Non operative management<\/td><\/tr><\/tbody><\/table><\/div><br>Where the lesion is an isolated metastatic deposit consideration should be given to excision and reconstruction as the outcome is better [2].<br><br><b>Non operative treatments<\/b><br>Hypercalcaemia- Treat with re hydration and bisphosphonates.<br>Pain- Opiate analgesics and radiotherapy.<br>Some tumours such as breast and prostate will benefit from chemotherapy and or hormonal agents.<br><br><b>References<\/b><br>1.\tMirels, H. Metastatic disease in long bones. A proposed scoring system for diagnosing impending pathologic fractures. Clin Orthop Relat Res, 1989(249): p. 256-64.<br>2.\tMavrogenis, A.F. <i>et al<\/i>. Survival analysis of patients with femoral metastases. <i>J Surg Oncol<\/i>, 2011."}, {"name": "Tissue sampling", "questions": [{"number": 16, "topic": "Tissue sampling", "stem_html": "A 45 year old patient undergoes a CT scan of the abdomen and is noted to have a 6cm mass in the right adrenal gland. Urinary catecholamines and other endocrine investigations are negative. CT of the chest and remainder of the abdomen is otherwise normal. What is the most appropriate course of action?", "options": [{"label_html": "Image guided FNAC of the adrenal gland", "is_correct": false}, {"label_html": "Image guided core biopsy of the adrenal gland", "is_correct": false}, {"label_html": "List the patient for an adrenalectomy", "is_correct": true}, {"label_html": "Organise surveillance of the lesion with CT scanning", "is_correct": false}, {"label_html": "Organise surveillance of the lesion with USS", "is_correct": false}], "correct_index": 2, "explanation_html": "Most surgeons would excise a mass of this size rather than attempt biopsy. Further information relating to adrenal masses is covered under this topic."}, {"number": 17, "topic": "Tissue sampling", "stem_html": "A 67 year old lady is suspected of having Pagets disease of the nipple. Mammography and USS are normal. What is the most appropriate next step in her management?", "options": [{"label_html": "Arrange a core biopsy", "is_correct": false}, {"label_html": "Arrange FNAC of the area", "is_correct": false}, {"label_html": "Arrange a punch biopsy", "is_correct": true}, {"label_html": "Undertake a mastectomy", "is_correct": false}, {"label_html": "Arrange for focused radiotherapy", "is_correct": false}], "correct_index": 2, "explanation_html": "This is a relatively clear indication for a punch biopsy. If cellular atypia is present on punch biopsy then any in situ malignancy should be considered. FNAC would be unsuitable."}, {"number": 18, "topic": "Tissue sampling", "stem_html": "A 23 year old lady presents with a nodule in the right lobe of the thyroid. Examination of the neck is otherwise unremarkable and clinically she is euthyroid. Imaging shows a solid nodule at the site. What is the correct course of action?", "options": [{"label_html": "Image guided core biopsy", "is_correct": false}, {"label_html": "Image guided fine needle aspiration for cytology", "is_correct": true}, {"label_html": "Arrange a hemithyroidectomy", "is_correct": false}, {"label_html": "Perform an incision biopsy", "is_correct": false}, {"label_html": "Perform an excision biopsy", "is_correct": false}], "correct_index": 1, "explanation_html": "FNAC is the first line investigation in this setting. Whereas FNAC has declined in popularity recently (in breast investigation), it remain a very popular option in the investigation of thyroid masses. It cannot reliably diagnose a follicular tumour."}, {"number": 19, "topic": "Tissue sampling", "stem_html": "In examining a biopsy of a primary tumour, the clearest evidence of malignancy is provided by:", "options": [{"label_html": "Absence of a capsule", "is_correct": false}, {"label_html": "Basophilia of the cytoplasm", "is_correct": false}, {"label_html": "Invasion of surrounding structures", "is_correct": true}, {"label_html": "Excess of mitoses", "is_correct": false}, {"label_html": "Nuclear aberrations", "is_correct": false}], "correct_index": 2, "explanation_html": "Invasion is the hallmark of malignancy. The others may occur in insitu disease or dysplastic lesions."}], "note_html": "Tissue sampling is an important surgical process. Biopsy modalities vary according to the site, experience and subsequent planned therapeutic outcome<br><br>The modalities comprise:<br>   -Fine needle aspiration cytology<br>   -Core biopsy<br>   -Excision biopsy<br>   -Tru cut biopsy<br>   -Punch biopsy <br>   -Cytological smears<br>   -Endoscopic or laparoscopic biopsy<br> <br>When the lesion is superficial the decision needs to be taken as to whether complete excision is desirable or whether excision biopsy is acceptable. In malignant melanoma for example the need for safe margins will mean that a more radical surgical approach needs to be adopted after diagnostic confirmation from excision biopsy than would be the case in basal cell carcinoma. Punch biopsies are useful in gaining histological diagnosis of unclear skin lesions where excision biopsy is undesirable such as in establishing whether a skin lesion is vasculitic or not. <br> <br>Fine needle aspiration cytology (FNAC) is an operator dependent procedure that may or may not be image guided and essentially involves passing a needle through a lesion whilst suction is applied to a syringe. The material thus obtained is expressed onto a slide and sent for cytological assessment. This test can be limited by operator inexperience and also by the lack of histological architectural information (e.g. Follicular carcinoma of the thyroid). Where a discharge is present a sample may be sent for cytology although in some sites (e.g. Nipple discharge ) the information gleaned may be meaningless.<br> <br>Tissue samples may be obtained by both core and tru cut biopsy. A core biopsy is obtained by use of a spring loaded gun with a needle passing quickly through the lesion of interest. A tru cut biopsy achieves the same objective but the needle moved by hand. When performing these techniques image guidance may be desirable (e.g. In breast lesions). Consideration needs to be given to any planned surgical resection as it may be necessary to resect the biopsy tract along with the specimen (e.g. In sarcoma surgery). <br> <br>Visceral lesions may be accessed percutaneously under image guidance such as ultrasound guided biopsy of liver metastases. Or under direct vision such as a colonoscopic biopsy."}]}</script>
+  <script>
+    const quizData = JSON.parse(document.getElementById("quiz-data").textContent);
+    const app = document.getElementById("app");
+    const modeButtons = Array.from(document.querySelectorAll("[data-mode-button]"));
+    const topicActionButtons = Array.from(document.querySelectorAll("[data-topic-action]"));
+
+    const state = {
+      mode: "solve",
+      answers: new Map(),
+      questionRefs: [],
+    };
+
+    function buildTopic(topic, questionOffset) {
+      const details = document.createElement("details");
+      details.className = "topic";
+      details.open = true;
+
+      const summary = document.createElement("summary");
+      summary.innerHTML = `
+        <div>
+          <h2 class="topic-title">${topic.name}</h2>
+        </div>
+        <div class="topic-meta">
+          <span>${topic.questions.length} questions</span>
+          <span class="chevron" aria-hidden="true">></span>
+        </div>
+      `;
+
+      const body = document.createElement("div");
+      body.className = "topic-body";
+
+      if (topic.note_html) {
+        const notes = document.createElement("details");
+        notes.className = "topic-notes";
+
+        const notesSummary = document.createElement("summary");
+        notesSummary.innerHTML = `
+          <span class="topic-notes-title">Notes</span>
+          <span class="chevron" aria-hidden="true">></span>
+        `;
+
+        const notesBody = document.createElement("div");
+        notesBody.className = "topic-notes-body rich-text";
+        notesBody.innerHTML = topic.note_html;
+
+        notes.appendChild(notesSummary);
+        notes.appendChild(notesBody);
+        body.appendChild(notes);
+      }
+
+      topic.questions.forEach((question, indexInTopic) => {
+        const globalIndex = questionOffset + indexInTopic;
+        body.appendChild(buildQuestionCard(question, globalIndex));
+      });
+
+      details.appendChild(summary);
+      details.appendChild(body);
+      return details;
+    }
+
+    function buildQuestionCard(question, questionIndex) {
+      const card = document.createElement("article");
+      card.className = "question-card is-hidden";
+      card.dataset.questionIndex = String(questionIndex);
+
+      const label = document.createElement("p");
+      label.className = "question-label";
+      label.textContent = `Question ${question.number}`;
+
+      const stem = document.createElement("div");
+      stem.className = "stem rich-text";
+      stem.innerHTML = question.stem_html;
+
+      const options = document.createElement("div");
+      options.className = "options";
+
+      const optionButtons = question.options.map((option, optionIndex) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "option";
+        button.dataset.optionIndex = String(optionIndex);
+        button.innerHTML = option.label_html;
+        button.addEventListener("click", () => {
+          if (state.mode !== "solve") {
+            return;
+          }
+          state.answers.set(questionIndex, optionIndex);
+          applyQuestionState(questionIndex);
+        });
+        options.appendChild(button);
+        return button;
+      });
+
+      const explanation = document.createElement("div");
+      explanation.className = "explanation rich-text";
+      explanation.innerHTML = `<span class="explanation-label">Explanation</span>${question.explanation_html}`;
+
+      card.appendChild(label);
+      card.appendChild(stem);
+      card.appendChild(options);
+      card.appendChild(explanation);
+
+      state.questionRefs[questionIndex] = {
+        card,
+        explanation,
+        optionButtons,
+        question,
+      };
+
+      applyQuestionState(questionIndex);
+      return card;
+    }
+
+    function applyQuestionState(questionIndex) {
+      const ref = state.questionRefs[questionIndex];
+      if (!ref) {
+        return;
+      }
+
+      const { card, optionButtons, question } = ref;
+      const selectedIndex = state.answers.get(questionIndex);
+      const hasSelection = selectedIndex !== undefined;
+      const isReview = state.mode === "review";
+      const showExplanation = isReview || hasSelection;
+
+      card.classList.toggle("is-hidden", !showExplanation);
+
+      optionButtons.forEach((button, optionIndex) => {
+        button.classList.remove("correct", "incorrect", "neutral-revealed");
+
+        if (isReview) {
+          button.disabled = true;
+          if (optionIndex === question.correct_index) {
+            button.classList.add("correct");
+          } else {
+            button.classList.add("neutral-revealed");
+          }
+          return;
+        }
+
+        button.disabled = false;
+        if (!hasSelection) {
+          return;
+        }
+
+        if (optionIndex === question.correct_index) {
+          button.classList.add("correct");
+        } else if (optionIndex === selectedIndex) {
+          button.classList.add("incorrect");
+        } else {
+          button.classList.add("neutral-revealed");
+        }
+      });
+    }
+
+    function renderApp() {
+      if (!quizData.topics.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty-state";
+        empty.textContent = "No questions were found in this JSON file.";
+        app.replaceChildren(empty);
+        return;
+      }
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "topic-list";
+
+      let questionOffset = 0;
+      quizData.topics.forEach((topic) => {
+        wrapper.appendChild(buildTopic(topic, questionOffset));
+        questionOffset += topic.questions.length;
+      });
+
+      app.replaceChildren(wrapper);
+    }
+
+    function setMode(mode) {
+      state.mode = mode;
+      modeButtons.forEach((button) => {
+        const isActive = button.dataset.modeButton === mode;
+        button.classList.toggle("active", isActive);
+        button.setAttribute("aria-pressed", String(isActive));
+      });
+
+      state.questionRefs.forEach((_, index) => applyQuestionState(index));
+    }
+
+    function setAllTopics(open) {
+      document.querySelectorAll(".topic").forEach((topic) => {
+        topic.open = open;
+      });
+    }
+
+    modeButtons.forEach((button) => {
+      button.addEventListener("click", () => setMode(button.dataset.modeButton));
+    });
+
+    topicActionButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        setAllTopics(button.dataset.topicAction === "expand");
+      });
+    });
+
+    renderApp();
+    setMode("solve");
+  </script>
+</body>
+</html>

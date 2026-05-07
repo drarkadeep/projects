@@ -1,0 +1,745 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Surgical Disorders Of The Brain</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f1e8;
+      --bg-accent: #ebe4d4;
+      --surface: rgba(255, 252, 246, 0.92);
+      --surface-strong: #fffdf7;
+      --border: #d9cfbd;
+      --text: #23313a;
+      --text-soft: #5f6c73;
+      --accent: #496a58;
+      --accent-strong: #2f5341;
+      --correct-bg: #e0f3e6;
+      --correct-border: #77b487;
+      --wrong-bg: #fbe0df;
+      --wrong-border: #dc7a73;
+      --note-bg: #f3eee2;
+      --shadow: 0 18px 40px rgba(76, 59, 37, 0.08);
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+      --page-width: 960px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.72), transparent 32%),
+        linear-gradient(180deg, #f8f4eb 0%, #f3ede0 100%);
+      line-height: 1.65;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, rgba(255, 255, 255, 0.14), transparent 18%, transparent 82%, rgba(255, 255, 255, 0.14)),
+        repeating-linear-gradient(
+          180deg,
+          rgba(73, 106, 88, 0.015) 0,
+          rgba(73, 106, 88, 0.015) 1px,
+          transparent 1px,
+          transparent 18px
+        );
+    }
+
+    a {
+      color: var(--accent-strong);
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 14px;
+    }
+
+    .score-badge,
+    .badge.rounded-pill.bg-danger {
+      display: none !important;
+    }
+
+    .page {
+      width: min(100% - 24px, var(--page-width));
+      margin: 0 auto;
+      padding: 18px 0 48px;
+    }
+
+    .topbar {
+      margin-bottom: 18px;
+      padding: 18px;
+      background: rgba(255, 252, 246, 0.9);
+      border: 1px solid rgba(217, 207, 189, 0.86);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+
+    .topbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .eyebrow {
+      margin: 0 0 4px;
+      font-size: 0.76rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .title {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+      font-size: clamp(1.5rem, 2vw + 1rem, 2.35rem);
+      line-height: 1.08;
+      font-weight: 700;
+    }
+
+    .meta {
+      margin: 8px 0 0;
+      color: var(--text-soft);
+      font-size: 0.96rem;
+    }
+
+    .mode-switch {
+      display: inline-flex;
+      padding: 6px;
+      border-radius: 999px;
+      background: var(--bg-accent);
+      border: 1px solid var(--border);
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .topic-actions {
+      display: inline-flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .utility-button {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: var(--surface-strong);
+      color: var(--text);
+      font: inherit;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .utility-button:hover {
+      transform: translateY(-1px);
+      border-color: #c7bba9;
+      box-shadow: 0 8px 18px rgba(70, 54, 34, 0.07);
+    }
+
+    .utility-button:focus-visible {
+      outline: 3px solid rgba(73, 106, 88, 0.22);
+      outline-offset: 2px;
+    }
+
+    .mode-button {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: var(--text-soft);
+      font: inherit;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 10px 16px;
+      min-width: 92px;
+      cursor: pointer;
+      transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .mode-button:hover {
+      transform: translateY(-1px);
+      color: var(--text);
+    }
+
+    .mode-button.active {
+      background: var(--surface-strong);
+      color: var(--accent-strong);
+      box-shadow: 0 8px 18px rgba(73, 106, 88, 0.14);
+    }
+
+    .topic-list {
+      display: grid;
+      gap: 18px;
+    }
+
+    .topic {
+      background: rgba(255, 252, 246, 0.78);
+      border: 1px solid rgba(217, 207, 189, 0.9);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .topic[open] {
+      background: rgba(255, 252, 246, 0.9);
+    }
+
+    .topic > summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      user-select: none;
+    }
+
+    .topic > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .topic-title {
+      margin: 0;
+      font-size: 1.08rem;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+    }
+
+    .topic-meta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-soft);
+      font-size: 0.94rem;
+    }
+
+    .chevron {
+      display: inline-block;
+      transition: transform 0.2s ease;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .topic[open] > summary .chevron {
+      transform: rotate(90deg);
+    }
+
+    .topic-notes {
+      background: rgba(243, 238, 226, 0.62);
+      border: 1px solid #e3d9c8;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .topic-notes > summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      user-select: none;
+    }
+
+    .topic-notes > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .topic-notes-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .topic-notes[open] > summary .chevron {
+      transform: rotate(90deg);
+    }
+
+    .topic-notes-body {
+      padding: 0 16px 16px;
+      color: var(--text);
+    }
+
+    .topic-body {
+      padding: 0 16px 16px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .question-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      box-shadow: 0 10px 24px rgba(70, 54, 34, 0.05);
+    }
+
+    .question-label {
+      margin: 0 0 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-soft);
+      font-size: 0.88rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .stem {
+      font-size: 1rem;
+    }
+
+    .stem > *:first-child,
+    .explanation > *:first-child {
+      margin-top: 0;
+    }
+
+    .stem > *:last-child,
+    .explanation > *:last-child {
+      margin-bottom: 0;
+    }
+
+    .options {
+      margin-top: 16px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .option {
+      width: 100%;
+      text-align: left;
+      border: 1px solid #d8d0c2;
+      background: #fffdf8;
+      color: var(--text);
+      border-radius: var(--radius-sm);
+      padding: 14px 15px;
+      font: inherit;
+      line-height: 1.45;
+      cursor: pointer;
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .option:hover {
+      transform: translateY(-1px);
+      border-color: #c7bba9;
+      box-shadow: 0 8px 18px rgba(70, 54, 34, 0.07);
+    }
+
+    .option:focus-visible {
+      outline: 3px solid rgba(73, 106, 88, 0.22);
+      outline-offset: 2px;
+    }
+
+    .option.correct {
+      background: var(--correct-bg);
+      border-color: var(--correct-border);
+      box-shadow: inset 0 0 0 1px rgba(119, 180, 135, 0.2);
+    }
+
+    .option.incorrect {
+      background: var(--wrong-bg);
+      border-color: var(--wrong-border);
+      box-shadow: inset 0 0 0 1px rgba(220, 122, 115, 0.2);
+    }
+
+    .option.neutral-revealed {
+      background: #faf6ee;
+      border-color: #d8d0c2;
+      color: #5f676a;
+    }
+
+    .option[disabled] {
+      cursor: default;
+      opacity: 1;
+    }
+
+    .explanation {
+      margin-top: 14px;
+      padding: 14px 16px;
+      background: var(--note-bg);
+      border: 1px solid #e3d9c8;
+      border-radius: 14px;
+      color: var(--text);
+    }
+
+    .question-card.is-hidden .explanation {
+      display: none;
+    }
+
+    .explanation-label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+      font-weight: 800;
+    }
+
+    .empty-state {
+      padding: 28px 22px;
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-lg);
+      color: var(--text-soft);
+    }
+
+    .rich-text table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      overflow: hidden;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.68);
+    }
+
+    .rich-text td,
+    .rich-text th {
+      border: 1px solid #ddd2bf;
+      padding: 10px 12px;
+      vertical-align: top;
+    }
+
+    .rich-text ul,
+    .rich-text ol {
+      padding-left: 20px;
+      margin: 10px 0;
+    }
+
+    .rich-text center {
+      display: block;
+      text-align: center;
+    }
+
+    .rich-text .table-responsive {
+      overflow-x: auto;
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        width: min(100% - 16px, var(--page-width));
+        padding-top: 10px;
+      }
+
+      .topbar {
+        padding: 14px;
+        border-radius: 18px;
+      }
+
+      .topbar-inner {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .controls {
+        justify-content: stretch;
+      }
+
+      .topic-actions {
+        width: 100%;
+      }
+
+      .utility-button {
+        flex: 1 1 0;
+      }
+
+      .mode-switch {
+        width: 100%;
+        justify-content: stretch;
+      }
+
+      .mode-button {
+        flex: 1 1 50%;
+      }
+
+      .topic > summary {
+        padding: 16px;
+        align-items: flex-start;
+      }
+
+      .topic-meta {
+        font-size: 0.88rem;
+      }
+
+      .topic-body {
+        padding: 0 12px 12px;
+      }
+
+      .question-card {
+        padding: 15px;
+      }
+
+      .option {
+        padding: 13px 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="topbar">
+      <div class="topbar-inner">
+        <div>
+          <p class="eyebrow">Study View</p>
+          <h1 class="title">Surgical Disorders Of The Brain</h1>
+          <p class="meta">24 questions across 9 topics</p>
+        </div>
+        <div class="controls">
+          <div class="topic-actions" aria-label="Topic visibility controls">
+            <button class="utility-button" type="button" data-topic-action="expand">Expand all</button>
+            <button class="utility-button" type="button" data-topic-action="collapse">Collapse all</button>
+          </div>
+          <div class="mode-switch" role="tablist" aria-label="Question mode">
+            <button class="mode-button active" type="button" data-mode-button="solve" aria-pressed="true">Solve</button>
+            <button class="mode-button" type="button" data-mode-button="review" aria-pressed="false">Review</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="app"></section>
+  </main>
+
+  <script id="quiz-data" type="application/json">{"title": "Surgical Disorders Of The Brain", "topics": [{"name": "Babinski sign", "questions": [{"number": 1, "topic": "Babinski sign", "stem_html": "A 29 year old presents with a new onset headache and a neurological exam is undertaken. Which of the lesions listed below is most likely to result in a positive Babinski sign?", "options": [{"label_html": "Lateral cerebral sulcus lesions", "is_correct": false}, {"label_html": "Cerebellar lesions", "is_correct": false}, {"label_html": "Basal ganglia lesions", "is_correct": false}, {"label_html": "Lesion of the vestibular nuclei", "is_correct": false}, {"label_html": "Lesion of the pyramidal tract", "is_correct": true}], "correct_index": 4, "explanation_html": "In the Babinski sign, the normal flexor sign becomes extensor and pyramidal tract lesions can cause UMN signs."}], "note_html": "Joseph Babinski (1857-1932), a French neurologist of Polish descent, first described the Babinski sign, the best known neurological eponym and one of the most important signs in clinical neurology, in 1896. <br>It is assessed as follows; the first line to be stroked begins a few centimeters distal to the heel and is situated at the junction of the dorsal and plantar surfaces of the foot. The line extends to a point just behind the toes and then turns medially across the transverse arch of the foot. It is a slow stroke, taking 5 or 6 seconds to complete the motion. The response is pathological if the toe is moved upwards by contraction of extensor hallucis longus muscle. Its is a sign of upper motor neurone pathology."}, {"name": "Depressed skull fracture", "questions": [{"number": 2, "topic": "Depressed skull fracture", "stem_html": "The term signature fracture is synonymous with which of the following injuries?", "options": [{"label_html": "Depressed skull fracture", "is_correct": true}, {"label_html": "Le Fort II fracture", "is_correct": false}, {"label_html": "Orbital blow out", "is_correct": false}, {"label_html": "Oblique fracture of the tibia", "is_correct": false}, {"label_html": "Supracondylar fracture", "is_correct": false}], "correct_index": 0, "explanation_html": "Signature fractures are synonymous with depressed skull fractures, they are usually low velocity injuries where the fracture impression resembles the injurious source."}], "note_html": "- Depressed skull fractures are also referred to as signature fractures.<br><ul><li>Results from the focal impact of a moving object on the cranial vault.<\/li><li>High velocity objects will not only disrupt bone, but may also drive the fracture fragments into the brain.<\/li><li>Blunt objects moving at low velocity may produce a defect in the skull that is of similar dimensions to the object (c.f. signature)<\/li><li>Injuries may affect the outer table alone or extend to involve the inner table.<\/li><li>Open fractures and those associated with intracranial haematomas may require surgery, uncomplicated fractures without significant cosmetic deformities may be managed conservatively.<\/li><li>CT scanning is the initial imaging modality of choice.<\/li><\/ul>"}, {"name": "Disorders of the oculomotor system", "questions": [{"number": 3, "topic": "Disorders of the oculomotor system", "stem_html": "An 18 year old male presents to casualty with a depressed skull fracture. This is managed surgically. Over the next few days he complains of double vision on walking down stairs and reading. On testing ocular convergence, the left eye faces downwards and medially, but the right side does not do so. Which of the nerves listed below is most likely to be responsible?", "options": [{"label_html": "Facial", "is_correct": false}, {"label_html": "Oculomotor", "is_correct": false}, {"label_html": "Abducens", "is_correct": false}, {"label_html": "Trochlear", "is_correct": true}, {"label_html": "Trigeminal nerve", "is_correct": false}], "correct_index": 3, "explanation_html": "The trochlear nerve has a relatively long intracranial course and this makes it vulnerable to injury in head trauma. Head trauma is the commonest cause of an acute fourth nerve palsy. A 4th nerve palsy is the commonest cause of a vertical diplopia. The diplopia is at its worst when the eye looks medially which it usually does as part of the accommodation reflex when walking down stairs."}], "note_html": "<div class=\"table-responsive\"><table class=\"tlarge table table-striped table-bordered\" data-role=\"table\" id=\"tableid1\"><thead><tr><th><b>Nerve<\/b><\/th><th><b>Path<\/b><\/th><th><b>Nerve palsy features<\/b><\/th><\/tr><\/thead><tbody><tr><td>Oculomotor nerve<\/td><td><ul><li>Large nucleus at the midbrain<\/li><li>Fibres pass through the red nucleus and the pyramidal tract; through the cavernous sinus into the orbit<\/li><\/ul><\/td><td>Ptosis<br>Eye down and out<br>Unable to move the eye superiorly, inferiorly, medially<br>Pupil fixed and dilated<\/td><\/tr><tr><td>Trochlear nerve<\/td><td><ul><li>Longest intracranial course<\/li><li>Only nerve to exit the dorsal aspect of brainstem<\/li><li>Nucleus at midbrain, passes between the posterior cerebral and superior cerebellar arteries, through the cavernous sinus into the orbit<\/li><\/ul><\/td><td>Vertical diplopia (diplopia on descending the stairs)<br>Unable to look down and in<\/td><\/tr><tr><td>Abducens nerve<\/td><td>Nucleus lies in the mid pons<\/td><td>Convergence of eyes in primary position<br>Lateral diplopia towards side of lesion<br>Eye deviates medially<\/td><\/tr><\/tbody><\/table><\/div>"}, {"name": "Head injuries", "questions": [{"number": 4, "topic": "Head injuries", "stem_html": "A 21 year old man is involved in a road traffic accident. After a transient period of concussion he is found to have a GCS of 15 by the paramedics. On arrival at hospital he is monitored in a side room of the emergency department. When he is next observed he is noted to have a GCS of 3 and a blown right pupil. Which of the processes below best accounts for this deterioration?", "options": [{"label_html": "Hydrocephalus", "is_correct": false}, {"label_html": "Intraventricular bleed", "is_correct": false}, {"label_html": "Sub dural bleed", "is_correct": false}, {"label_html": "Trans tentorial herniation", "is_correct": true}, {"label_html": "Sub arachnoid haemorrhage", "is_correct": false}], "correct_index": 3, "explanation_html": "The presence of a blown right pupil is a sign of a third cranial nerve compression. The most likely cause is an extradural bleed. However, since this option is not listed the process of trans tentorial herniation would be the most applicable answer. Intraventricular bleeds are typically more common in premature neonates, deterioration due to hydrocephalus is more chronic."}], "note_html": "Head injury is the commonest cause of death and disability in people aged 1-40 years in the UK. In the UK 1.4 million people will attend emergency departments each year with a recent head injury. <br>The typical patterns are described below:<br><br><div class=\"table-responsive\"><table class=\"table table-bordered\"><tbody><tr><td><b>Extradural haematoma<\/b><\/td><td>Bleeding into the space between the dura mater and the skull. Often results from acceleration-deceleration trauma or a blow to the side of the head. The majority of extradural haematomas occur in the temporal region where skull fractures cause a rupture of the middle meningeal artery.<br><br>Features<br><ul><li>Raised intracranial pressure<\/li><li>Some patients may exhibit a lucid interval<\/li><\/ul><\/td><\/tr><tr><td><b>Subdural haematoma<\/b><\/td><td>Bleeding into the outermost meningeal layer. Most commonly occur around the frontal and parietal lobes. May be either acute or chronic. <br><br>Risk factors include old age and alcoholism.<br><br>Slower onset of symptoms than a extradural haematoma.<\/td><\/tr><tr><td><b>Subarachnoid haemorrhage<\/b><\/td><td>Usually occurs spontaneously in the context of a ruptured cerebral aneurysm but may be seen in association with other injuries when a patient has sustained a traumatic brain injury<\/td><\/tr><\/tbody><\/table><\/div>"}, {"name": "Head injury", "questions": [{"number": 5, "topic": "Head injury", "stem_html": "A 30 year old male is hit on the side of the head with a bat. He now presents to Emergency Department with odd behaviour and complaining of a headache. Whilst waiting for a CT scan he becomes drowsy and unresponsive. What is the most likely underlying injury?", "options": [{"label_html": "Intra cerebral haematoma", "is_correct": false}, {"label_html": "Sub dural haematoma", "is_correct": false}, {"label_html": "Extra dural haematoma", "is_correct": true}, {"label_html": "Intraventricular haemorrhage", "is_correct": false}, {"label_html": "Sub arachnoid haemorrhage", "is_correct": false}], "correct_index": 2, "explanation_html": "The middle meningeal artery is prone to damage when the temporal side of the head is hit.<br>Note that there may NOT be any initial LOC or lucid interval."}, {"number": 6, "topic": "Head injury", "stem_html": "A 60 year old alcoholic presents with worsening confusion over 2 weeks. He has weakness of the left side of the body. What is the least likely explanation?", "options": [{"label_html": "Wernicke's encephalopathy and CVA", "is_correct": false}, {"label_html": "Extra dural haematoma", "is_correct": true}, {"label_html": "Decompensated liver failure and CVA", "is_correct": false}, {"label_html": "Sub dural haematoma", "is_correct": false}, {"label_html": "Vascular dementia", "is_correct": false}], "correct_index": 1, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">If you answered the question incorrectly, check you have read it properly as it asks for the least likely cause.<\/div>Note the question asks for the least likely cause. There are many reasons why an alcoholic may develop neurology. However, an extra dural bleed would not typically present such a long latent period."}, {"number": 7, "topic": "Head injury", "stem_html": "A 18 year old boy falls off a balcony and hits the right side of the head. He is admitted to the emergency department and has a GCS of 10. He is admitted for observation, and over the following twelve hours develops an increasing headache and confusion. A CT scan shows a crescent shaped collection of fluid between the brain and the dura with associated midline shift. What is the most likely diagnosis?", "options": [{"label_html": "Acute sub dural haematoma", "is_correct": true}, {"label_html": "Chronic sub dural haematoma", "is_correct": false}, {"label_html": "Acute extra dural haematoma", "is_correct": false}, {"label_html": "Chronic extra dural haematoma", "is_correct": false}, {"label_html": "Sub arachnoid haemorrhage", "is_correct": false}], "correct_index": 0, "explanation_html": "Sub dural haematomas are the commonest intracranial mass lesions resulting from trauma. They are classified as acute, sub acute or chronic according to tempo of onset. Acute sub dural haematomas will present within 72 hours of the original injury and have hyperdense, crescent shaped appearances on CT scanning."}, {"number": 8, "topic": "Head injury", "stem_html": "A baby is brought to casualty unconscious and in a vegetative state. She has cigarette burns on her legs. What is the most likely underlying injury?", "options": [{"label_html": "Acute sub dural haematoma", "is_correct": false}, {"label_html": "Chronic sub dural haematoma", "is_correct": false}, {"label_html": "Acute extra dural haematoma", "is_correct": false}, {"label_html": "Diffuse axonal injury", "is_correct": true}, {"label_html": "Sub arachnoid haemorrhage", "is_correct": false}], "correct_index": 3, "explanation_html": "The baby is likely to be a victim of shaken baby syndrome. This may result in diffuse axonal injury causing extensive lesions in the white matter."}, {"number": 9, "topic": "Head injury", "stem_html": "A 23 year old man was driving a car at high speed whilst intoxicated, he was wearing a seat belt. The car collides with a brick wall at around 140km/h. When he arrives in the emergency department he is comatose. His CT scan appears to be normal. He remains in a persistent vegetative state. What is the most likely underlying cause?", "options": [{"label_html": "Extradural haemorrhage", "is_correct": false}, {"label_html": "Sub dural haemorrhage", "is_correct": false}, {"label_html": "Sub arachnoid haemorrhage", "is_correct": false}, {"label_html": "Intracerebral haemorrhage", "is_correct": false}, {"label_html": "Diffuse axonal injury", "is_correct": true}], "correct_index": 4, "explanation_html": "Diffuse axonal injury occurs when the head is rapidly accelerated or decelerated. There are 2 components:<br><br>1. Multiple haemorrhages<br>2. Diffuse axonal damage in the white matter<br><br>Up to 2/3 occur at the junction of grey/white matter due to the different densities of the tissue.  The changes are mainly histological and axonal damage is secondary to biochemical cascades.  Often there are no signs of a fracture or contusion."}, {"number": 10, "topic": "Head injury", "stem_html": "Which of the following is not a form of primary brain injury?", "options": [{"label_html": "Sub dural haemorrhage after being hit in the head with a hammer", "is_correct": false}, {"label_html": "Meningitis resulting from infected CSF rhinorrhoea after a basal skull fracture", "is_correct": true}, {"label_html": "A truck driver is involved in a road traffic accident and suffers an axonal stretch injury", "is_correct": false}, {"label_html": "A man is hit with a baseball bat and suffers a cerebral contusion", "is_correct": false}, {"label_html": "A man suffers an intraparenchymal haemorrhage after being hit in head during a car crash", "is_correct": false}], "correct_index": 1, "explanation_html": "Primary brain damage occurs at the point of injury.  It includes contusions and diffuse axonal injury.  Non reversible.<br>Secondary brain damage occurs after the injury.  Complications include:<br>1. Haemorrhage<br>2. Meningitis<br>3. Herniation<br>4. Hypoxia<br>5. Oedema<br>6. Arterial damage: internal carotid, vertebral artery common"}, {"number": 11, "topic": "Head injury", "stem_html": "When performing minor surgery in the scalp, which of the following regions is considered a danger area as regards spread of infection into the CNS?", "options": [{"label_html": "Aponeurosis epicranialis", "is_correct": false}, {"label_html": "Skin", "is_correct": false}, {"label_html": "Pericranium", "is_correct": false}, {"label_html": "Connective tissue", "is_correct": false}, {"label_html": "Loose areolar tissue", "is_correct": true}], "correct_index": 4, "explanation_html": "This area is most dangerous as infections can spread easily. The emissary veins that drain this area may allow sepsis to spread to the cranial cavity."}, {"number": 12, "topic": "Head injury", "stem_html": "A 20 year old man is hit with a hammer on the right side of the head. He dies on arrival in the emergency department. Which of these features is most likely to be found at post mortem?", "options": [{"label_html": "Hydrocephalus", "is_correct": false}, {"label_html": "Supra tentorial herniation", "is_correct": false}, {"label_html": "Laceration of the middle meningeal artery", "is_correct": true}, {"label_html": "Sub dural haematoma", "is_correct": false}, {"label_html": "Posterior fossa haematoma", "is_correct": false}], "correct_index": 2, "explanation_html": "This will account for the scenario given where there is a brief delay prior to death. The other options are less acute and a supratentorial herniation would not occur in this setting."}, {"number": 13, "topic": "Head injury", "stem_html": "A 19 year old man is attacked outside a club and beaten with a baseball bat. He sustains a blow to the right side of his head. He is brought to the emergency department and a policy of observation is adopted. His glasgow coma score deteriorates and he becomes comatose. Which of the following haemodynamic parameters is most likely to be present?", "options": [{"label_html": "Hypertension and bradycardia", "is_correct": true}, {"label_html": "Hypotension and tachycardia", "is_correct": false}, {"label_html": "Hypotension and bradycardia", "is_correct": false}, {"label_html": "Hypertension and tachycardia", "is_correct": false}, {"label_html": "Normotension and bradycardia", "is_correct": false}], "correct_index": 0, "explanation_html": "Hypertension and bradycardia are seen prior to coning. The brain autoregulates its blood supply by controlling systemic blood pressure."}, {"number": 14, "topic": "Head injury", "stem_html": "A 16 year old boy is hit by a car and sustains a blow to the right side of his head. He is initially conscious but on arrival in the emergency department is comatose. On examination his right pupil is fixed and dilated. The neurosurgeons plan immediate surgery. What type of initial approach should be made?", "options": [{"label_html": "Left parieto-temporal craniotomy", "is_correct": false}, {"label_html": "Right parieto-temporal craniotomy", "is_correct": true}, {"label_html": "Posterior fossa craniotomy", "is_correct": false}, {"label_html": "Left parieto-temporal burr holes", "is_correct": false}, {"label_html": "None of the above", "is_correct": false}], "correct_index": 1, "explanation_html": "A unilateral dilated pupil is a classic sign of transtentorial herniation.  The medial aspect of the temporal lobe (uncus) herniates across the tentorium and causes pressure on the ipsilateral oculomotor nerve, interrupting parasympathetic input to the eye and resulting in a dilated pupil. In addition the brainstem is compressed. As the ipsilateral oculomotor nerve is being compressed, craniotomy (rather than Burr Holes) should be made on the ipsilateral side."}, {"number": 15, "topic": "Head injury", "stem_html": "A patient is brought to the emergency department following a motor vehicle accident. He is unconscious and has a deep scalp laceration.  His heart rate is 120/min, blood pressure is 80/40 mmHg, and respiratory rate is 35/min. Despite rapid administration of 2 litres of Hartmans solution, the patient's vital signs do not change significantly. The injury likely to explain this patient's hypotension is:", "options": [{"label_html": "Epidural haematoma", "is_correct": false}, {"label_html": "Sub dural haematoma", "is_correct": false}, {"label_html": "Intra parenchymal brain haemorrhage", "is_correct": false}, {"label_html": "Base of skull fracture", "is_correct": false}, {"label_html": "None of the above", "is_correct": true}], "correct_index": 4, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\"><b>Raised intracranial pressure (Cushing response)<\/b> <br><ul><li>Hypertension<\/li><li>Bradycardia<\/li><li>Respiratory depression<\/li><\/ul><\/div>In the patient described, hypotension and tachycardia should not be uncritically attributed to the head injury, since these findings in the setting of blunt trauma are suggestive of serious thoracic, abdominal, or pelvic hemorrhage. When cardiovascular collapse occurs as a result of rising intracranial pressure, it is generally accompanied by hypertension, bradycardia, and respiratory depression."}], "note_html": "Patients who suffer head injuries should be managed according to ATLS principles and extra cranial injuries should be managed alongside cranial trauma. Inadequate cardiac output will compromise CNS perfusion irrespective of the nature of the cranial injury. <br><br><b>Types of traumatic brain injury<\/b><br><div class=\"table-responsive\"><table class=\"tb\"><tbody><tr><td><b>Extradural haematoma<\/b><\/td><td>Bleeding into the space between the dura mater and the skull. Often results from acceleration-deceleration trauma or a blow to the side of the head. The majority of extradural haematomas occur in the temporal region where skull fractures cause a rupture of the middle meningeal artery.<br><br>Features<br><ul><li>Raised intracranial pressure<\/li><li>Some patients may exhibit a lucid interval<\/li><\/ul><\/td><\/tr><tr><td><b>Subdural haematoma<\/b><\/td><td>Bleeding into the outermost meningeal layer. Most commonly occur around the frontal and parietal lobes. May be either acute or chronic. <br><br>Risk factors include old age and alcoholism.<br><br>Slower onset of symptoms than a extradural haematoma.<\/td><\/tr><tr><td><b>Subarachnoid haemorrhage<\/b><\/td><td>Usually occurs spontaneously in the context of a ruptured cerebral aneurysm, but may be seen in association with other injuries when a patient has sustained a traumatic brain injury.<\/td><\/tr><\/tbody><\/table><\/div><br><b>Pathophysiology<\/b><br><ul><li>Primary brain injury may be focal (contusion/ haematoma) or diffuse (diffuse axonal injury)<\/li><li>Diffuse axonal injury occurs as a result of mechanical shearing following deceleration, causing disruption and tearing of axons<\/li><li>Intra-cranial haematomas can be extradural, subdural or intracerebral, while contusions may occur adjacent to (coup) or contralateral (contre-coup) to the side of impact<\/li><li>Secondary brain injury occurs when cerebral oedema, ischaemia, infection, tonsillar or tentorial herniation exacerbates the original injury. The normal cerebral auto regulatory processes are disrupted following trauma rendering the brain more susceptible to blood flow changes and hypoxia<\/li><li>The Cushings reflex (hypertension and bradycardia) often occurs late and is usually a pre terminal event<\/li><\/ul><br><b>Management<\/b><br><ul><li>Where there is life threatening rising ICP such as in extra dural haematoma and whilst theatre is prepared or transfer arranged use of IV mannitol/ frusemide may be required.<\/li><li>Diffuse cerebral oedema may require decompressive craniotomy<\/li><li>Exploratory Burr Holes have little management in modern practice except where scanning may be unavailable and to thus facilitate creation of formal craniotomy flap<\/li><li>Depressed skull fractures that are open require formal surgical reduction and debridement, closed injuries may be managed non operatively if there is minimal displacement.<\/li><li>ICP monitoring is appropriate in those who have GCS 3-8 and normal CT scan.<\/li><li>ICP monitoring is mandatory in those who have GCS 3-8 and abnormal CT scan.<\/li><li>Hyponatraemia is most likely to be due to syndrome of inappropriate ADH secretion.<\/li><li>Minimum of cerebral perfusion pressure of 70mmHg in adults.<\/li><li>Minimum cerebral perfusion pressure of between 40 and 70 mmHg in children.<\/li><\/ul><br><b>Interpretation of pupillary findings in head injuries<\/b><br><div class=\"table-responsive\"><table class=\"tlarge table table-striped table-bordered\" data-role=\"table\" id=\"tableid1\"><thead><tr><th><b>Pupil size<\/b><\/th><th><b>Light response<\/b><\/th><th><b>Interpretation<\/b><\/th><\/tr><\/thead><tbody><tr><td>Unilaterally dilated<\/td><td>Sluggish or fixed<\/td><td>3rd nerve compression secondary to tentorial herniation<\/td><\/tr><tr><td>Bilaterally dilated<\/td><td>Sluggish or fixed<\/td><td><ul><li>Poor CNS perfusion <\/li><li>Bilateral 3rd nerve palsy<\/li><\/ul><\/td><\/tr><tr><td>Unilaterally dilated or equal<\/td><td>Cross reactive (Marcus - Gunn)<\/td><td>Optic nerve injury<\/td><\/tr><tr><td>Bilaterally constricted<\/td><td>May be difficult to assess<\/td><td><ul><li>Opiates<\/li><li>Pontine lesions<\/li><li>Metabolic encephalopathy<\/li><\/ul><\/td><\/tr><tr><td>Unilaterally constricted<\/td><td>Preserved<\/td><td>Sympathetic pathway disruption<\/td><\/tr><\/tbody><\/table><\/div>"}, {"name": "Head injury and haematoma", "questions": [{"number": 16, "topic": "Head injury and haematoma", "stem_html": "A 28 year old man falls and hits his head against a wall. There is a brief loss of consciousness. When assessed in accident and emergency he is alert and orientated with a GCS of 15, imaging shows no fracture of the skull. What is his risk of having an intracranial haematoma requiring removal?", "options": [{"label_html": "1 in 6000", "is_correct": true}, {"label_html": "1 in 40", "is_correct": false}, {"label_html": "1 in 4", "is_correct": false}, {"label_html": "1 in 50,000", "is_correct": false}, {"label_html": "1 in 120", "is_correct": false}], "correct_index": 0, "explanation_html": "<p>No explanation provided.<\/p>"}], "note_html": "Risk of haematoma (requiring removal) in adults attending accident and emergency units following head injury.<br><div class=\"table-responsive\"><table class=\"table table-bordered\"><tbody><tr><td><b>Injury<\/b><\/td><td><b>Conscious level<\/b><\/td><td><b>Risk of haematoma requiring removal<\/b><\/td><\/tr><tr><td>Concussion, no skull fracture<\/td><td>Orientated<\/td><td>1 in 6000<\/td><\/tr><tr><td>Concussion, no skull fracture<\/td><td>Not orientated<\/td><td>1 in 120<\/td><\/tr><tr><td>Skull fracture<\/td><td>Orientated<\/td><td>1 in 32<\/td><\/tr><tr><td>Skull fracture<\/td><td>Not orientated<\/td><td>1 in 4<\/td><\/tr><\/tbody><\/table><\/div>"}, {"name": "Intra cranial haemorrhage", "questions": [{"number": 17, "topic": "Intra cranial haemorrhage", "stem_html": "A 28 year old man is playing tennis when he suddenly collapses and has a GCS of 4 when examined. What is the most likely cause?", "options": [{"label_html": "Intraventricular haemorrhage", "is_correct": false}, {"label_html": "Acute sub dural haematoma", "is_correct": false}, {"label_html": "Sub arachnoid haemorrhage", "is_correct": true}, {"label_html": "Chronic sub dural haematoma", "is_correct": false}, {"label_html": "Acute extra dural haematoma", "is_correct": false}], "correct_index": 2, "explanation_html": "A sudden collapse and loss of consciousness is most likely to be due to a sub arachnoid haemorrhage. The other potential causes in the list usually occur as a sequel to a traumatic event, which has not occurred here."}, {"number": 18, "topic": "Intra cranial haemorrhage", "stem_html": "A 2 day old premature neonate is born by emergency cesarean section for maternal illness. The baby is noted to become floppy and unresponsive. What is the most likely cause?", "options": [{"label_html": "Intraventricular haemorrhage", "is_correct": true}, {"label_html": "Sub arachnoid haemorrhage", "is_correct": false}, {"label_html": "Acute sub dural haematoma", "is_correct": false}, {"label_html": "Acute extra dural haemhorrage", "is_correct": false}, {"label_html": "Chronic sub dural haematoma", "is_correct": false}], "correct_index": 0, "explanation_html": "Neonatal deterioration in premature babies is not infrequently due to intra ventricular haemorrhage. In extreme prematurity the prognosis can be very poor."}, {"number": 19, "topic": "Intra cranial haemorrhage", "stem_html": "A 78 year old man is brought to the emergency department by the police. He is found wandering around the town centre and is confused. His family report that he is usually well apart from a simple mechanical fall 3 weeks previously from which he sustained no obvious injuries. What is the most likely underlying cause?", "options": [{"label_html": "Acute extra dural haematoma", "is_correct": false}, {"label_html": "Chronic sub dural haematoma", "is_correct": true}, {"label_html": "Sub arachnoid haemorrhage", "is_correct": false}, {"label_html": "Intraventricular haemorrhage", "is_correct": false}, {"label_html": "Acute sub dural haematoma", "is_correct": false}], "correct_index": 1, "explanation_html": "The injuries that are responsible for chronic sub dural haematomas are usually fairly trivial and forgotten by the patient and their families. The onset of symptoms can be insidious with vague symptomatology and confusion predominating."}, {"number": 20, "topic": "Intra cranial haemorrhage", "stem_html": "A 50 year old alcoholic man attends the emergency department. His main reason for presenting is that he has no home to go to. On examination, he has no evidence of involvement in recent trauma, a skull x-ray fails to show any evidence of skull fracture. He is admitted and twelve hours following admission he develops sudden onset headache, becomes comatose and then dies. What is the most likely cause?", "options": [{"label_html": "Acute extra dural haematoma", "is_correct": false}, {"label_html": "Chronic sub dural haematoma", "is_correct": false}, {"label_html": "Sub arachnoid haemorrhage", "is_correct": true}, {"label_html": "Intraventricular haemorrhage", "is_correct": false}, {"label_html": "Acute sub dural haematoma", "is_correct": false}], "correct_index": 2, "explanation_html": "The absence of trauma here makes an acute sub dural and extra dural bleed unlikely. Chronic sub dural bleeds would usually cause a more gradual deterioration than is seen here. The absence of any skull fracture also makes an underlying intra cranial bleed less likely. Sudden onset headaches, together with sudden deterioration in neurological function are typical of a sub arachnoid haemorrhage."}, {"number": 21, "topic": "Intra cranial haemorrhage", "stem_html": "A 50 year old lady is admitted having fallen down some stairs sustaining multiple rib fractures 36 hours previously. On examination, she is confused and agitated and has clinical evidence of lateralising signs. She deteriorates further and then dies with no response to resuscitation. What is the most likely explanation?", "options": [{"label_html": "Intraventricular haemorrhage", "is_correct": false}, {"label_html": "Acute sub dural haemorrhage", "is_correct": true}, {"label_html": "Chronic sub dural haematoma", "is_correct": false}, {"label_html": "Sub arachnoid haemorrhage", "is_correct": false}, {"label_html": "Extra dural haematoma", "is_correct": false}], "correct_index": 1, "explanation_html": "The time frame of deterioration of an acute sub dural bleed would fit with this scenario. They are highly lethal and not uncommon injuries. As the bleed enlarges, lateralising signs may be seen and eventually coning and death will occur."}, {"number": 22, "topic": "Intra cranial haemorrhage", "stem_html": "A male infant is born at 28 weeks gestation by emergency cesarean section. He is taken to theatre for a colostomy due to an imperforate anus. He initially seems to be progressing well. However, he begins to develop decerebrate posturing and is becoming increasingly obtunded. What is the most likely underlying problem?", "options": [{"label_html": "Extra dural haematoma", "is_correct": false}, {"label_html": "Sub arachnoid haemorrhage", "is_correct": false}, {"label_html": "Acute sub dural haemorrhage", "is_correct": false}, {"label_html": "Intraventricular haemorrhage", "is_correct": true}, {"label_html": "Chronic sub dural haematoma", "is_correct": false}], "correct_index": 3, "explanation_html": "Acute neurological deterioration in premature neonates is usually due to intraventricular haemorrhage. Diagnosis is made by cranial ultrasound. Development of hydrocephalus may necessitate surgery."}], "note_html": "<div class=\"table-responsive\"><table class=\"table table-bordered\"><tbody><tr><td><b>Extradural haematoma<\/b><\/td><td>Bleeding into the space between the dura mater and the skull. Often results from acceleration-deceleration trauma or a blow to the side of the head. The majority of extradural haematomas occur in the temporal region where skull fractures cause a rupture of the middle meningeal artery.<br><br>Features<br><ul><li>Raised intracranial pressure<\/li><li>Some patients may exhibit a lucid interval<\/li><\/ul><\/td><\/tr><tr><td><b>Subdural haematoma<\/b><\/td><td>Bleeding into the outermost meningeal layer. Most commonly occur around the frontal and parietal lobes. May be either acute or chronic. <br><br>Risk factors include old age and alcoholism.<br><br>Slower onset of symptoms than a extradural haematoma.<\/td><\/tr><tr><td><b>Intracerebral haematoma<\/b><\/td><td>Usually hyperdense lesions on CT scanning. Arise in areas of traumatic contusion which fuse to become a haematoma. Areas of clot and fresh blood may co-exist on the same CT scan (Swirl sign). Large haematomas and those associated with mass effect should be evacuated.<\/td><\/tr><tr><td><b>Subarachnoid haemorrhage<\/b><\/td><td>Usually occurs spontaneously in the context of a ruptured cerebral aneurysm but may be seen in association with other injuries when a patient has sustained a traumatic brain injury<\/td><\/tr><tr><td><b>Intraventricular haemorrhage<\/b><\/td><td>Haemorrhage that occurs into the ventricular system of the brain. It is relatively rare in adult surgical practice and when it does occur, it is typically associated with severe head injuries. In premature neonates it may occur spontaneously. The blood may clot and occlude CSF flow, hydrocephalus may result. <br>In neonatal practice the vast majority of IVH occur in the first 72 hours after birth, the aetiology is not well understood and it is suggested to occur as a result of birth trauma combined with cellular hypoxia, together with the delicate neonatal CNS.<\/td><\/tr><\/tbody><\/table><\/div>"}, {"name": "Sub arachnoid haemorrhage", "questions": [{"number": 23, "topic": "Sub arachnoid haemorrhage", "stem_html": "A 33 year old lady develops a thunderclap headache and collapses. A CT scan shows that she has developed a subarachnoid haemorrhage. She currently has no evidence of raised intracranial pressure. Which of the following drugs should be administered?", "options": [{"label_html": "None", "is_correct": false}, {"label_html": "Atenotol", "is_correct": false}, {"label_html": "Labetolol", "is_correct": false}, {"label_html": "Nimodipine", "is_correct": true}, {"label_html": "Mannitol", "is_correct": false}], "correct_index": 3, "explanation_html": "Nimodipine is a calcium channel blocker. It reduces cerebral vasospasm and improves outcomes. It is administered to most cases of sub arachnoid haemorrhage."}], "note_html": "<b>Spontaneous intracranial haemorrhage<\/b><br>Most commonly sub arachnoid haemorrhage. It is due to intra cranial aneurysm in 85% cases. Approximately 10% of cases will have normal angiography and the cause will remain unclear. Patients with inherited connective tissue disorders are at higher risk although most cases are sporadic.<br>&gt;95% cases will have headache (often thunderclap)<br>&gt;15% will have coma<br><br><b>Investigation<\/b><br>CT scan for all (although as CSF blood clears the sensitivity declines)<br>Lumbar puncture if CT normal (very unlikely if normal)<br>CT angiogram to look for aneurysms.<br><br><b>Management<\/b><br>Supportive treatment, optimising BP (not too high if untreated aneurysm) and ventilation if needed.<br>Nimodipine reduces cerebral vasospasm and reduces poor outcomes.<br>Untreated patients most likely to rebleed in first 2 weeks.<br>Patients developing hydrocephalus will need a V-P shunt (external ventricular drain acutely). <br>Electrolytes require careful monitoring and hyponatraemia is common. <br> <br><b>Treatment of aneurysm<\/b><br>&gt;80% aneuryms arise from the anterior circulation<br>Craniotomy and clipping of aneurysm is the traditional treatment, alternatively suitable lesions may be coiled using an endovascular approach. Where both options are suitable data suggests that outcomes are better with coiling than surgery."}, {"name": "Third nerve palsy", "questions": [{"number": 24, "topic": "Third nerve palsy", "stem_html": "A patient is referred due to the development of a third nerve palsy associated with a headache. On examination, meningism is present. Which one of the following diagnoses needs to be urgently excluded?", "options": [{"label_html": "Weber's syndrome", "is_correct": false}, {"label_html": "Internal carotid artery aneurysm", "is_correct": false}, {"label_html": "Multiple sclerosis", "is_correct": false}, {"label_html": "Posterior communicating artery aneurysm", "is_correct": true}, {"label_html": "Anterior communicating artery aneurysm", "is_correct": false}], "correct_index": 3, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Painful third nerve palsy = posterior communicating artery aneurysm<\/div>Given the combination of a headache and third nerve palsy it is important to exclude a posterior communicating artery aneurysm"}], "note_html": "Features<br><ul><li>eye is deviated 'down and out'<\/li><li>ptosis<\/li><li>pupil may be dilated (sometimes called a 'surgical' third nerve palsy)<\/li><\/ul><br>Causes<br><ul><li>diabetes mellitus<\/li><li>vasculitis e.g. temporal arteritis, SLE<\/li><li>false localizing sign* due to uncal herniation through tentorium if raised ICP<\/li><li>posterior communicating artery aneurysm (pupil dilated)<\/li><li>cavernous sinus thrombosis<\/li><li>Weber's syndrome: ipsilateral third nerve palsy with contralateral hemiplegia -caused by midbrain strokes<\/li><li>other possible causes: amyloid, multiple sclerosis<\/li><\/ul><br>*this term is usually associated with sixth nerve palsies but it may be used for a variety of neurological presentations"}]}</script>
+  <script>
+    const quizData = JSON.parse(document.getElementById("quiz-data").textContent);
+    const app = document.getElementById("app");
+    const modeButtons = Array.from(document.querySelectorAll("[data-mode-button]"));
+    const topicActionButtons = Array.from(document.querySelectorAll("[data-topic-action]"));
+
+    const state = {
+      mode: "solve",
+      answers: new Map(),
+      questionRefs: [],
+    };
+
+    function buildTopic(topic, questionOffset) {
+      const details = document.createElement("details");
+      details.className = "topic";
+      details.open = true;
+
+      const summary = document.createElement("summary");
+      summary.innerHTML = `
+        <div>
+          <h2 class="topic-title">${topic.name}</h2>
+        </div>
+        <div class="topic-meta">
+          <span>${topic.questions.length} questions</span>
+          <span class="chevron" aria-hidden="true">></span>
+        </div>
+      `;
+
+      const body = document.createElement("div");
+      body.className = "topic-body";
+
+      if (topic.note_html) {
+        const notes = document.createElement("details");
+        notes.className = "topic-notes";
+
+        const notesSummary = document.createElement("summary");
+        notesSummary.innerHTML = `
+          <span class="topic-notes-title">Notes</span>
+          <span class="chevron" aria-hidden="true">></span>
+        `;
+
+        const notesBody = document.createElement("div");
+        notesBody.className = "topic-notes-body rich-text";
+        notesBody.innerHTML = topic.note_html;
+
+        notes.appendChild(notesSummary);
+        notes.appendChild(notesBody);
+        body.appendChild(notes);
+      }
+
+      topic.questions.forEach((question, indexInTopic) => {
+        const globalIndex = questionOffset + indexInTopic;
+        body.appendChild(buildQuestionCard(question, globalIndex));
+      });
+
+      details.appendChild(summary);
+      details.appendChild(body);
+      return details;
+    }
+
+    function buildQuestionCard(question, questionIndex) {
+      const card = document.createElement("article");
+      card.className = "question-card is-hidden";
+      card.dataset.questionIndex = String(questionIndex);
+
+      const label = document.createElement("p");
+      label.className = "question-label";
+      label.textContent = `Question ${question.number}`;
+
+      const stem = document.createElement("div");
+      stem.className = "stem rich-text";
+      stem.innerHTML = question.stem_html;
+
+      const options = document.createElement("div");
+      options.className = "options";
+
+      const optionButtons = question.options.map((option, optionIndex) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "option";
+        button.dataset.optionIndex = String(optionIndex);
+        button.innerHTML = option.label_html;
+        button.addEventListener("click", () => {
+          if (state.mode !== "solve") {
+            return;
+          }
+          state.answers.set(questionIndex, optionIndex);
+          applyQuestionState(questionIndex);
+        });
+        options.appendChild(button);
+        return button;
+      });
+
+      const explanation = document.createElement("div");
+      explanation.className = "explanation rich-text";
+      explanation.innerHTML = `<span class="explanation-label">Explanation</span>${question.explanation_html}`;
+
+      card.appendChild(label);
+      card.appendChild(stem);
+      card.appendChild(options);
+      card.appendChild(explanation);
+
+      state.questionRefs[questionIndex] = {
+        card,
+        explanation,
+        optionButtons,
+        question,
+      };
+
+      applyQuestionState(questionIndex);
+      return card;
+    }
+
+    function applyQuestionState(questionIndex) {
+      const ref = state.questionRefs[questionIndex];
+      if (!ref) {
+        return;
+      }
+
+      const { card, optionButtons, question } = ref;
+      const selectedIndex = state.answers.get(questionIndex);
+      const hasSelection = selectedIndex !== undefined;
+      const isReview = state.mode === "review";
+      const showExplanation = isReview || hasSelection;
+
+      card.classList.toggle("is-hidden", !showExplanation);
+
+      optionButtons.forEach((button, optionIndex) => {
+        button.classList.remove("correct", "incorrect", "neutral-revealed");
+
+        if (isReview) {
+          button.disabled = true;
+          if (optionIndex === question.correct_index) {
+            button.classList.add("correct");
+          } else {
+            button.classList.add("neutral-revealed");
+          }
+          return;
+        }
+
+        button.disabled = false;
+        if (!hasSelection) {
+          return;
+        }
+
+        if (optionIndex === question.correct_index) {
+          button.classList.add("correct");
+        } else if (optionIndex === selectedIndex) {
+          button.classList.add("incorrect");
+        } else {
+          button.classList.add("neutral-revealed");
+        }
+      });
+    }
+
+    function renderApp() {
+      if (!quizData.topics.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty-state";
+        empty.textContent = "No questions were found in this JSON file.";
+        app.replaceChildren(empty);
+        return;
+      }
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "topic-list";
+
+      let questionOffset = 0;
+      quizData.topics.forEach((topic) => {
+        wrapper.appendChild(buildTopic(topic, questionOffset));
+        questionOffset += topic.questions.length;
+      });
+
+      app.replaceChildren(wrapper);
+    }
+
+    function setMode(mode) {
+      state.mode = mode;
+      modeButtons.forEach((button) => {
+        const isActive = button.dataset.modeButton === mode;
+        button.classList.toggle("active", isActive);
+        button.setAttribute("aria-pressed", String(isActive));
+      });
+
+      state.questionRefs.forEach((_, index) => applyQuestionState(index));
+    }
+
+    function setAllTopics(open) {
+      document.querySelectorAll(".topic").forEach((topic) => {
+        topic.open = open;
+      });
+    }
+
+    modeButtons.forEach((button) => {
+      button.addEventListener("click", () => setMode(button.dataset.modeButton));
+    });
+
+    topicActionButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        setAllTopics(button.dataset.topicAction === "expand");
+      });
+    });
+
+    renderApp();
+    setMode("solve");
+  </script>
+</body>
+</html>

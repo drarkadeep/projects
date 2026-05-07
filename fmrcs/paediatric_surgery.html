@@ -1,0 +1,745 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Paediatric Surgery</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f1e8;
+      --bg-accent: #ebe4d4;
+      --surface: rgba(255, 252, 246, 0.92);
+      --surface-strong: #fffdf7;
+      --border: #d9cfbd;
+      --text: #23313a;
+      --text-soft: #5f6c73;
+      --accent: #496a58;
+      --accent-strong: #2f5341;
+      --correct-bg: #e0f3e6;
+      --correct-border: #77b487;
+      --wrong-bg: #fbe0df;
+      --wrong-border: #dc7a73;
+      --note-bg: #f3eee2;
+      --shadow: 0 18px 40px rgba(76, 59, 37, 0.08);
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+      --page-width: 960px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.72), transparent 32%),
+        linear-gradient(180deg, #f8f4eb 0%, #f3ede0 100%);
+      line-height: 1.65;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, rgba(255, 255, 255, 0.14), transparent 18%, transparent 82%, rgba(255, 255, 255, 0.14)),
+        repeating-linear-gradient(
+          180deg,
+          rgba(73, 106, 88, 0.015) 0,
+          rgba(73, 106, 88, 0.015) 1px,
+          transparent 1px,
+          transparent 18px
+        );
+    }
+
+    a {
+      color: var(--accent-strong);
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 14px;
+    }
+
+    .score-badge,
+    .badge.rounded-pill.bg-danger {
+      display: none !important;
+    }
+
+    .page {
+      width: min(100% - 24px, var(--page-width));
+      margin: 0 auto;
+      padding: 18px 0 48px;
+    }
+
+    .topbar {
+      margin-bottom: 18px;
+      padding: 18px;
+      background: rgba(255, 252, 246, 0.9);
+      border: 1px solid rgba(217, 207, 189, 0.86);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+
+    .topbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .eyebrow {
+      margin: 0 0 4px;
+      font-size: 0.76rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .title {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+      font-size: clamp(1.5rem, 2vw + 1rem, 2.35rem);
+      line-height: 1.08;
+      font-weight: 700;
+    }
+
+    .meta {
+      margin: 8px 0 0;
+      color: var(--text-soft);
+      font-size: 0.96rem;
+    }
+
+    .mode-switch {
+      display: inline-flex;
+      padding: 6px;
+      border-radius: 999px;
+      background: var(--bg-accent);
+      border: 1px solid var(--border);
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .topic-actions {
+      display: inline-flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .utility-button {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: var(--surface-strong);
+      color: var(--text);
+      font: inherit;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .utility-button:hover {
+      transform: translateY(-1px);
+      border-color: #c7bba9;
+      box-shadow: 0 8px 18px rgba(70, 54, 34, 0.07);
+    }
+
+    .utility-button:focus-visible {
+      outline: 3px solid rgba(73, 106, 88, 0.22);
+      outline-offset: 2px;
+    }
+
+    .mode-button {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: var(--text-soft);
+      font: inherit;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 10px 16px;
+      min-width: 92px;
+      cursor: pointer;
+      transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .mode-button:hover {
+      transform: translateY(-1px);
+      color: var(--text);
+    }
+
+    .mode-button.active {
+      background: var(--surface-strong);
+      color: var(--accent-strong);
+      box-shadow: 0 8px 18px rgba(73, 106, 88, 0.14);
+    }
+
+    .topic-list {
+      display: grid;
+      gap: 18px;
+    }
+
+    .topic {
+      background: rgba(255, 252, 246, 0.78);
+      border: 1px solid rgba(217, 207, 189, 0.9);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .topic[open] {
+      background: rgba(255, 252, 246, 0.9);
+    }
+
+    .topic > summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      user-select: none;
+    }
+
+    .topic > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .topic-title {
+      margin: 0;
+      font-size: 1.08rem;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+    }
+
+    .topic-meta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-soft);
+      font-size: 0.94rem;
+    }
+
+    .chevron {
+      display: inline-block;
+      transition: transform 0.2s ease;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .topic[open] > summary .chevron {
+      transform: rotate(90deg);
+    }
+
+    .topic-notes {
+      background: rgba(243, 238, 226, 0.62);
+      border: 1px solid #e3d9c8;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .topic-notes > summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      user-select: none;
+    }
+
+    .topic-notes > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .topic-notes-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .topic-notes[open] > summary .chevron {
+      transform: rotate(90deg);
+    }
+
+    .topic-notes-body {
+      padding: 0 16px 16px;
+      color: var(--text);
+    }
+
+    .topic-body {
+      padding: 0 16px 16px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .question-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      box-shadow: 0 10px 24px rgba(70, 54, 34, 0.05);
+    }
+
+    .question-label {
+      margin: 0 0 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-soft);
+      font-size: 0.88rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .stem {
+      font-size: 1rem;
+    }
+
+    .stem > *:first-child,
+    .explanation > *:first-child {
+      margin-top: 0;
+    }
+
+    .stem > *:last-child,
+    .explanation > *:last-child {
+      margin-bottom: 0;
+    }
+
+    .options {
+      margin-top: 16px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .option {
+      width: 100%;
+      text-align: left;
+      border: 1px solid #d8d0c2;
+      background: #fffdf8;
+      color: var(--text);
+      border-radius: var(--radius-sm);
+      padding: 14px 15px;
+      font: inherit;
+      line-height: 1.45;
+      cursor: pointer;
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .option:hover {
+      transform: translateY(-1px);
+      border-color: #c7bba9;
+      box-shadow: 0 8px 18px rgba(70, 54, 34, 0.07);
+    }
+
+    .option:focus-visible {
+      outline: 3px solid rgba(73, 106, 88, 0.22);
+      outline-offset: 2px;
+    }
+
+    .option.correct {
+      background: var(--correct-bg);
+      border-color: var(--correct-border);
+      box-shadow: inset 0 0 0 1px rgba(119, 180, 135, 0.2);
+    }
+
+    .option.incorrect {
+      background: var(--wrong-bg);
+      border-color: var(--wrong-border);
+      box-shadow: inset 0 0 0 1px rgba(220, 122, 115, 0.2);
+    }
+
+    .option.neutral-revealed {
+      background: #faf6ee;
+      border-color: #d8d0c2;
+      color: #5f676a;
+    }
+
+    .option[disabled] {
+      cursor: default;
+      opacity: 1;
+    }
+
+    .explanation {
+      margin-top: 14px;
+      padding: 14px 16px;
+      background: var(--note-bg);
+      border: 1px solid #e3d9c8;
+      border-radius: 14px;
+      color: var(--text);
+    }
+
+    .question-card.is-hidden .explanation {
+      display: none;
+    }
+
+    .explanation-label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+      font-weight: 800;
+    }
+
+    .empty-state {
+      padding: 28px 22px;
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-lg);
+      color: var(--text-soft);
+    }
+
+    .rich-text table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      overflow: hidden;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.68);
+    }
+
+    .rich-text td,
+    .rich-text th {
+      border: 1px solid #ddd2bf;
+      padding: 10px 12px;
+      vertical-align: top;
+    }
+
+    .rich-text ul,
+    .rich-text ol {
+      padding-left: 20px;
+      margin: 10px 0;
+    }
+
+    .rich-text center {
+      display: block;
+      text-align: center;
+    }
+
+    .rich-text .table-responsive {
+      overflow-x: auto;
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        width: min(100% - 16px, var(--page-width));
+        padding-top: 10px;
+      }
+
+      .topbar {
+        padding: 14px;
+        border-radius: 18px;
+      }
+
+      .topbar-inner {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .controls {
+        justify-content: stretch;
+      }
+
+      .topic-actions {
+        width: 100%;
+      }
+
+      .utility-button {
+        flex: 1 1 0;
+      }
+
+      .mode-switch {
+        width: 100%;
+        justify-content: stretch;
+      }
+
+      .mode-button {
+        flex: 1 1 50%;
+      }
+
+      .topic > summary {
+        padding: 16px;
+        align-items: flex-start;
+      }
+
+      .topic-meta {
+        font-size: 0.88rem;
+      }
+
+      .topic-body {
+        padding: 0 12px 12px;
+      }
+
+      .question-card {
+        padding: 15px;
+      }
+
+      .option {
+        padding: 13px 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="topbar">
+      <div class="topbar-inner">
+        <div>
+          <p class="eyebrow">Study View</p>
+          <h1 class="title">Paediatric Surgery</h1>
+          <p class="meta">74 questions across 25 topics</p>
+        </div>
+        <div class="controls">
+          <div class="topic-actions" aria-label="Topic visibility controls">
+            <button class="utility-button" type="button" data-topic-action="expand">Expand all</button>
+            <button class="utility-button" type="button" data-topic-action="collapse">Collapse all</button>
+          </div>
+          <div class="mode-switch" role="tablist" aria-label="Question mode">
+            <button class="mode-button active" type="button" data-mode-button="solve" aria-pressed="true">Solve</button>
+            <button class="mode-button" type="button" data-mode-button="review" aria-pressed="false">Review</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="app"></section>
+  </main>
+
+  <script id="quiz-data" type="application/json">{"title": "Paediatric Surgery", "topics": [{"name": "Absence of the vas deferens", "questions": [{"number": 1, "topic": "Absence of the vas deferens", "stem_html": "A 28 year old man has a long history of recurrent chest infections. On examination, he is noted to have no palpable vas deferens. However, both testes are located within the scrotum. What is the most likely underlying disease association?", "options": [{"label_html": "Kleinfelters syndrome", "is_correct": false}, {"label_html": "Kallmann syndrome", "is_correct": false}, {"label_html": "Cystic fibrosis", "is_correct": true}, {"label_html": "Coeliac disease", "is_correct": false}, {"label_html": "Gardners syndrome", "is_correct": false}], "correct_index": 2, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">99% of males with cystic fibrosis will have absent vas<\/div>"}], "note_html": "<ul><li>Absence of the vas may be unilateral or bilateral<\/li><li>Cystic fibrosis CFTR gene mutations are the cause in 40% of cases<\/li><li>Some non CF cases are due to unilateral renal agenesis<\/li><li>Sperm harvesting may allow for assisted conception<\/li><\/ul>"}, {"name": "Biliary atresia", "questions": [{"number": 2, "topic": "Biliary atresia", "stem_html": "A 2 month old baby presents with jaundice. He has an elevated conjugated bilirubin level. Diagnosis is confirmed by cholangiography during surgery. What is the best course of action?", "options": [{"label_html": "Insertion of PTC", "is_correct": false}, {"label_html": "Choledochoduodenostomy", "is_correct": false}, {"label_html": "ERCP", "is_correct": false}, {"label_html": "Roux-en-Y portojejunostomy", "is_correct": true}, {"label_html": "Liver transplant", "is_correct": false}], "correct_index": 3, "explanation_html": "This child has biliary atresia. The aim is to avoid liver transplantation (however, most will come to transplant in time)."}, {"number": 3, "topic": "Biliary atresia", "stem_html": "An 8 week old infant is brought to clinic with a history of 18 days of jaundice.  The mother is breast feeding.  He was a full term baby.  There is no family history of liver disease.  What is the most appropriate next step?", "options": [{"label_html": "Liver USS", "is_correct": false}, {"label_html": "Unconjugated bilirubin measurement", "is_correct": false}, {"label_html": "Conjugated bilirubin measurement", "is_correct": true}, {"label_html": "Reassure and discharge", "is_correct": false}, {"label_html": "ERCP", "is_correct": false}], "correct_index": 2, "explanation_html": "This baby is a full term and has &gt; 14 days of jaundice, therefore needs an urgent  conjugated bilirubin check to rule out biliary atresia.  If physiological jaundice the unconjugated bilirubin levels will be increased.  Isotope scanning may be used in diagnosis, but a definitive diagnosis is normally made during a laparotomy."}, {"number": 4, "topic": "Biliary atresia", "stem_html": "Which of the following statements relating to biliary atresia is untrue?", "options": [{"label_html": "It most commonly presents as prolonged conjugated jaundice in the neonatal period.", "is_correct": false}, {"label_html": "Evidence of portal hypertension at diagnosis is seldom present in the UK.", "is_correct": false}, {"label_html": "It may be confused with Alagille syndrome.", "is_correct": false}, {"label_html": "The Kasai procedure is best performed in the first 8 weeks of life.", "is_correct": false}, {"label_html": "Survival following a successful Kasai procedure is approximately 45% at 5 years.", "is_correct": true}], "correct_index": 4, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Alagille syndrome autosomal dominant disorder characterised by presence of paucity of bile ducts and cardiac defects. Only the embryonic form of biliary atresia is associated with cardiac and other embryological defects.<\/div>Biliary atresia usually presents with obstructed jaundice. A Kasai procedure is best performed in the first 8 weeks of life. If a Kasai procedure is successful most patients will not require liver transplantation. 45% of patients post Kasai procedure will require transplantation. However, overall survival following a successful Kasai procedure is 80%."}], "note_html": "<ul><li>1 in 17000 affected<\/li><li>Biliary tree lumen is obliterated by an inflammatory cholangiopathy causing progressive liver damage<\/li><\/ul><br><b>Clinical features<\/b><br><ul><li>Infant well in 1st few weeks of life<\/li><li>No family history of liver disease<\/li><li>Jaundice in infants &gt; 14 days in term infants (&gt;21 days in pre term infants)<\/li><li>Pale stool, yellow urine (colourless in babies)<\/li><li>Associated with cardiac malformations, polysplenia, situs inversus<\/li><\/ul><br><b>Investigation<\/b><br><ul><li>Conjugated bilirubin (prolonged physiological jaundice or breast milk jaundice will cause a rise in unconjugated bilirubin, whereas those with obstructive liver disease will have a rise in conjugated bilirubin) <\/li><li>Ultrasound of the liver (excludes extrahepatic causes, in biliary atresia infant may have tiny or invisible gallbladder)<\/li><li>Hepato-iminodiacetic acid radionuclide scan (good uptake but no excretion usually seen)<\/li><\/ul><br><b>Management<\/b><br><ul><li>Early recognition is important to prevent liver transplantation.<\/li><li>Nutritional support.<\/li><li>Roux-en-Y portojejunostomy (Kasai procedure).<\/li><li>If Kasai procedure fails or late recognition, a liver transplant becomes the only option.<\/li><\/ul>"}, {"name": "Bilious vomiting in neonates", "questions": [{"number": 5, "topic": "Bilious vomiting in neonates", "stem_html": "A female infant is born by cesarean section at 38 weeks gestation for foetal distress. The attending paediatricians notice that she has a single palmar crease and prominent epicanthic folds of the eyes. Soon after the birth the mother tries to feed the child who has a projectile vomit about 10 minutes after feeding. On examination, she has a soft, non distended abdomen. What is the most likely cause?", "options": [{"label_html": "Pyloric stenosis", "is_correct": false}, {"label_html": "Duodenal atresia", "is_correct": true}, {"label_html": "Milk allergy", "is_correct": false}, {"label_html": "Meconium ileus", "is_correct": false}, {"label_html": "Anal atresia", "is_correct": false}], "correct_index": 1, "explanation_html": "Proximally sited atresia will produce high volume vomits which may or may not be bile stained. Abdominal distension is characteristically absent. Whilst under resuscitated children may be a little dehydrated they are seldom severely ill. The presence of Trisomy 21 (palmar and eye signs) increases the likelihood of duodenal atresia."}, {"number": 6, "topic": "Bilious vomiting in neonates", "stem_html": "A neonate born at term has an episode of bilious vomiting and on investigation is found to have a DJ flexure displaced to the right. What procedure are they most likely to require?", "options": [{"label_html": "Ladds procedure", "is_correct": true}, {"label_html": "Gastrojejunostomy", "is_correct": false}, {"label_html": "Kasai procedure", "is_correct": false}, {"label_html": "Duoduodenostomy", "is_correct": false}, {"label_html": "Ramstedts procedure", "is_correct": false}], "correct_index": 0, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Intestinal malrotation with volvulus is treated with a Ladd's procedure<\/div>"}, {"number": 7, "topic": "Bilious vomiting in neonates", "stem_html": "A male infant is born prematurely at 26 weeks gestation by emergency cesarean section. Following the birth he develops respiratory distress syndrome and is ventilated. He begins to improve twelve days after birth. Then he becomes unwell and develops abdominal distension and passes bloody stools and vomits a small quantity of bile stained vomit. What is the most likely cause?", "options": [{"label_html": "Ileal atresia", "is_correct": false}, {"label_html": "Hirschprungs disease", "is_correct": false}, {"label_html": "Pyloric stenosis", "is_correct": false}, {"label_html": "Necrotising enterocolitis", "is_correct": true}, {"label_html": "Meconium ileus", "is_correct": false}], "correct_index": 3, "explanation_html": "Necrotising enterocolitis often has a delayed presentation and affected infants will typically pass bloody stools. Plain films may show air in the intestinal wall (Pneumatosis)."}], "note_html": "<b>Causes of intestinal obstruction with bilious vomiting in neonates<\/b><br><div class=\"table-responsive\"><table class=\"table table-bordered\"><tbody><tr><td><b>Disorder<\/b><\/td><td><b>Incidence and causation<\/b><\/td><td><b>Age at presentation<\/b><\/td><td><b>Diagnosis<\/b><\/td><td><b>Treatment<\/b><\/td><\/tr><tr><td>Duodenal atresia<\/td><td>1 in 5000 (higher in Downs syndrome)<\/td><td>Few hours after birth<\/td><td>AXR shows 'double bubble sign, contrast study may confirm<\/td><td>Duodenoduodenostomy<\/td><\/tr><tr><td>Malrotation with volvulus<\/td><td>Usually cause by incomplete rotation during embryogenesis<\/td><td>Usually 3-7 days after birth, volvulus with compromised circulation may result in peritoneal signs and haemodynamic instability<\/td><td>Upper GI contrast study may show DJ flexure is more medially placed, USS may show abnormal orientation of SMA and SMV<\/td><td>Ladd's procedure<\/td><\/tr><tr><td>Jejunal/ ileal atresia<\/td><td>Usually caused by vascular insufficiency in utero, usually 1 in 3000<\/td><td>Usually within 24 hours of birth<\/td><td>AXR will show air-fluid levels<\/td><td>Laparotomy with primary resection and anastomosis<\/td><\/tr><tr><td>Meconium ileus<\/td><td>Occurs in between 15 and20% of those babies with cystic fibrosis, otherwise 1 in 5000<\/td><td>Typically in first 24-48 hours of life with abdominal distension and bilious vomiting<\/td><td>Air - fluid levels on AXR, sweat test to confirm cystic fibrosis<\/td><td>Surgical decompression, serosal damage may require segmental resection<\/td><\/tr><tr><td>Necrotising enterocolitis<\/td><td>Up to 2.4 per 1000 births, risks increased in prematurity and inter-current illness<\/td><td>Usually second week of life<\/td><td>Dilated bowel loops on AXR, pneumatosis and portal venous air<\/td><td>Conservative and supportive for non perforated cases, laparotomy and resection in cases of perforation of ongoing clinical deterioration<\/td><\/tr><\/tbody><\/table><\/div>"}, {"name": "Bronchogenic cysts", "questions": [{"number": 8, "topic": "Bronchogenic cysts", "stem_html": "A 3 day old baby develops dyspneoa. A chest x-ray is performed and shows a radio-opaque shadow with an air-fluid level in the chest. It is located immediately anterior to the 6th hemivertebra. Which of the following is the most likely underlying diagnosis?", "options": [{"label_html": "Bronchogenic cyst", "is_correct": true}, {"label_html": "Congenital diaphragmatic hernia", "is_correct": false}, {"label_html": "Infection with <i>Staphylococcus aureus<\/i>", "is_correct": false}, {"label_html": "Oesphageal duplication cyst", "is_correct": false}, {"label_html": "Hiatus hernia", "is_correct": false}], "correct_index": 0, "explanation_html": "A midline cystic mass of an infant in this age group is most likely to be a bronchogenic cyst. Hiatus hernia is unusual in the neonatal period. Oesophageal duplication cysts are very rare and respiratory symptoms are less common than with bronchogenic cysts. Midline congenital hernias are rare and would usually not include an air/ fluid level in the rare event that they occur at this site."}], "note_html": "<b>Overview<\/b><br>Bronchogenic cysts most commonly arise as a result of anomalous development of the ventral foregut. They are most commonly single, although multiple cysts are described. <br><br>They often lie near the midline and most frequently occur in the region of the carina. They may be attached to the tracheobronchial tree, although they are seldom in direct connection with it.<br><br>Cases may be asymptomatic or present with respiratory symptoms early in the neonatal period. <br><br>They are the second most common type of foregut cysts (after enterogenous cysts) in the middle mediastinum. Up to 50% of cases are diagnosed prior to 15 years of age.<br><br><b>Investigation<\/b><br>Many cases are diagnosed on antenatal ultrasound. Others may be detected on conventional chest radiography as a midline spherical mass or cystic structure. Once the diagnosis is suspected a CT scan should be performed.<br><br><b>Treatment<\/b><br>Thorascopic resection is the ideal treatment. Very young babies can be operated on once they reach six weeks of age."}, {"name": "Choanal atresia", "questions": [{"number": 9, "topic": "Choanal atresia", "stem_html": "A baby is born by normal vaginal delivery at 39 weeks gestation. Initially all appears well and then the clinical staff become concerned because the baby develops recurrent episodes of cyanosis. These are worse during feeding and improve dramatically when the baby cries. The most likely underlying diagnosis is:", "options": [{"label_html": "Choanal atresia", "is_correct": true}, {"label_html": "Oesophageal reflux", "is_correct": false}, {"label_html": "Tetralogy of Fallot", "is_correct": false}, {"label_html": "Oesophageal atresia", "is_correct": false}, {"label_html": "Congenital diaphragmatic hernia", "is_correct": false}], "correct_index": 0, "explanation_html": "In Choanal atresia the episodes of cyanosis are usually worst during feeding. Improvement may be seen when the baby cries as the oropharyngeal airway is used."}], "note_html": "<ul><li>Congenital disorder with an incidence of 1 in 7000 births.<\/li><li>Posterior nasal airway occluded by soft tissue or bone.<\/li><li>Associated with other congenital malformations e.g. coloboma<\/li><li>Babies with unilateral disease may go unnoticed.<\/li><li>Babies with bilateral disease will present early in life as they can then only breathe through their mouth.<\/li><li>Treatment is with fenestration procedures designed to restore patency.<\/li><\/ul>"}, {"name": "Cleft lip and palate", "questions": [{"number": 10, "topic": "Cleft lip and palate", "stem_html": "A newborn infant is noted to have a unilateral cleft lip only. What is the most likely explanation for this process?", "options": [{"label_html": "Incomplete fusion of the second branchial arch", "is_correct": false}, {"label_html": "Incomplete fusion of the nasolabial muscle rings", "is_correct": true}, {"label_html": "Incomplete fusion of the first branchial arch", "is_correct": false}, {"label_html": "Incomplete fusion of the third branchial arch", "is_correct": false}, {"label_html": "Incomplete fusion of the secondary palate", "is_correct": false}], "correct_index": 1, "explanation_html": "Unilateral isolated cleft lip represents a failure of nasolabial ring fusion. It is not related to branchial arch fusion. Arch disorders have a far more profound phenotype and malformation sequences."}, {"number": 11, "topic": "Cleft lip and palate", "stem_html": "A 10 year old boy presents with recurrent episodes of otitis media. He has previously undergone cleft lip and palate surgery. Which of the muscles listed below is linked to the pathophysiology of the ear infections?", "options": [{"label_html": "Nerve to stapedius", "is_correct": false}, {"label_html": "Orbicularis oris", "is_correct": false}, {"label_html": "Masseter", "is_correct": false}, {"label_html": "Palatal muscles", "is_correct": true}, {"label_html": "Pharyngeal constrictors", "is_correct": false}], "correct_index": 3, "explanation_html": "Cleft lip and palapte and ear infection and hearing loss which muscle affected<br>The muscles affected by a cleft lip and palate are the palatal muscles, which are directly connected to the Eustachian tubes. These muscles are not properly joined at birth, leading to a build-up of mucus in the middle ear (glue ear). This condition can cause hearing difficulties and increase the risk of middle ear infections. The Eustachian tubes are responsible for equalizing air pressure between the middle ear and the back of the nose and throat, and their dysfunction can lead to fluid buildup in the middle ear, which impedes sound transmission."}], "note_html": "Cleft lip and palate are the most common congenital deformity affecting the orofacial structures. Whilst they may be an isolated developmental malformation they are also a recognised component of more than 200 birth defects. The incidence is as high as 1 in 600 live births. The commonest variants are:<br><ul><li>Isolated cleft lip (15%)<\/li><li>Isolated cleft palate (40%)<\/li><li>Combined cleft lip and palate (45%)<\/li><\/ul>The aetiology of the disorder is multifactorial; both genetic (affected first degree relative increases risk) and environmental factors play a role. <br><br><b>Cleft lip<\/b><br>Cleft lip occurs as a result of disruption of the muscles of the upper lip and nasolabial region. These muscles comprise a chain of muscles viz; nasolabial, bilabial and labiomental. Defects may be unilateral or bilateral. <br><br><b>Cleft palate<\/b><br>The primary palate consists of all anatomical structures anterior to the incisive foramen. The secondary palate lies more posteriorly and is sub divided into the hard and soft palate. Cleft palate occurs as a result of non fusion of the two palatine shelves. Both hard and soft palate may be involved. Complete cases are associated with complete separation of the nasal septum and vomer from the palatine processes. <br><br><b>Treatment<\/b><br>Surgical reconstruction is the mainstay of management. The procedures are planned according to the extent of malformation and child age. Simple defects are managed as a single procedure. Complex malformations are usually corrected in stages. Affected individuals have a higher incidence of hearing and speech problems."}, {"name": "Cryptorchidism", "questions": [{"number": 12, "topic": "Cryptorchidism", "stem_html": "A 6 month old boy is brought to the clinic by his mother. She is concerned that his testes are not located into the scrotum. She has noticed them only when he is in the bath, but not at any other time. What is the most likely underlying diagnosis?", "options": [{"label_html": "Retractile testis", "is_correct": true}, {"label_html": "Ectopic testis", "is_correct": false}, {"label_html": "Undescended testis", "is_correct": false}, {"label_html": "Testicular agenesis", "is_correct": false}, {"label_html": "Intersex child", "is_correct": false}], "correct_index": 0, "explanation_html": "A testis that appears in warm conditions or which can be brought down on clinical examination and does not immediately retract is usually a retractile testis."}, {"number": 13, "topic": "Cryptorchidism", "stem_html": "A 6 week old baby boy is brought to the clinic by his mother. She is concerned because although the left testis is present in the scrotum the right testis is absent. She reports that it is sometimes palpable when she bathes the child. on examination the right testis is palpable at the level of the superficial inguinal ring. What is the most appropriate management?", "options": [{"label_html": "Discharge", "is_correct": false}, {"label_html": "Re-assess in 5 years", "is_correct": false}, {"label_html": "Laparoscopy", "is_correct": false}, {"label_html": "Re-assess in 6 months", "is_correct": true}, {"label_html": "Orchidopexy", "is_correct": false}], "correct_index": 3, "explanation_html": "Undescended testes are not uncommon in young children. They may be present in 4% of term infants, but only in 1.3% children at 3 months of age. In this scenario the testis is retractile and can be managed expectantly."}, {"number": 14, "topic": "Cryptorchidism", "stem_html": "A 13 month old boy is brought to the paediatric clinic by his mother who is concerned that his testis are not palpable. On examination his testis are not palpable either in the scrotum or inguinal region and cannot be visualised on ultrasound either. What is the most appropriate next stage in management?", "options": [{"label_html": "Laparoscopy", "is_correct": true}, {"label_html": "Re-assess at 5 years of age", "is_correct": false}, {"label_html": "Re-assess at 13 years of age", "is_correct": false}, {"label_html": "Administration of testosterone", "is_correct": false}, {"label_html": "Administration of cyproterone acetate", "is_correct": false}], "correct_index": 0, "explanation_html": "Impalpable testes are an indication for laparoscopy. Ultrasound is a relatively unhelpful tool in evaluating cryptorchid patients and most experienced paediatric surgeons would not use it pre-operatively. They may be associated with an intra-abdominal location. Whilst it is reasonable to defer orchidopexy for retractile testis completely absent testes should be investigated further."}], "note_html": "A congenital undescended testis is one that has failed to reach the bottom of the scrotum by 3 months of age. At birth up to 5% of boys will have an undescended testis, post natal descent occurs in most and by 3 months the incidence of cryptorchidism falls to 1-2%. In the vast majority of cases the cause of the maldescent is unknown. A proportion may be associated with other congenital defects including:<br><br>Patent processus vaginalis<br>Abnormal epididymis<br>Cerebral palsy<br>Developmental delay<br>Wilms tumour<br>Abdominal wall defects (e.g. gastroschisis, prune belly syndrome)<br><br><b>Differential diagnosis<\/b><br>These include retractile testes and, in the case of absent bilateral testes the possibility of intersex conditions. A retractile testis can be brought into the scrotum by the clinician and when released remains in the scrotum. If the examining clinician notes the testis to return rapidly into the inguinal canal when released then surgery is probably indicated.<br><br><b>Reasons for correction of cryptorchidism<\/b><br><ul><li>Reduce risk of infertility<\/li><li>Allows the testes to be examined for testicular cancer<\/li><li>Avoid testicular torsion<\/li><li>Cosmetic appearance<\/li><\/ul>Males with undescended testis are 40 times as likely to develop testicular cancer (seminoma) as males without undescended testis<br>The location of the undescended testis affects the relative risk of testicular cancer (50% intra-abdominal testes)<br><br><b>Treatment<\/b><br><ul><li>Orchidopexy at 6- 18 months of age. The operation usually consists of inguinal exploration, mobilisation of the testis and implantation into a dartos pouch.<\/li><li>Intra-abdominal testis should be evaluated laparoscopically and mobilised. Whether this is a single stage or two stage procedure depends upon the exact location. <\/li><li>After the age of 2 years in untreated individuals the Sertoli cells will degrade and those presenting late in teenage years may be better served by orchidectomy than to try and salvage a non functioning testis with an increased risk of malignancy.<\/li><\/ul>"}, {"name": "Hypospadias", "questions": [{"number": 15, "topic": "Hypospadias", "stem_html": "A 2 day old baby is noted to have voiding difficulties and on closer inspection is noted to have hypospadias. Which of the following abnormalities is most commonly associated with the condition?", "options": [{"label_html": "Cryptorchidism", "is_correct": true}, {"label_html": "Diaphragmatic hernia", "is_correct": false}, {"label_html": "Ventricular - septal defect", "is_correct": false}, {"label_html": "Bronchogenic cyst", "is_correct": false}, {"label_html": "Atrial septal defect", "is_correct": false}], "correct_index": 0, "explanation_html": "Hypospadias most commonly occurs as an isolated disorder. Associated urological abnormalities may be seen in up to 40% of infants, of these cryptorchidism is the most frequent (10%)."}, {"number": 16, "topic": "Hypospadias", "stem_html": "A 3 month old boy is suspected of having hypospadias. At which of the following locations is the urethral opening most frequently located in boys suffering from the condition?", "options": [{"label_html": "On the distal ventral surface of the penis", "is_correct": true}, {"label_html": "On the proximal ventral surface of the penis", "is_correct": false}, {"label_html": "On the distal dorsal surface of the penis", "is_correct": false}, {"label_html": "On the proximal dorsal surface of the penis", "is_correct": false}, {"label_html": "At the base of the scrotum", "is_correct": false}], "correct_index": 0, "explanation_html": "The defect is located ventrally and most often distally. Proximally located urethral openings are well recognised. Circumcision may compromise reconstruction."}], "note_html": "The urethral meatus opens on the ventral surface of the penis. There is also a ventral deficiency of the foreskin. The urethral meatus may open more proximally in the more severe variants. However, 75% of the openings are distally located. The incidence is 1 in 300 male births.<br><br>Features include:<br><br><ul><li>Absent frenular artery<\/li><li>Ventrally opened glans<\/li><li>Skin tethering to hypoplastic urethra<\/li><li>Splayed columns of spongiosum tissue distal to the meatus<\/li><li>Deficiency of the foreskin ventrally<\/li><\/ul><br>Management:<br><br><ul><li>No routine cultural circumcisions<\/li><li>Urethroplasty<\/li><li>Penile reconstruction<\/li><\/ul><br>The foreskin is often utilised in the reconstructive process. In boys with very distal disease no treatment may be needed."}, {"name": "Inguinal hernia in children", "questions": [{"number": 17, "topic": "Inguinal hernia in children", "stem_html": "A 3 year old boy is referred to the clinic with a scrotal swelling. On examination, the mass does not transilluminate and it is impossible to palpate normal cord above it. What is the most likely diagnosis?", "options": [{"label_html": "Hydrocele", "is_correct": false}, {"label_html": "Direct inguinal hernia", "is_correct": false}, {"label_html": "Indirect inguinal hernia", "is_correct": true}, {"label_html": "Femoral hernia", "is_correct": false}, {"label_html": "Lymphatic malformation", "is_correct": false}], "correct_index": 2, "explanation_html": "This is likely to be an indirect hernia. In children these arise from persistent processus vaginalis and require herniotomy."}], "note_html": "Inguinal hernia in paediatric practice are nearly always congenital, the hernia sac is often a remnant of the processus vaginalis and association with undescended testis is recognised. They are most common in the first few weeks of life. Nearly all will be indirect hernias. The treatment of which is inguinal herniotomy. Formal repair using meshes is not required because the posterior wall of the canal is usually intact. There is a tendency for them to be bilateral. For this reason, some surgeons will offer bilateral groin explorations in females. The risks of cord and testicular injury in males do not justify this approach and therefore only the symptomatic side is treated. The younger the child the higher the risks of strangulation and most neonatal inguinal hernias are repaired on the next available list."}, {"name": "Intestinal malrotation in neonates", "questions": [{"number": 18, "topic": "Intestinal malrotation in neonates", "stem_html": "A male infant, born at term appears well following delivery. Six hours later, he is noted to have bilious vomiting by the paediatricians. On examination, he seems well and his abdomen is soft and non tender. What is the best course of action?", "options": [{"label_html": "Arrange an abdominal x-ray", "is_correct": false}, {"label_html": "Undertake a test feed", "is_correct": false}, {"label_html": "Perform serial abdominal examinations", "is_correct": false}, {"label_html": "Arrange an upper GI contrast study", "is_correct": true}, {"label_html": "Arrange a laparotomy", "is_correct": false}], "correct_index": 3, "explanation_html": "Bilious vomiting in neonates is a surgical emergency and is intestinal malrotation and volvulus until otherwise proven. It is investigated with an upper GI contrast study. Contrast should be seen to exit the stomach and the location of the DJ flexure is noted (it lies to the left of the midline). If this is not the case, or the study is inconclusive, a laparotomy is performed."}, {"number": 19, "topic": "Intestinal malrotation in neonates", "stem_html": "A female neonate who is born at term has an episode of bilious vomiting. An upper GI contrast study is performed and it shows the duodeno-jejunal flexure lies to the right of the midline. What is the most appropriate course of action?", "options": [{"label_html": "Undertake a Ramstedts pyloromyotomy", "is_correct": false}, {"label_html": "Perform a gastrojejunostomy", "is_correct": false}, {"label_html": "Undertake a Ladd's procedure", "is_correct": true}, {"label_html": "Undertake a duodeno-duodenostomy", "is_correct": false}, {"label_html": "Undertake a Kasai procedure", "is_correct": false}], "correct_index": 2, "explanation_html": "Intestinal malrotation with volvulus is treated with a Ladd's procedure."}, {"number": 20, "topic": "Intestinal malrotation in neonates", "stem_html": "A 1 month old baby girl presents with bile stained vomiting. She had an exomphalos and a congenital diaphragmatic hernia. What is the most likely underlying explanation?", "options": [{"label_html": "Duodenal atresia", "is_correct": false}, {"label_html": "Intestinal malrotation", "is_correct": true}, {"label_html": "Duplication cysts", "is_correct": false}, {"label_html": "Annular pancreas", "is_correct": false}, {"label_html": "Ileal atresia", "is_correct": false}], "correct_index": 1, "explanation_html": "Exomphalos and diaphragmatic herniae are commonly associated with malrotation."}], "note_html": "<b>Normal embryology<\/b><br>During the fourth week of embryogenesis the intestine moves into the abdomen via the base of the umbilicus. Through a combination of foetal growth and bowel maturation the bowel resides in the abdominal cavity and undergoes a 270<sup>o<\/sup> counterclockwise twist. At the conclusion of this process the ligament of Treitz lies to the left of the spine and the caecum in the right lower quadrant. Malrotation occurs when the rotational process described is incomplete. Typically the duodenal loop lies to the left of the caecum and therefore lacks 90 <sup>o<\/sup> of its 270<sup>o<\/sup> rotation. It becomes fixed  in this position with peritoneal attachments (Ladds bands). <br><br><b>Symptoms<\/b><br>Bilious vomiting is the cardinal symptom and sign. In most cases there are no antecedent symptoms. If untreated then gut perfusion may be impaired with resultant development of further symptoms. <br><br><b>Diagnosis<\/b><br>The main problem is that the infant develops mid gut volvulus. In this situation the bowel undergoes a 720<sup>o<\/sup> twist, the bowel viability depends upon a narrow mesentery containing the superior mesenteric artery. To ascertain whether this has occurred the two main tests include an abdominal ultrasound scan to determine the relationship between the superior mesenteric artery and vein (normally SMA lies to the left of the SMV).  This test is complemented with an upper GI contrast series and this aims to establish that the DJ flexure is correctly sited to the left of the vertebral bodies. <br><br><b>Treatment<\/b><br>Laparotomy and division of adhesional bands (Ladds procedure). The division of the congenital adhesions allows widening of the small bowel mesentery. The bowel is untwisted and assessed for viability. The bowel is returned to the abdominal cavity in the non rotated fashion with the small bowel on the right hand side and the large bowel on the left, the caecum is positioned in the left upper quadrant. Because the caecum is located in this new location many surgeons will also perform an appendicectomy due to the diagnostic difficulty posed in diagnosing appendicitis in this group of patients."}, {"name": "Management of acute cases- Paediatric", "questions": [{"number": 21, "topic": "Management of acute cases- Paediatric", "stem_html": "A 10 year old boy is shot in the abdomen with an airgun pellet. He is concerned that he will get into trouble and the injury remains concealed for 10 days. Imaging using CT scanning shows it to be lodged in the left lobe of the liver. On examination, his abdomen is soft and non tender and he seems well. What is the best course of action?", "options": [{"label_html": "Operate and remove the pellet on the next emergency list", "is_correct": false}, {"label_html": "Operate and remove the pellet on the next elective operating list", "is_correct": false}, {"label_html": "Do not operate and review the patient several weeks later", "is_correct": true}, {"label_html": "Extract the pellet using interventional radiology techniques", "is_correct": false}, {"label_html": "Perform an MRI scan", "is_correct": false}], "correct_index": 2, "explanation_html": "Given that the child is well, the risks of removing the pellet are not outweighed by the benefits and it should be left in situ at this stage."}, {"number": 22, "topic": "Management of acute cases- Paediatric", "stem_html": "A 3 year old child inserts a crayon into their external auditory meatus. Attempts to remove it have not been successful. What is the best course of action?", "options": [{"label_html": "Manage conservatively", "is_correct": false}, {"label_html": "Remove in the emergency department under sedation", "is_correct": false}, {"label_html": "Enlist the help of additional staff members to restrain the child before attempting to remove it again in the emergency department", "is_correct": false}, {"label_html": "Operate on the next emergency operating list", "is_correct": true}, {"label_html": "Transfer immediately for emergency surgery", "is_correct": false}], "correct_index": 3, "explanation_html": "They would not tolerate removal in the emergency department. The tympanic membrane should be carefully inspected and again this will be easier under general anaesthesia. Be wary of sedating children in ED unless you have experienced anaesthetic support as heavy sedation would be needed and this course of action is not recommended."}, {"number": 23, "topic": "Management of acute cases- Paediatric", "stem_html": "A 2 year old accidentally inhales a peanut. They arrive in the emergency department extremely distressed and cyanotic. Imaging shows it to be lodged in the left main bronchus. What is the best course of action?", "options": [{"label_html": "Arrange bronchoscopy on the next scheduled operating list", "is_correct": false}, {"label_html": "Manage conservatively", "is_correct": false}, {"label_html": "Treat in emergency department under sedation", "is_correct": false}, {"label_html": "Arrange immediate transfer to theatre for bronchoscopy", "is_correct": true}, {"label_html": "Attempt to remove in the emergency department", "is_correct": false}], "correct_index": 3, "explanation_html": "As they are cyanosed it requires immediate removal and this should be undertaken in a fully staffed theatre. Ideally, a rigid bronchoscopy should be performed."}], "note_html": "<ul><li>Children will often insert objects into orifices such as the nose and external auditory meatus<\/li><li>Assessment includes assessment of airway and haemodynamic status<\/li><li>Where the airway is not immediately threatened decisions can be made as to whether to manage in the emergency department or transfer to theatre<\/li><li>In general children do not tolerate procedures well and it is usually safer to remove objects in theatre and under general anaesthesia with a secure airway<\/li><li>A chest x-ray is required to ensure that no object is present in the chest, not all objects are radioopaque. However, signs such as focal consolidation may indicate small airway obstruction<\/li><li>In the case of small bore missile injuries the decision relating to surgery depends on the size of the missile and its location. Airgun pellets are a common culprit, if there is a long time interval between the incident and presentation and the object has not caused any significant problems then it may be best left alone<\/li><li>Airgun pellets (and glass) lodged in the soft tissues are usually notoriously difficult to localise and extract, no matter how superficial. Removal in theatre is usually the best option. If the object is radioopaque then an image intensifier should be used<\/li><\/ul>"}, {"name": "Neck Masses in Children", "questions": [{"number": 24, "topic": "Neck Masses in Children", "stem_html": "A 2 year old boy is brought to the clinic by his mother who has noticed that he has developed a small mass. On examination; a small smooth cyst is identified which is located above the hyoid bone. On ultrasound the lesion appears to be a heterogenous and multiloculated mass. What is the most likely diagnosis?", "options": [{"label_html": "Cystic hygroma", "is_correct": false}, {"label_html": "Thyroglossal cyst", "is_correct": false}, {"label_html": "Dermoid", "is_correct": true}, {"label_html": "Branchial cyst", "is_correct": false}, {"label_html": "Rhabdomyosarcoma", "is_correct": false}], "correct_index": 2, "explanation_html": "Dermoid cysts are usually multiloculated and heterogeneous. Most are located above the hyoid, and their appearances on imaging differentiate them from thyroglossal cysts."}, {"number": 25, "topic": "Neck Masses in Children", "stem_html": "A 22 month old child is brought to the clinic by her mother who is concerned that she has developed a swelling in her neck. On examination; she has a soft lesion located in the posterior triangle that transilluminates. What is the most likely cause?", "options": [{"label_html": "Lymphoma", "is_correct": false}, {"label_html": "Cystic hygroma", "is_correct": true}, {"label_html": "Rhabdomyosarcoma", "is_correct": false}, {"label_html": "Branchial cyst", "is_correct": false}, {"label_html": "Dermoid", "is_correct": false}], "correct_index": 1, "explanation_html": "Cystic hygromas are soft and transilluminate. Most are located in the posterior triangle."}, {"number": 26, "topic": "Neck Masses in Children", "stem_html": "A 3 year old boy is brought to the clinic by his mother who has noticed a mass in his neck. On examination; he has a smooth mass located on the lateral aspect of his anterior triangle, near to the angle of the mandible. On ultrasound; it has a fluid filled, anechoic, appearance. What is the most likely cause?", "options": [{"label_html": "Cystic hygroma", "is_correct": false}, {"label_html": "Dermoid cyst", "is_correct": false}, {"label_html": "Thyroglossal cyst", "is_correct": false}, {"label_html": "Branchial cyst", "is_correct": true}, {"label_html": "Lymphoma", "is_correct": false}], "correct_index": 3, "explanation_html": "Branchial cysts are usually located laterally and derived from the second branchial cleft. Unless infection has occurred they will usually have an anechoic appearance on ultrasound."}], "note_html": "<div class=\"table-responsive\"><table class=\"table table-bordered\"><tbody><tr><td><b>Thyroglossal cyst<\/b><\/td><td><ul><li>Located in the anterior triangle, usually in the midline and below the hyoid (65% cases)<\/li><li>Derived from remnants of the thyroglossal duct<\/li><li>Thin walled and anechoic on USS (echogenicity suggests infection of cyst)<\/li><\/ul><\/td><\/tr><tr><td><b>Branchial cyst<\/b><\/td><td><ul><li>Six branchial arches separated by branchial clefts<\/li><li>Incomplete obliteration of the branchial apparatus may result in cysts, sinuses or fistulae<\/li><li>75% of branchial cysts originate from the second branchial cleft<\/li><li>Usually located anterior to the sternocleidomastoid near the angle of the mandible<\/li><li>Unless infected the fluid of the cyst has a similar consistency to water and is anechoic on USS<\/li><\/ul><\/td><\/tr><tr><td><b>Dermoids<\/b><\/td><td><ul><li>Derived from pleuripotent stem cells and are located in the midline<\/li><li>Most commonly in a suprahyoid location<\/li><li>They have heterogeneous appearances on imaging and contain variable amounts of calcium and fat<\/li><\/ul><\/td><\/tr><tr><td><b>Thyroid gland<\/b><\/td><td><ul><li>True thyroid lesions are rare in children and usually represent thyroglossal cysts or tumours like lymphoma<\/li><\/ul><\/td><\/tr><tr><td><b>Lymphatic malformations<\/b><\/td><td><ul><li>Usually located posterior to the sternocleidomastoid<\/li><li>Cystic hygroma result from occlusion of lymphatic channels<\/li><li>The painless, fluid filled, lesions usually present prior to the age of 2<\/li><li>They are often closely linked to surrounding structures and surgical removal is difficult<\/li><li>They are typically hypoechoic on USS<\/li><\/ul><\/td><\/tr><tr><td><b>Infantile haemangioma<\/b><\/td><td><ul><li>May present in either triangle of the neck<\/li><li>Grow rapidly initially and then will often spontaneously regress<\/li><li>Plain x-rays will show a mass lesion, usually containing calcified phleboliths<\/li><li>As involution occurs the fat content of the lesions increases<\/li><\/ul><\/td><\/tr><tr><td><b>Lymphadenopathy<\/b><\/td><td><ul><li>Located in either triangle of the neck<\/li><li>May be reactive or neoplastic<\/li><li>Generalised lymphadenopathy usually secondary to infection in children (very common)<\/li><\/ul><\/td><\/tr><\/tbody><\/table><\/div>"}, {"name": "Nephroblastoma", "questions": [{"number": 27, "topic": "Nephroblastoma", "stem_html": "A 4 year old girl presents with symptoms of right sided loin pain, lethargy and haematuria. On examination she is pyrexial and has a large mass in the right upper quadrant. The most likely underlying diagnosis is:", "options": [{"label_html": "Perinephric abscess", "is_correct": false}, {"label_html": "Nephroblastoma", "is_correct": true}, {"label_html": "Renal cortical adenoma", "is_correct": false}, {"label_html": "Grawitz tumour", "is_correct": false}, {"label_html": "Squamous cell carcinoma of the kidney", "is_correct": false}], "correct_index": 1, "explanation_html": "In a child of this age, with the symptoms described a nephroblastoma is the most likely diagnosis. A perinephric abscess is most unlikely.  If an abscess were to occur it would be confined to Gerotas fascia in the first instance, and hence anterior extension would be unlikely."}], "note_html": "<b>Nephroblastoma (Wilms tumours)<\/b><br><ul><li>Usually present in first 4 years of life<\/li><li>May often present as a mass associated with haematuria (pyrexia may occur in 50%)<\/li><li>Often metastasise early (usually to lung)<\/li><li>Treated by nephrectomy <\/li><li>Younger children have better prognosis (&lt;1 year of age =80% overall 5 year survival)<\/li><\/ul>"}, {"name": "Paediatric fluid management", "questions": [{"number": 28, "topic": "Paediatric fluid management", "stem_html": "Which of the intravenous fluid combinations listed below should be considered for replacement of losses from a high output ileostomy in a 2 year old?", "options": [{"label_html": "0.9% saline with added potassium", "is_correct": true}, {"label_html": "Hartmanns solution", "is_correct": false}, {"label_html": "10% dextrose with added potassium", "is_correct": false}, {"label_html": "0.45% saline with added potassium", "is_correct": false}, {"label_html": "2.7% saline with added potassium", "is_correct": false}], "correct_index": 0, "explanation_html": "In children with ongoing losses, these should be replaced with 0.9% sodium chloride with added potassium."}, {"number": 29, "topic": "Paediatric fluid management", "stem_html": "Which of the following would be a sensible volume for maintenance intravenous fluids in a 3 day old term neonate?", "options": [{"label_html": "50ml/ kg/ hour", "is_correct": false}, {"label_html": "50ml/ kg/ day", "is_correct": false}, {"label_html": "100ml/kg/hour", "is_correct": false}, {"label_html": "100ml/kg/day", "is_correct": true}, {"label_html": "200ml/kg/day", "is_correct": false}], "correct_index": 3, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Calculate routine maintenance IV fluid rates for children and young people using the HollidaySegar formula (100 ml/kg/day for the first 10 kg of weight, 50 ml/kg/day for the next 10 kg and 20 ml/kg/day for the weight over 20 kg). Be aware that over a 24hour period, males rarely need more than 2500 ml and females rarely need more than 2000 ml of fluids.<\/div>From birth to day 1: 50-60 ml/kg/day.<br>Day 2: 70-80 ml/kg/day.<br>Day 3: 80-100 ml/kg/day.<br>Day 4: 100-120 ml/kg/day.<br>Days 5-8: 120-150 ml/kg/day."}, {"number": 30, "topic": "Paediatric fluid management", "stem_html": "A 4 year old is admitted with right iliac fossa pain and is due to undergo an appendicectomy. The nursing staff would like to give the child an infusion of intravenous fluid whilst waiting for theatre. Assuming electrolytes are normal, which of the following is an appropriate fluid for infusion in this situation?", "options": [{"label_html": "10% Dextrose solution", "is_correct": false}, {"label_html": "0.9% Saline solution", "is_correct": true}, {"label_html": "0.45% saline/ 5% glucose solution", "is_correct": false}, {"label_html": "Gelofusin", "is_correct": false}, {"label_html": "None of the above", "is_correct": false}], "correct_index": 1, "explanation_html": "0.45% saline/ 5% glucose solutions carry a risk of hyponatraemia and is contra indicated- see below."}], "note_html": "Since 2000 there have been at least 4 reported deaths from fluid induced hyponatraemia in children. This led to the National Patient Safety Agency introducing revised guidelines in 2007. These have been reviewed and extensively updated by NICE in 2015 and further modified in 2020.  <br>Indications for IV fluids include:<br><ul><li>Resuscitation and circulatory support<\/li><li> Replacing on-going fluid losses<\/li><li>Maintenance fluids for children for whom oral fluids are not appropriate<\/li><li>Correction of electrolyte disturbances<\/li><\/ul><br><b>Fluids to be avoided<\/b><br>Outside the neonatal period saline / glucose solutions should not be given. The greatest risk is with saline 0.18 / glucose 4% solutions. The report states that 0.45% saline / 5% glucose may be used. But preference should be given to isotonic solutions and few indications exist for this solution either.<br>The key point emphasised in the NICE guidelines in the avoidance of glucose containing solutions and instead of routinely giving glucose IV to children and neonates, the blood glucose levels should be monitored. In neonates in the first few days of life, sodium levels in the range of 131-154 mmol/l may be too high and a neonatologist consulted on a case by case basis.<br><br><b>Fluids to be used<\/b><br>If children and young people need IV fluids for routine maintenance, initially use isotonic crystalloids that contain sodium in the range 131 to 154 mmol/litre<br><br>Potassium should be added to maintenance fluids according patients plasma potassium levels (which should be monitored).<br>Blood glucose levels should be monitored in individuals at risk of hypoglycaemia<br><br><b>Intraoperative fluid management<\/b><br>If children and young people need IV fluids for routine maintenance, initially use isotonic crystalloids that contain sodium in the range 131 to 154 mmol/litre<br>Blood glucose levels should be monitored<br><br><b>Maintenance fluids<\/b><br><div class=\"table-responsive\"><table class=\"table table-bordered\"><tbody><tr><td><b>Weight<\/b><\/td><td><b>Water requirement/kg/day<\/b><\/td><td><b>Na mmol/kg/day<\/b><\/td><td><b>K mmol/kg/day<\/b><\/td><\/tr><tr><td>First 10Kg body weight<\/td><td>100ml<\/td><td>2-4<\/td><td>1.5-2.5<\/td><\/tr><tr><td>Second 10Kg body weight<\/td><td>50ml<\/td><td>1-2<\/td><td>0.5-1.5<\/td><\/tr><tr><td>Subsequent Kg<\/td><td>20ml<\/td><td>0.5-1.0<\/td><td>0.2-0.7<\/td><\/tr><\/tbody><\/table><\/div><br>Blood glucose will need to be monitored<br> <br><b>Reference<\/b><br>NICE Guidance NG29. Intravenous fluid therapy in children and young people in hospital. Published 2015, reviewed an updated 2020."}, {"name": "Paediatric fractures", "questions": [{"number": 31, "topic": "Paediatric fractures", "stem_html": "A 15 year-old boy presents to the out-patient clinic with tiredness, recurrent throat and chest infections, and gradual loss of vision. Multiple x-rays show brittle bones with no differentiation between the cortex and the medulla. What is the most likely diagnosis?", "options": [{"label_html": "Rickets", "is_correct": false}, {"label_html": "Osteomalacia", "is_correct": false}, {"label_html": "Osteopetrosis", "is_correct": true}, {"label_html": "Ehlers Danlos type III", "is_correct": false}, {"label_html": "Osteogenesis imperfecta", "is_correct": false}], "correct_index": 2, "explanation_html": "Osteopetrosis is an autosomal recessive condition. It is commonest in young adults. They may present with symptoms of anaemia or thrombocytopaenia due to decreased marrow space. Radiology reveals a lack of differentiation between the cortex and the medulla described as marble bone. These bones are very dense and brittle."}, {"number": 32, "topic": "Paediatric fractures", "stem_html": "A 12 year-old boy who is small for his age presents to the clinic with poor muscular development and hyper-mobile fingers. His x-rays show multiple fractures of the long bones and irregular patches of ossification. What is the most likely diagnosis?", "options": [{"label_html": "Osteogenesis imperfecta", "is_correct": true}, {"label_html": "Osteoporosis", "is_correct": false}, {"label_html": "Scurvy", "is_correct": false}, {"label_html": "Osteopetrosis", "is_correct": false}, {"label_html": "Osteomalacia", "is_correct": false}], "correct_index": 0, "explanation_html": "Osteogenesis imperfecta is caused by defective osteoid formation due to congenital inability to produce adequate intercellular substances like osteoid, collagen and dentine. There is a failure of maturation of collagen in all the connective tissues. Radiology may show translucent bones, multiple fractures, particularly of the long bones, wormian bones (irregular patches of ossification) and a trefoil pelvis."}, {"number": 33, "topic": "Paediatric fractures", "stem_html": "A 1 year-old is brought to the Emergency Department with a history of failure to thrive. On examination, the child is small for age and has a large head. X-ray shows a cupped appearance of the epiphysis of the wrist. What is the most likely cause?", "options": [{"label_html": "Osteoporosis", "is_correct": false}, {"label_html": "Ehlers Danlos", "is_correct": false}, {"label_html": "Marfans", "is_correct": false}, {"label_html": "Rickets", "is_correct": true}, {"label_html": "Non accidental injury", "is_correct": false}], "correct_index": 3, "explanation_html": "Rickets is the childhood form of osteomalacia. It is due to the failure of the osteoid to ossify due to vitamin D deficiency. Symptoms start about the age of one. The child is small for age and there is a history of failure to thrive. Bony deformities include bowing of the femur and tibia, a large head, deformity of the chest wall with thickening of the costochondral junction (rickettary rosary), and a transverse sulcus in the chest caused by the pull of the diaphragm (Harrison's sulcus). X- Rays show widening and cupping of the epiphysis of the long bones, most readily apparent in the wrist."}, {"number": 34, "topic": "Paediatric fractures", "stem_html": "A toddler aged 3 years presents to the Emergency Department with swelling of his leg and is found to have a spiral fracture of the tibia. His mother reports that he had tripped and fallen the previous day but she had not noticed any sign of injury at the time. She is a single parent with little family support. The child is not on the child protection register. What is the most likely underlying problem?", "options": [{"label_html": "Metabolic bone disease of prematurity", "is_correct": false}, {"label_html": "Non accidental injury", "is_correct": true}, {"label_html": "Hypophosphataemic rickets", "is_correct": false}, {"label_html": "Osteogenesis imperfecta", "is_correct": false}, {"label_html": "Rickets", "is_correct": false}], "correct_index": 1, "explanation_html": "Delayed presentation is unusual and should raise concern. In addition, spiral fractures are usually the result of rotational injury which is not compatible with the mechanism proposed by the parent."}, {"number": 35, "topic": "Paediatric fractures", "stem_html": "An infant is admitted with symptoms and signs of respiratory infection and is found to have several posterior rib fractures on chest radiograph. He was born prematurely at 37 weeks' gestation and was observed overnight on the special care baby unit for tachypnoea which settled by the following day. On assessment, it is also apparent that his head circumference has increased at an excessive rate and has crossed 3 centiles since birth. What is the most likely underlying issue?", "options": [{"label_html": "Accidental fracture", "is_correct": false}, {"label_html": "Pagets disease", "is_correct": false}, {"label_html": "Myeloproliferative disorder", "is_correct": false}, {"label_html": "Non accidental injury", "is_correct": true}, {"label_html": "Osteomalacia", "is_correct": false}], "correct_index": 3, "explanation_html": "Posterior rib fractures are extremely unusual in neonates. The change in head size may be accounted for by hydrocephalus which may occur as a sequelae from head injury."}, {"number": 36, "topic": "Paediatric fractures", "stem_html": "A 4 year old boy falls and sustains a fracture to the growth plate of his right wrist. Which of the following systems is used to classify the injury?", "options": [{"label_html": "Salter - Harris system", "is_correct": true}, {"label_html": "Weber system", "is_correct": false}, {"label_html": "Gustilo - Anderson system", "is_correct": false}, {"label_html": "Garden system", "is_correct": false}, {"label_html": "None of the above", "is_correct": false}], "correct_index": 0, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">The mnemonic 'SALTR' can be used to help remember the first five types. This mnemonic requires the reader to imagine the bones as long bones, with the epiphyses at the base. <br><ul><li>I  'S' = Slip (separated or straight across). Fracture of the cartilage of the physis (growth plate) <\/li><li>II  'A' = Above. The fracture lies above the physis, or Away from the joint. <\/li><li>III  'L' = Lower. The fracture is below the physis in the epiphysis. <\/li><li>IV  'TE' = Through Everything. The fracture is through the metaphysis, physis, and epiphysis. <\/li><li>V  'R' = Rammed (crushed). The physis has been crushed<\/li><\/ul><\/div>The Salter - Harris system is most commonly used. The radiological signs in Type 1 and 5 injuries may be identical. Which is unfortunate as type 5 injuries do not do well (and may be missed!). One of our users has helpfully supplied a mnemonic for remembering the types (see above)."}, {"number": 37, "topic": "Paediatric fractures", "stem_html": "A 5 year old boy is playing in a tree when he falls and lands on his right forearm. He is brought to the emergency department by his parents. On examination he has bony tenderness and bruising. An X-ray is taken and shows unilateral cortical disruption and development of periosteal haematoma. What is the most likely diagnosis?", "options": [{"label_html": "Buckle fracture", "is_correct": false}, {"label_html": "Greenstick fracture", "is_correct": true}, {"label_html": "Toddlers fracture", "is_correct": false}, {"label_html": "Complete fracture", "is_correct": false}, {"label_html": "None of the above", "is_correct": false}], "correct_index": 1, "explanation_html": "Greenstick fractures are common childhood injuries. Unilateral cortical disruption is the main radiological feature, since involvement of both cortices makes the injury a complete fracture. Buckle fractures will show periosteal haematoma formation only."}], "note_html": "<b>Paediatric fracture types<\/b><br><div class=\"table-responsive\"><table class=\"tlarge table table-striped table-bordered\" data-role=\"table\" id=\"tableid1\"><thead><tr><th><b>Type<\/b><\/th><th><b> \tInjury pattern<\/b><\/th><\/tr><\/thead><tbody><tr><td>Complete fracture\t<\/td><td>Both sides of cortex are breached<\/td><\/tr><tr><td>Toddlers fracture\t<\/td><td>Oblique tibial fracture in infants<\/td><\/tr><tr><td>Plastic deformity<\/td><td>\tStress on bone resulting in deformity without cortical disruption<\/td><\/tr><tr><td>Greenstick fracture\t<\/td><td>Unilateral cortical breach only with haematoma<\/td><\/tr><tr><td>Buckle fracture\t<\/td><td>Incomplete cortical disruption resulting in periosteal haematoma only<\/td><\/tr><\/tbody><\/table><\/div><br><b>Growth plate fractures<\/b><br>In paediatric practice fractures may also involve the growth plate and these injuries are classified according to the Salter- Harris system (given below):<br><br><div class=\"table-responsive\"><table class=\"tlarge table table-striped table-bordered\" data-role=\"table\" id=\"tableid2\"><thead><tr><th><b>Type<\/b><\/th><th><b> \tInjury pattern<\/b><\/th><\/tr><\/thead><tbody><tr><td>I\t<\/td><td>Fracture through the physis only (x-ray often normal)<\/td><\/tr><tr><td>II\t<\/td><td>Fracture through the physis and metaphysis<\/td><\/tr><tr><td>III<\/td><td>\tFracture through the physis and epiphyisis to include the joint<\/td><\/tr><tr><td>IV\t<\/td><td>Fracture involving the physis, metaphysis and epiphysis<\/td><\/tr><tr><td>V\t<\/td><td>Crush injury involving the physis (x-ray may resemble type I, and appear normal)<\/td><\/tr><\/tbody><\/table><\/div><br>As a general rule it is safer to assume that growth plate tenderness is indicative of an underlying fracture even if the x-ray appears normal. Injuries of Types III, IV and V will usually require surgery. Type V injuries are often associated with disruption to growth.<br><br><b>Non accidental injury<\/b><br><ul><li>Delayed presentation<\/li><li>Delay in attaining milestones<\/li><li>Lack of concordance between proposed and actual mechanism of injury<\/li><li>Multiple injuries<\/li><li>Injuries at sites not commonly exposed to trauma<\/li><li>Children on the at risk register<\/li><\/ul><br><b>Pathological fractures<\/b><br>Genetic conditions, such as osteogenesis imperfecta, may cause pathological fractures. <br><br><b>Osteogenesis imperfecta<\/b><br><ul><li>Defective osteoid formation due to congenital inability to produce adequate intercellular substances like osteoid, collagen and dentine.<\/li><li>Failure of maturation of collagen in all the connective tissues.<\/li><li>Radiology may show translucent bones, multiple fractures, particularly of the long bones, wormian bones (irregular patches of ossification) and a trefoil pelvis.<\/li><\/ul><br><i>Subtypes<\/i><br><ul><li>Type I The collagen is normal quality but insufficient quantity.<\/li><li>Type II-  Poor collagen quantity and quality.<\/li><li>Type III- Collagen poorly formed. Normal quantity.<\/li><li>Type IV- Sufficient collagen quantity but poor quality.<\/li><\/ul><br><b>Osteopetrosis<\/b><br><ul><li>Bones become harder and more dense. <\/li><li>Autosomal recessive condition. <\/li><li>It is commonest in young adults. <\/li><li>Radiology reveals a lack of differentiation between the cortex and the medulla described as marble bone. <\/li><\/ul><br>Mnemonic for paediatric Fracture: 'CTPGB - Cute Toddlers Play Games Boldly' C – Complete fracture: Both sides of the bone’s cortex are broken. (Think: 'Complete = Cortex on both sides breached.') T – Toddler's fracture: A thin oblique fracture of the tibia, commonly in infants/toddlers. (Think: 'Toddler + Tibia.') P – Plastic deformity: Bone is bent/deformed but the cortex is intact (no break). (Think: 'Plastic = Bent like plastic, but no break.') G – Greenstick fracture: Only one side of the cortex is broken, while the other is intact. (Think: 'Green stick = Bends and cracks on one side like a green twig.') B – Buckle fracture: Compression causes bulging or a bump on the cortex, with no complete break. (Think: 'Buckle = Bump, from buckling under pressure.')"}, {"name": "Paediatric Gastrointestinal disorders", "questions": [{"number": 38, "topic": "Paediatric Gastrointestinal disorders", "stem_html": "Which of these options represents the most common abdominal emergency in children under 1 year of age?", "options": [{"label_html": "Appendicitis", "is_correct": false}, {"label_html": "Intussusception", "is_correct": true}, {"label_html": "Intestinal malrotation", "is_correct": false}, {"label_html": "Pyloric stenosis", "is_correct": false}, {"label_html": "Mid gut volvulus", "is_correct": false}], "correct_index": 1, "explanation_html": "The commonest emergency in this age group is inguinal hernia followed by intussusception. Appendicitis is commoner in those older than 1 year of age."}, {"number": 39, "topic": "Paediatric Gastrointestinal disorders", "stem_html": "A neonate is noted to have bowel obstruction, what is the most likely cause?", "options": [{"label_html": "Imperforate anus", "is_correct": false}, {"label_html": "Meconium plugs", "is_correct": true}, {"label_html": "Colonic atresia", "is_correct": false}, {"label_html": "Anal atresia", "is_correct": false}, {"label_html": "Sigmoid volvulus", "is_correct": false}], "correct_index": 1, "explanation_html": "Cystic fibrosis is the most common cause of meconium plugs and such cases can be treated with intestinal lavage, this should be followed by formal testing for CF."}, {"number": 40, "topic": "Paediatric Gastrointestinal disorders", "stem_html": "A male infant, born at term by normal vaginal delivery is well. However, 72 hours following delivery, he has still not passed meconium. On examination, his abdomen is soft and not particularly distended. He has a normally sited anus. What is the best course of action?", "options": [{"label_html": "Undertake a colonoscopy and pan colonic biopsies", "is_correct": false}, {"label_html": "Undertake a flexible sigmoidoscopy and left sided colonic biopsies", "is_correct": false}, {"label_html": "Undertake full thickness rectal biopsies", "is_correct": true}, {"label_html": "Undertake a loop colostomy", "is_correct": false}, {"label_html": "Undertake a loop ileostomy", "is_correct": false}], "correct_index": 2, "explanation_html": "Delayed passage of meconium is suggestive of Hirschsprung's disease and the investigation of choice is full thickness suction rectal biopsy. The condition is managed with washouts initially. At between 9 and 12 months of age, definitive surgery (usually resection and primary anastomosis) is performed."}, {"number": 41, "topic": "Paediatric Gastrointestinal disorders", "stem_html": "A 1 day old child is born by emergency cesarean section for foetal distress. On examination, he has decreased air entry on the left side of his chest and a displaced apex beat. Abdominal examination demonstrates a scaphoid abdomen but is otherwise unremarkable. What is the most likely cause?", "options": [{"label_html": "Pyloric stenosis", "is_correct": false}, {"label_html": "Congenital diaphragmatic hernia", "is_correct": true}, {"label_html": "Tracheo-oesophageal fistula", "is_correct": false}, {"label_html": "Ileal atresia", "is_correct": false}, {"label_html": "Meconium ileus", "is_correct": false}], "correct_index": 1, "explanation_html": "Displaced apex beat and decreased air entry are suggestive of diaphragmatic hernia. The abdomen may well be scaphoid in some cases. The underlying lung may be hypoplastic and this correlates directly with prognosis."}, {"number": 42, "topic": "Paediatric Gastrointestinal disorders", "stem_html": "A premature infant (30-week gestation) presents with distended and tense abdomen. She is passing blood and mucus per rectum, and she is also manifesting signs of sepsis. What is the most likely underlying explanation?", "options": [{"label_html": "Viral gastroenteritis", "is_correct": false}, {"label_html": "Necrotising enterocolitis", "is_correct": true}, {"label_html": "Meconium ileus", "is_correct": false}, {"label_html": "Intestinal volvulus", "is_correct": false}, {"label_html": "Ileal atresia", "is_correct": false}], "correct_index": 1, "explanation_html": "Necrotising enterocolitis is more common in premature infants. Mesenteric ischemia causes bacterial invasion of the mucosa leading to sepsis. Terminal ileum, caecum and the distal colon are commonly affected. The abdomen is distended and tense, and the infant passes blood and mucus per rectum. X -Ray of the abdomen shows distended loops of intestine and gas bubbles may be seen in the bowel wall."}, {"number": 43, "topic": "Paediatric Gastrointestinal disorders", "stem_html": "A newborn baby boy presents with gross abdominal distension. He is diagnosed with cystic fibrosis and his abdominal x ray shows distended coils of small bowel, but no fluid levels. Which of the following interventions is the usual first line treatment?", "options": [{"label_html": "Laparotomy and removal of meconium", "is_correct": false}, {"label_html": "Administration of sodium picosulphate orally", "is_correct": false}, {"label_html": "Enemas with N- acetyl cysteine", "is_correct": true}, {"label_html": "Laparotomy and small bowel resection", "is_correct": false}, {"label_html": "Colonoscopy", "is_correct": false}], "correct_index": 2, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">One in 5,000 newborns will have a distal small bowel obstruction secondary to abnormal bulky and viscid meconium. Ninety percent of these infants will have cystic fibrosis and the abnormal meconium is the result of deficient intestinal secretions. This condition presents during the first days of life with gross abdominal distension and bilious vomiting. x-ray of the abdomen shows distended coils of bowel and typical mottled ground glass appearance. Fluid levels are scarce as the meconium is viscid.<\/div>The most likely diagnosis here is meconium ileus. The first line treatment for uncomplicated cases is enemas of either dilute gastrograffin or N-acetyl cysteine. It's important to ensure the child is adequately hydrated first. They are contra indicated if there is a suspected underlying perforation."}, {"number": 44, "topic": "Paediatric Gastrointestinal disorders", "stem_html": "A 3 day old baby presents with recurrent episodes of choking and cyanotic episodes. There is a history of polyhydramnios. What is the most likely diagnosis?", "options": [{"label_html": "Meconium ileus", "is_correct": false}, {"label_html": "Oesophageal atresia", "is_correct": true}, {"label_html": "Duodenal atresia", "is_correct": false}, {"label_html": "Pyloric stenosis", "is_correct": false}, {"label_html": "Diaphragmatic hernia", "is_correct": false}], "correct_index": 1, "explanation_html": "The history of polyhydramios makes diaphragmatic hernia less likely. The other conditions tend not to cause choking. In the short term this is addressed by passage of a Replogle tube which can be used to remove the oesophageal secretions, pending surgery."}, {"number": 45, "topic": "Paediatric Gastrointestinal disorders", "stem_html": "A 1 day old neonate is intolerant of feeds. On examination, she has a pan systolic murmur and her forearms have not developed properly. What is the most likely underlying problem?", "options": [{"label_html": "Oesophageal atresia", "is_correct": true}, {"label_html": "Duodenal atresia", "is_correct": false}, {"label_html": "Pyloric stenosis", "is_correct": false}, {"label_html": "Ileal atresia", "is_correct": false}, {"label_html": "Anal atresia", "is_correct": false}], "correct_index": 0, "explanation_html": "This child has VACTERL, which is a combination of Vertebral, Ano-rectal, Cardiac, Tracheo-oesophageal, Renal and Radial limb anomalies. Half of babies with oesophageal atresia will have VACTERL. Problems that occur during feeding are more suggestive of proximal pathology."}, {"number": 46, "topic": "Paediatric Gastrointestinal disorders", "stem_html": "A 6 day old baby was born prematurely at 33 weeks. He has been suffering from respiratory distress syndrome and has been receiving ventilatory support on NICU. He has developed abdominal distension and is increasingly septic. Ultrasound of the abdomen shows free fluid and evidence of small bowel dilatation. His blood pressure has remained labile despite inotropic support. What is the best course of action?", "options": [{"label_html": "Laparoscopy", "is_correct": false}, {"label_html": "Laparotomy", "is_correct": true}, {"label_html": "Contrast enema", "is_correct": false}, {"label_html": "Upper GI contrast study", "is_correct": false}, {"label_html": "MRI abdomen", "is_correct": false}], "correct_index": 1, "explanation_html": "He has necrotising enterocolitis and whilst this is often initially managed medically, a laparotomy is required if the situation deteriorates."}, {"number": 47, "topic": "Paediatric Gastrointestinal disorders", "stem_html": "Which of the following is not a feature of oesphageal atresia in neonates?", "options": [{"label_html": "High incidence of polyhydramnios", "is_correct": false}, {"label_html": "Risk of recurrence in subsequent pregnancies of 80%", "is_correct": true}, {"label_html": "Distal tracheoesphageal fistula is the commonest variant", "is_correct": false}, {"label_html": "High incidence of associated imperforate anus", "is_correct": false}, {"label_html": "Absence of gastric fluid on antenatal ultrasound", "is_correct": false}], "correct_index": 1, "explanation_html": "Most are sporadic and risk in subsequent pregnancies is not increased."}, {"number": 48, "topic": "Paediatric Gastrointestinal disorders", "stem_html": "Which of the following statements relating to omphalocele is false?", "options": [{"label_html": "The herniated organs lie outside the peritoneal sac", "is_correct": true}, {"label_html": "Cardiac abnormalities co-exist in 25%", "is_correct": false}, {"label_html": "The caecum is usually right sided", "is_correct": false}, {"label_html": "The defect occurs through the umbilicus", "is_correct": false}, {"label_html": "Mortality may be as high as 15%", "is_correct": false}], "correct_index": 0, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Gastroschisis: Isolated abnormality, bowel lies outside abdominal wall through defect located to right of umbilicus.<br>Exomphalos: Liver and gut remain covered with membranous sac connected to umbilical cord. It is associated with other developmental defects.<\/div>They are contained within the peritoneal sac and therefore do not have the fluid losses seen in gastroschisis. True malrotation is unusual and minor variants may not result in a requirement for surgery."}, {"number": 49, "topic": "Paediatric Gastrointestinal disorders", "stem_html": "Which of the following statements relating to necrotising enterocolitis is false?", "options": [{"label_html": "It has a mortality of 30%", "is_correct": false}, {"label_html": "Most frequently presents in premature neonates less than 32 weeks gestation.", "is_correct": false}, {"label_html": "Should be managed by early laparotomy and segmental resections in most cases.", "is_correct": true}, {"label_html": "Pneumostosis intestinalis may be visible on plain abdominal x-ray.", "is_correct": false}, {"label_html": "May be minimised by use of breast milk over formula feeds.", "is_correct": false}], "correct_index": 2, "explanation_html": "Most cases will settle with conservative management with NG decompression and appropriate support. Laparotomy should be undertaken in patients who do not who progress despite conservative management or in whom compelling indications for surgery exist (eg free air)."}], "note_html": "<div class=\"table-responsive\"><table class=\"table table-bordered\"><tbody><tr><td><b>Pyloric stenosis<\/b><\/td><td><ul><li>M&gt;F<\/li><li>5-10% Family history in parents<\/li><li>Projectile non bile stained vomiting at 4-6 weeks of life<\/li><li>Diagnosis is made by test feed or USS<\/li><li> Treatment: Ramstedt pyloromyotomy (open or laparoscopic)<\/li><\/ul><\/td><\/tr><tr><td><b>Acute appendicitis<\/b><\/td><td><ul><li>Uncommon under 3 years<\/li><li>When occurs may present atypically<\/li><\/ul><\/td><\/tr><tr><td><b>Mesenteric adenitis<\/b><\/td><td><ul><li>Central abdominal pain and URTI<\/li><li>Conservative management<\/li><\/ul><\/td><\/tr><tr><td><b>Intussusception<\/b><\/td><td><ul><li>Telescoping bowel<\/li><li>Proximal to  or at the level of, ileocaecal valve<\/li><li> 6-9 months age<\/li><li> Colicky pain, diarrhoea and vomiting, sausage shaped mass, red jelly stool.<\/li><li> Treatment: reduction with air insufflation<\/li><\/ul><\/td><\/tr><tr><td><b>Malrotation<\/b><\/td><td><ul><li>High caecum at the midline<\/li><li>Feature in exomphalos, congenital diaphragmatic hernia, intrinsic duodenal atresia<\/li><li>May be complicated by development of volvulus, infant with volvulus may have bile stained vomiting<\/li><li>Diagnosis is made by upper GI contrast study and USS<\/li><li>Treatment is by laparotomy, if volvulus is present (or at high risk of occurring then a ladds procedure is performed<\/li><\/ul><\/td><\/tr><tr><td><b>Hirschsprung's disease<\/b><\/td><td><ul><li>Absence of ganglion cells from myenteric and submucosal plexuses<\/li><li>Occurs in 1/5000 births<\/li><li>Full thickness rectal biopsy for diagnosis<\/li><li>Delayed passage of meconium and abdominal distension<\/li><li>Treatment is with rectal washouts initially, thereafter an anorectal pull through procedure<\/li><\/ul><\/td><\/tr><tr><td><b>Oesophageal atresia<\/b><\/td><td><ul><li>Associated with tracheo-oesophageal fistula and polyhydramnios<\/li><li> May present with choking and cyanotic spells following aspiration<\/li><li>VACTERL associations<\/li><\/ul><\/td><\/tr><tr><td><b>Meconium ileus<\/b><\/td><td><ul><li>Usually delayed passage of meconium and abdominal distension<\/li><li>Majority have cystic fibrosis<\/li><li>X-Rays may not show a fluid level as the meconium is viscid (depends upon feeding), PR contrast studies may dislodge meconium plugs and be therapeutic<\/li><li>Infants who do not respond to PR contrast and NG N-acetyl cysteine will require surgery to remove the plugs<\/li><\/ul><\/td><\/tr><tr><td><b>Biliary atresia<\/b><\/td><td><ul><li>Jaundice &gt; 14 days<\/li><li>Increased conjugated bilirubin<\/li><li>Urgent Kasai procedure<\/li><\/ul><\/td><\/tr><tr><td><b>Necrotising enterocolitis<\/b><\/td><td><ul><li>Prematurity is the main risk factor<\/li><li>Early features include abdominal distension and passage of bloody stools<\/li><li>X-Rays may show pneumatosis intestinalis and evidence of free air<\/li><li>Increased risk when empirical antibiotics are given to infants beyond 5 days<\/li><li>Treatment is with total gut rest and TPN, babies with perforations will require laparotomy<\/li><\/ul><\/td><\/tr><\/tbody><\/table><\/div>"}, {"name": "Paediatric inguinal hernia", "questions": [{"number": 50, "topic": "Paediatric inguinal hernia", "stem_html": "A 12 day old infant is brought to the emergency department by his anxious mother who notices that he has developed a right sided groin swelling. On examination the testes are correctly located but it is evident that the child has a right sided inguinal hernia. It is soft and easily reduced. What is the most appropriate management?", "options": [{"label_html": "Surgery over the next few days", "is_correct": true}, {"label_html": "Reassure and discharge", "is_correct": false}, {"label_html": "Surgery at 1 year of age", "is_correct": false}, {"label_html": "Surgery once the child is 6 months old", "is_correct": false}, {"label_html": "Application of a hernia truss", "is_correct": false}], "correct_index": 0, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Inguinal hernia in infants = Urgent surgery<\/div>The high incidence of strangulation necessitates an urgent herniotomy be performed. In infants with a reducible hernia this can be performed on a daycase list during the same week. Deferring surgery on the basis of age is not justified."}, {"number": 51, "topic": "Paediatric inguinal hernia", "stem_html": "A 2 year old boy is reviewed in the clinic and found to have a right sided inguinal hernia. What is the best course of action?", "options": [{"label_html": "Review the child at 5 years of age", "is_correct": false}, {"label_html": "Undertake an inguinal herniotomy procedure", "is_correct": true}, {"label_html": "Undertake an inguinal herniorraphy procedure with placement of synthetic mesh", "is_correct": false}, {"label_html": "Undertake an inguinal herniorraphy procedure with absorbable sutures", "is_correct": false}, {"label_html": "Undertake an inguinal herniorraphy procedure with non absorbable sutures", "is_correct": false}], "correct_index": 1, "explanation_html": "An inguinal herniotomy is optimal treatment. Herniorraphy is offered for adult hernias and addresses anatomical weakness of the posterior wall of the inguinal canal."}], "note_html": "Inguinal hernias are a common disorder in children. They are commoner in males as the testis migrates from its location on the posterior abdominal wall, down through the inguinal canal. A patent processus vaginalis may persist and be the site of subsequent hernia development. <br>Children presenting in the first few months of life are at the highest risk of strangulation and the hernia should be repaired urgently. Children over 1 year of age are at lower risk and surgery may be performed electively. For paediatric hernias a herniotomy without implantation of mesh is sufficient. Most cases are performed as day cases, neonates and premature infants are kept in hospital overnight as there is a recognised increased risk of post operative apnoea."}, {"name": "Paediatric orthopaedics", "questions": [{"number": 52, "topic": "Paediatric orthopaedics", "stem_html": "A 4 year boy presents with an abnormal gait. He has a history of recent viral illness. His WCC is 11 and ESR is 30. What is the most likely cause?", "options": [{"label_html": "Perthes disease", "is_correct": false}, {"label_html": "Transient synovitis", "is_correct": true}, {"label_html": "Septic arthritis", "is_correct": false}, {"label_html": "Slipped upper femoral epiphysis", "is_correct": false}, {"label_html": "Osteomyelitis", "is_correct": false}], "correct_index": 1, "explanation_html": "Viral illnesses can be associated with transient synovitis. The WCC should ideally be &gt; 12 and the ESR &gt; 40 to suggest septic arthritis."}, {"number": 53, "topic": "Paediatric orthopaedics", "stem_html": "A 6 year old boy presents with groin pain. He is known to be disruptive in class. He reports that he is bullied for being short. On examination, he has an antalgic gait and pain on internal rotation of the right hip. What is the most likely diagnosis?", "options": [{"label_html": "Perthes disease", "is_correct": true}, {"label_html": "Transient synovitis", "is_correct": false}, {"label_html": "Slipped upper femoral epiphysis", "is_correct": false}, {"label_html": "Developmental dysplasia of the hip", "is_correct": false}, {"label_html": "Septic arthritis", "is_correct": false}], "correct_index": 0, "explanation_html": "This child is short, has hyperactivity (disruptive behaviour) and is within the age range for Perthes disease. Hyperactivity and short stature are associated with Perthes disease."}, {"number": 54, "topic": "Paediatric orthopaedics", "stem_html": "An obese 12 year old boy is referred with pain in the left knee and hip. On examination, he has an antalgic gait and limitation of internal rotation. His knee has normal range of passive and active movement. What is the most likely diagnosis?", "options": [{"label_html": "Septic arthritis", "is_correct": false}, {"label_html": "Developmental dysplasia of the hip", "is_correct": false}, {"label_html": "Perthes disease", "is_correct": false}, {"label_html": "Osteoarthritis of the hip", "is_correct": false}, {"label_html": "Slipped upper femoral epiphysis", "is_correct": true}], "correct_index": 4, "explanation_html": "Slipped upper femoral epiphysis is commonest in obese adolescent males. The x-ray will show displacement of the femoral epiphysis inferolaterally. Treatment is usually with rest and non weight bearing crutches."}, {"number": 55, "topic": "Paediatric orthopaedics", "stem_html": "A 30 year old man presents with severe pain in the left hip it has been present on and off for many years. He was born at 39 weeks gestation by emergency caesarean section after a long obstructed breech delivery. He was slow to walk and as a child was noted to have an antalgic gait. He was a frequent attender at the primary care centre and the pains dismissed as growing pains. X-rays show almost complete destruction of the femoral head and a narrow acetabulum. What is the most likely underlying disease process?", "options": [{"label_html": "Developmental dysplasia of the hip", "is_correct": true}, {"label_html": "Slipped upper femoral epiphysis", "is_correct": false}, {"label_html": "Extra capsular fracture of the femoral neck", "is_correct": false}, {"label_html": "Rheumatoid arthritis", "is_correct": false}, {"label_html": "Perthes disease", "is_correct": false}], "correct_index": 0, "explanation_html": "Developmental dysplasia of the hip. Usually diagnosed by Barlow and Ortolani tests in early childhood. Most Breech deliveries are also routinely subjected to USS of the hip joint. At this young age an arthrodesis may be preferable to hip replacement."}, {"number": 56, "topic": "Paediatric orthopaedics", "stem_html": "A 6 year old boy presents with pain in the hip it is present on activity and has been worsening over the past few weeks. There is no history of trauma. He was born by normal vaginal delivery at 38 weeks gestation On examination he has an antalgic gait and limitation of active and passive movement of the hip joint in all directions. C-reactive protein is mildly elevated at 10 but the white cell count is normal. What is the most likely diagnosis?", "options": [{"label_html": "Perthes disease", "is_correct": true}, {"label_html": "Septic arthritis", "is_correct": false}, {"label_html": "Slipped upper femoral epiphysis", "is_correct": false}, {"label_html": "Developmental dysplasia of the hip", "is_correct": false}, {"label_html": "Osteoarthritis", "is_correct": false}], "correct_index": 0, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Early plain x-ray changes in Perthes Disease:<br>Widening of the joint space.<br>Sub chondral linear lucency.<\/div>This is a typical presentation for Perthes disease. X-ray may show flattening of the femoral head or fragmentation in more advanced cases."}, {"number": 57, "topic": "Paediatric orthopaedics", "stem_html": "An obese 14 year old boy presents with difficulty running and mild knee and hip pain. There is no antecedent history of trauma. On examination, internal rotation is restricted but the knee is normal with full range of passive movement possible and no evidence of effusions. Both the C-reactive protein and white cell count are normal. What is the most likely cause?", "options": [{"label_html": "Perthes disease", "is_correct": false}, {"label_html": "Slipped upper femoral epiphysis", "is_correct": true}, {"label_html": "Non accidental injury", "is_correct": false}, {"label_html": "Septic arthritis", "is_correct": false}, {"label_html": "Osteoarthritis", "is_correct": false}], "correct_index": 1, "explanation_html": "Slipped upper femoral epiphysis is the commonest adolescent hip disorder. It occurs most commonly in obese males. It may often present as knee pain which is usually referred from the ipsilateral hip. The knee itself is normal. The hip often limits internal rotation. The diagnosis is easily missed. X-rays will show displacement of the femoral epiphysis and the degree of its displacement may be calculated using the Southwick angle. Treatment is directed at preventing further slippage which may result in avascular necrosis of the femoral head."}, {"number": 58, "topic": "Paediatric orthopaedics", "stem_html": "An obese 12 year old boy presents with knee pain. On examination, he has pain on internal rotation of the hip. His knee is clinically normal. What is the most appropriate investigation?", "options": [{"label_html": "USS hip", "is_correct": false}, {"label_html": "CT scan of the hip", "is_correct": false}, {"label_html": "Radinucleotide scan", "is_correct": false}, {"label_html": "Hip X-ray", "is_correct": true}, {"label_html": "Anteroposterior pelvic x-ray", "is_correct": false}], "correct_index": 3, "explanation_html": "The main differential diagnosis in a boy over 10 years old is of slipped upper femoral epiphysis. Knee pain is a common presenting feature. An anteroposterior pelvic x-ray may miss a minor slip, therefore request a hip film."}, {"number": 59, "topic": "Paediatric orthopaedics", "stem_html": "A baby is delivered in the breech position. Barlows and Ortolani tests are normal. What is the most appropriate course of action?", "options": [{"label_html": "Reassure and discharge the patient", "is_correct": false}, {"label_html": "Reassess the patient at 3 years", "is_correct": false}, {"label_html": "Arrange a hip USS", "is_correct": true}, {"label_html": "Arrange a hip X-ray", "is_correct": false}, {"label_html": "Arrange a hip CT scan", "is_correct": false}], "correct_index": 2, "explanation_html": "This child is at risk of developmental dysplasia of the hip (up to 20% will have DDH), so should have the hip joints scanned to exclude this."}, {"number": 60, "topic": "Paediatric orthopaedics", "stem_html": "A 5 year old boy presents with a painful limp. The symptoms have been present for 8 weeks. Two hip x-rays have been performed and appear normal. What is the best course of action?", "options": [{"label_html": "Arrange a hip USS", "is_correct": false}, {"label_html": "Arrange a hip CT scan", "is_correct": false}, {"label_html": "Arrange a hip MRI", "is_correct": true}, {"label_html": "Arrange a further hip X-ray", "is_correct": false}, {"label_html": "Discharge and reassure", "is_correct": false}], "correct_index": 2, "explanation_html": "Perthes disease should be suspected in boys over 4 years old presenting with a limp. Early disease can be missed on x-ray. An MRI will often demonstrate areas of hypoperfusion and subtle changes that allow for earlier diagnosis. A bone scan is an alternative option."}], "note_html": "<div class=\"table-responsive\"><table class=\"tlarge table table-striped table-bordered\" data-role=\"table\" id=\"tableid1\"><thead><tr><th><b>Diagnosis<\/b><\/th><th><b>\tMode of presentation<\/b><\/th><th><b>\tTreatment<\/b><\/th><th><b>\tRadiology<\/b><\/th><\/tr><\/thead><tbody><tr><td>Developmental dysplasia of the hip\t<\/td><td>Usually diagnosed in infancy by screening tests. May be bilateral, when disease is unilateral there may be leg length inequality. As disease progresses child may limp and then early onset arthritis. More common in extended breech babies.<\/td><td>Splints and harnesses or traction. In later years osteotomy and hip realignment procedures may be needed. In arthritis a joint replacement may be needed. However, this is best deferred if possible as it will almost certainly require revision<\/td><td>Initially no obvious change on plain films and USS gives best resolution until 3 months of age. On plain films Shentons line should form a smooth arc<\/td><\/tr><tr><td>Perthes Disease<\/td><td>\tHip pain (may be referred to the knee) usually occurring between 5 and 12 years of age. Bilateral disease in 20%. \t<\/td><td>Remove pressure from joint to allow normal development. Physiotherapy. Usually self-limiting if diagnosed and treated promptly.\t<\/td><td>X-rays will show flattened femoral head. Eventually in untreated cases the femoral head will fragment.<\/td><\/tr><tr><td>Slipped upper femoral epiphysis\t<\/td><td>Typically seen in obese male adolescents. Pain is often referred to the knee. Limitation to internal rotation is usually seen. Knee pain is usually present 2 months prior to hip slipping. Bilateral in 20%.\t<\/td><td>Bed rest and non-weight bearing. Aim to avoid avascular necrosis. If severe slippage or risk of it occurring then percutaneous pinning of the hip may be required.<\/td><td>X-rays will show the femoral head displaced and falling inferolaterally (like a melting ice cream cone) The Southwick angle gives indication of disease severity<\/td><\/tr><\/tbody><\/table><\/div>"}, {"name": "Paediatric proctology", "questions": [{"number": 61, "topic": "Paediatric proctology", "stem_html": "A 4 year old boy is brought to the clinic. He gives a history of difficult, painful defecation with bright red rectal bleeding. What is the most likely diagnosis?", "options": [{"label_html": "Crohns disease", "is_correct": false}, {"label_html": "Ulcerative colitis", "is_correct": false}, {"label_html": "Anal fissure", "is_correct": true}, {"label_html": "Haemorrhoids", "is_correct": false}, {"label_html": "Juvenile polyp", "is_correct": false}], "correct_index": 2, "explanation_html": "Painful rectal bleeding in this age group is typically due to a fissure. Treatment should include stool softeners and lifestyle advice."}, {"number": 62, "topic": "Paediatric proctology", "stem_html": "A 2 year old has a history of rectal bleeding. The parents notice that post defecation, a cherry red lesion is present at the anal verge. What is the most likely diagnosis?", "options": [{"label_html": "Haemorrhoids", "is_correct": false}, {"label_html": "Villous adenoma", "is_correct": false}, {"label_html": "Juvenile polyp", "is_correct": true}, {"label_html": "Peri anal abscess", "is_correct": false}, {"label_html": "Anal fissure", "is_correct": false}], "correct_index": 2, "explanation_html": "These lesions are usually hamartomas and this accounts for the colour of the lesions. Although the lesions are not themselves malignant they serve as a marker of an underlying polyposis disorder."}, {"number": 63, "topic": "Paediatric proctology", "stem_html": "A 12 year old boy is brought to the clinic with history of weight loss and bloody diarrhoea. Abdominal examination is unremarkable. What is the most likely diagnosis?", "options": [{"label_html": "Colorectal cancer", "is_correct": false}, {"label_html": "Inflammatory bowel disease", "is_correct": true}, {"label_html": "Irritable bowel syndrome", "is_correct": false}, {"label_html": "Munchausen syndrome", "is_correct": false}, {"label_html": "Viral gastroenteritis", "is_correct": false}], "correct_index": 1, "explanation_html": "The systemic features in the history are strongly suggestive of inflammatory bowel disease rather than the other causes. Colorectal cancer is almost unheard of at this age."}], "note_html": "Children may present with altered bowel habit and/ or rectal bleeding. Classical haemorroidal disease is relatively rare in children. Painful bright red rectal bleeding is much more common since constipation is a relatively common childhood disorder. The hard stool causes a tear of the ano-rectal mucosa with subsequent fissure. The pain from the fissure must be addressed promptly or the child will delay defecation and this fissure will worsen.<br><br>Inflammatory bowel disease may present in a similar pattern in paediatric practice with altered bowel habit (usually diarrhoea) and bleeding. Systemic features may be present and investigation with an endoscopy may be required.<br><br>Children with intussceception usually present at a relatively young age and the history is usually one of colicky abdominal pain, together with a mass on clinical examination.The often cited red current jelly type stool is a rare but classical feature.<br><br>Juvenile polyps may occur as part of the familial polyposis coli syndromes. The lesions, which are hamartomas, are often cherry red if they protrude externally."}, {"name": "Paediatric umbilical disorders", "questions": [{"number": 64, "topic": "Paediatric umbilical disorders", "stem_html": "A 2 week old baby is referred to the surgical team by the paediatricians. They are concerned because the child has a painful area of macerated tissue at the site of the umbilicus. On examination, a clear- yellowish fluid is seen to be draining from the umbilicus when the baby cries. What is the most likely diagnosis?", "options": [{"label_html": "Omphalitis", "is_correct": false}, {"label_html": "Umbilical granuloma", "is_correct": false}, {"label_html": "Persistent vitello-intestinal duct", "is_correct": false}, {"label_html": "Patent urachus", "is_correct": true}, {"label_html": "Isolated cellular remnants", "is_correct": false}], "correct_index": 3, "explanation_html": "A patent urachus will present with umbilical urinary discharge. The skin may become macerated if not properly cared for. The discharge is most likely to be present when intra-abdominal pressure is raised. It is associated with posterior urethral valves."}, {"number": 65, "topic": "Paediatric umbilical disorders", "stem_html": "A premature neonate is born by emergency cesarean section at 29 weeks gestation. He initially seems to be progressing well. However, the team are concerned because he has become septic and on examination has a swollen and erythematous umbilicus. What is the most likely diagnosis?", "options": [{"label_html": "Patent urachus", "is_correct": false}, {"label_html": "Patent vitello--intestinal duct", "is_correct": false}, {"label_html": "Omphalitis", "is_correct": true}, {"label_html": "Umbilical granuloma", "is_correct": false}, {"label_html": "Pyogenic granuloma", "is_correct": false}], "correct_index": 2, "explanation_html": "Infection from omphalitis may spread rapidly and cause severe sepsis especially in immunologically compromised, premature neonates."}, {"number": 66, "topic": "Paediatric umbilical disorders", "stem_html": "A baby boy is born by elective cesarean section at 39 weeks gestation. He initially seems to progress well and is discharged from hospital the following day. The parents bring the child to the clinic at 10 days of age and are concerned at the presence of a profuse and foul smelling discharge at the site of the umbilicus. On examination, the umbilicus has some prominent granulation tissue. When the baby cries a small trickle of brownish fluid is seen to pass from the umbilicus. What is the most likely cause?", "options": [{"label_html": "Omphalitis", "is_correct": false}, {"label_html": "Patent vitello-intestinal duct", "is_correct": true}, {"label_html": "Patent urachus", "is_correct": false}, {"label_html": "Pyogenic granuloma", "is_correct": false}, {"label_html": "Umbilical hernia", "is_correct": false}], "correct_index": 1, "explanation_html": "A persistent vitello-intestinal duct may allow the persistent and ongoing discharge of small bowel content from the umbilicus. This fluid may be very irritant to the surrounding skin."}, {"number": 67, "topic": "Paediatric umbilical disorders", "stem_html": "At what age should children with otherwise uncomplicated umbilical hernias be considered for surgery?", "options": [{"label_html": "Within the first few days of life", "is_correct": false}, {"label_html": "6 months of age", "is_correct": false}, {"label_html": "12 months of age", "is_correct": false}, {"label_html": "18 months of age", "is_correct": false}, {"label_html": "After 3 years of age", "is_correct": true}], "correct_index": 4, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Many umbilical hernias will close in the first year of life. Defer surgery until the child is 3 years or older.<\/div>"}], "note_html": "<b>Embryology<\/b><br>During development the umbilicus has two umbilical arteries and one umbilical vein. The arteries are continuous with the internal iliac arteries and the vein is continuous with the falciform ligament (ductus venosus). After birth the cord dessicates and separates and the umbilical ring closes. <br><br><b>Umbilical hernia<\/b><br>Up to 20% of neonates may have an umbilical hernia, it is more common in premature infants. The majority of these hernias will close spontaneously (may take between 12 months and three years). Strangulation is rare.<br><br><b>Paraumbilical hernia<\/b><br>These are due to defects in the linea alba that are in close proximity to the umbilicus. The edges of a paraumbilical hernia are more clearly defined than those of an umbilical hernia. They are less likely to resolve spontaneously than an umbilical hernia.<br><br><b>Omphalitis<\/b><br>This condition consists of infection of the umbilicus. Infection with <i>Staphylococcus aureus<\/i> is the commonest cause. The condition is potentially serious as infection may spread rapidly through the umbilical vessels in neonates with a risk of portal pyaemia, and portal vein thrombosis. Treatment is usually with a combination of topical and systemic antibiotics.<br><br><b>Umbilical granuloma<\/b><br>These consist of cherry red lesions surrounding the umbilicus, they may bleed on contact and be a site of seropurulent discharge. Infection is unusual and they will often respond favorably to chemical cautery with topically applied silver nitrate. <br><br><b>Persistent urachus<\/b><br>This is characterised by urinary discharge from the umbilicus. It is caused by persistence of the urachus which attaches to the bladder. They are associated with other urogenital abnormalities. <br><br><b>Persistent vitello-intestinal duct<\/b><br>This will typically present as an umbilical discharge that discharges small bowel content. Complete persistence of the duct is a rare condition. Much more common is the persistence of part of the duct (Meckels diverticulum). Persistent vitello-intestinal ducts are best imaged using a contrast study to delineate the anatomy and are managed by laparotomy and surgical closure."}, {"name": "Pyloric stenosis", "questions": [{"number": 68, "topic": "Pyloric stenosis", "stem_html": "A 4 week old baby is developing well and develops profuse and projectile vomiting after feeds. He has been losing weight and the vomit is described as being non bilious. What is the most likely underlying pathology?", "options": [{"label_html": "Duodenal atresia", "is_correct": false}, {"label_html": "Ileal atresia", "is_correct": false}, {"label_html": "Hypertrophy of the pyloric sphincter", "is_correct": true}, {"label_html": "Achalasia cardia", "is_correct": false}, {"label_html": "Intestinal malrotation", "is_correct": false}], "correct_index": 2, "explanation_html": "A history of projective vomiting and weight loss is a common story suggestive of pyloric stenosis. The vomit is often not bile stained. Diagnosis is further suggested by hypochloraemic metabolic alkalosis and a palpable tumour on test feeding."}], "note_html": "Pyloric stenosis typically presents in the second to fourth weeks of life with vomiting, although rarely may present later at up to four months. It is caused by hypertrophy of the circular muscles of the pylorus<br><br>Epidemiology<br><ul><li>incidence of 4 per 1,000 live births<\/li><li>4 times more common in males<\/li><li>10-15% of infants have a positive family history<\/li><li>first-borns are more commonly affected<\/li><\/ul><br>Features<br><ul><li>'projectile' vomiting, typically 30 minutes after a feed<\/li><li>constipation and dehydration may also be present<\/li><li>a palpable mass may be present in the upper abdomen<\/li><li>hypochloraemic, hypokalaemic alkalosis due to persistent vomiting<\/li><\/ul><br>Diagnosis is most commonly made by ultrasound or test feed<br><br>Management is with Ramstedt pyloromyotomy"}, {"name": "Septic arthritis- Paediatric", "questions": [{"number": 69, "topic": "Septic arthritis- Paediatric", "stem_html": "In paediatric orthopaedic surgery, which of the following does not fulfill the Kocher criteria for septic arthritis?", "options": [{"label_html": "ESR &gt; 40mm/h", "is_correct": false}, {"label_html": "Positive blood culture", "is_correct": true}, {"label_html": "Fever", "is_correct": false}, {"label_html": "White cell count &gt; 12, 000", "is_correct": false}, {"label_html": "Non weight bearing on the affected side", "is_correct": false}], "correct_index": 1, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Kocher's 'WIFE' is:<br><br>WCC &gt;12 <br>Inability to weight bear <br>Fever <br>ESR &gt;40<br> = &gt;90 chance of septic arthritis<\/div><b>Kocher criteria<\/b> <br>1. Non weight bearing on affected side<br>2. ESR &gt; 40 mm/hr<br>3. Fever<br>4. WBC count of &gt;12,000 mm<sup>3<\/sup><br>- When 4/4 criteria are met, there is a 99% chance that the child has septic arthritis<br><br>The Kocher criteria do not consider blood culture results."}, {"number": 70, "topic": "Septic arthritis- Paediatric", "stem_html": "A 4 year old boy presents to the Emergency Department with a two-day history of fever, difficulty walking and is unable to weight bear on the right leg. He has been on oral Amoxycillin 250 mg three times a day for a chest infection over the last five days. He is irritable with a temperature of 39.4<sup>o<\/sup>C. He does not allow examination and keeps his right hip flexed and adducted. Blood tests are, (WBC) 18.3 (CRP) 146, haemoglobin 11.3 g/dL. What is the most likely diagnosis?", "options": [{"label_html": "Acute avascular necrosis of the hip", "is_correct": false}, {"label_html": "Dislocation of the hip", "is_correct": false}, {"label_html": "Perthes disease", "is_correct": false}, {"label_html": "Septic arthritis", "is_correct": true}, {"label_html": "Slipped upper femoral epiphysis", "is_correct": false}], "correct_index": 3, "explanation_html": "Septic arthritis in children may develop from osteomyelitis. This is particularly so in neonates whose transphyseal vessels allow spread into the joint in joints with an intraarticular metaphysis. It can arise as a result of the haematogenous spread of infection. Pus is chondrolytic and therefore this is a surgical emergency.  Joint aspirates show high WCC and low glucose. Organisms may be seen. <br><div class=\"alert alert-warning\"><b>Factors favoring septic arthritis<\/b><br>WCC &gt; 12<br>ESR &gt;40 <br>Inability to weight bear<br>Fever &gt;38.5<br><\/div>"}], "note_html": "<b>Septic arthritis<\/b><br><ul><li>Staph aureus commonest organism<\/li><li>Urgent washout and antibiotics otherwise high risk of joint destruction<\/li><\/ul><br><b>Diagnosis<\/b><br><ul><li>Plain x-rays<\/li><li>Consider aspiration<\/li><li>Utilise the Kocher criteria (see below)<\/li><\/ul><br><b>Kocher criteria: <\/b><br>1. Non weight bearing on affected side<br>2. ESR &gt; 40 mm/hr<br>3. Fever<br>4. WBC count of &gt;12,000 mm<sup>3<\/sup><br>- when 4/4 criteria are met, there is a 99% chance that the child has septic arthritis<br><br><b>Treatment<\/b><br>Surgical drainage of the affected joint is required, this should be done as soon as possible since permanent damage to the joint may occur. In some cases repeated procedures are necessary. Appropriate intravenous antibiotics should be administered."}, {"name": "Talipes Equinovarus", "questions": [{"number": 71, "topic": "Talipes Equinovarus", "stem_html": "Which of the following is not a typical feature of talipes equinovarus?", "options": [{"label_html": "Adducted and inverted calcaneus", "is_correct": false}, {"label_html": "Medial displacement of the navicular bone", "is_correct": false}, {"label_html": "It is nearly always unilateral", "is_correct": true}, {"label_html": "Wedge shaped head of talus", "is_correct": false}, {"label_html": "Severe Tibio-talar plantar flexion", "is_correct": false}], "correct_index": 2, "explanation_html": "It is bilateral in 50% of cases."}], "note_html": "<b>Congenital talipes equinovarus.<\/b><br>Features:<br><ul><li>Equinus of the hindfoot<\/li><li>Adduction and varus of the midfoot<\/li><li>High arch<\/li><\/ul><br>Most cases in developing countries. Incidence in UK is 1 per 1000 live births. It is more common in males and is bilateral in 50% cases. There is a strong familial link(1). It may also be associated with other developmental disorders such as Down's syndrome. <br><br><b>Key anatomical deformities<\/b> (2):<br><ul><li>Adducted and inverted calcaneus<\/li><li>Wedge shaped distal calcaneal articular surface<\/li><li>Severe Tibio-talar plantar flexion<\/li><li>Medial Talar neck inclination<\/li><li>Displacement of the navicular bone (medially)<\/li><li>Wedge shaped head of talus<\/li><li>Displacement of the cuboid (medially)<\/li><\/ul><br><b>Management<\/b><br>Conservative first, the Ponseti method is best described and gives comparable results to surgery. It consists of serial casting to mold the foot into correct shape. Following casting around 90% will require a Achilles tenotomy. This is then followed by a phase of walking braces to maintain the correction. <br><br>Surgical correction is reserved for those cases that fail to respond to conservative measures. The procedures involve multiple tenotomies and lengthening procedures. In patients who fail to respond surgically an Ilizarov frame reconstruction may be attempted and gives good results.<br><br><b>References<\/b><br>1.            Wynne-Davies R, Littlejohn A, Gormley J. Aetiology and interrelationship of some common skeletal deformities. (Talipes equinovarus and calcaneovalgus, metatarsus varus, congenital dislocation of the hip, and infantile idiopathic scoliosis). J Med Genet. 1982 Oct;19(5):321-8.<br>2.            Horn BD, Davidson RS. Current treatment of clubfoot in infancy and childhood. Foot Ankle Clin. 2010 Jun;15(2):235-43.<br>3.            Clarke NM, Uglow MG, Valentine KM. Comparison of Ponseti Versus Surgical Treatment in Congenital Talipes Equinovarus. J Foot Ankle Surg. 2011 Jun 14."}, {"name": "Testicular disorders-paediatric", "questions": [{"number": 72, "topic": "Testicular disorders-paediatric", "stem_html": "A 13 month old boy is brought to the surgical clinic by his mother because his left testicle is not located in the scrotum. At which of the following sites would the testicle be located if it were an ectopic testis?", "options": [{"label_html": "Canalicular", "is_correct": false}, {"label_html": "Inguinal", "is_correct": false}, {"label_html": "External inguinal ring", "is_correct": false}, {"label_html": "Superficial inguinal pouch", "is_correct": true}, {"label_html": "High scrotal", "is_correct": false}], "correct_index": 3, "explanation_html": "Ectopic testes are those that come to lie outside the normal range of embryological descent (i.e. in the superficial inguinal pouch). Other sites of ectopic testes include; base of penis, femoral triangle and perineum."}, {"number": 73, "topic": "Testicular disorders-paediatric", "stem_html": "A child presents to the emergency department with sudden onset scrotal pain 4 hours previously. On examination, the testis is elevated and tender. The child has eaten some chips in the waiting room. What is the best course of action?", "options": [{"label_html": "Administration of analgesic block and manipulation of the testis", "is_correct": false}, {"label_html": "Fast for 3 hours and then take to theatre for scrotal exploration", "is_correct": false}, {"label_html": "Immediate scrotal exploration under general anaesthesia", "is_correct": true}, {"label_html": "Arrange urgent scrotal ultrasound", "is_correct": false}, {"label_html": "Administration of regional local anaesthetic block and explore scrotum immediately", "is_correct": false}], "correct_index": 2, "explanation_html": "This is a likely torsion so surgery cannot be deferred. Local anaesthetic scrotal exploration is likely to be very poorly tolerated. Delay of surgery and USS are not appropriate. Immediate exploration under GA with appropriate airway protection in place."}], "note_html": "<b>Testicular disorders<\/b><br>Testicular disorders are some of the commonest conditions present in paediatric urological practice.<br><br><b>Cryptorchidism<\/b><br><ul><li>The embryological descent of the testicle from within the abdominal cavity may be subject to a number of variations. Distinctions need to be made clinically from a non descended testis and a testis that is retractile. <\/li><li>Testis that lie outside the normal path of embryological descent are termed ectopic testis. Undescended testis occurs in 1% of male infants. Where the testis does not lie in an intra scrotal location, its location should be ascertained (by laparoscopy in first instance). Where both testes are absent, the infant may be intersex. <\/li><li>MRI scanning may reveal intra-abdominal testes; however a GA is often needed to perform this investigation in this age group. <\/li><li>Testes that are undescended should be placed in the scrotum after 1 year of age, as the testosterone surge that may facilitate descent occurs at 6 months of age.     <\/li><li>Where the testes lie distally e.g. Superficial inguinal pouch an open orchidopexy is the procedure of choice. <\/li><li>With abdominal testes a laparoscopy should be performed. The risk of seminoma is increased in individuals with a non descended testes and this risk is not reduced by orchidopexy. <\/li><\/ul><br><b>Testicular torsion<\/b><br><ul><li>Typically the patient has severe sudden onset of scrotal pain. The difficulty in paediatric practice is the lack of clear history. <\/li><li>On examination the testis is tender and enlarged. <\/li><li>Management is by surgical exploration. <\/li><li>Delay beyond 6 hours is associated with low salvage rates. <\/li><li>A torted hyatid produces pain that is far more localised and the testis itself should feel normal. However, diagnostic doubt often exists and in such cases surgical exploration is warranted. <\/li><\/ul><br><b>Hydrocele<\/b><br><ul><li>Occur secondary to patent processus vaginalis<\/li><li>Present as fluid filling in scrotum or as cyst of the spermatic cord<\/li><li>Communicating hydroceles are treated by a trans inguinal ligation of the PPV<\/li><li>Cystic hydroceles in older children may be treated with scrotal exploration<\/li><\/ul>"}, {"name": "Vesicoureteric reflux", "questions": [{"number": 74, "topic": "Vesicoureteric reflux", "stem_html": "What is the investigation of choice to look for renal scarring in a child with vesicoureteric reflux?", "options": [{"label_html": "Abdominal x-ray", "is_correct": false}, {"label_html": "Ultrasound", "is_correct": false}, {"label_html": "DMSA", "is_correct": true}, {"label_html": "CT KUB", "is_correct": false}, {"label_html": "Micturating cystourethrogram", "is_correct": false}], "correct_index": 2, "explanation_html": "<p>No explanation provided.<\/p>"}], "note_html": "Vesicoureteric reflux (VUR) is the abnormal backflow of urine from the bladder into the ureter and kidney. It is relatively common abnormality of the urinary tract in children and predisposes to urinary tract infection (UTI), being found in around 30% of children who present with a UTI. As around 35% of children develop renal scarring it is important to investigate for VUR in children following a UTI<br><br>Pathophysiology of VUR<br><ul><li>ureters are displaced laterally, entering the bladder in a more perpendicular fashion than at an angle<\/li><li>therefore shortened intramural course of ureter<\/li><li>vesicoureteric junction cannot therefore function adequately <\/li><\/ul><br>The table below summarises the grading of VUR<br><br><div class=\"table-responsive\"><table class=\"table table-bordered\"><tbody><tr><td>{Grade}<\/td><td><\/td><\/tr><tr><td>I<\/td><td>Reflux into the ureter only, no dilatation<\/td><\/tr><tr><td>II<\/td><td>Reflux into the renal pelvis on micturition, no dilatation<\/td><\/tr><tr><td>III<\/td><td>Mild/moderate dilatation of the ureter, renal pelvis and calyces<\/td><\/tr><tr><td>IV<\/td><td>Dilation of the renal pelvis and calyces with moderate ureteral tortuosity<\/td><\/tr><tr><td>V<\/td><td>Gross dilatation of the ureter, pelvis and calyces with ureteral tortuosity<\/td><\/tr><\/tbody><\/table><\/div><br>Investigation<br><ul><li>VUR is normally diagnosed following a micturating cystourethrogram<\/li><li>a DMSA scan may also be performed to look for renal scarring<\/li><\/ul>"}]}</script>
+  <script>
+    const quizData = JSON.parse(document.getElementById("quiz-data").textContent);
+    const app = document.getElementById("app");
+    const modeButtons = Array.from(document.querySelectorAll("[data-mode-button]"));
+    const topicActionButtons = Array.from(document.querySelectorAll("[data-topic-action]"));
+
+    const state = {
+      mode: "solve",
+      answers: new Map(),
+      questionRefs: [],
+    };
+
+    function buildTopic(topic, questionOffset) {
+      const details = document.createElement("details");
+      details.className = "topic";
+      details.open = true;
+
+      const summary = document.createElement("summary");
+      summary.innerHTML = `
+        <div>
+          <h2 class="topic-title">${topic.name}</h2>
+        </div>
+        <div class="topic-meta">
+          <span>${topic.questions.length} questions</span>
+          <span class="chevron" aria-hidden="true">></span>
+        </div>
+      `;
+
+      const body = document.createElement("div");
+      body.className = "topic-body";
+
+      if (topic.note_html) {
+        const notes = document.createElement("details");
+        notes.className = "topic-notes";
+
+        const notesSummary = document.createElement("summary");
+        notesSummary.innerHTML = `
+          <span class="topic-notes-title">Notes</span>
+          <span class="chevron" aria-hidden="true">></span>
+        `;
+
+        const notesBody = document.createElement("div");
+        notesBody.className = "topic-notes-body rich-text";
+        notesBody.innerHTML = topic.note_html;
+
+        notes.appendChild(notesSummary);
+        notes.appendChild(notesBody);
+        body.appendChild(notes);
+      }
+
+      topic.questions.forEach((question, indexInTopic) => {
+        const globalIndex = questionOffset + indexInTopic;
+        body.appendChild(buildQuestionCard(question, globalIndex));
+      });
+
+      details.appendChild(summary);
+      details.appendChild(body);
+      return details;
+    }
+
+    function buildQuestionCard(question, questionIndex) {
+      const card = document.createElement("article");
+      card.className = "question-card is-hidden";
+      card.dataset.questionIndex = String(questionIndex);
+
+      const label = document.createElement("p");
+      label.className = "question-label";
+      label.textContent = `Question ${question.number}`;
+
+      const stem = document.createElement("div");
+      stem.className = "stem rich-text";
+      stem.innerHTML = question.stem_html;
+
+      const options = document.createElement("div");
+      options.className = "options";
+
+      const optionButtons = question.options.map((option, optionIndex) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "option";
+        button.dataset.optionIndex = String(optionIndex);
+        button.innerHTML = option.label_html;
+        button.addEventListener("click", () => {
+          if (state.mode !== "solve") {
+            return;
+          }
+          state.answers.set(questionIndex, optionIndex);
+          applyQuestionState(questionIndex);
+        });
+        options.appendChild(button);
+        return button;
+      });
+
+      const explanation = document.createElement("div");
+      explanation.className = "explanation rich-text";
+      explanation.innerHTML = `<span class="explanation-label">Explanation</span>${question.explanation_html}`;
+
+      card.appendChild(label);
+      card.appendChild(stem);
+      card.appendChild(options);
+      card.appendChild(explanation);
+
+      state.questionRefs[questionIndex] = {
+        card,
+        explanation,
+        optionButtons,
+        question,
+      };
+
+      applyQuestionState(questionIndex);
+      return card;
+    }
+
+    function applyQuestionState(questionIndex) {
+      const ref = state.questionRefs[questionIndex];
+      if (!ref) {
+        return;
+      }
+
+      const { card, optionButtons, question } = ref;
+      const selectedIndex = state.answers.get(questionIndex);
+      const hasSelection = selectedIndex !== undefined;
+      const isReview = state.mode === "review";
+      const showExplanation = isReview || hasSelection;
+
+      card.classList.toggle("is-hidden", !showExplanation);
+
+      optionButtons.forEach((button, optionIndex) => {
+        button.classList.remove("correct", "incorrect", "neutral-revealed");
+
+        if (isReview) {
+          button.disabled = true;
+          if (optionIndex === question.correct_index) {
+            button.classList.add("correct");
+          } else {
+            button.classList.add("neutral-revealed");
+          }
+          return;
+        }
+
+        button.disabled = false;
+        if (!hasSelection) {
+          return;
+        }
+
+        if (optionIndex === question.correct_index) {
+          button.classList.add("correct");
+        } else if (optionIndex === selectedIndex) {
+          button.classList.add("incorrect");
+        } else {
+          button.classList.add("neutral-revealed");
+        }
+      });
+    }
+
+    function renderApp() {
+      if (!quizData.topics.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty-state";
+        empty.textContent = "No questions were found in this JSON file.";
+        app.replaceChildren(empty);
+        return;
+      }
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "topic-list";
+
+      let questionOffset = 0;
+      quizData.topics.forEach((topic) => {
+        wrapper.appendChild(buildTopic(topic, questionOffset));
+        questionOffset += topic.questions.length;
+      });
+
+      app.replaceChildren(wrapper);
+    }
+
+    function setMode(mode) {
+      state.mode = mode;
+      modeButtons.forEach((button) => {
+        const isActive = button.dataset.modeButton === mode;
+        button.classList.toggle("active", isActive);
+        button.setAttribute("aria-pressed", String(isActive));
+      });
+
+      state.questionRefs.forEach((_, index) => applyQuestionState(index));
+    }
+
+    function setAllTopics(open) {
+      document.querySelectorAll(".topic").forEach((topic) => {
+        topic.open = open;
+      });
+    }
+
+    modeButtons.forEach((button) => {
+      button.addEventListener("click", () => setMode(button.dataset.modeButton));
+    });
+
+    topicActionButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        setAllTopics(button.dataset.topicAction === "expand");
+      });
+    });
+
+    renderApp();
+    setMode("solve");
+  </script>
+</body>
+</html>

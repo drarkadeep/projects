@@ -1,0 +1,745 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vascular Surgery</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f1e8;
+      --bg-accent: #ebe4d4;
+      --surface: rgba(255, 252, 246, 0.92);
+      --surface-strong: #fffdf7;
+      --border: #d9cfbd;
+      --text: #23313a;
+      --text-soft: #5f6c73;
+      --accent: #496a58;
+      --accent-strong: #2f5341;
+      --correct-bg: #e0f3e6;
+      --correct-border: #77b487;
+      --wrong-bg: #fbe0df;
+      --wrong-border: #dc7a73;
+      --note-bg: #f3eee2;
+      --shadow: 0 18px 40px rgba(76, 59, 37, 0.08);
+      --radius-lg: 22px;
+      --radius-md: 16px;
+      --radius-sm: 12px;
+      --page-width: 960px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.72), transparent 32%),
+        linear-gradient(180deg, #f8f4eb 0%, #f3ede0 100%);
+      line-height: 1.65;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, rgba(255, 255, 255, 0.14), transparent 18%, transparent 82%, rgba(255, 255, 255, 0.14)),
+        repeating-linear-gradient(
+          180deg,
+          rgba(73, 106, 88, 0.015) 0,
+          rgba(73, 106, 88, 0.015) 1px,
+          transparent 1px,
+          transparent 18px
+        );
+    }
+
+    a {
+      color: var(--accent-strong);
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 14px;
+    }
+
+    .score-badge,
+    .badge.rounded-pill.bg-danger {
+      display: none !important;
+    }
+
+    .page {
+      width: min(100% - 24px, var(--page-width));
+      margin: 0 auto;
+      padding: 18px 0 48px;
+    }
+
+    .topbar {
+      margin-bottom: 18px;
+      padding: 18px;
+      background: rgba(255, 252, 246, 0.9);
+      border: 1px solid rgba(217, 207, 189, 0.86);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+
+    .topbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .eyebrow {
+      margin: 0 0 4px;
+      font-size: 0.76rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .title {
+      margin: 0;
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+      font-size: clamp(1.5rem, 2vw + 1rem, 2.35rem);
+      line-height: 1.08;
+      font-weight: 700;
+    }
+
+    .meta {
+      margin: 8px 0 0;
+      color: var(--text-soft);
+      font-size: 0.96rem;
+    }
+
+    .mode-switch {
+      display: inline-flex;
+      padding: 6px;
+      border-radius: 999px;
+      background: var(--bg-accent);
+      border: 1px solid var(--border);
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .topic-actions {
+      display: inline-flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .utility-button {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: var(--surface-strong);
+      color: var(--text);
+      font: inherit;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .utility-button:hover {
+      transform: translateY(-1px);
+      border-color: #c7bba9;
+      box-shadow: 0 8px 18px rgba(70, 54, 34, 0.07);
+    }
+
+    .utility-button:focus-visible {
+      outline: 3px solid rgba(73, 106, 88, 0.22);
+      outline-offset: 2px;
+    }
+
+    .mode-button {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: var(--text-soft);
+      font: inherit;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 10px 16px;
+      min-width: 92px;
+      cursor: pointer;
+      transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .mode-button:hover {
+      transform: translateY(-1px);
+      color: var(--text);
+    }
+
+    .mode-button.active {
+      background: var(--surface-strong);
+      color: var(--accent-strong);
+      box-shadow: 0 8px 18px rgba(73, 106, 88, 0.14);
+    }
+
+    .topic-list {
+      display: grid;
+      gap: 18px;
+    }
+
+    .topic {
+      background: rgba(255, 252, 246, 0.78);
+      border: 1px solid rgba(217, 207, 189, 0.9);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .topic[open] {
+      background: rgba(255, 252, 246, 0.9);
+    }
+
+    .topic > summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      user-select: none;
+    }
+
+    .topic > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .topic-title {
+      margin: 0;
+      font-size: 1.08rem;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+    }
+
+    .topic-meta {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-soft);
+      font-size: 0.94rem;
+    }
+
+    .chevron {
+      display: inline-block;
+      transition: transform 0.2s ease;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .topic[open] > summary .chevron {
+      transform: rotate(90deg);
+    }
+
+    .topic-notes {
+      background: rgba(243, 238, 226, 0.62);
+      border: 1px solid #e3d9c8;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .topic-notes > summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      user-select: none;
+    }
+
+    .topic-notes > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .topic-notes-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .topic-notes[open] > summary .chevron {
+      transform: rotate(90deg);
+    }
+
+    .topic-notes-body {
+      padding: 0 16px 16px;
+      color: var(--text);
+    }
+
+    .topic-body {
+      padding: 0 16px 16px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .question-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      box-shadow: 0 10px 24px rgba(70, 54, 34, 0.05);
+    }
+
+    .question-label {
+      margin: 0 0 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-soft);
+      font-size: 0.88rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .stem {
+      font-size: 1rem;
+    }
+
+    .stem > *:first-child,
+    .explanation > *:first-child {
+      margin-top: 0;
+    }
+
+    .stem > *:last-child,
+    .explanation > *:last-child {
+      margin-bottom: 0;
+    }
+
+    .options {
+      margin-top: 16px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .option {
+      width: 100%;
+      text-align: left;
+      border: 1px solid #d8d0c2;
+      background: #fffdf8;
+      color: var(--text);
+      border-radius: var(--radius-sm);
+      padding: 14px 15px;
+      font: inherit;
+      line-height: 1.45;
+      cursor: pointer;
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .option:hover {
+      transform: translateY(-1px);
+      border-color: #c7bba9;
+      box-shadow: 0 8px 18px rgba(70, 54, 34, 0.07);
+    }
+
+    .option:focus-visible {
+      outline: 3px solid rgba(73, 106, 88, 0.22);
+      outline-offset: 2px;
+    }
+
+    .option.correct {
+      background: var(--correct-bg);
+      border-color: var(--correct-border);
+      box-shadow: inset 0 0 0 1px rgba(119, 180, 135, 0.2);
+    }
+
+    .option.incorrect {
+      background: var(--wrong-bg);
+      border-color: var(--wrong-border);
+      box-shadow: inset 0 0 0 1px rgba(220, 122, 115, 0.2);
+    }
+
+    .option.neutral-revealed {
+      background: #faf6ee;
+      border-color: #d8d0c2;
+      color: #5f676a;
+    }
+
+    .option[disabled] {
+      cursor: default;
+      opacity: 1;
+    }
+
+    .explanation {
+      margin-top: 14px;
+      padding: 14px 16px;
+      background: var(--note-bg);
+      border: 1px solid #e3d9c8;
+      border-radius: 14px;
+      color: var(--text);
+    }
+
+    .question-card.is-hidden .explanation {
+      display: none;
+    }
+
+    .explanation-label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+      font-weight: 800;
+    }
+
+    .empty-state {
+      padding: 28px 22px;
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-lg);
+      color: var(--text-soft);
+    }
+
+    .rich-text table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      overflow: hidden;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.68);
+    }
+
+    .rich-text td,
+    .rich-text th {
+      border: 1px solid #ddd2bf;
+      padding: 10px 12px;
+      vertical-align: top;
+    }
+
+    .rich-text ul,
+    .rich-text ol {
+      padding-left: 20px;
+      margin: 10px 0;
+    }
+
+    .rich-text center {
+      display: block;
+      text-align: center;
+    }
+
+    .rich-text .table-responsive {
+      overflow-x: auto;
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        width: min(100% - 16px, var(--page-width));
+        padding-top: 10px;
+      }
+
+      .topbar {
+        padding: 14px;
+        border-radius: 18px;
+      }
+
+      .topbar-inner {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .controls {
+        justify-content: stretch;
+      }
+
+      .topic-actions {
+        width: 100%;
+      }
+
+      .utility-button {
+        flex: 1 1 0;
+      }
+
+      .mode-switch {
+        width: 100%;
+        justify-content: stretch;
+      }
+
+      .mode-button {
+        flex: 1 1 50%;
+      }
+
+      .topic > summary {
+        padding: 16px;
+        align-items: flex-start;
+      }
+
+      .topic-meta {
+        font-size: 0.88rem;
+      }
+
+      .topic-body {
+        padding: 0 12px 12px;
+      }
+
+      .question-card {
+        padding: 15px;
+      }
+
+      .option {
+        padding: 13px 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="topbar">
+      <div class="topbar-inner">
+        <div>
+          <p class="eyebrow">Study View</p>
+          <h1 class="title">Vascular Surgery</h1>
+          <p class="meta">62 questions across 17 topics</p>
+        </div>
+        <div class="controls">
+          <div class="topic-actions" aria-label="Topic visibility controls">
+            <button class="utility-button" type="button" data-topic-action="expand">Expand all</button>
+            <button class="utility-button" type="button" data-topic-action="collapse">Collapse all</button>
+          </div>
+          <div class="mode-switch" role="tablist" aria-label="Question mode">
+            <button class="mode-button active" type="button" data-mode-button="solve" aria-pressed="true">Solve</button>
+            <button class="mode-button" type="button" data-mode-button="review" aria-pressed="false">Review</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="app"></section>
+  </main>
+
+  <script id="quiz-data" type="application/json">{"title": "Vascular Surgery", "topics": [{"name": "Acute limb ischaemia", "questions": [{"number": 1, "topic": "Acute limb ischaemia", "stem_html": "A 74 year old man presents with a painful right leg. The pain developed suddenly the preceeding evening. However, he wondered if it might resolve overnight, instead, it has got worse. On examination, his right leg is cold and white with diminished distal sensation. A CT angiogram shows a thrombus occluding the external iliac artery with no atheromatous disease. What is the most appropriate course of action?", "options": [{"label_html": "Femoral embolectomy and below knee fasciotomy", "is_correct": true}, {"label_html": "Femoral embolectomy alone", "is_correct": false}, {"label_html": "Femoral popliteal bypass graft without fasciotomy", "is_correct": false}, {"label_html": "Femoral embolectomy with above and below knee fasciotomy", "is_correct": false}, {"label_html": "Femoro-femoro cross over graft with above and below knee fasciotomy", "is_correct": false}], "correct_index": 0, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Delayed limb re-perfusion = Risk of compartment syndrome<\/div>Delayed surgery for limb ischaemic carries a risk of re-perfusion injury and compartment syndrome. Where surgery is delayed beyond 6 hours, most surgeons would perform a fasciotomy at the same time as the embolectomy. However, whilst the compartments below the knee are vulnerable, its very rare for this to occur in the thigh and so, as a rule, the thigh is not treated in this manner."}, {"number": 2, "topic": "Acute limb ischaemia", "stem_html": "An 80 year old lady is brought to the emergency department by her carers. She has been unwell for the past few days. On examination, she has a cold, pulseless leg with fixed mottling, below the knee. A duplex scan shows a stenosis of the profunda femoris and popliteal artery with no flow distal to this. What is the most appropriate course of action.", "options": [{"label_html": "Femoro-femoro cross over graft", "is_correct": false}, {"label_html": "Axillo- femoral bypass graft", "is_correct": false}, {"label_html": "Trans femoral amputation", "is_correct": true}, {"label_html": "Gritti Stokes amputation", "is_correct": false}, {"label_html": "Administration of intravenous unfractionated heparin", "is_correct": false}], "correct_index": 2, "explanation_html": "Fixed mottling is a sign of an unsalvageable limb and mandates either amputation or palliation. A through knee amputation (Gritti Stokes) is unlikely to heal in this setting."}], "note_html": "- Thrombosis of a pre-existing site of atherosclerosis is the commonest cause of acute limb ischaemia<br><ul><li>Acute thrombosis of popliteal aneurysms poses the greatest threat to the limb<\/li><li>Sudden occlusion of a large proximal vessel results in the typical appearances of acute limb ischaemia<\/li><\/ul><br><b>Clinical appearances<\/b><br><ul><li>Less than 6 hours = White leg<\/li><li>At 6 -12 hours = Mottled limb with blanching on pressure<\/li><li>More than 12-24 hours = Fixed mottling<\/li><\/ul><br><b>Management of acutely ischaemic leg<\/b><br><div class=\"table-responsive\"><table class=\"tlarge table table-striped table-bordered\" data-role=\"table\" id=\"tableid1\"><thead><tr><th><b>Clinical picture<\/b><\/th><th><b>Treatment<\/b><\/th><\/tr><\/thead><tbody><tr><td>White leg with sensorimotor deficit<\/td><td>Surgery and embolectomy<\/td><\/tr><tr><td>Dusky leg, mild anaesthesia<\/td><td>Angiography<\/td><\/tr><tr><td>Fixed mottling<\/td><td>Primary amputation<\/td><\/tr><\/tbody><\/table><\/div><br><b>Role of thrombolysis<\/b><br><ul><li>Intra arterial thrombolysis is better than peripheral thrombolysis<\/li><li>Mainly indicated in acute on chronic thrombosis<\/li><li>Avoid if within 2 months of CVA or 2 weeks of surgery<\/li><li>Aspiration of clot may improve success rate if the thrombosis is large<\/li><\/ul><br><b>Surgery<\/b><br><ul><li>Both groins should be prepared<\/li><li>Transverse arteriotomy is easier to close<\/li><li>Poor inflow should be managed with iliac trawl- if this fails to improve then consider a femoro-femoral cross over or axillo-femoral cross over.<\/li><li>A check angiogram should be performed on table and prior to closure<\/li><li>Systemic heparinisation should follow surgery<\/li><li>Fasciotomy should be considered if the time between onset and surgery exceeds 6 hours<\/li><\/ul>"}, {"name": "Amputations", "questions": [{"number": 3, "topic": "Amputations", "stem_html": "A 48 year old woman is admitted with sepsis secondary to an infected diabetic foot ulcer. She has a necrotic and infected forefoot with necrosis of the heel. There is a boggy indurated swelling anterior to the ankle joint. Pulses are normal. What is the best course of action?", "options": [{"label_html": "Above knee amputation", "is_correct": false}, {"label_html": "Amputation of the foot", "is_correct": false}, {"label_html": "Below knee amputation", "is_correct": true}, {"label_html": "Incision and drainage of pus", "is_correct": false}, {"label_html": "Application of 4 layer bandages", "is_correct": false}], "correct_index": 2, "explanation_html": "A below knee amputation is the best option here. The foot is non salvageable. However, she may ambulate with a prosthesis."}, {"number": 4, "topic": "Amputations", "stem_html": "An 84 year old lady is admitted with an infected diabetic foot. An x-ray shows osteomyelitis of her calcaneum. She has a fixed flexion deformity of her knee, but normal pulses. What is the best course of action?", "options": [{"label_html": "Above knee amputation", "is_correct": true}, {"label_html": "Below knee amputation", "is_correct": false}, {"label_html": "Application of 4 layer bandages", "is_correct": false}, {"label_html": "Hyperbaric oxygen therapy", "is_correct": false}, {"label_html": "Debridement of foot bones and application of VAC", "is_correct": false}], "correct_index": 0, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Consider above knee amputation in patients with fixed flexion deformity. <\/div>This patient will not be able to walk with a below knee amputation, therefore an above knee amputation would be preferable, as it guarantees better healing in the short term."}, {"number": 5, "topic": "Amputations", "stem_html": "In which of the following operations are Skew flaps created?", "options": [{"label_html": "Hindquarter amputation", "is_correct": false}, {"label_html": "Above knee amputation", "is_correct": false}, {"label_html": "Gritti- Stokes amputation", "is_correct": false}, {"label_html": "Below knee amputation", "is_correct": true}, {"label_html": "Symes amputation", "is_correct": false}], "correct_index": 3, "explanation_html": "This is one variant of a below knee amputation. The Burgess flap is the other commonly practised approach."}, {"number": 6, "topic": "Amputations", "stem_html": "Which operation below is an amputation of the lower limb in which the femoral condyles are removed and the patella retained?", "options": [{"label_html": "Transfemoral amputation", "is_correct": false}, {"label_html": "Gritti Stokes amputation", "is_correct": true}, {"label_html": "Symes amputation", "is_correct": false}, {"label_html": "Below knee amputation with Burgess flap", "is_correct": false}, {"label_html": "Below knee amputation with Skew flap", "is_correct": false}], "correct_index": 1, "explanation_html": "This is a Gritti - Stokes amputation. During a Gritti - Stokes operation the patella is conserved and swung posteriorly to cover the distal femoral surface."}], "note_html": "Amputations are indicated when the affected limb is one of the following:<br><ul><li><b>Dead<\/b> non viable<\/li><li><b>Deadly<\/b> where it is posing a major threat to life<\/li><li><b>Dead useless<\/b> where it is viable but a prosthesis would be preferable<\/li><\/ul><br><b>Orthopaedic surgery<\/b><br><ul><li>Amputation is often undertaken as an option of last resort e.g. Limb salvage has failed and the limb is so non functional that mobility needs would be best met with prosthesis. <\/li><li>Chronic fracture non union or significant limb shortening following trauma would fit into this category. Occasionally following major trauma a primary amputation is preferable. This would be the case in an open fracture with major distal neurovascular compromise and other more life threatening injuries are present.<\/li><\/ul><br><b>Vascular surgery<\/b><br><ul><li>The first two categories are the most prevalent. <\/li><li>Diabetic foot sepsis is often a major cause of sepsis which can spread rapidly in the presence of established peripheral vascular disease. <\/li><li>As a general rule the main issue in vascular surgery is to optimise vascular inflow prior to surgery. The more distal the planned amputation is to be, the more important this rule becomes. <\/li><li>In other situations there has been something such as an embolic event that has not been revascularised in time. In this case the limb shows fixed mottling and an amputation will be needed.<\/li><\/ul><br><b>Types of amputations<\/b><br>As the vast majority of commonly performed amputations affect the lower limbs these will be covered here. <br><br>The main categories of amputations are:<br><ul><li>\tPelvic disarticulation  (hindquarter)<\/li><li>\tAbove knee amputation <\/li><li>\tGritti Stokes (through knee amputation)<\/li><li>\tBelow knee amputation (using either Skew or Burgess flaps)<\/li><li>Syme's amputation (through ankle)<\/li><li>\tAmputations of mid foot and digits<\/li><\/ul><br>Choosing a level of amputation depends on:<br><ul><li>The disease process being treated<\/li><li>Desired functional outcome <\/li><li>Co-morbidities of the patient <\/li><\/ul><br><b>Above knee amputations<\/b><br><ul><li>Quick to perform<\/li><li>Heal reliably<\/li><li>Patients regain their general health quickly<\/li><li>For this benefit, a functional price has to be paid and many patients over the age of 70 will never walk on an above knee prosthesis.<\/li><li>Above knee amputations use equal anterior-posterior flaps<\/li><\/ul><br><b>Below knee amputations<\/b><br><ul><li>Technically more challenging to perform <\/li><li> Heal less reliably than their above knee counterparts. <\/li><li> However, many more patients are able to walk using a below knee prosthesis. <\/li><li> In below knee amputations the two main flaps are Skew flaps or the Burgess long posterior flap. Skew flaps result in a less bulky limb that is easier to attach a prosthesis to.<\/li><\/ul><br>It is worth remembering that whilst it may be technically feasible to offer a below knee amputation there may be circumstances where an above knee option is preferable. For example, in fixed flexion deformities of the lower limb, little functional benefit would be gained from below knee amputation surgery."}, {"name": "Ankle-Brachial pressure index", "questions": [{"number": 7, "topic": "Ankle-Brachial pressure index", "stem_html": "A 73 year old lifelong heavy smoker presents to the vascular clinic with symptoms of foot ulceration and rest pain. On examination, her foot has areas of gangrene and pulses are impalpable. Which of the ABPI measurements shown below is most compatible with this process?", "options": [{"label_html": "&gt;1.2", "is_correct": false}, {"label_html": "1.0", "is_correct": false}, {"label_html": "0.3", "is_correct": true}, {"label_html": "0.8", "is_correct": false}, {"label_html": "0.5", "is_correct": false}], "correct_index": 2, "explanation_html": "This is critical limb ischaemia. Values of 0.3 are typical in this setting and urgent further imaging is needed. Debridement of necrosis prior to improving arterial inflow carries a high risk of limb loss."}, {"number": 8, "topic": "Ankle-Brachial pressure index", "stem_html": "A 77 year old morbidly obese man with type 2 diabetes presents with leg pain at rest. His symptoms are worst at night and sometimes improve during the day. He has no areas of ulceration. Which of the ABPI measurements shown below is most likely to be found?", "options": [{"label_html": "1.0", "is_correct": false}, {"label_html": "&gt;1.2", "is_correct": true}, {"label_html": "0.3", "is_correct": false}, {"label_html": "0.7", "is_correct": false}, {"label_html": "0.5", "is_correct": false}], "correct_index": 1, "explanation_html": "Type 2 diabetics may have vessel calcification. This will result in abnormally high ABPI readings. Pain of this nature in diabetics is usually neuropathic and if a duplex scan is normal then treatment with an agent such as duloxetine is sometimes helpful."}, {"number": 9, "topic": "Ankle-Brachial pressure index", "stem_html": "Which of the ABPI measurements shown below is most likely to be found in a 45 year old man who develops calf pain after walking 600 yards. It resolves during periods of rest.", "options": [{"label_html": "&gt;1.2", "is_correct": false}, {"label_html": "1.0", "is_correct": false}, {"label_html": "0.7", "is_correct": true}, {"label_html": "0.5", "is_correct": false}, {"label_html": "0.3", "is_correct": false}], "correct_index": 2, "explanation_html": "Since this is a long claudication distance it may be that only a minor lesion is present. Whilst resting ABPI may be normal, they are usually abnormal following exercise."}, {"number": 10, "topic": "Ankle-Brachial pressure index", "stem_html": "Which of the ABPI measurements shown below is most likely to be found in a 43 year old lady with long standing diabetes who complains of foot pain. It is worse at night and during minor exercise.", "options": [{"label_html": "&gt;1.0", "is_correct": true}, {"label_html": "0.9", "is_correct": false}, {"label_html": "0.3", "is_correct": false}, {"label_html": "0.5", "is_correct": false}, {"label_html": "0.7", "is_correct": false}], "correct_index": 0, "explanation_html": "Diabetes may be complicated by vessel calcification and neuropathic pain. Therefore individuals may present with pain which is atypical for claudication both in terms of its tempo of onset and location."}], "note_html": "<ul><li>Measurement of ankle- brachial pressure index (ABPI) is a commonly performed vascular investigation.<\/li><li>Calculated by dividing lower limb pressure by the highest upper limb pressure.<\/li><\/ul><br><b>Results of ABPI<\/b><br><div class=\"table-responsive\"><table class=\"tb\"><tbody><tr><td><b> 1.2 or greater<\/b><\/td><td>Usually due to vessel calcification<\/td><\/tr><tr><td><b>1.0- 1.2<\/b><\/td><td>Normal<\/td><\/tr><tr><td><b>0.8-1.0<\/b><\/td><td>Minor stenotic lesion<br>Initiate risk factor management<\/td><\/tr><tr><td><b>0.50-0.8<\/b><\/td><td>Moderate stenotic lesion<br>Consider duplex<br>Risk factor management<br>If mixed ulcers present then avoid tight compression bandages<\/td><\/tr><tr><td><b>0.3 - 0.5<\/b><\/td><td>Likely significant stenosis<br>Duplex scanning to delineate lesions needed<br>Compression bandaging contra indicated<\/td><\/tr><tr><td><b>Less than 0.3<\/b><\/td><td>Indicative of critical ischaemia<br>Urgent detailed imaging required<\/td><\/tr><\/tbody><\/table><\/div>"}, {"name": "Aortic dissection", "questions": [{"number": 11, "topic": "Aortic dissection", "stem_html": "Which of the following changes are most likely to be identified in the aortic wall of a 38 year old lady with a Marfans syndrome and a dissecting aortic aneurysm?", "options": [{"label_html": "Transmural aortitis", "is_correct": false}, {"label_html": "Cystic medial necrosis", "is_correct": true}, {"label_html": "Foamy macrophages", "is_correct": false}, {"label_html": "Dense dystrophic calcification", "is_correct": false}, {"label_html": "None of the above", "is_correct": false}], "correct_index": 1, "explanation_html": "Cystic medial necrosis ( or cystic medial degeneration) occurs when basophils and mucoid material lie in between the intimal elastic fibres of the aorta. It is typically found in the aortic degeneration of Marfans syndrome, but may also be seen in aortic degeneration in older adults."}, {"number": 12, "topic": "Aortic dissection", "stem_html": "An unusually tall 43 year old lady presents to the surgical clinic with bilateral inguinal hernias. She develops chest pain and collapses. As part of her investigations a chest x-ray shows evidence of mediastinal widening. What is the most likely explanation for the collapse?", "options": [{"label_html": "Pulmonary embolus", "is_correct": false}, {"label_html": "Aortic dissection", "is_correct": true}, {"label_html": "Tietze syndrome", "is_correct": false}, {"label_html": "Boerhaaves syndrome", "is_correct": false}, {"label_html": "Myocardial infarct", "is_correct": false}], "correct_index": 1, "explanation_html": "Marfans syndrome may present with a variety of connective tissue disorders such as bilateral inguinal hernia. They are at high risk of aortic dissection, as in this case."}, {"number": 13, "topic": "Aortic dissection", "stem_html": "An unusually tall 43 year old lady presents to the surgical clinic with bilateral inguinal hernias. She develops chest pain and collapses. As part of her investigations a chest x-ray shows evidence of mediastinal widening. What is the most likely explanation for the collapse?", "options": [{"label_html": "Pulmonary embolus", "is_correct": false}, {"label_html": "Aortic dissection", "is_correct": true}, {"label_html": "Tietze syndrome", "is_correct": false}, {"label_html": "Boerhaaves syndrome", "is_correct": false}, {"label_html": "Myocardial infarct", "is_correct": false}], "correct_index": 1, "explanation_html": "Marfans syndrome may present with a variety of connective tissue disorders such as bilateral inguinal hernia. They are at high risk of aortic dissection, as in this case."}, {"number": 14, "topic": "Aortic dissection", "stem_html": "An unusually tall 43 year old lady presents to the surgical clinic with bilateral inguinal hernias. She develops chest pain and collapses. As part of her investigations a chest x-ray shows evidence of mediastinal widening. What is the most likely explanation for the collapse?", "options": [{"label_html": "Pulmonary embolus", "is_correct": false}, {"label_html": "Aortic dissection", "is_correct": true}, {"label_html": "Tietze syndrome", "is_correct": false}, {"label_html": "Boerhaaves syndrome", "is_correct": false}, {"label_html": "Myocardial infarct", "is_correct": false}], "correct_index": 1, "explanation_html": "Marfans syndrome may present with a variety of connective tissue disorders such as bilateral inguinal hernia. They are at high risk of aortic dissection, as in this case."}, {"number": 15, "topic": "Aortic dissection", "stem_html": "An unusually tall 43 year old lady presents to the surgical clinic with bilateral inguinal hernias. She develops chest pain and collapses. As part of her investigations a chest x-ray shows evidence of mediastinal widening. What is the most likely explanation for the collapse?", "options": [{"label_html": "Pulmonary embolus", "is_correct": false}, {"label_html": "Aortic dissection", "is_correct": true}, {"label_html": "Tietze syndrome", "is_correct": false}, {"label_html": "Boerhaaves syndrome", "is_correct": false}, {"label_html": "Myocardial infarct", "is_correct": false}], "correct_index": 1, "explanation_html": "Marfans syndrome may present with a variety of connective tissue disorders such as bilateral inguinal hernia. They are at high risk of aortic dissection, as in this case."}], "note_html": "<ul><li>More common than rupture of the abdominal aorta<\/li><li>33% of patients die within the first 24 hours, and 50% die within 48 hours if no treatment received<\/li><li>Associated with hypertension<\/li><li>Features of aortic dissection: tear in the intimal layer, followed by formation and propagation of a subintimal hematoma.  Cystic medial necrosis (Marfan's)<\/li><li>Most common site of dissection:  90% occurring within 10 centimetres of the aortic valve<\/li><\/ul><br><b>Stanford Classification<\/b><br><div class=\"table-responsive\"><table class=\"tlarge table table-striped table-bordered\" data-role=\"table\" id=\"tableid1\"><thead><tr><th><b>Type<\/b><\/th><th><b>Location<\/b><\/th><th><b>Treatment<\/b><\/th><\/tr><\/thead><tbody><tr><td>A<\/td><td>Ascending aorta/ aortic root<\/td><td>Surgery- aortic root replacement<\/td><\/tr><tr><td>B<\/td><td>Descending aorta<\/td><td>Medical therapy with antihypertensives<\/td><\/tr><\/tbody><\/table><\/div><br><b>DeBakey classification<\/b><br><div class=\"table-responsive\"><table class=\"tlarge table table-striped table-bordered\" data-role=\"table\" id=\"tableid2\"><thead><tr><th><b>Type<\/b><\/th><th><b>Site affected<\/b><\/th><\/tr><\/thead><tbody><tr><td>I<\/td><td>Ascending aorta, aortic arch, descending aorta<\/td><\/tr><tr><td>II<\/td><td>Ascending aorta only<\/td><\/tr><tr><td>III<\/td><td>Descending aorta distal to left subclavian artery<\/td><\/tr><\/tbody><\/table><\/div><br><b>Clinical features<\/b><br><ul><li>Tearing, sudden onset chest pain (painless 10%)<\/li><li>Hypertension or Hypotension<\/li><li>A blood pressure difference (in each arm) greater than 20 mm Hg <\/li><li>Neurologic deficits (20%)<\/li><\/ul><br><b>Investigations<\/b><br><ul><li>CXR: widened mediastinum, abnormal aortic knob, ring sign, deviation of the trachea/oesophagus<\/li><li>CT angiography of the thoracic aorta<\/li><li>MRI angiography<\/li><li>Conventional angiography (now rarely used diagnostically)<\/li><\/ul><br><b>Management<\/b><br><ul><li>Beta-blockers: aim HR 60-80 bpm and systolic BP 100-120 mm Hg<\/li><li>For type A dissections the standard of care is aortic root replacement<\/li><\/ul>"}, {"name": "Axillary vein thrombosis", "questions": [{"number": 16, "topic": "Axillary vein thrombosis", "stem_html": "A 21 year old badminton player attends A&amp;E with a painful, swollen right arm.  He is right handed.  Clinically he has dusky fingers and his upper limb pulses are present.  An axillary vein thrombosis is confirmed.  What is the best acute treatment to achieve vein patency?", "options": [{"label_html": "Intravenous heparin", "is_correct": false}, {"label_html": "Warfarin", "is_correct": false}, {"label_html": "Catheter directed tPA", "is_correct": true}, {"label_html": "Low molecular weight heparin", "is_correct": false}, {"label_html": "Aspirin", "is_correct": false}], "correct_index": 2, "explanation_html": "Heparin and warfarin prevent propagation of the clot. Chronic axillary-subclavian vein thrombosis (ASVT) rarely responds to thrombolytics and generally is better treated conservatively with warfarin."}], "note_html": "<ul><li>1-2% of all deep venous thrombosis<\/li><li>Primary cause is associated with trauma, thoracic outlet obstruction or repeated effort in a dominant arm (young active individuals)<\/li><li>Secondary causes include central line insertion, malignancy, pacemakers<\/li><\/ul><br><b>Clinical features<\/b><br><ul><li>Pain and swelling (non pitting)<\/li><li>Numbness<\/li><li>Discolouration: mottling, dusky<\/li><li>Pulses present<\/li><li>Congested veins<\/li><\/ul><br><b>Investigations<\/b><br><ul><li>FBC: viscosity, platelet function<\/li><li>Clotting<\/li><li>Liver function tests<\/li><li>D-dimer<\/li><li>Duplex scan: investigation of choice<\/li><li>CT scan: thoracic outlet obstruction<\/li><\/ul><br><b>Treatment<\/b><br><ul><li>Local catheter directed TPA<\/li><li>Heparin<\/li><li>Warfarin<\/li><\/ul>"}, {"name": "Cardiac murmurs", "questions": [{"number": 17, "topic": "Cardiac murmurs", "stem_html": "A 22 year old intravenous drug user is found to have a femoral abscess. The nursing staff contact the on call doctor as the patient has a temperature of 39<sup>o<\/sup>C. He is found to have a pan systolic murmur loudest at the left sternal edge at the 4th intercostal space. What is the most likely underlying lesion?", "options": [{"label_html": "Aortic regurgitation", "is_correct": false}, {"label_html": "Mitral regurgitation", "is_correct": false}, {"label_html": "Aortic stenosis", "is_correct": false}, {"label_html": "Tricuspid stenosis", "is_correct": false}, {"label_html": "Tricuspid regurgitation", "is_correct": true}], "correct_index": 4, "explanation_html": "Intravenous drug users are at high risk of right sided cardiac valvular endocarditis. The character of the murmur fits with a diagnosis of tricuspid valve endocarditis."}, {"number": 18, "topic": "Cardiac murmurs", "stem_html": "An 83 year old woman is admitted with a left intertrochanteric neck of femur fracture. On examination, the patient is found to have an ejection systolic murmur loudest in the aortic region. There is no radiation of the murmur to the carotid arteries. Her ECG is normal. What is the most likely lesion?", "options": [{"label_html": "Mitral valve stenosis", "is_correct": false}, {"label_html": "Aortic valve sclerosis", "is_correct": true}, {"label_html": "Aortic valve regurgitation", "is_correct": false}, {"label_html": "Tricuspid valve stenosis", "is_correct": false}, {"label_html": "Mitral valve regurgitation", "is_correct": false}], "correct_index": 1, "explanation_html": "The most likely diagnosis is aortic sclerosis. The main differential diagnosis is of aortic stenosis, however as there is no radiation of the murmur to the carotids and the ECG is normal, this is less likely."}], "note_html": "<div class=\"table-responsive\"><table class=\"tlarge table table-striped table-bordered\" data-role=\"table\" id=\"tableid1\"><thead><tr><th><b>Type of Murmur<\/b><\/th><th><b>Conditions<\/b><\/th><\/tr><\/thead><tbody><tr><td>Ejection systolic<\/td><td>Aortic stenosis<br>Pulmonary stenosis, HOCM<br>ASD, Fallot's<\/td><\/tr><tr><td>Pan-systolic<\/td><td>Mitral regurgitation<br>Tricuspid regurgitation<br>VSD<\/td><\/tr><tr><td>Late systolic<\/td><td>Mitral valve prolapse<br>Coarctation of aorta<\/td><\/tr><tr><td>Early diastolic<\/td><td>Aortic regurgitation<br>Graham-Steel murmur (pulmonary regurgitation)<\/td><\/tr><tr><td>Mid diastolic<\/td><td>Mitral stenosis<br>Austin-Flint murmur (severe aortic regurgitation)<\/td><\/tr><\/tbody><\/table><\/div>"}, {"name": "Carotid body tumour", "questions": [{"number": 19, "topic": "Carotid body tumour", "stem_html": "A 60 year old Tibetan immigrant is referred to the surgical clinic with a painless neck swelling. On examination, it is located on the left side of the neck in the anterior triangle. There are no other abnormalities to find. What is the most likely diagnosis?", "options": [{"label_html": "Carotid body tumour", "is_correct": true}, {"label_html": "Submandibular gland calculus", "is_correct": false}, {"label_html": "Carotid artery aneurysm", "is_correct": false}, {"label_html": "Fibromatosis colli", "is_correct": false}, {"label_html": "Laryngeal cancer", "is_correct": false}], "correct_index": 0, "explanation_html": "The most likely diagnosis is a carotid body tumour and it is likely to be of the hyperplastic type."}, {"number": 20, "topic": "Carotid body tumour", "stem_html": "A 45 year old man undergoes a surgical excision of a carotid body tumour. Histological analysis is most likely to demonstrate which of the following?", "options": [{"label_html": "Paraganglionoma", "is_correct": true}, {"label_html": "Fibromatosis colli", "is_correct": false}, {"label_html": "Schwannoma", "is_correct": false}, {"label_html": "Lipoma", "is_correct": false}, {"label_html": "Neuroma", "is_correct": false}], "correct_index": 0, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Carotid body tumours are the commonest type of head and neck paraganglionoma.<\/div>"}], "note_html": "These are rare tumours. However, they typically account for around 60% of head and neck paraganglionomas. They are usually tumours of middle age. Around 5% are bilateral and around 5% are malignant. They are rarely found as part of the MEN II or neurofibromatosis type I disease complexes. <br><br>They typically present as an asymptomatic neck mass in the anterior triangle of the neck. They are typically slow growing lesions. <br><br><div class=\"alert alert-warning\"><b>Types of carotid body tumour<\/b><br><ul><li><b>Sporadic<\/b> - Accounts for 85% of cases<\/li><li><b>Familial<\/b> - Seen in around 10% of cases and usually in younger patients<\/li><li><b>Hyperplastic<\/b> - Seen in those at high altitude or in those with COPD<\/li><\/ul><\/div><br><b>Imaging<\/b><br>They are readily imaged using duplex ultrasonography. CT angiography is sometimes helpful. <br><br><b>Treatment<\/b><br>Typically this comprises surgical resection. This is preceded by embolization in selected cases."}, {"name": "Cervical ribs", "questions": [{"number": 21, "topic": "Cervical ribs", "stem_html": "A 23 year old man presents with a brachial artery embolus. A cervical rib is suspected as being the underlying cause. From which of the following vertebral levels do they most often arise?", "options": [{"label_html": "C7", "is_correct": true}, {"label_html": "C5", "is_correct": false}, {"label_html": "C4", "is_correct": false}, {"label_html": "C3", "is_correct": false}, {"label_html": "C2", "is_correct": false}], "correct_index": 0, "explanation_html": "They usually arise from C7."}, {"number": 22, "topic": "Cervical ribs", "stem_html": "A cervical rib is due to which of the following?", "options": [{"label_html": "Hyperplasia of the annulus fibrosus", "is_correct": false}, {"label_html": "Proliferation of the nucleus pulposus", "is_correct": false}, {"label_html": "Fusion of the transverse processes of the 6th and 7th cervical vertebrae", "is_correct": false}, {"label_html": "An accessory cervical vertebra", "is_correct": false}, {"label_html": "Elongation of the transverse processes of the 7th cervical vertebra", "is_correct": true}], "correct_index": 4, "explanation_html": "Cervical ribs occur as a result of the elongation of the transverse process of the 7th cervical vertebra. It is usually a fibrous band that attaches to the first thoracic rib."}], "note_html": "<ul><li>0.2-0.4% incidence<\/li><li>Most cases present with neurological symptoms<\/li><li>Consist of an anomalous fibrous band that often originates from C7 and may arc towards, but rarely reaches the sternum<\/li><li>Congenital cases may present around the third decade, some cases are reported to occur following trauma<\/li><li>Bilateral in up to 70%<\/li><li>Compression of the subclavian artery may produce absent radial pulse on clinical examination and in particular may result in a positive Adsons test (lateral flexion of the neck towards the symptomatic side and traction of the symptomatic arm- leads to obliteration of radial pulse)<\/li><li>Treatment is most commonly undertaken when there is evidence of neurovascular compromise. A transaxillary approach is the traditional operative method for excision.<\/li><\/ul><br><center><table><tbody><tr><td align=\"left\" colspan=\"2\"><a data-fancybox=\"\" class=\"fancybox\" rel=\"group\" href=\"https://d2zgo9qer4wjf4.cloudfront.net/images_eMRCS/swb023b.jpg\"><img class=\"ajaximage\" src=\"https://d2zgo9qer4wjf4.cloudfront.net/images_eMRCS/swb023.jpg\"><\/a><\/td><\/tr><tr><td valign=\"top\" align=\"left\"> <span style=\"font-size:11px; color:LightGray;\">Image sourced from <\/span><a href=\"http://en.wikipedia.org/wiki/Cervical rib\" target=\"_blank\" style=\"font-size:11px; color:LightGray;\">Wikipedia<\/a><\/td><td align=\"right\"><a data-fancybox=\"\" class=\"fancybox lbmagglasslink\" rel=\"group\" href=\"https://d2zgo9qer4wjf4.cloudfront.net/images_eMRCS/swb023b.jpg\"><img src=\"https://d2zgo9qer4wjf4.cloudfront.net/css/images/mag_glass.png\"><\/a><\/td><\/tr><\/tbody><\/table><\/center>3D reconstruction of a left-sided cervical rib"}, {"name": "Chronic venous insufficiency and varicose veins", "questions": [{"number": 23, "topic": "Chronic venous insufficiency and varicose veins", "stem_html": "A 40 year old lady presents to the surgical clinic with symptoms related to varicose veins. She has noticed that these first developed when she was pregnant. On examination, she has a truncal varicosity of the medial leg, there are no ulcers or skin changes. A hand held Doppler examination demonstrates sapheno popliteal junction reflux. What is the most appropriate course of action?", "options": [{"label_html": "Offer the patient sapheno-popliteal junction ligation", "is_correct": false}, {"label_html": "Offer the patient foam sclerotherapy of the sapheno-popliteal junction", "is_correct": false}, {"label_html": "Offer the patient laser ablation of the sapheno-popliteal junction", "is_correct": false}, {"label_html": "Arrange contrast venography", "is_correct": false}, {"label_html": "Arrange a duplex scan", "is_correct": true}], "correct_index": 4, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Sapheno-popliteal junction incompetence must be imaged prior to starting treatment<\/div>"}, {"number": 24, "topic": "Chronic venous insufficiency and varicose veins", "stem_html": "A 40 year old lady presents to the surgical clinic with symptoms related to varicose veins. She has noticed that these first developed when she was pregnant. On examination, she has a truncal varicosity of the medial leg, there are no ulcers or skin changes. A hand held Doppler examination demonstrates sapheno popliteal junction reflux. What is the most appropriate course of action?", "options": [{"label_html": "Offer the patient sapheno-popliteal junction ligation", "is_correct": false}, {"label_html": "Offer the patient foam sclerotherapy of the sapheno-popliteal junction", "is_correct": false}, {"label_html": "Offer the patient laser ablation of the sapheno-popliteal junction", "is_correct": false}, {"label_html": "Arrange contrast venography", "is_correct": false}, {"label_html": "Arrange a duplex scan", "is_correct": true}], "correct_index": 4, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Sapheno-popliteal junction incompetence must be imaged prior to starting treatment<\/div>"}, {"number": 25, "topic": "Chronic venous insufficiency and varicose veins", "stem_html": "Which of the following features are not typically seen in a venous stasis ulcer?", "options": [{"label_html": "Located above the medial malleolus", "is_correct": false}, {"label_html": "Haemosiderin deposits", "is_correct": false}, {"label_html": "Variable scarring", "is_correct": false}, {"label_html": "Exophytic granulation tissue", "is_correct": true}, {"label_html": "Varicose veins", "is_correct": false}], "correct_index": 3, "explanation_html": "Whilst the base of the ulcer may be lined by granulation tissue, this is seldom exophytic. One of the concerns would be that this represents a malignant transformation."}, {"number": 26, "topic": "Chronic venous insufficiency and varicose veins", "stem_html": "Which of the interventions listed below would not be conventional treatment for a venous ulcer?", "options": [{"label_html": "Compression bandages", "is_correct": false}, {"label_html": "Limb elevation to control oedema", "is_correct": false}, {"label_html": "Optimisation of glycaemic control of diabetic", "is_correct": false}, {"label_html": "Use of skin grafts in selected cases", "is_correct": false}, {"label_html": "Excision and closure in selected cases", "is_correct": true}], "correct_index": 4, "explanation_html": "Most venous ulcers are managed with compression bandages. Skin grafting is sometimes used. However, ulcer excision is not standard practice and closure would be impossible."}], "note_html": "Wide spectrum of disease ranging from minor cosmetic problem through to ulceration and disability. It is commoner in women than men and is worse during pregnancy. Varicose veins are best considered as being a saccular dilation of veins (WHO). Chronic venous insufficiency is a series of tissue changes which occur in relation to pooling of blood in the extremities with associated venous hypertension occurring as a result of incompetent deep vein valves. <br><br>The veins of the lower limb consist of an interconnected network of superficial and deep venous systems. Varices occur because of localised weakness in the vein wall resulting in dilatation and reflux of blood due to non union of valve cusps. Histologically, the typical changes include fibrous scar tissue dividing smooth muscle within media in the vessel wall.<br><br>Tissue damage in chronic venous insufficiency occurs because of perivascular cytokine leakage resulting in localised tissue damage coupled with impaired lymphatic flow.<br><br><b>Diagnosis<\/b><br>Typical symptoms of varicose veins include:<br><ul><li>Cosmetic appearance<\/li><li>Aching<\/li><li>Ankle swelling that worsens as the day progresses<\/li><li>Episodic thrombophlebitis<\/li><li>Bleeding<\/li><li>Itching<\/li><\/ul><br>Symptoms of chronic venous insufficiency include:<br><ul><li>Dependant leg pain<\/li><li>Prominent leg swelling<\/li><li>Oedema extending beyond the ankle<\/li><li>Venous stasis ulcers<\/li><\/ul><br>The typical venous stasis ulcer is: <br><ul><li>Located above the medial malleolus<\/li><li>Indolent appearance with basal granulation tissue<\/li><li>Variable degree of scarring<\/li><li>Non ischaemic edges<\/li><li>Haemosiderin deposition in the gaiter area (and also lipodermatosclerosis).<\/li><\/ul><br><b>Differential diagnosis<\/b> <br><ul><li>Lower limb arterial disease<\/li><li>Marjolins ulcer<\/li><li>Claudication<\/li><li>Spinal stenosis<\/li><li>Swelling due to medical causes e.g.  CCF.<\/li><\/ul><br>Exclusion of these differentials is by means of physical examination and ankle brachial pressure index measurement.<br><br><b>Examination<\/b><br><ul><li>Assess for dilated short saphenous vein (popliteal fossa) and palpate for saphena varix medial to the femoral artery<\/li><li>Brodie-Trendelenburg test: to assess level of incompetence<\/li><li>Perthes' walking test: assess if deep venous system competent<\/li><\/ul><br><b>Investigation<\/b><br><ul><li>Doppler exam: if incompetent a biphasic signal due to retrograde flow is detected<\/li><li>Duplex scanning: to ensure patent deep venous system (do if DVT or trauma)<\/li><\/ul><br>All patients should have a Doppler assessment to assess for venous reflux and should be classified as having uncomplicated varicose veins or varicose veins with associated chronic venous insufficiency. In the history establishing a previous thrombotic event (DVT/ lower limb fracture) is important and patients with such a history and all who have evidence of chronic venous insufficiency should have a duplex scan performed. <br><br>Owing to litigation patients with saphenopopliteal incompetence should have a duplex scan performed and the site marked by scan on the day of surgery.<br><br><b>Treatment<\/b><br>Indications for surgery:<br><ul><li>Cosmetic: majority<\/li><li>Lipodermatosclerosis causing venous ulceration <\/li><li>Recurrent superficial thrombophlebitis <\/li><li>Bleeding from ruptured varix <\/li><\/ul><br><div class=\"table-responsive\"><table class=\"table table-bordered\"><tbody><tr><td><b>Condition\t<\/b><\/td><td><b>Therapy<\/b><\/td><\/tr><tr><td>Minor varicose veins - no complications<\/td><td>\tReassure/ cosmetic therapy<\/td><\/tr><tr><td>Symptomatic uncomplicated varicose veins\t<\/td><td>In those without deep venous insufficiency options include; endothermal ablation, foam sclerotherapy, saphenofemoral / popliteal disconnection, stripping and avulsions, compression stockings<\/td><\/tr><tr><td>Varicose veins with skin changes\t<\/td><td>Therapy as above (if compression minimum is formal class I stockings)<\/td><\/tr><tr><td>Chronic venous insufficiency or ulcers<\/td><td>\tClass 2-3 compression stockings (ensure no arterial disease).<\/td><\/tr><\/tbody><\/table><\/div><br><ul><li>Application of formal compression stockings (usually class II/III). In patients who have suffered ulceration, compression stockings should be worn long term. Where ulceration is present and established saphenofemoral reflux exists this should be addressed surgically for durable relief of symptoms, either at the outset or following ulcer healing. <\/li><li>Injection sclerotherapy (5% Ethanolamine oleate), foam is increasingly popular, though transient blindness has been reported. Endo venous laser therapy is another minimally invasive option<\/li><li>Sapheno-femoral or sapheno-popliteal ligation, in the case of the LSV; stripping and multiple phlebectomies<\/li><\/ul><br><b>Current best practice guidance<\/b><br>In the United Kingdom the National Institute of Clinical Excellence guidance on varicose veins suggests that for patients with symptomatic varicose veins the first line procedure of choice should be endothermal ablation (see reference for more information). Where this is unavailable or unsuitable then foam sclerotherapy should be the second line option. Surgery is currently the third line treatment option.<br><br><b>Trendelenburg procedure (sapheno-femoral junction ligation)<\/b><br><ul><li>Head tilt 15 degrees and legs abducted<\/li><li>Oblique incision 1cm medial from artery<\/li><li>Tributaries ligated (Superficial circumflex iliac vein, Superficial inferior epigastric vein, Superficial and deep external pudendal vein)<\/li><li>SF junction double ligated<\/li><li>Saphenous vein stripped to level of knee/upper calf. NB increased risk of saphenous neuralgia if stripped more distally<\/li><\/ul><br><b>References<\/b><br>Marsden G <i>et al<\/i>. Diagnosis of management of varicose veins in the the legs: summary of NICE guidance. <i>BMJ<\/i> 2013 (347): 30-31."}, {"name": "Congenital heart disease", "questions": [{"number": 27, "topic": "Congenital heart disease", "stem_html": "A 1-day-old baby girl is noted to become profoundly cyanotic whilst feeding and crying. A diagnosis of congenital heart disease is suspected. What is the most likely cause?", "options": [{"label_html": "Transposition of the great arteries", "is_correct": true}, {"label_html": "Coarctation of the aorta", "is_correct": false}, {"label_html": "Patent ductus arteriosus", "is_correct": false}, {"label_html": "Hypoplastic left heart", "is_correct": false}, {"label_html": "Ventricular septal defect", "is_correct": false}], "correct_index": 0, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Congenital heart disease<br><ul><li>Cyanotic: TGA most common at birth, Fallot's most common overall<\/li><li>Acyanotic: VSD most common cause<\/li><\/ul><\/div>It is important to be aware of common congenital cardiac abnormalities. The main differentiating factor is whether the patient is cyanotic or acyanotic. In the neonate, TGA is the most common condition presenting with profound cyanosis. <br><br>The other options are causes of acyanotic congenital heart disease"}], "note_html": "Acyanotic - most common causes<br><ul><li>Ventricular septal defects (VSD) - most common, accounts for 30%<\/li><li>Atrial septal defect (ASD)<\/li><li>Patent ductus arteriosus (PDA)<\/li><li>Coarctation of the aorta<\/li><li>Aortic valve stenosis<\/li><\/ul><br>VSDs are more common than ASDs. However, in adult patients ASDs are the more common new diagnosis as they generally present later.<br><br>Cyanotic - most common causes<br><ul><li>Tetralogy of Fallot<\/li><li>Transposition of the great arteries (TGA)<\/li><li>Tricuspid atresia<\/li><li>Pulmonary valve stenosis<\/li><\/ul>"}, {"name": "Klippel-Trenaunay syndrome", "questions": [{"number": 28, "topic": "Klippel-Trenaunay syndrome", "stem_html": "A 34 year old man presents with varicose veins and it is suspected that these are part of the Klippel-Trenaunay syndrome. Which of the following is not a characteristic of this condition?", "options": [{"label_html": "Presence of varicose veins", "is_correct": false}, {"label_html": "Gigantism of a limb", "is_correct": false}, {"label_html": "Long saphenous vein involvement", "is_correct": true}, {"label_html": "Port wine stains with clear borders", "is_correct": false}, {"label_html": "Low flow rates through capillary anomalies", "is_correct": false}], "correct_index": 2, "explanation_html": "The Klippel-Trenaunay vein is a large, lateral, superficial vein sometimes seen at birth. This vein begins in the foot or the lower leg and travels proximally until it enters the thigh or the gluteal area. Otherwise, varicosities may not be clinically evident until the child begins to ambulate.<br>Varicosities may be extensive, though they often spare the saphenous distribution. They are seen below the knee, laterally above the knee, and occasionally in the pelvic region. Varicosities may affect the superficial, deep, and perforating venous systems.<br>Flow rates through the vascular anomalies are low flow rates in contrast to Parkes Weber syndrome where high flow rates are seen.<br>Surgical exploration has demonstrated atresia and agenesis of deep veins, compression due to fibrous bands, aberrant arteries, abnormal muscles, or venous sheaths.<br>Rarely, varicosities have been found in the bladder, the colon, and the pulmonary vessels"}, {"number": 29, "topic": "Klippel-Trenaunay syndrome", "stem_html": "A 22 year old man is referred to the surgical clinic. He has been complaining of varicose veins for many years. On examination he has extensive varicosities of the right leg, there are areas of marked port wine staining. The saphenofemoral junction is competent on doppler assessment. The most likely underlying diagnosis is:", "options": [{"label_html": "Deep vein thrombosis", "is_correct": false}, {"label_html": "Klippel-Trenaunay syndrome", "is_correct": true}, {"label_html": "Varicose veins due to sapheno-popliteal junction incompetence", "is_correct": false}, {"label_html": "Sturge - Weber syndrome", "is_correct": false}, {"label_html": "Angiosarcoma", "is_correct": false}], "correct_index": 1, "explanation_html": "Sturge - Weber syndrome is a an arteriovenous malformation affecting the face and CNS, the peripheral vessels are not affected. Simple varicose veins should not typically be associated with port wine staining, nor should a DVT or angiosarcoma."}], "note_html": "Klippel-Trenaunay-Weber syndrome generally affects a single extremity, although cases of multiple affected limbs have been reported. The leg is the most common site followed by the arms, the trunk, and rarely the head and the neck<br><br><b>Signs and symptoms<\/b><br>The birth defect is diagnosed by the presence of a combination of these symptoms:<br><ul><li>One or more distinctive port-wine stains with sharp borders<\/li><li>Varicose veins<\/li><li>Hypertrophy of bony and soft tissues, that may lead to local gigantism or shrinking.<\/li><li>An improperly developed lymphatic system<\/li><\/ul>In some cases, port-wine stains (capillary port wine type) may be absent. Such cases are very rare and may be classified as 'atypical Klippel-Trenaunay syndrome'.<br><br>KTS can either affect blood vessels, lymph vessels, or both. The condition most commonly presents with a mixture of the two. Those with venous involvement experience increased pain and complications."}, {"name": "Lower leg ulcers", "questions": [{"number": 30, "topic": "Lower leg ulcers", "stem_html": "A 65 year old diabetic female presents with a painless ulcer at the medial malleolus, it has been present for the past 16 years. On examination, she has evidence of truncal varicosities and a brownish discolouration of the skin overlying the affected area. What is the most likely cause?", "options": [{"label_html": "Chronic obliterative arterial disease", "is_correct": false}, {"label_html": "Superficial venous insufficiency", "is_correct": true}, {"label_html": "Vasculitis", "is_correct": false}, {"label_html": "Mixed ulcer", "is_correct": false}, {"label_html": "Neuropathic ulcer", "is_correct": false}], "correct_index": 1, "explanation_html": "Venous ulcers are usually associated with features of venous insufficiency. These include haemosiderin deposition and varicose veins. Neuropathic ulcers will tend to present at sites of pressure, which is not typically at the medial malleolus."}, {"number": 31, "topic": "Lower leg ulcers", "stem_html": "A 71 year old man presents with a painful lower calf ulcer, mild pitting oedema and an ABPI of 0.3. What is the most likely cause?", "options": [{"label_html": "Mixed ulcer", "is_correct": false}, {"label_html": "Deep venous insufficiency", "is_correct": false}, {"label_html": "Chronic obliterative arterial disease", "is_correct": true}, {"label_html": "Squamous cell carcinoma", "is_correct": false}, {"label_html": "Neuropathic ulcer", "is_correct": false}], "correct_index": 2, "explanation_html": "Painful ulcers associated with a low ABPI are usually arterial in nature. The question does not indicate that features of chronic venous insufficiency are present. Patients may have mild pitting oedema as many vascular patients will also have ischaemic heart disease and elevated right heart pressures. The absence of more compelling signs of venous insufficiency makes a mixed ulcer less likely."}, {"number": 32, "topic": "Lower leg ulcers", "stem_html": "A 79 year old retired teacher has had an ulcer for 15 years. It is at the medial malleolus and has associated lipodermatosclerosis of the lower limb. The ulcer base is heaped up and irregular. What is the most likely diagnosis?", "options": [{"label_html": "Basal cell carcinoma", "is_correct": false}, {"label_html": "Superficial venous insufficiency", "is_correct": false}, {"label_html": "Squamous cell carcinoma", "is_correct": true}, {"label_html": "Mixed ulcer", "is_correct": false}, {"label_html": "Chronic obliterative arterial disease", "is_correct": false}], "correct_index": 2, "explanation_html": "If, after many years, an ulcer becomes heaped up and irregular, with exophytic edges then suspect a squamous cell carcinoma."}, {"number": 33, "topic": "Lower leg ulcers", "stem_html": "A 62 year old diabetic man presents with long standing plantar ulcer. He has clinical evidence of a charcot foot. What is the most likely diagnosis?", "options": [{"label_html": "Mixed ulcer", "is_correct": false}, {"label_html": "Chronic obliterative arterial disease", "is_correct": false}, {"label_html": "Neuropathic ulcer", "is_correct": true}, {"label_html": "Squamous cell carcinoma", "is_correct": false}, {"label_html": "Deep venous insufficiency", "is_correct": false}], "correct_index": 2, "explanation_html": "Plantar ulcers in association with peripheral neuropathy are often neuropathic. They classically occur at pressure points."}, {"number": 34, "topic": "Lower leg ulcers", "stem_html": "A 66 year old female has long standing mixed arteriovenous ulcers of the lower leg. Over the past 6 months one of the ulcers has become much worse and despite a number of different topical therapies is increasing in size. What is the most likely diagnosis?", "options": [{"label_html": "Neuropathic ulcer", "is_correct": false}, {"label_html": "Mixed ulcer", "is_correct": false}, {"label_html": "Deep venous insufficiency", "is_correct": false}, {"label_html": "Marjolins ulcer", "is_correct": true}, {"label_html": "Chronic obliterative arterial disease", "is_correct": false}], "correct_index": 3, "explanation_html": "Marjolin's ulcer is a squamous cell carcinoma occurring at sites of chronic inflammation or previous injury."}, {"number": 35, "topic": "Lower leg ulcers", "stem_html": "A 66 year old female has long standing mixed arteriovenous ulcers of the lower leg. Over the past 6 months one of the ulcers has become much worse and despite a number of different topical therapies is increasing in size. What is the most likely diagnosis?", "options": [{"label_html": "Neuropathic ulcer", "is_correct": false}, {"label_html": "Mixed ulcer", "is_correct": false}, {"label_html": "Deep venous insufficiency", "is_correct": false}, {"label_html": "Marjolins ulcer", "is_correct": true}, {"label_html": "Chronic obliterative arterial disease", "is_correct": false}], "correct_index": 3, "explanation_html": "Marjolin's ulcer is a squamous cell carcinoma occurring at sites of chronic inflammation or previous injury."}, {"number": 36, "topic": "Lower leg ulcers", "stem_html": "An 18 year old lady presents with extensive  varicose veins of her left leg.  There is associated port wine staining.  What is the most likely diagnosis?", "options": [{"label_html": "Type 1 diabetes", "is_correct": false}, {"label_html": "Osler syndrome", "is_correct": false}, {"label_html": "Gardner's syndrome", "is_correct": false}, {"label_html": "Proteus syndrome", "is_correct": false}, {"label_html": "Klippel-Trenaunay-Weber syndrome", "is_correct": true}], "correct_index": 4, "explanation_html": "A less common cause of venous insufficiency is Klippel-Trenaunay-Weber (KTW) syndrome, which involves port-wine stains, varicose veins, and bony or soft-tissue hypertrophy."}, {"number": 37, "topic": "Lower leg ulcers", "stem_html": "A 74 year old lady is diagnosed as having a chronic venous leg ulcer. Which of these features either in the history or on examination would be suggestive of an alternative diagnosis?", "options": [{"label_html": "Heaped raised borders if the ulcer has been present more than 5 years", "is_correct": true}, {"label_html": "Evidence of surrounding lipodermatosclerosis", "is_correct": false}, {"label_html": "Irregular shape to the ulcer", "is_correct": false}, {"label_html": "Previous history of deep vein thrombosis", "is_correct": false}, {"label_html": "Haemosiderin deposits in surrounding skin", "is_correct": false}], "correct_index": 0, "explanation_html": "The borders of the ulcer are often well defined even though they may be irregular. Heaped or raised borders should raise suspicion of a marjolins ulcer."}], "note_html": "<b>Venous leg ulcers<\/b><br><ul><li>Most due to venous hypertension, secondary to chronic venous insufficiency (other causes include calf pump dysfunction or neuromuscular disorders)<\/li><li>Ulcers form due to capillary fibrin cuff or leucocyte sequestration<\/li><li>Features of venous insufficiency include oedema, brown pigmentation, lipodermatosclerosis, eczema <\/li><li>Location above the ankle, painless<\/li><li>Deep venous insufficiency is related to previous DVT and superficial venous insufficiency is associated with varicose veins<\/li><li>Doppler ultrasound looks for presence of reflux and duplex ultrasound looks at the anatomy/ flow of the vein<\/li><li>Management: 4 layer compression banding after exclusion of arterial disease or surgery<\/li><li>If fail to heal after 12 weeks or &gt;10cm<sup>2<\/sup> skin grafting may be needed<\/li><\/ul><br><b>Marjolin's ulcer<\/b><br><center><table><tbody><tr><td align=\"left\" colspan=\"2\"><a data-fancybox=\"\" class=\"fancybox\" rel=\"group\" href=\"https://d2zgo9qer4wjf4.cloudfront.net/images_eMRCS/swb046b.jpg\"><img class=\"ajaximage\" src=\"https://d2zgo9qer4wjf4.cloudfront.net/images_eMRCS/swb046.jpg\"><\/a><\/td><\/tr><tr><td valign=\"top\" align=\"left\"> <span style=\"font-size:11px; color:LightGray;\">Image sourced from <\/span><a href=\"http://en.wikipedia.org/wiki/Marjolin\" s=\"\" ulcer'=\"\" target=\"_blank\" style=\"font-size:11px; color:LightGray;\">Wikipedia<\/a><\/td><td align=\"right\"><a data-fancybox=\"\" class=\"fancybox lbmagglasslink\" rel=\"group\" href=\"https://d2zgo9qer4wjf4.cloudfront.net/images_eMRCS/swb046b.jpg\"><img src=\"https://d2zgo9qer4wjf4.cloudfront.net/css/images/mag_glass.png\"><\/a><\/td><\/tr><\/tbody><\/table><\/center><br><ul><li>Squamous cell carcinoma<\/li><li>Occurring at sites of chronic inflammation e.g; burns, osteomyelitis after 10-20 years<\/li><li>Mainly occur on the lower limb<\/li><\/ul><br><b>Arterial ulcers<\/b><br><ul><li>Occur on the toes and heel<\/li><li>Painful<\/li><li>There may be areas of gangrene<\/li><li>Cold with no palpable pulses<\/li><li>Low ABPI measurements<\/li><\/ul><br><b>Neuropathic ulcers<\/b><br><ul><li>Commonly over plantar surface of metatarsal head and plantar surface of hallux<\/li><li>The plantar neuropathic ulcer is the condition that most commonly leads to amputation in diabetic patients<\/li><li>Due to pressure<\/li><li>Management includes cushioned shoes to reduce callus formation<\/li><\/ul><br><b>Pyoderma gangrenosum<\/b><br><center><table><tbody><tr><td align=\"left\" colspan=\"2\"><a data-fancybox=\"\" class=\"fancybox\" rel=\"group\" href=\"https://d2zgo9qer4wjf4.cloudfront.net/images_eMRCS/swb047b.jpg\"><img class=\"ajaximage\" src=\"https://d2zgo9qer4wjf4.cloudfront.net/images_eMRCS/swb047.jpg\"><\/a><\/td><\/tr><tr><td valign=\"top\" align=\"left\"> <span style=\"font-size:11px; color:LightGray;\">Image sourced from <\/span><a href=\"http://en.wikipedia.org/wiki/Pyoderma gangrenosum\" target=\"_blank\" style=\"font-size:11px; color:LightGray;\">Wikipedia<\/a><\/td><td align=\"right\"><a data-fancybox=\"\" class=\"fancybox lbmagglasslink\" rel=\"group\" href=\"https://d2zgo9qer4wjf4.cloudfront.net/images_eMRCS/swb047b.jpg\"><img src=\"https://d2zgo9qer4wjf4.cloudfront.net/css/images/mag_glass.png\"><\/a><\/td><\/tr><\/tbody><\/table><\/center><ul><li>Associated with inflammatory bowel disease/RA<\/li><li>Can occur at stoma sites<\/li><li>Erythematous nodules or pustules which ulcerate<\/li><\/ul>"}, {"name": "Lymphoedema", "questions": [{"number": 38, "topic": "Lymphoedema", "stem_html": "A 52 year old lady develops lower leg swelling following redo varicose vein surgery. There is evidence of swelling of the left leg up to the knee. The overlying skin appears healthy. What is the best management option?", "options": [{"label_html": "Homans operation", "is_correct": false}, {"label_html": "Multilayer compression bandages", "is_correct": true}, {"label_html": "High dose frusemide", "is_correct": false}, {"label_html": "High dose bumetanide", "is_correct": false}, {"label_html": "Lymphovenous anastomosis", "is_correct": false}], "correct_index": 1, "explanation_html": "Unfortunately, lymphoedema may complicate redo varicose vein surgery (in 0.5% of cases). As the presentation is mild, she should be managed using compression hosiery. Diuretics do not help in cases of true lymphoedema and a dramatic response suggests an alternative underlying cause."}, {"number": 39, "topic": "Lymphoedema", "stem_html": "A 57 year old lady has suffered from lymphoedema for many years. The left leg is swollen to the mid thigh. Severe limb deformity has developed as a result of process and in spite of compression hosiery. Lymphoscintography shows no patent lymphatics in the proximal leg. The overlying skin is healthy. Which of the following options would give the best long term outcome?", "options": [{"label_html": "Multilayer compression bandages", "is_correct": false}, {"label_html": "Charles operation", "is_correct": false}, {"label_html": "Homans operation", "is_correct": true}, {"label_html": "Long term loop diuretic therapy", "is_correct": false}, {"label_html": "Amputation", "is_correct": false}], "correct_index": 2, "explanation_html": "Surgery is indicated in less than 10% of cases. However, severe deformity is one of the indications for surgery. Lymphovenous anastomosis is indicated where the proximal lymphatics are not patent. When the overlying skin is healthy (and limb deformity a problem), a Homans procedure is a reasonable first line operative option."}, {"number": 40, "topic": "Lymphoedema", "stem_html": "A 38 year old lady is troubled by lymphoedema that occurred following a block dissection of the groin for malignant melanoma many years previously. Despite therapy with compression bandages she has persistent lower leg swelling impairing her activities of daily living. She has no evidence of recurrent malignancy. Lymphoscintography demonstrates occlusion of the groin lymphatics. However, the distal lymphatic system appears healthy. Which of the following options could be considered?", "options": [{"label_html": "Lymphovenous anastomosis", "is_correct": true}, {"label_html": "Homans procedure", "is_correct": false}, {"label_html": "Charles procedure", "is_correct": false}, {"label_html": "Loop diurectic therapy long term", "is_correct": false}, {"label_html": "Amputation", "is_correct": false}], "correct_index": 0, "explanation_html": "In young patients with proximal disease and healthy distal lymphatics a lymphovenous anastomosis may be considered. Such cases are rare."}, {"number": 41, "topic": "Lymphoedema", "stem_html": "The medical team refer a 72 year old lady with a bilateral swollen legs. Deep vein thrombosis has been excluded and there is no response to diuretics. On further questioning, the patient reveals that she was born with the swelling in both of her legs. What is the most likely diagnosis?", "options": [{"label_html": "Lymphoedema tarda", "is_correct": false}, {"label_html": "Meige's disease", "is_correct": false}, {"label_html": "Filariasis", "is_correct": false}, {"label_html": "Lymphoma", "is_correct": false}, {"label_html": "Milroy's disease", "is_correct": true}], "correct_index": 4, "explanation_html": "Milroy's disease is present from birth and is due to failure of the lymphatic vessels to develop. Note that Meige's disease develops AFTER birth."}, {"number": 42, "topic": "Lymphoedema", "stem_html": "A 34 year old teacher attends A&amp;E with a swollen leg. She has been in England for 2 weeks having previously lived in the Democratic Republic of the Congo. She lives in an area prevalent with mosquitoes and where there is poor sanitation. What is the most likely diagnosis?", "options": [{"label_html": "Meige's disease", "is_correct": false}, {"label_html": "Lymphoma", "is_correct": false}, {"label_html": "Milroy's disease", "is_correct": false}, {"label_html": "Filariasis", "is_correct": true}, {"label_html": "Malaria", "is_correct": false}], "correct_index": 3, "explanation_html": "Filariasis is caused by the nematode Wuchereria bancrofti, which is mainly spread by mosquito. The oedema can be gross leading to elephantitis. Treatment is with diethylcarbamazine."}, {"number": 43, "topic": "Lymphoedema", "stem_html": "Which of the following types of lymphedema is congenital?", "options": [{"label_html": "Meiges' disease", "is_correct": false}, {"label_html": "Milroy's disease", "is_correct": true}, {"label_html": "Lymphoedema tarda", "is_correct": false}, {"label_html": "Lymphoedema following surgery", "is_correct": false}, {"label_html": "Lymphoedema due to venous insufficiency", "is_correct": false}], "correct_index": 1, "explanation_html": "Milroy's disease is congenital. Meiges' develops after birth."}, {"number": 44, "topic": "Lymphoedema", "stem_html": "A 72 year old female is found to have a malignant lesion in her left arm.  She had  a mastectomy of the left breast 10 years ago and has chronic lymph oedema of the left arm.  What is the most likely cause of the malignancy?", "options": [{"label_html": "Lymphangiosarcoma", "is_correct": true}, {"label_html": "Lymphoma", "is_correct": false}, {"label_html": "Myeloma", "is_correct": false}, {"label_html": "Angiomyolipoma", "is_correct": false}, {"label_html": "Giant cell tumour", "is_correct": false}], "correct_index": 0, "explanation_html": "Lymphangiosarcoma is a rare condition arising as a result of chronic oedema.  It is an aggressive malignancy."}], "note_html": "- Due to impaired lymphatic drainage in the presence of normal capillary function.<br><ul><li>Lymphoedema causes the accumulation of protein rich fluid, subdermal fibrosis and dermal thickening.<\/li><li>Characteristically fluid is confined to the epifascial space (skin and subcutaneous tissues); muscle compartments are free of oedema.  It involves the foot, unlike other forms of oedema.  There may be a 'buffalo hump' on the dorsum of the foot and the skin cannot be pinched due to subcutaneous fibrosis.<\/li><\/ul><br><b>Causes of lymphoedema<\/b><br><br><div class=\"table-responsive\"><table class=\"table table-bordered\"><tbody><tr><td><b>Primary<\/b><\/td><td><ul><li>Congenital &lt; 1 year: sporadic, Milroy's disease<\/li><li>Onset 1-35 years: sporadic, Meige's disease<\/li><li>&gt; 35 years: Tarda<\/li><\/ul><\/td><\/tr><tr><td><b>Secondary<\/b><\/td><td><ul><li>Bacterial/fungal/parasitic infection (filariasis)<\/li><li>Lymphatic malignancy<\/li><li>Radiotherapy to lymph nodes<\/li><li>Surgical resection of lymph nodes<\/li><li>DVT<\/li><li>Thrombophlebitis<\/li><\/ul><\/td><\/tr><\/tbody><\/table><\/div><br><b>Indications for surgery<\/b><br><ul><li>Marked disability or deformity from limb swelling<\/li><li>Lymphoedema caused by proximal lymphatic obstruction with patent distal lymphatics suitable for a lymphatic drainage procedure<\/li><li>Lymphocutaneous fistulae and megalymphatics<\/li><\/ul><br><b>Procedures<\/b><br><div class=\"table-responsive\"><table class=\"table table-bordered\"><tbody><tr><td>Homans operation<\/td><td>Reduction procedure with preservation of overlying skin (which must be in good condition). Skin flaps are raised and the underlying tissue excised. Limb circumference typically reduced by a third.<\/td><\/tr><tr><td>Charles operation<\/td><td>All skin and subcutaneous tissue around the calf are excised down to the deep fascia. Split skin grafts are placed over the site. May be performed if overlying skin is not in good condition. Larger reduction in size than with Homans procedure.<\/td><\/tr><tr><td>Lymphovenous anastamosis<\/td><td>Identifiable lymphatics are anastomosed to sub dermal venules. Usually indicated in 2% of patients with proximal lymphatic obstruction and normal distal lymphatics.<\/td><\/tr><\/tbody><\/table><\/div>"}, {"name": "Peripheral vascular disease", "questions": [{"number": 45, "topic": "Peripheral vascular disease", "stem_html": "An 83 year old lady with a significant cardiac history is admitted with rest pain and bilateral leg ulcers. Imaging demonstrates bilateral occlusion of both common iliac arteries that are unsuitable for stenting. What is the most appropriate intervention?", "options": [{"label_html": "Femoro-femoral cross over graft", "is_correct": false}, {"label_html": "Axillo-bifemoral bypass graft", "is_correct": true}, {"label_html": "Bilateral trans femoral amputations", "is_correct": false}, {"label_html": "Aorto-bifemoral bypass graft", "is_correct": false}, {"label_html": "Femoro-distal bypass", "is_correct": false}], "correct_index": 1, "explanation_html": "In patients with major cardiac co-morbidities the safest option is to choose an axillo-bifemoral bypass graft. The long term patency rates are less good than with aorto-bifemoral bypass grafts, however, the operation is less major."}, {"number": 46, "topic": "Peripheral vascular disease", "stem_html": "An 83 year old lady with a significant cardiac history is admitted with rest pain and bilateral leg ulcers. Imaging demonstrates bilateral occlusion of both common iliac arteries that are unsuitable for stenting. What is the most appropriate intervention?", "options": [{"label_html": "Femoro-femoral cross over graft", "is_correct": false}, {"label_html": "Axillo-bifemoral bypass graft", "is_correct": true}, {"label_html": "Bilateral trans femoral amputations", "is_correct": false}, {"label_html": "Aorto-bifemoral bypass graft", "is_correct": false}, {"label_html": "Femoro-distal bypass", "is_correct": false}], "correct_index": 1, "explanation_html": "In patients with major cardiac co-morbidities the safest option is to choose an axillo-bifemoral bypass graft. The long term patency rates are less good than with aorto-bifemoral bypass grafts, however, the operation is less major."}, {"number": 47, "topic": "Peripheral vascular disease", "stem_html": "A 54 year old man presents to the vascular clinic with severe rest pain and an ulcer on his right foot that is not healing. On examination he has bilateral absent femoral pulses. Imaging demonstrates a bilateral occlusion of the common iliac arteries that is not suitable for stenting. What is the most appropriate intervention?", "options": [{"label_html": "Aorto-bifemoral bypass", "is_correct": true}, {"label_html": "Axillo-bifemoral bypass", "is_correct": false}, {"label_html": "Bilateral transfermoral amputation", "is_correct": false}, {"label_html": "Femoro-femoro cross over graft", "is_correct": false}, {"label_html": "Femoro-popliteal bypass", "is_correct": false}], "correct_index": 0, "explanation_html": "In a young patient consideration should be given to aorto-bifemoral bypass grafts as these have the best long term functional outcome compared with an axillo-bifemoral bypass graft."}, {"number": 48, "topic": "Peripheral vascular disease", "stem_html": "A 78 year old man presents with left sided rest pain in his leg and a non healing arterial leg ulcer on the same leg. Imaging shows normal right leg vessels, on the left side there is a long occlusion of the external iliac artery that is unsuitable for stenting. He has a significant cardiac history. What is the most appropriate treatment option?", "options": [{"label_html": "Aorto-bifemoral bypass", "is_correct": false}, {"label_html": "Axillo-bifemoral bypass", "is_correct": false}, {"label_html": "Femoro-femoro cross over graft", "is_correct": true}, {"label_html": "Femoro-distal bypass", "is_correct": false}, {"label_html": "Amputation", "is_correct": false}], "correct_index": 2, "explanation_html": "Femoro-femoral cross over grafts are an option for treatment of iliac occlusions in patients with significant co-morbidities and healthy contralateral vessels. In reality, the idealised situation presented here seldom applies and the opposite vessels usually have some disease and one must be careful not to damage the healthy side."}, {"number": 49, "topic": "Peripheral vascular disease", "stem_html": "A 72 year old man present in the vascular clinic with calf pain present on walking 100 yards. He is an ex-smoker and lives alone. On examination, he has reasonable leg pulses. His right dorsalis pedis pulse gives a monophasic doppler signal with an ankle brachial pressure index measurement of 0.7. All other pressures are acceptable. There is no evidence of ulceration or gangrene. What is the best course of action?", "options": [{"label_html": "Conservative management with medical therapy and exercise", "is_correct": true}, {"label_html": "Angioplasty", "is_correct": false}, {"label_html": "Arterial bypass surgery with PTFE graft", "is_correct": false}, {"label_html": "Arterial bypass surgery with vein graft", "is_correct": false}, {"label_html": "Watch and wait", "is_correct": false}], "correct_index": 0, "explanation_html": "Structured exercise programmes combined with medical therapy will improve many patients. Should his symptoms worsen or fail to improve then a more comprehensive work up should be considered."}, {"number": 50, "topic": "Peripheral vascular disease", "stem_html": "An 83 year old lady is admitted from a nursing home with infected lower leg ulcers. She underwent an attempted long superficial femoral artery sub initimal angioplasty 2 weeks previously. This demonstrated poor runoff below the knee. What is the best course of action?", "options": [{"label_html": "Below knee amputation with Burgess flap", "is_correct": false}, {"label_html": "Below knee amputation with skew flaps", "is_correct": false}, {"label_html": "Transfemoral amputation", "is_correct": true}, {"label_html": "Gritti Stokes amputation", "is_correct": false}, {"label_html": "Wound debridement", "is_correct": false}], "correct_index": 2, "explanation_html": "The best option here is to opt for early amputation or simply palliate the patient. Above knee surgery would be needed, attempts to offer a below knee amputation would probably fail."}, {"number": 51, "topic": "Peripheral vascular disease", "stem_html": "A 63 year old man who previously smoked 20 cigarettes a day and has newly diagnosed type II diabetes. He presents with rest pain. A diagnostic angiogram demonstrates occlusion of the distal superficial femoral artery continuing below the knee. He has reasonable posterior tibial artery below this level which branches to give good runoff to the foot. He has varicose veins. Which of the strategies presented below is most appropriate?", "options": [{"label_html": "Femoro-distal bypass graft using long saphenous vein", "is_correct": false}, {"label_html": "Femoro-above knee popliteal bypass graft using PTFE", "is_correct": false}, {"label_html": "Femoro-distal bypass graft using PTFE", "is_correct": false}, {"label_html": "Femoro-distal bypass graft using PTFE and Miller cuff", "is_correct": true}, {"label_html": "Above knee amputation", "is_correct": false}], "correct_index": 3, "explanation_html": "This man needs a bypass operation. Using PTFE alone will not give a good result as sub intimal hyperplasia will give poor outcome early. Using a vein cuff (Miller cuff) at the end of a PTFE graft will improve the situation. Varicose veins means that vein cannot be reliably used as a conduit. However, the construction of a Miller vein cuff can be done with vein from another anatomical site."}, {"number": 52, "topic": "Peripheral vascular disease", "stem_html": "A wheelchair bound 78 year old woman with ischaemic heart disease secondary to long smoking history and longstanding type II diabetes presents with rest pain and a non healing ulcer on the dorsum of her foot. Angiogram shows reasonable superficial femoral artery and iliacs. At the level of the popliteal artery there is an occlusion. Below this there is a short area of patent posterior tibial artery and this reconstitutes lower down the leg to flow to the foot. What is the best treatment option?", "options": [{"label_html": "Long sub intimal angioplasty", "is_correct": false}, {"label_html": "Femoro-distal bypass graft with PTFE", "is_correct": false}, {"label_html": "Above knee amputation", "is_correct": true}, {"label_html": "Below knee amputation", "is_correct": false}, {"label_html": "Axillo-femoral bypass", "is_correct": false}], "correct_index": 2, "explanation_html": "A femoro-distal bypass graft would carry a high risk of failure and risk of peri-operative myocardial infarct. This lady would be well suited to primary amputation as she is not ambulant."}, {"number": 53, "topic": "Peripheral vascular disease", "stem_html": "Which of the following is not a typical feature of an arterial leg ulcer?", "options": [{"label_html": "Well demarcated edges", "is_correct": false}, {"label_html": "A grey - white base to the ulcer", "is_correct": false}, {"label_html": "Men are affected more than women", "is_correct": false}, {"label_html": "Painful", "is_correct": false}, {"label_html": "Ankle swelling", "is_correct": true}], "correct_index": 4, "explanation_html": "Ankle swelling is often absent. If present it may be due to mixed arteriovenous disease. With mixed disease the arterial component is treated first."}, {"number": 54, "topic": "Peripheral vascular disease", "stem_html": "Which of the following is not a feature of a Charcot foot?", "options": [{"label_html": "Bounding foot pulses in the early phases", "is_correct": false}, {"label_html": "Often occurs in the complete absence of trauma", "is_correct": true}, {"label_html": "Erythema of the foot in the early phase", "is_correct": false}, {"label_html": "Autonomic neuropathy", "is_correct": false}, {"label_html": "Peripheral neuropathy", "is_correct": false}], "correct_index": 1, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Do not confuse the early phase of Charcot foot with cellulitis<\/div>Trauma (even if only minor) is a prerequisite. Patients cannot usually recall the traumatic event. The associated neuropathy means that patients continue to walk on the affected foot with subsequent deformity developing over time."}], "note_html": "<b>Indications for surgery to revascularise the lower limb<\/b><br><ul><li>Intermittent claudication<\/li><li>Critical ischaemia<\/li><li>Ulceration <\/li><li>Gangrene <\/li><\/ul><br>Intermittent claudication that is not disabling may provide a relative indication, whilst the other complaints are often absolute indications depending upon the frailty of the patient.<br><br><b>Assessment<\/b><br><ul><li>Clinical examination<\/li><li>Ankle brachial pressure index measurement<\/li><li>Duplex arterial ultrasound<\/li><li>Angiography (standard, CT or MRI): usually performed only if intervention being considered.<\/li><\/ul><br><b>Angioplasty<\/b><br>In order for angioplasty to be undertaken successfully the artery has to be accessible. The lesion relatively short and reasonable distal vessel runoff. Longer lesions may be amenable to sub-intimal angioplasty.<br><br><b>Surgery<\/b><br>Surgery will be undertaken where attempts at angioplasty have either failed or are unsuitable. Bypass essentially involves bypassing the affected arterial segment by utilising a graft to run from above the disease to below the disease. As with angioplasty good runoff improves the outcome.<br><br><b>Some key concepts with bypass surgery<\/b><br><br><b>Superficial femoral artery occlusion to the above knee popliteal<\/b><br>In the ideal scenario, vein (either in situ or reversed LSV) would be used as a conduit. However, prosthetic material has reasonable 5 year patency rates and some would advocate using this in preference to vein so that vein can be used for other procedures in the future. In general terms either technique is usually associated with an excellent outcome (if run off satisfactory).<br><br><b>Procedure<\/b><br><ul><li>Artery dissected out, IV heparin 3,000 units given and then the vessels are cross clamped<\/li><li>Longitudinal arteriotomy<\/li><li>Graft cut to size and tunneled to arteriotomy sites<\/li><li>Anastomosis to femoral artery usually with 5/0 'double ended' Prolene suture <\/li><li>Distal anastomosis usually using 6/0 'double ended' Prolene <\/li><\/ul><br><b>Distal disease<\/b><br><ul><li>Femoro-distal bypass surgery takes longer to perform, is more technically challenging and has higher failure rates. <\/li><li>In elderly diabetic patients with poor runoff a primary amputation may well be a safer and more effective option. There is no point in embarking on this type of surgery in patients who are wheelchair bound.<\/li><li>In femorodistal bypasses vein gives superior outcomes to PTFE.<\/li><\/ul><br><b>Rules<\/b><br><ul><li>Vein mapping 1st to see whether there is suitable vein (the preferred conduit). Sub intimal hyperplasia occurs early when PTFE is used for the distal anastomosis and will lead to early graft occlusion and failure.<\/li><li>Essential operative procedure as for above knee fem-pop.<\/li><li>If there is insufficient vein for the entire conduit then vein can be attached to the end of the PTFE graft and then used for the distal anastomosis. This type of 'vein boot' is technically referred to as a Miller Cuff and is associated with better patency rates than PTFE alone.<\/li><li>Remember the more distal the arterial anastomosis the lower the success rate.<\/li><\/ul><br><b>References<\/b><br>Peach G <i>et al<\/i>. Diagnosis and management of peripheral arterial disease. <i>BMJ<\/i> 2012; 345: 36-41."}, {"name": "Tetralogy of Fallot", "questions": [{"number": 55, "topic": "Tetralogy of Fallot", "stem_html": "Which one of the following is least associated with Tetralogy of Fallot?", "options": [{"label_html": "Right ventricular outflow tract obstruction", "is_correct": false}, {"label_html": "Overriding aorta", "is_correct": false}, {"label_html": "Pan systolic murmur", "is_correct": false}, {"label_html": "Left-to-right shunt", "is_correct": true}, {"label_html": "Right ventricular hypertrophy", "is_correct": false}], "correct_index": 3, "explanation_html": "Right-to-left shunting is characteristic of Fallot's. In some patients there can be bidirectional shunting (if there is mild pulmonary stenosis) and a few patients can even have pink tetralogy when there is a predominant shunt from left to right due to minimal infundibular stenosis."}], "note_html": "Tetralogy of Fallot (TOF) is the most common cause of cyanotic congenital heart disease*. It typically presents at around 1-2 months, although may not be picked up until the baby is 6 months old<br><br>The four characteristic features are:<br><ul><li>ventricular septal defect (VSD)<\/li><li>right ventricular hypertrophy<\/li><li>right ventricular outflow tract obstruction, pulmonary stenosis<\/li><li>overriding aorta<\/li><\/ul><br>The severity of the right ventricular outflow tract obstruction determines the degree of cyanosis and clinical severity<br><br>Other features<br><ul><li>cyanosis<\/li><li>causes a right-to-left shunt<\/li><li>ejection systolic murmur due to pulmonary stenosis (the VSD doesn't usually cause a murmur)<\/li><li>a right-sided aortic arch is seen in 25% of patients<\/li><li>chest x-ray shows a 'boot-shaped' heart, ECG shows right ventricular hypertrophy<\/li><\/ul><br>Management<br><ul><li>surgical repair is often undertaken in two parts<\/li><li>cyanotic episodes may be helped by beta-blockers to reduce infundibular spasm<\/li><\/ul><br>*however, at birth transposition of the great arteries is the more common lesion as patients with TOF generally present at around 1-2 months"}, {"name": "Vascular disorders of the upper limb", "questions": [{"number": 56, "topic": "Vascular disorders of the upper limb", "stem_html": "A 73 year old male presents with a collapse and is brought to the emergency department. On examination, he has a cold, painful left hand and forearm. What is the most likely cause?", "options": [{"label_html": "Occlusion of the brachial artery due to atheroma", "is_correct": false}, {"label_html": "Occlusion of the axillary artery due to atheroma", "is_correct": false}, {"label_html": "Axillary vein thrombosis", "is_correct": false}, {"label_html": "Cervical rib", "is_correct": false}, {"label_html": "Brachial artery embolus", "is_correct": true}], "correct_index": 4, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Atheroma is very rare in the upper limb vessels<\/div>The most likely event is one of embolism, because of the acute nature of the condition there is no time for the development of a collateral circulation so the limb is usually pale and painful. Emboli usually occur as a result of atrial fibrillation. Fast atrial fibrillation can cause syncope and an acute embolus."}, {"number": 57, "topic": "Vascular disorders of the upper limb", "stem_html": "A 73 year old male presents with a collapse and is brought to the emergency department. On examination, he has a cold, painful left hand and forearm. What is the most likely cause?", "options": [{"label_html": "Occlusion of the brachial artery due to atheroma", "is_correct": false}, {"label_html": "Occlusion of the axillary artery due to atheroma", "is_correct": false}, {"label_html": "Axillary vein thrombosis", "is_correct": false}, {"label_html": "Cervical rib", "is_correct": false}, {"label_html": "Brachial artery embolus", "is_correct": true}], "correct_index": 4, "explanation_html": "<div class=\"alert alert-success\" role=\"alert\">Atheroma is very rare in the upper limb vessels<\/div>The most likely event is one of embolism, because of the acute nature of the condition there is no time for the development of a collateral circulation so the limb is usually pale and painful. Emboli usually occur as a result of atrial fibrillation. Fast atrial fibrillation can cause syncope and an acute embolus."}, {"number": 58, "topic": "Vascular disorders of the upper limb", "stem_html": "A 23 year old man presents with intermittent symptoms of altered sensation in his arm and discomfort when he uses his hand. He works as an electrician and his symptoms are worst when he is fitting light fixtures. What is the most likely cause?", "options": [{"label_html": "Cervical rib", "is_correct": true}, {"label_html": "Axillary artery embolus", "is_correct": false}, {"label_html": "Axillary vein thrombosis", "is_correct": false}, {"label_html": "Raynaud's", "is_correct": false}, {"label_html": "Atheroma of the subclavian artery", "is_correct": false}], "correct_index": 0, "explanation_html": "Compression of the thoracic outlet by the fibrous band of the rib can result in both neurological and circulatory compromise. When manual tasks are performed in which the hand works overhead the signs and symptoms will be maximal and this is the basis of Adsons test."}], "note_html": "Upper limb arterial disease is less common than lesions causing symptoms in the lower limb. The upper limb circulation may be affected by embolic events, stenotic lesions (both internal and extrinsic), inflammatory disorders and venous diseases. <br>The anatomy of the collateral circulation of the arterial inflow may impact on the history and nature of disease presentation. In the region of the subclavian and axillary arteries the collateral vessels passing around the shoulder joint may provide pathways for flow if the main vessels are stenotic or occluded. During periods of increased metabolic demand the collateral flow is not sufficient and the vertebral arteries may have diminished flow. This may result in diminished flow to the brain with neurological sequelae such as syncope. <br><br><b>Vascular disease of the upper limb<\/b><br><div class=\"table-responsive\"><table class=\"table table-bordered\"><tbody><tr><td><b>Condition<\/b><\/td><td><b>Features<\/b><\/td><\/tr><tr><td>Axillary/ brachial embolus<\/td><td><ul><li>50% of upper limb emboli will lodge in the brachial artery<\/li><li>30% of upper limb emboli will lodge in the axillary artery<\/li><li>Sudden onset of symptoms; pain, pallor, paresis, pulselessness, paraesthesia<\/li><li>Sources are left atrium with cardiac arrhythmia (mainly AF), mural thrombus<\/li><li>Cardiac arrhythmias may result in impaired consciousness in addition to the embolus<\/li><\/ul><\/td><\/tr><tr><td>Arterial occlusions<\/td><td><ul><li>Those resulting from atheroma are the most common, trauma may result in vascular changes and long term occlusion but this is rare<\/li><li>Features may include claudication, ulceration and gangrene. Proximally sited lesions may result in subclavian steal syndrome<\/li><li>The progressive nature of the disease allows development of collaterals, acute ischaemia may occur as a result of acute thrombosis<\/li><\/ul><\/td><\/tr><tr><td>Raynaud's disease<\/td><td><ul><li>Idiopathic condition affecting young females<\/li><li>Usually affects hands &gt; feet<\/li><li>Digits become: white →blue →red<\/li><li>Treatment is with calcium antagonists<\/li><\/ul><\/td><\/tr><tr><td>Upper limb venous thrombosis<\/td><td><ul><li>Gradual onset of upper limb swelling and discomfort.<\/li><li>Sensation and motor function are normal<\/li><li>Condition may complicate pre-existing malignancy (especially breast cancer) or arise as a result of repetitive use of the limb in a task such as painting a ceiling<\/li><li>The condition is diagnosed with duplex ultrasound and treatment is with anticoagulation<\/li><\/ul><\/td><\/tr><tr><td>Cervical rib<\/td><td><ul><li>0.2-0.4% incidence<\/li><li>Consist of an anomalous fibrous band that often originates from C7 and may arc towards, but rarely reaches the sternum<\/li><li>Congenital cases may present around the third decade, some cases are reported to occur following trauma<\/li><li>Bilateral in up to 70%<\/li><li>Compression of the subclavian artery may produce absent radial pulse on clinical examination and in particular may result in a positive Adsons test (lateral flexion of the neck away from symptomatic side and traction of the symptomatic arm- leads to obliteration of radial pulse)<\/li><li>Treatment is most commonly undertaken when there is evidence of neurovascular compromise. A transaxillary approach is the traditional operative method for excision<\/li><\/ul><\/td><\/tr><\/tbody><\/table><\/div>"}, {"name": "Vascular investigations", "questions": [{"number": 59, "topic": "Vascular investigations", "stem_html": "A 65 year old man presents with expressive dysphasia and right sided weakness over 4 hours. His symptoms have now completely resolved. An MRI scan of his head is normal. What is the most useful investigation?", "options": [{"label_html": "Arch aortogram", "is_correct": false}, {"label_html": "Arterial duplex scan", "is_correct": true}, {"label_html": "24 hour cardiac tape", "is_correct": false}, {"label_html": "Implantation of a reveal device", "is_correct": false}, {"label_html": "MRI brain", "is_correct": false}], "correct_index": 1, "explanation_html": "This patient has had a transient ischaemic attack. He urgently needs carotid duplex scanning to assess if he needs a carotid endarterectomy."}, {"number": 60, "topic": "Vascular investigations", "stem_html": "A 65 year old man presents, for the first time, with pain at the back of his calves when he mobilises 10 metres. He is known to have hypertension. What is the most appropriate investigation?", "options": [{"label_html": "Arterial duplex scan", "is_correct": true}, {"label_html": "MRI angiogram", "is_correct": false}, {"label_html": "DSA angiogram", "is_correct": false}, {"label_html": "Aortic USS", "is_correct": false}, {"label_html": "Knee x-ray", "is_correct": false}], "correct_index": 0, "explanation_html": "An arterial duplex should be performed first, before progression to an angiography."}, {"number": 61, "topic": "Vascular investigations", "stem_html": "A 78 year old man develops sudden onset abdominal pain and almost immediately afterwards passes a large amount of diarrhoea. What is the most appropriate investigation?", "options": [{"label_html": "Abdominal x-ray", "is_correct": false}, {"label_html": "CT angiogram", "is_correct": true}, {"label_html": "Abdominal MRI scan", "is_correct": false}, {"label_html": "Abdominal USS", "is_correct": false}, {"label_html": "Rigid sigmoidoscopy", "is_correct": false}], "correct_index": 1, "explanation_html": "Sudden onset of abdominal pain followed by forceful evacuation are the classical presenting features of acute mesenteric infarction. This is best investigated by CT angiography, which has a sensitivity of 95% for the diagnosis."}, {"number": 62, "topic": "Vascular investigations", "stem_html": "A 43 year old lady complains of significant varicose veins that are increasingly symptomatic. On examination, there is clinical signs of sapheno femoral junction incompetence and associated truncal varicosities. What is the most appropriate course of action?", "options": [{"label_html": "Undertake a venous duplex scan", "is_correct": true}, {"label_html": "Undertake a venous doppler study", "is_correct": false}, {"label_html": "Perform a Trendelenberg test", "is_correct": false}, {"label_html": "Offer the patient radiofrequency ablative therapy", "is_correct": false}, {"label_html": "Offer the patient surgical excision of the varicosities", "is_correct": false}], "correct_index": 0, "explanation_html": "In modern venous surgery, decision making is based on venous imaging to determine which treatment modality is best. Few surgeons would proceed straight to surgery and excision without this test. A venous doppler would show incompetence of the valve but not more than that."}], "note_html": "<b>Venous disease<\/b><br><br><b>Venous Doppler<\/b><br>The simplest investigation for assessment of venous junctional incompetence is a Doppler assessment. This involves the patient standing and manual compression of the limb distal to the junction of interest. Flow should normally occur in one direction only. Where junctional incompetence is present reverse flow will occur and is relatively easy to identify. <br><br><b>Venograms and duplex scans<\/b><br>Structural venous information is historically obtained using a venogram. This is an invasive test and rarely required in modern clinical practice. The most helpful test is a venous duplex scan which will provide information relating to flow and vessel characteristics. Duplex is also useful in providing vein maps for bypass surgery.<br> <br><b>Arterial disease<\/b><br><br><b>Ankle-brachial pressure<\/b><br>The ankle brachial pressure index measurement is an important investigation as it will allow classification of the severity of the flow compromise present. False readings may occur in those with calcified vessels such as diabetics and results in such settings should be interpreted with caution. When auscultating the vessel note should be made of the character of the signal. Monophasic signals are associated with a proximal stenosis and reduction in flow. Triphasic signals provide reassurance of a healthy vessel.<br><br><b>Arterial Duplex<\/b><br>As with the vein the duplex scan can provide a substantial amount of information about arterial patency and flow patterns. In skilled hands they can provide insight as to the state of proximal vessels that are anatomically inaccessible to duplex (e.g. Iliacs). Through assessment of distal flow patterns. It is an operator dependent test.<br><br><b>Conventional angiogram<\/b><br>Vessel puncture and catheter angiography is the gold standard method of assessing arteries. High quality information can usually be obtained. Limitations of the technique include the risk of contrast toxicity and risks of vessel damage. Severely calcified vessels may be difficult to puncture and in this situation a remote access site (e.g. brachial) may be used. This technique is particularly useful in providing a distal arterial roadmap prior to femoro-distal bypass.<br><br><b>CT angiography<\/b><br>These tests provide a considerable amount of structural and flow information. They require contrast and thus carry the risks associated with this. They are particularly useful in the setting of GI bleeding as they are rapidly available and can be performed by a non vascular radiologist. However, they lack the facility for endovascular intervention. In general they do not provide high enough resolution for distal arterial surgery.<br><br><b>Magnetic resonance angiography<\/b><br>This has the advantage of being non-invasive and not using nephrotoxic contrast. Movement artifact remains a problem in some sites and distal arterial resolution is imperfect."}]}</script>
+  <script>
+    const quizData = JSON.parse(document.getElementById("quiz-data").textContent);
+    const app = document.getElementById("app");
+    const modeButtons = Array.from(document.querySelectorAll("[data-mode-button]"));
+    const topicActionButtons = Array.from(document.querySelectorAll("[data-topic-action]"));
+
+    const state = {
+      mode: "solve",
+      answers: new Map(),
+      questionRefs: [],
+    };
+
+    function buildTopic(topic, questionOffset) {
+      const details = document.createElement("details");
+      details.className = "topic";
+      details.open = true;
+
+      const summary = document.createElement("summary");
+      summary.innerHTML = `
+        <div>
+          <h2 class="topic-title">${topic.name}</h2>
+        </div>
+        <div class="topic-meta">
+          <span>${topic.questions.length} questions</span>
+          <span class="chevron" aria-hidden="true">></span>
+        </div>
+      `;
+
+      const body = document.createElement("div");
+      body.className = "topic-body";
+
+      if (topic.note_html) {
+        const notes = document.createElement("details");
+        notes.className = "topic-notes";
+
+        const notesSummary = document.createElement("summary");
+        notesSummary.innerHTML = `
+          <span class="topic-notes-title">Notes</span>
+          <span class="chevron" aria-hidden="true">></span>
+        `;
+
+        const notesBody = document.createElement("div");
+        notesBody.className = "topic-notes-body rich-text";
+        notesBody.innerHTML = topic.note_html;
+
+        notes.appendChild(notesSummary);
+        notes.appendChild(notesBody);
+        body.appendChild(notes);
+      }
+
+      topic.questions.forEach((question, indexInTopic) => {
+        const globalIndex = questionOffset + indexInTopic;
+        body.appendChild(buildQuestionCard(question, globalIndex));
+      });
+
+      details.appendChild(summary);
+      details.appendChild(body);
+      return details;
+    }
+
+    function buildQuestionCard(question, questionIndex) {
+      const card = document.createElement("article");
+      card.className = "question-card is-hidden";
+      card.dataset.questionIndex = String(questionIndex);
+
+      const label = document.createElement("p");
+      label.className = "question-label";
+      label.textContent = `Question ${question.number}`;
+
+      const stem = document.createElement("div");
+      stem.className = "stem rich-text";
+      stem.innerHTML = question.stem_html;
+
+      const options = document.createElement("div");
+      options.className = "options";
+
+      const optionButtons = question.options.map((option, optionIndex) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "option";
+        button.dataset.optionIndex = String(optionIndex);
+        button.innerHTML = option.label_html;
+        button.addEventListener("click", () => {
+          if (state.mode !== "solve") {
+            return;
+          }
+          state.answers.set(questionIndex, optionIndex);
+          applyQuestionState(questionIndex);
+        });
+        options.appendChild(button);
+        return button;
+      });
+
+      const explanation = document.createElement("div");
+      explanation.className = "explanation rich-text";
+      explanation.innerHTML = `<span class="explanation-label">Explanation</span>${question.explanation_html}`;
+
+      card.appendChild(label);
+      card.appendChild(stem);
+      card.appendChild(options);
+      card.appendChild(explanation);
+
+      state.questionRefs[questionIndex] = {
+        card,
+        explanation,
+        optionButtons,
+        question,
+      };
+
+      applyQuestionState(questionIndex);
+      return card;
+    }
+
+    function applyQuestionState(questionIndex) {
+      const ref = state.questionRefs[questionIndex];
+      if (!ref) {
+        return;
+      }
+
+      const { card, optionButtons, question } = ref;
+      const selectedIndex = state.answers.get(questionIndex);
+      const hasSelection = selectedIndex !== undefined;
+      const isReview = state.mode === "review";
+      const showExplanation = isReview || hasSelection;
+
+      card.classList.toggle("is-hidden", !showExplanation);
+
+      optionButtons.forEach((button, optionIndex) => {
+        button.classList.remove("correct", "incorrect", "neutral-revealed");
+
+        if (isReview) {
+          button.disabled = true;
+          if (optionIndex === question.correct_index) {
+            button.classList.add("correct");
+          } else {
+            button.classList.add("neutral-revealed");
+          }
+          return;
+        }
+
+        button.disabled = false;
+        if (!hasSelection) {
+          return;
+        }
+
+        if (optionIndex === question.correct_index) {
+          button.classList.add("correct");
+        } else if (optionIndex === selectedIndex) {
+          button.classList.add("incorrect");
+        } else {
+          button.classList.add("neutral-revealed");
+        }
+      });
+    }
+
+    function renderApp() {
+      if (!quizData.topics.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty-state";
+        empty.textContent = "No questions were found in this JSON file.";
+        app.replaceChildren(empty);
+        return;
+      }
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "topic-list";
+
+      let questionOffset = 0;
+      quizData.topics.forEach((topic) => {
+        wrapper.appendChild(buildTopic(topic, questionOffset));
+        questionOffset += topic.questions.length;
+      });
+
+      app.replaceChildren(wrapper);
+    }
+
+    function setMode(mode) {
+      state.mode = mode;
+      modeButtons.forEach((button) => {
+        const isActive = button.dataset.modeButton === mode;
+        button.classList.toggle("active", isActive);
+        button.setAttribute("aria-pressed", String(isActive));
+      });
+
+      state.questionRefs.forEach((_, index) => applyQuestionState(index));
+    }
+
+    function setAllTopics(open) {
+      document.querySelectorAll(".topic").forEach((topic) => {
+        topic.open = open;
+      });
+    }
+
+    modeButtons.forEach((button) => {
+      button.addEventListener("click", () => setMode(button.dataset.modeButton));
+    });
+
+    topicActionButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        setAllTopics(button.dataset.topicAction === "expand");
+      });
+    });
+
+    renderApp();
+    setMode("solve");
+  </script>
+</body>
+</html>
