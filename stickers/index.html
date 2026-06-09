@@ -70,6 +70,13 @@
     <!-- Sticker fullscreen modal -->
     <div class="modal" id="modal">
       <button class="close-btn" id="closeBtn" aria-label="Close"></button>
+      <button
+        class="modal-nav modal-nav-prev"
+        id="modalPrevBtn"
+        aria-label="Previous sticker"
+      >
+        &#8249;
+      </button>
       <div class="modal-content">
         <img
           class="modal-img"
@@ -77,12 +84,24 @@
           src=""
           alt="Sticker fullscreen view"
         />
+        <p
+          class="modal-description"
+          id="modalDescription"
+          aria-live="polite"
+        ></p>
         <div class="modal-actions" id="modalActions">
           <button class="btn-star-modal" id="modalStarBtn">☆ Star</button>
           <button class="btn-hide-modal" id="modalHideBtn">✕ Hide</button>
           <button class="btn-download" id="modalDownloadBtn">↓ Save</button>
         </div>
       </div>
+      <button
+        class="modal-nav modal-nav-next"
+        id="modalNextBtn"
+        aria-label="Next sticker"
+      >
+        &#8250;
+      </button>
     </div>
 
     <!-- Info text modal -->

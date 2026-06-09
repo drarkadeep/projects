@@ -129,7 +129,7 @@ let starredSet = getSet("stickers_starred");
 let hiddenSet = getSet("stickers_hidden");
 
 // ─── Gallery logic ───
-const TOTAL = 93;
+const TOTAL = 106;
 const allStickers = Array.from(
   { length: TOTAL },
   (_, i) => `assets/${i + 1}.webp`,
@@ -152,17 +152,41 @@ const starredSection = document.getElementById("starredSection");
 const bottomActions = document.getElementById("bottomActions");
 const modal = document.getElementById("modal");
 const modalImg = document.getElementById("modalImg");
+const modalDescription = document.getElementById("modalDescription");
 const closeBtn = document.getElementById("closeBtn");
+const modalPrevBtn = document.getElementById("modalPrevBtn");
+const modalNextBtn = document.getElementById("modalNextBtn");
 const modalStarBtn = document.getElementById("modalStarBtn");
 const modalHideBtn = document.getElementById("modalHideBtn");
 const modalDownloadBtn = document.getElementById("modalDownloadBtn");
 
 let currentModalSrc = null;
+let stickerDescriptions = {};
+let descriptionsLoaded = false;
+
+fetch("descriptions.json")
+  .then((response) => {
+    if (!response.ok) {
+      throw new Error(`Could not load descriptions (${response.status})`);
+    }
+    return response.json();
+  })
+  .then((descriptions) => {
+    stickerDescriptions = descriptions;
+    descriptionsLoaded = true;
+    updateModalDescription();
+  })
+  .catch((error) => {
+    descriptionsLoaded = true;
+    console.warn(error);
+    updateModalDescription();
+  });
 
 function createCard(src, index) {
   const card = document.createElement("div");
   card.className = "sticker-card";
   card.dataset.src = src;
+  const stickerNumber = src.match(/\d+/)?.[0] || "";
   card.style.setProperty(
     "--aspect-ratio",
     aspectRatios[index % aspectRatios.length],
@@ -170,7 +194,7 @@ function createCard(src, index) {
 
   card.innerHTML = `
     <div class="loader"><div class="loader-spinner"></div></div>
-    <img class="sticker-img" data-src="${src}" alt="Sticker">
+    <img class="sticker-img" data-src="${src}" alt="Sticker ${stickerNumber}">
   `;
 
   card.addEventListener("click", () => openModal(src));
@@ -279,10 +303,46 @@ function updateModalButtons() {
   modalStarBtn.classList.toggle("starred", isStarred);
 }
 
-function openModal(src) {
+function updateModalDescription() {
+  if (!currentModalSrc) return;
+  const description = stickerDescriptions[currentModalSrc];
+  modalDescription.textContent = descriptionsLoaded
+    ? description || "English explanation unavailable."
+    : "Loading explanation...";
+  modalImg.alt = description || "Sticker fullscreen view";
+}
+
+function showModalSticker(src) {
   currentModalSrc = src;
   modalImg.src = src;
+  updateModalDescription();
   updateModalButtons();
+}
+
+function updateModalNavigation() {
+  const hasMultipleStickers =
+    shuffledStickers.filter((src) => !hiddenSet.has(src)).length > 1;
+  modalPrevBtn.disabled = !hasMultipleStickers;
+  modalNextBtn.disabled = !hasMultipleStickers;
+}
+
+function navigateModal(direction) {
+  if (!currentModalSrc) return;
+  const visibleStickers = shuffledStickers.filter(
+    (src) => !hiddenSet.has(src),
+  );
+  if (visibleStickers.length < 2) return;
+
+  const currentIndex = visibleStickers.indexOf(currentModalSrc);
+  const nextIndex =
+    (currentIndex + direction + visibleStickers.length) %
+    visibleStickers.length;
+  showModalSticker(visibleStickers[nextIndex]);
+}
+
+function openModal(src) {
+  showModalSticker(src);
+  updateModalNavigation();
   modal.classList.add("active");
   document.body.style.overflow = "hidden";
 }
@@ -293,6 +353,8 @@ function closeModal() {
   currentModalSrc = null;
   setTimeout(() => {
     modalImg.src = "";
+    modalImg.alt = "Sticker fullscreen view";
+    modalDescription.textContent = "";
   }, 300);
 }
 
@@ -339,6 +401,16 @@ closeBtn.addEventListener("click", (e) => {
   closeModal();
 });
 
+modalPrevBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  navigateModal(-1);
+});
+
+modalNextBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  navigateModal(1);
+});
+
 modal.addEventListener("click", (e) => {
   if (
     e.target === modal ||
@@ -354,6 +426,9 @@ document.addEventListener("keydown", (e) => {
     if (modal.classList.contains("active")) closeModal();
     if (infoModal.classList.contains("active")) closeInfoModal();
   }
+  if (!modal.classList.contains("active")) return;
+  if (e.key === "ArrowLeft") navigateModal(-1);
+  if (e.key === "ArrowRight") navigateModal(1);
 });
 
 modalImg.addEventListener("click", (e) => {
