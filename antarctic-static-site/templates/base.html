@@ -1,0 +1,30 @@
+<!-- templates/base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ config.site_name }}{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <header>
+        <h1>{{ config.site_name }}</h1>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                {% for page in config.pages %}
+                <li><a href="/{{ page.slug }}.html">{{ page.title }}</a></li>
+                {% endfor %}
+            </ul>
+        </nav>
+    </header>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    <footer>
+        <p>&copy; {{ config.site_name }} {{ current_year }}</p>
+    </footer>
+</body>
+</html>
+

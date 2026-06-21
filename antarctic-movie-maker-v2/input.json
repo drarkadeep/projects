@@ -1,0 +1,16 @@
+{
+  "slides": [
+    {
+      "image_src": "https://example.com/images/mountain.jpg",
+      "caption": "A majestic snow-capped mountain peak rises above the clouds, its rugged surface catching the golden light of sunrise. The surrounding landscape is painted in soft purples and blues of early dawn."
+    },
+    {
+      "image_src": "path/to/local/file.png",
+      "caption": "Turquoise waves crash against weathered rocks along a pristine coastline. Seabirds wheel overhead while palm trees sway in the tropical breeze, creating a perfect scene of island paradise."
+    },
+    {
+      "image_src": "https://example.com/images/forest.jpg", 
+      "caption": "Ancient redwood trees tower overhead in a misty forest. Shafts of sunlight pierce through the canopy, illuminating a carpet of ferns and moss below, while the sound of a nearby stream echoes through the woods."
+    }
+  ]
+}

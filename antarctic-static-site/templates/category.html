@@ -1,0 +1,17 @@
+<!-- category.html -->
+{% extends "base.html" %}
+
+{% block title %}Category: {{ category }} - {{ config.site_name }}{% endblock %}
+
+{% block content %}
+<h2>Posts in category: {{ category }}</h2>
+<ul>
+    {% for post in posts %}
+    <li>
+        <h3><a href="/posts/{{ post.slug }}.html">{{ post.title }}</a></h3>
+        <p>{{ post.date.strftime('%B %d, %Y') }}</p>
+    </li>
+    {% endfor %}
+</ul>
+{% endblock %}
+

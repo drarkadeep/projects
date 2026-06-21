@@ -1,0 +1,7 @@
+<!-- breadcrumbs.html -->
+<nav class="breadcrumbs">
+    <a href="/">Home</a>
+    {% for crumb in breadcrumbs %}
+    &raquo; <a href="{{ crumb.url }}">{{ crumb.title }}</a>
+    {% endfor %}
+</nav>

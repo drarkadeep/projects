@@ -1,0 +1,10 @@
+<!-- pagination.html -->
+<nav class="pagination">
+    {% if page > 1 %}
+    <a href="{{ prev_url }}" class="prev">&laquo; Previous</a>
+    {% endif %}
+    {% if page < total_pages %}
+    <a href="{{ next_url }}" class="next">Next &raquo;</a>
+    {% endif %}
+</nav>
+

@@ -1,0 +1,211 @@
+================================== FIRST =====================================
+
+  import cv2
+import numpy as np
+from gtts import gTTS
+import os
+from moviepy.editor import ImageClip, AudioFileClip, concatenate_videoclips, VideoFileClip
+
+
+def generate_word_image(word, size=500, color=(255, 255, 255), thickness=2):
+    # Create a blank square image
+    img = np.zeros((size, size, 3), np.uint8)
+
+    # Get the font and text size
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    text_size, _ = cv2.getTextSize(word, font, 1, thickness)
+
+    # Calculate the position to center the text
+    text_x = (img.shape[1] - text_size[0]) // 2
+    text_y = (img.shape[0] + text_size[1]) // 2
+
+    # Draw the text on the image
+    cv2.putText(img, word, (text_x, text_y), font, 1, color, thickness)
+
+    return img
+
+def generate_video_from_paragraph(paragraph):
+    words = paragraph.split()
+    clips = []
+    temp_video_files = []
+
+    for word in words:
+        # Generate the image for the word
+        img = generate_word_image(word)
+
+        # Save the image temporarily
+        img_path = f"temp_{word}.jpg"
+        cv2.imwrite(img_path, img)
+
+        # Generate the audio for the word
+        tts = gTTS(text=word, lang='en')
+        audio_path = f"temp_{word}.mp3"
+        tts.save(audio_path)
+
+        # Create a temporary video file with the image and audio
+        temp_video_file = f"temp_{word}.mp4"
+        video_clip = ImageClip(img_path)
+        video_clip = ImageClip(img_path).set_duration(AudioFileClip(audio_path).duration).set_fps(24)
+        video_clip.audio(AudioFileClip(audio_path))
+        video_clip.write_videofile(temp_video_file)
+        temp_video_files.append(temp_video_file)
+
+        # Remove the temporary image and audio files
+        os.remove(img_path)
+        os.remove(audio_path)
+
+    # Create VideoFileClips from the temporary video files
+    for video_file in temp_video_files:
+        clip = VideoFileClip(video_file)
+        clips.append(clip)
+
+    # Concatenate all the clips
+    final_clip = concatenate_videoclips(clips)
+
+    # Write the final video
+    final_clip.write_videofile("output_video.mp4")
+
+    # Remove the temporary video files
+    for video_file in temp_video_files:
+        os.remove(video_file)
+
+paragraph = "A Shorter sentence."
+generate_video_from_paragraph(paragraph)
+
+============================================ SECOND ===========================================
+
+      # import cv2
+# import numpy as np
+# from gtts import gTTS
+# import os
+# from moviepy.editor import ImageClip, AudioFileClip, concatenate_videoclips
+
+# def generate_word_image(word, font_face, font_size, color):
+#     # Create a blank image
+#     img = np.zeros((100, 500, 3), np.uint8)
+
+#     # Get the text size
+#     text_size, baseline = cv2.getTextSize(word, font_face, font_size, 1)
+
+#     # Calculate the position to center the text
+#     text_x = (img.shape[1] - text_size[0]) // 2
+    
+#     # Handle the case where the baseline value is None
+#     if baseline is None:
+#         text_y = img.shape[0] // 2 + text_size[1] // 2
+#     else:
+#         text_y = (img.shape[0] + baseline) // 2
+
+#     # Draw the text on the image
+#     cv2.putText(img, word, (text_x, text_y), font_face, font_size, color, 2)
+
+#     return img
+
+# def generate_word_audio(word):
+#     # Create a gTTS object
+#     tts = gTTS(text=word, lang='en')
+
+#     # Save the audio to a temporary file
+#     audio_path = f"temp_{word}.mp3"
+#     tts.save(audio_path)
+
+# def generate_video_from_paragraph(paragraph, font_face, font_size, color):
+#     words = paragraph.split()
+#     clips = []
+
+#     for word in words:
+#         # Generate the image for the word
+#         img = generate_word_image(word, font_face, font_size, color)
+
+#         # Save the image temporarily
+#         img_path = f"temp_{word}.jpg"
+#         cv2.imwrite(img_path, img)
+
+#         # Generate the audio for the word
+#         generate_word_audio(word)
+
+#         # Create a video clip from the image and audio
+#         clip = ImageClip(img_path).set_audio(AudioFileClip(f"temp_{word}.mp3"))
+#         clips.append(clip)
+
+#         # Remove the temporary files
+#         # os.remove(img_path)
+#         # os.remove(f"temp_{word}.mp3")
+        
+#     # Concatenate all the clips
+#     final_clip = concatenate_videoclips(clips)
+
+#     # Write the final video
+#     final_clip.write_videofile("output_video.mp4")
+
+# paragraph = "This is a sample paragraph for demonstration purposes."
+# generate_video_from_paragraph(paragraph, cv2.FONT_HERSHEY_SIMPLEX, 36, (255, 255, 255))
+
+=================================== THIRD ========================================
+
+    # from moviepy.editor import *
+# from gtts import gTTS
+# def create_word_video(text, fps=1):
+#   """
+#   Creates a video with each word of the text highlighted and spoken.
+
+#   Args:
+#       text: The paragraph text to convert to video.
+#       fps: The frames per second for the video (default: 1).
+#   """
+#   # Split text into words
+#   words = text.split()
+
+#   # Define clip duration for each word
+#   duration = 3  # Adjust duration as needed (seconds)
+
+#   # Create video clips for each word
+#   clips = []
+#   for word in words:
+#     # Create white background clip
+#     background = ColorClip(size=(800, 600), color=(255, 255, 255), duration=duration)
+
+#     # Create text clip with black border
+#     text_clip = TextClip(f"{word}", fontsize=70, color='black', stroke_color='white', stroke_width=2, font="Arial")
+#     text_clip = text_clip.set_position('center')
+
+#     # Combine text and background
+#     final_clip = CompositeVideoClip([background, text_clip])
+
+#     # Add audio clip with Text-To-Speech
+#     tts = gTTS(text=word, lang='en')  # Change language code if needed
+#     tts.save("temp_audio.mp3")
+#     audio_clip = AudioFileClip("temp_audio.mp3")
+
+#     # Combine video and audio clip
+#     final_clip = final_clip.set_audio(audio_clip)
+
+#     # Add clip to list
+#     clips.append(final_clip)
+
+#     # Remove temporary audio file
+#     os.remove("temp_audio.mp3")
+
+#   # Concatenate all clips into a single video
+#   final_video = concatenate_videoclips(clips)
+
+#   # Write the final video
+#   final_video.write_videofile("paragraph_video.mp4", fps=fps)
+
+# # Example usage
+# text = "This is a sample paragraph to be converted into a video."
+# create_word_video(text)
+
+# print("Video creation complete! Check 'paragraph_video.mp4'")
+
+========================================== FOURTH ===============================================
+
+      from moviepy.editor import TextClip, concatenate_videoclips
+para = "This is your text"
+slides = []
+for word in para.split(" "):
+    text = TextClip(word)
+    text = text.set_duration(5)
+    slides.append(text)
+    
+video = concatenate_videoclips([iter for slide in slides])

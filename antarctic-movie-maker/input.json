@@ -1,0 +1,22 @@
+[
+    {
+      "media": "media/image1.jpg",
+      "text": "This is the first slide with an image. It demonstrates how the script handles static images with text-to-speech audio."
+    },
+    {
+      "media": "media/video2.mp4",
+      "text": "This is the second slide featuring a video. The script will loop this video if it's shorter than the audio duration."
+    },
+    {
+      "media": "media/image2.jpg",
+      "text": "Here's another image slide. Notice how the script seamlessly transitions between different media types."
+    },
+    {
+      "media": "media/image3.jpg",
+      "text": "It even pads the images and videos that have a different aspect ratio."
+    },
+    {
+      "media": "media/video1.mp4",
+      "text": "This was built by Arkadeep with help from Claude and Pexels along with some emperor penguins in Antarctica. Isn't this the best thing ever?"
+    }
+  ]

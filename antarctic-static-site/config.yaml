@@ -1,0 +1,10 @@
+# config.yaml
+site_name: My Static Site
+description: A simple static site generated with Python
+author: Your Name
+url: https://example.com
+pages:
+  - title: About
+    slug: about
+  - title: Contact
+    slug: contact
