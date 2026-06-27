@@ -15,7 +15,6 @@
   let isCollapsed = false;
   let ticking = false;
   const COLLAPSE_AT = 80;
-  const EXPAND_AT = 20;
 
   window.addEventListener("scroll", () => {
     if (!ticking) {
@@ -24,7 +23,7 @@
         if (!isCollapsed && y > COLLAPSE_AT) {
           header.classList.add("collapsed");
           isCollapsed = true;
-        } else if (isCollapsed && y < EXPAND_AT) {
+        } else if (isCollapsed && y <= 0) {
           header.classList.remove("collapsed");
           isCollapsed = false;
         }
