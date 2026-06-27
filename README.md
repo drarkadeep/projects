@@ -5,6 +5,7 @@
 
 ## List of Projects
 
+- [Elevator Simulator](https://arkadeep.com/projects/elevators) - An interactive simulation of an elevator system.
 - [Geography Quiz](https://arkadeep.com/projects/capitals) - Excellent way to learn the capitals, flaps and maps of all countries.
 - [Unnecessary Bengali Stickers](https://arkadeep.com/projects/stickers) - Niche Bengali phrases on cats & dogs — stickers nobody asked for, so I made them.
 - [Steps](https://arkadeep.com/projects/steps) - Internship vs Residency (JR1) in terms of steps...

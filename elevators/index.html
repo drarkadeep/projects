@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interactive Elevator Simulator — compare scheduling strategies like SCAN, LOOK, FCFS, SSTF, and Zone with real-time visualization and analytics.">
+  <title>Elevator Simulator — Strategy Analyzer</title>
+
+  <!-- Fonts & Chart.js -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+
+  <!-- Favicon: elevator emoji -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏢</text></svg>">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <div class="app-layout">
+
+    <!-- ===== LEFT PANEL: Configuration ===== -->
+    <aside class="panel panel-left" id="config-panel">
+      <h2 class="panel-title">⚙️ Configuration</h2>
+
+      <!-- Building Config -->
+      <section class="config-section">
+        <h3 class="section-title">Building</h3>
+        <div class="control-group">
+          <label for="slider-floors">Floors</label>
+          <input type="range" id="slider-floors" class="slider" min="2" max="50" value="10">
+          <span class="slider-value" id="value-floors">10</span>
+        </div>
+        <div class="control-group">
+          <label for="slider-elevators">Elevators</label>
+          <input type="range" id="slider-elevators" class="slider" min="1" max="12" value="1">
+          <span class="slider-value" id="value-elevators">1</span>
+        </div>
+        <div class="control-group">
+          <label for="slider-capacity">Capacity</label>
+          <input type="range" id="slider-capacity" class="slider" min="1" max="20" value="8">
+          <span class="slider-value" id="value-capacity">8</span>
+        </div>
+        <div class="control-group">
+          <label for="slider-speed">Speed</label>
+          <input type="range" id="slider-speed" class="slider" min="1" max="4" step="1" value="1">
+          <span class="slider-value" id="value-speed">1</span>
+        </div>
+        <div class="control-group">
+          <label for="slider-door">Door (ticks)</label>
+          <input type="range" id="slider-door" class="slider" min="1" max="10" value="3">
+          <span class="slider-value" id="value-door">3</span>
+        </div>
+      </section>
+
+      <!-- Passenger Config -->
+      <section class="config-section">
+        <h3 class="section-title">Passengers</h3>
+        <div class="control-group">
+          <label for="slider-spawn-rate" title="Expected passengers per tick across the building">Spawn / tick</label>
+          <input type="range" id="slider-spawn-rate" class="slider" min="0.05" max="2.0" step="0.05" value="0.3">
+          <span class="slider-value" id="value-spawn-rate">0.30</span>
+        </div>
+        <div class="control-group">
+          <label for="select-distribution">Distribution</label>
+          <select id="select-distribution" class="select">
+            <option value="uniform">Uniform</option>
+            <option value="poisson">Poisson</option>
+            <option value="morning-peak">Morning Up-Peak</option>
+            <option value="evening-peak">Evening Down-Peak</option>
+          </select>
+        </div>
+      </section>
+
+      <!-- Strategy -->
+      <section class="config-section">
+        <h3 class="section-title">Strategy</h3>
+        <div class="control-group control-group-strategy">
+          <label for="select-strategy">Algorithm</label>
+          <select id="select-strategy" class="select">
+            <option value="scan" selected>SCAN (Elevator)</option>
+            <option value="look">LOOK</option>
+            <option value="fcfs">FCFS</option>
+            <option value="sstf">SSTF</option>
+            <option value="zone">Zone (Heuristic)</option>
+            <option value="coordinated">Coordinated LOOK</option>
+          </select>
+          <button type="button" id="btn-strategy-info" class="btn-icon" title="Strategy details" aria-label="Open strategy details">ℹ</button>
+        </div>
+        <div class="strategy-links" id="strategy-links"></div>
+      </section>
+
+      <!-- Simulation Mode -->
+      <section class="config-section">
+        <h3 class="section-title">Simulation</h3>
+        <div class="control-group">
+          <label for="select-mode">Mode</label>
+          <select id="select-mode" class="select">
+            <option value="interactive" selected>Interactive</option>
+            <option value="batch">Batch</option>
+          </select>
+        </div>
+        <!-- Batch-only: tick count -->
+        <div class="control-group" id="batch-ticks-group" style="display:none;">
+          <label for="slider-batch-ticks">Batch Ticks</label>
+          <input type="range" id="slider-batch-ticks" class="slider" min="500" max="10000" step="500" value="2000">
+          <span class="slider-value" id="value-batch-ticks">2000</span>
+        </div>
+        <!-- Interactive-only: speed -->
+        <div class="control-group" id="interactive-speed-group">
+          <label for="slider-sim-speed">Speed (ms)</label>
+          <input type="range" id="slider-sim-speed" class="slider" min="10" max="1000" step="10" value="200">
+          <span class="slider-value" id="value-sim-speed">200</span>
+        </div>
+      </section>
+
+      <!-- Playback Controls -->
+      <section class="config-section controls-section">
+        <div class="button-row">
+          <button id="btn-play" class="btn btn-success">▶ Play</button>
+          <button id="btn-pause" class="btn btn-warning" disabled>⏸ Pause</button>
+          <button id="btn-step" class="btn btn-secondary">⏭ Step</button>
+          <button id="btn-reset" class="btn btn-danger">↺ Reset</button>
+        </div>
+      </section>
+
+      <!-- Batch: Compare All -->
+      <section class="config-section" id="batch-controls" style="display:none;">
+        <button id="btn-batch-compare" class="btn btn-primary btn-full">🔬 Compare All Strategies</button>
+      </section>
+    </aside>
+
+    <!-- ===== CENTER PANEL: Visualization ===== -->
+    <main class="panel panel-center" id="viz-panel">
+      <div class="viz-header">
+        <h1 class="app-title">🏢 Elevator Simulator</h1>
+        <div class="tick-display">
+          Tick: <span id="tick-counter" class="stat-value">0</span>
+        </div>
+      </div>
+      <canvas id="simulation-canvas"></canvas>
+    </main>
+
+    <!-- ===== RIGHT PANEL: Stats & Charts ===== -->
+    <aside class="panel panel-right" id="stats-panel">
+      <h2 class="panel-title">📊 Analytics</h2>
+
+      <!-- Live Stats -->
+      <section class="stats-grid" id="live-stats">
+        <div class="stat-card">
+          <div class="stat-label">Avg Wait</div>
+          <div class="stat-value" id="stat-avg-wait">0.0</div>
+          <div class="stat-unit">ticks</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Max Wait</div>
+          <div class="stat-value" id="stat-max-wait">0</div>
+          <div class="stat-unit">ticks</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Avg Transit</div>
+          <div class="stat-value" id="stat-avg-transit">0.0</div>
+          <div class="stat-unit">ticks</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Passengers</div>
+          <div class="stat-value" id="stat-total-passengers">0</div>
+          <div class="stat-unit">spawned</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Waiting</div>
+          <div class="stat-value" id="stat-waiting">0</div>
+          <div class="stat-unit">in queue</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Delivered</div>
+          <div class="stat-value" id="stat-delivered">0</div>
+          <div class="stat-unit">arrived</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Distance</div>
+          <div class="stat-value" id="stat-total-distance">0</div>
+          <div class="stat-unit">floors</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Distance / Spawn</div>
+          <div class="stat-value" id="stat-distance-per-spawn">0.00</div>
+          <div class="stat-unit">floors/pax</div>
+        </div>
+      </section>
+
+      <!-- Elevator Status Cards -->
+      <section id="elevator-status-section">
+        <h3 class="section-title">Elevators</h3>
+        <div id="elevator-status-cards"></div>
+      </section>
+
+      <!-- Charts -->
+      <section class="chart-section">
+        <h3 class="section-title">Wait Time Over Time</h3>
+        <canvas id="chart-wait-time" height="180"></canvas>
+      </section>
+      <section class="chart-section">
+        <h3 class="section-title">Passengers Over Time</h3>
+        <canvas id="chart-passengers" height="180"></canvas>
+      </section>
+
+      <!-- Batch Comparison (hidden until batch mode) -->
+      <section class="chart-section" id="batch-comparison-section" style="display:none;">
+        <h3 class="section-title">Strategy Comparison</h3>
+        <canvas id="chart-comparison" height="250"></canvas>
+        <div id="comparison-table-container"></div>
+      </section>
+    </aside>
+
+  </div>
+
+  <!-- Strategy info modal -->
+  <div id="strategy-modal" class="modal" hidden aria-hidden="true">
+    <div class="modal-backdrop"></div>
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modal-strategy-title">
+      <button type="button" class="modal-close" aria-label="Close">×</button>
+
+      <header class="modal-header">
+        <div>
+          <h2 id="modal-strategy-title" class="modal-title">SCAN</h2>
+          <p id="modal-strategy-alias" class="modal-alias">Elevator Algorithm</p>
+        </div>
+      </header>
+
+      <p id="modal-strategy-summary" class="modal-summary"></p>
+
+      <div class="modal-grid">
+        <section class="modal-section">
+          <h3 class="modal-section-title">How it works</h3>
+          <div id="modal-strategy-how" class="modal-list"></div>
+        </section>
+        <section class="modal-section">
+          <h3 class="modal-section-title">Strengths</h3>
+          <div id="modal-strategy-strengths" class="modal-list modal-list-strengths"></div>
+        </section>
+        <section class="modal-section">
+          <h3 class="modal-section-title">Trade-offs</h3>
+          <div id="modal-strategy-tradeoffs" class="modal-list modal-list-tradeoffs"></div>
+        </section>
+      </div>
+
+      <section class="modal-section modal-best-for">
+        <h3 class="modal-section-title">Best for</h3>
+        <p id="modal-strategy-best-for"></p>
+      </section>
+
+      <footer class="modal-footer">
+        <button type="button" id="modal-strategy-prev" class="btn btn-secondary btn-sm">← Previous</button>
+        <button type="button" id="modal-strategy-next" class="btn btn-secondary btn-sm">Next →</button>
+      </footer>
+    </div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
