@@ -47,6 +47,7 @@ const INFO_CONTENT = {
     body: `
       <ul>
         <li>Scroll through the gallery — stickers load as you go</li>
+        <li>Use the search bar at the top to find stickers by their text</li>
         <li>Tap any sticker to open it full screen</li>
         <li>Hit <strong>↓ Save</strong> to download it to your device</li>
         <li>Send the saved file on WhatsApp, Telegram, iMessage — any messenger</li>
