@@ -4,170 +4,535 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <title>Demon Encoder</title>
+        <!-- Google Fonts: UnifrakturMaguntia for title, MedievalSharp for elements, Courier Prime for body/code -->
+        <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=MedievalSharp&family=UnifrakturMaguntia&display=swap" rel="stylesheet">
+        <!-- Brutalist Gothic Favicon (SVG Blood Cross) -->
+        <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23080808'/%3E%3Cpath d='M50 15 L50 85 M25 40 L75 40' stroke='%23990000' stroke-width='8' stroke-linecap='square'/%3E%3Ccircle cx='50' cy='40' r='10' fill='none' stroke='%23990000' stroke-width='4'/%3E%3C/svg%3E">
         <style>
-            body {
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(135deg, #f0f4ff, #fdfbff);
-            font-family: system-ui, sans-serif;
-            color: #222;
+            :root {
+                --bg-radial: radial-gradient(circle, #220303 0%, #050505 100%);
+                --container-bg: #000000;
+                --border-bone: #eae6df;
+                --blood-red: #990000;
+                --blood-red-hover: #cc0000;
+                --accent-crimson: #ff0033;
+                --text-bone: #eae6df;
+                --text-dark: #000000;
+                --text-muted: #888888;
             }
-            .container {
-            width: 90%;
-            max-width: 720px;
-            background: #fff;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            }
-            h1 {
-            font-size: 1.4rem;
-            text-align: center;
-            margin: 0 0 1rem;
-            color: #333;
-            }
-            textarea {
-            width: 100%;
-            min-height: 140px;
-            padding: 0.8rem;
-            font-size: 1rem;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            resize: vertical;
-            box-sizing: border-box;
-            }
-            .buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.7rem;
-            }
-            button {
-            padding: 0.8rem;
-            font-size: 1rem;
-            font-weight: 600;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.2s;
-            color: #fff;
-            }
-            button.convert { background: #4a90e2; }
-            button.convert:hover { background: #357acb; }
-            button.settings { background: #9b59b6; }
-            button.settings:hover { background: #8e44ad; }
-            button.copy { background: #f39c12; }
-            button.copy:hover { background: #d98200; }
-            button.clear { background: #e74c3c; }
-            button.clear:hover { background: #c0392b; }
 
+            body {
+                margin: 0;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                background: #050505;
+                background-image: var(--bg-radial);
+                font-family: 'Courier Prime', monospace;
+                color: var(--text-bone);
+                padding: 2rem 1rem;
+                box-sizing: border-box;
+            }
+
+            .container {
+                width: 100%;
+                max-width: 720px;
+                background: var(--container-bg);
+                padding: 2.2rem;
+                border: 3px solid var(--border-bone);
+                border-radius: 0;
+                box-shadow: 10px 10px 0px var(--blood-red);
+                display: flex;
+                flex-direction: column;
+                gap: 1.2rem;
+                box-sizing: border-box;
+            }
+
+            .header-group {
+                text-align: center;
+                margin-bottom: 0.5rem;
+                border-bottom: 2px dashed var(--blood-red);
+                padding-bottom: 1rem;
+            }
+
+            h1 {
+                font-size: 3.5rem;
+                margin: 0;
+                color: var(--blood-red);
+                font-family: 'UnifrakturMaguntia', serif;
+                font-weight: normal;
+                text-shadow: 2px 2px 0px #000;
+                letter-spacing: 1px;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+                color: var(--text-bone);
+                margin: 0.4rem 0 0;
+                font-family: 'MedievalSharp', serif;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                opacity: 0.8;
+            }
+
+            .textarea-container {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            label {
+                font-size: 0.9rem;
+                font-weight: bold;
+                font-family: 'MedievalSharp', serif;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                color: var(--blood-red);
+            }
+
+            textarea {
+                width: 100%;
+                min-height: 130px;
+                padding: 1rem;
+                font-size: 1.05rem;
+                border: 2px solid var(--border-bone);
+                border-radius: 0;
+                resize: vertical;
+                box-sizing: border-box;
+                background: #080808;
+                color: var(--text-bone);
+                font-family: 'Courier Prime', monospace;
+                line-height: 1.5;
+                transition: border-color 0.1s ease;
+            }
+
+            textarea:focus {
+                outline: none;
+                border-color: var(--accent-crimson);
+                box-shadow: 0 0 0 2px var(--accent-crimson);
+                background: #0d0d0d;
+            }
+
+            textarea[readonly] {
+                background: #050505;
+                border-color: var(--text-muted);
+                color: #aaaaaa;
+                cursor: not-allowed;
+            }
+
+            .meta-info {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                font-size: 0.82rem;
+                color: var(--text-muted);
+                margin-top: -0.2rem;
+                font-family: 'Courier Prime', monospace;
+            }
+
+            .badge {
+                background: #111111;
+                color: var(--text-bone);
+                padding: 0.3rem 0.7rem;
+                font-weight: bold;
+                font-size: 0.8rem;
+                border: 1px solid var(--border-bone);
+                display: inline-flex;
+                align-items: center;
+                gap: 0.3rem;
+                font-family: 'MedievalSharp', serif;
+            }
+
+            .badge.decode {
+                background: var(--blood-red);
+                color: #ffffff;
+                border-color: var(--accent-crimson);
+            }
+
+            .badge.empty {
+                background: #050505;
+                color: var(--text-muted);
+                border-color: var(--text-muted);
+            }
+
+            .counter {
+                font-variant-numeric: tabular-nums;
+            }
+
+            .buttons {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 0.75rem;
+                margin: 0.5rem 0;
+            }
+
+            @media (min-width: 600px) {
+                .buttons {
+                    grid-template-columns: 2fr 1.2fr 1fr 1fr;
+                }
+            }
+
+            button {
+                padding: 0.8rem 1.1rem;
+                font-size: 1rem;
+                font-weight: bold;
+                font-family: 'MedievalSharp', serif;
+                text-transform: uppercase;
+                border: 2px solid var(--border-bone);
+                border-radius: 0;
+                cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+                position: relative;
+                transform: translate(0, 0);
+                box-shadow: 4px 4px 0px var(--border-bone);
+                transition: none;
+            }
+
+            button.convert { 
+                background: var(--blood-red); 
+                color: #ffffff;
+                box-shadow: 4px 4px 0px var(--border-bone);
+            }
+            button.convert:hover { 
+                background: var(--blood-red-hover);
+                transform: translate(-1px, -1px);
+                box-shadow: 5px 5px 0px var(--border-bone);
+            }
+            button.convert:active {
+                transform: translate(3px, 3px);
+                box-shadow: 1px 1px 0px var(--border-bone);
+            }
+
+            button.settings { 
+                background: #252525; 
+                color: var(--text-bone);
+            }
+            button.settings:hover { 
+                background: #353535;
+                transform: translate(-1px, -1px);
+                box-shadow: 5px 5px 0px var(--border-bone);
+            }
+            button.settings:active {
+                transform: translate(3px, 3px);
+                box-shadow: 1px 1px 0px var(--border-bone);
+            }
+
+            button.copy { 
+                background: var(--border-bone); 
+                color: var(--text-dark);
+                box-shadow: 4px 4px 0px var(--blood-red);
+            }
+            button.copy:hover { 
+                background: #ffffff;
+                transform: translate(-1px, -1px);
+                box-shadow: 5px 5px 0px var(--blood-red);
+            }
+            button.copy.copied {
+                background: #10b981;
+                color: #ffffff;
+                box-shadow: 4px 4px 0px var(--border-bone);
+            }
+            button.copy:active {
+                transform: translate(3px, 3px);
+                box-shadow: 1px 1px 0px var(--blood-red);
+            }
+
+            button.clear { 
+                background: #000000; 
+                color: var(--text-bone);
+            }
+            button.clear:hover { 
+                background: #111111;
+                transform: translate(-1px, -1px);
+                box-shadow: 5px 5px 0px var(--border-bone);
+            }
+            button.clear:active {
+                transform: translate(3px, 3px);
+                box-shadow: 1px 1px 0px var(--border-bone);
+            }
+
+            button svg {
+                flex-shrink: 0;
+            }
+
+            /* Modal Styling */
             .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            justify-content: center;
-            align-items: center;
+                display: none;
+                position: fixed;
+                z-index: 1000;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.85);
+                justify-content: center;
+                align-items: center;
+                box-sizing: border-box;
+                padding: 1rem;
             }
+
             .modal.show {
-            display: flex;
+                display: flex;
             }
+
             .modal-content {
-            background: #fff;
-            padding: 2rem;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 500px;
-            max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+                background: #000000;
+                padding: 2.2rem;
+                border: 3px solid var(--blood-red);
+                border-radius: 0;
+                width: 100%;
+                max-width: 480px;
+                max-height: 85vh;
+                overflow-y: auto;
+                box-shadow: 8px 8px 0px var(--border-bone);
+                box-sizing: border-box;
             }
+
             .modal-content h2 {
-            margin: 0 0 1.5rem;
-            color: #333;
-            font-size: 1.3rem;
+                margin: 0 0 1.5rem;
+                color: var(--blood-red);
+                font-family: 'UnifrakturMaguntia', serif;
+                font-size: 2.2rem;
+                font-weight: normal;
+                border-bottom: 2px solid var(--border-bone);
+                padding-bottom: 0.75rem;
             }
+
             .setting-group {
-            margin-bottom: 1.5rem;
+                margin-bottom: 1.5rem;
             }
+
             .setting-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: #555;
+                display: block;
+                margin-bottom: 0.6rem;
+                font-weight: bold;
+                color: var(--text-bone);
             }
+
             .setting-group select {
-            width: 100%;
-            padding: 0.6rem;
-            font-size: 1rem;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            box-sizing: border-box;
+                width: 100%;
+                padding: 0.75rem;
+                font-size: 1rem;
+                border: 2px solid var(--border-bone);
+                border-radius: 0;
+                box-sizing: border-box;
+                background: #0d0d0d;
+                color: var(--text-bone);
+                font-family: 'MedievalSharp', serif;
+                outline: none;
+                cursor: pointer;
             }
+
+            .setting-group select:focus {
+                border-color: var(--accent-crimson);
+            }
+
+            /* Custom Switch Toggle for Maniac Mode (Brutalist checkbox-group) */
             .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                background: #0d0d0d;
+                padding: 0.8rem 1rem;
+                border: 2px solid var(--border-bone);
+                border-radius: 0;
             }
+
             .checkbox-group input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
+                appearance: none;
+                -webkit-appearance: none;
+                width: 24px;
+                height: 24px;
+                border: 2px solid var(--border-bone);
+                background: #000;
+                cursor: pointer;
+                position: relative;
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
+
+            .checkbox-group input[type="checkbox"]:checked {
+                background: var(--blood-red);
+            }
+
+            .checkbox-group input[type="checkbox"]:checked::before {
+                content: "✦";
+                color: #fff;
+                font-size: 1.1rem;
+                font-weight: bold;
+            }
+
+            /* Vowel preview container inside settings */
+            .vowel-preview {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.4rem;
+                padding: 0.8rem;
+                background: #050505;
+                border: 2px solid var(--border-bone);
+                border-radius: 0;
+                margin-top: 0.5rem;
+                min-height: 40px;
+                box-sizing: border-box;
+            }
+
+            .preview-char {
+                display: inline-flex;
+                justify-content: center;
+                align-items: center;
+                width: 28px;
+                height: 28px;
+                background: #0d0d0d;
+                border: 1px solid var(--text-muted);
+                border-radius: 0;
+                font-size: 1.05rem;
+                color: var(--blood-red);
+                font-weight: bold;
+                cursor: default;
+            }
+
+            .preview-char:hover {
+                background: var(--blood-red);
+                color: #ffffff;
+                border-color: var(--accent-crimson);
+            }
+
             .modal-buttons {
-            display: flex;
-            gap: 0.7rem;
-            margin-top: 1.5rem;
+                display: flex;
+                gap: 0.75rem;
+                margin-top: 2rem;
             }
+
             .modal-buttons button {
-            flex: 1;
+                flex: 1;
+                padding: 0.8rem;
             }
-            button.save { background: #27ae60; }
-            button.save:hover { background: #229954; }
-            button.cancel { background: #95a5a6; }
-            button.cancel:hover { background: #7f8c8d; }
+
+            button.save { 
+                background: var(--blood-red); 
+                color: #ffffff;
+                box-shadow: 4px 4px 0px var(--border-bone);
+            }
+            button.save:hover { 
+                background: var(--blood-red-hover);
+                transform: translate(-1px, -1px);
+                box-shadow: 5px 5px 0px var(--border-bone);
+            }
+            button.save:active {
+                transform: translate(3px, 3px);
+                box-shadow: 1px 1px 0px var(--border-bone);
+            }
+
+            button.cancel { 
+                background: #333333; 
+                color: var(--text-bone);
+                box-shadow: 4px 4px 0px var(--border-bone);
+            }
+            button.cancel:hover { 
+                background: #444444;
+                transform: translate(-1px, -1px);
+                box-shadow: 5px 5px 0px var(--border-bone);
+            }
+            button.cancel:active {
+                transform: translate(3px, 3px);
+                box-shadow: 1px 1px 0px var(--border-bone);
+            }
+
+            /* Footer Styling */
+            footer {
+                text-align: center;
+                padding: 1.5rem 0;
+                font-size: 0.85rem;
+                color: var(--text-muted);
+                margin-top: 1.5rem;
+                width: 100%;
+                max-width: 720px;
+            }
+
+            footer a {
+                color: var(--blood-red);
+                text-decoration: none;
+                font-weight: bold;
+                border-bottom: 2px solid var(--blood-red);
+                padding-bottom: 1px;
+            }
+
+            footer a:hover {
+                color: var(--accent-crimson);
+                border-bottom-color: var(--accent-crimson);
+            }
         </style>
     </head>
     <body>
         <div class="container">
-            <h1>Demon Encoder</h1>
-            <textarea id="source" placeholder="Type here..."></textarea>
-            <div class="buttons">
-                <button class="convert" id="convert">Convert</button>
-                <button class="settings" id="settingsBtn">Settings</button>
-                <button class="copy" id="copy">Copy</button>
-                <button class="clear" id="clear">Clear</button>
+            <div class="header-group">
+                <h1>Demon Encoder</h1>
+                <p class="subtitle">Obfuscate text with diacritic variations</p>
             </div>
-            <textarea id="result" placeholder="Result will appear here..." readonly></textarea>
+            
+            <div class="textarea-container">
+                <label for="source">Source Text</label>
+                <textarea id="source" placeholder="Type here..."></textarea>
+                <div class="meta-info">
+                    <span id="modeBadge" class="badge empty">Empty</span>
+                    <span id="counter" class="counter">0 chars | 0 words</span>
+                </div>
+            </div>
+
+            <div class="buttons">
+                <button class="convert" id="convert">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 8 16 13"></polyline><line x1="21" y1="8" x2="9" y2="8"></line><polyline points="8 21 3 16 8 11"></polyline><line x1="3" y1="16" x2="15" y2="16"></line></svg>
+                    <span>Convert</span>
+                </button>
+                <button class="settings" id="settingsBtn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                    <span>Settings</span>
+                </button>
+                <button class="copy" id="copy">
+                    <svg id="copyIcon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+                    <span>Copy</span>
+                </button>
+                <button class="clear" id="clear">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                    <span>Clear</span>
+                </button>
+            </div>
+            
+            <div class="textarea-container">
+                <label for="result">Encoded / Decoded Result</label>
+                <textarea id="result" placeholder="Result will appear here..." readonly></textarea>
+            </div>
         </div>
 
         <div class="modal" id="modal">
             <div class="modal-content">
                 <h2>Settings</h2>
                 <div class="setting-group">
-                    <label for="vowelSelect">Select Vowel:</label>
+                    <label for="vowelSelect">Select Base Vowel:</label>
                     <select id="vowelSelect">
                         <option value="a">a</option>
                         <option value="e">e</option>
                         <option value="i">i</option>
                         <option value="o">o</option>
                         <option value="u">u</option>
+                        <option value="random">Random Vowels (Chaos Mode)</option>
                     </select>
                 </div>
+                
                 <div class="setting-group">
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="maniacMode" />
-                        <label for="maniacMode" style="margin: 0;">Maniac Mode</label>
-                    </div>
+                    <label>Vowel Variants Preview:</label>
+                    <div class="vowel-preview" id="vowelPreview"></div>
+                </div>
+
+                <div class="setting-group checkbox-group">
+                    <label for="maniacMode" style="margin: 0;">Maniac Mode</label>
+                    <input type="checkbox" id="maniacMode" />
                 </div>
                 <div class="modal-buttons">
                     <button class="save" id="saveSettings">Save</button>
@@ -175,12 +540,17 @@
                 </div>
             </div>
         </div>
-        <script>
 
+        <footer>
+            Visit <a href="https://arkadeep.com" target="_blank">Arkadeep.com</a> now...
+        </footer>
+
+        <script>
+            // All vowel lists cleaned of duplicates
             const vowelVariants = {
               a: ["à","á","â","ä","ã","å","ā","ă","ą","ǎ","ȁ","ȃ","ȧ","ḁ","ạ","ả","ấ","ầ","ẩ","ẫ","ậ","ắ","ằ","ẳ","ẵ","ặ"],
               e: ["è","é","ê","ë","ē","ĕ","ė","ę","ě","ȅ","ȇ","ȩ","ḕ","ḗ","ḙ","ḛ","ẹ","ẻ","ẽ","ế","ề","ẻ̆","é̆","è̆","ĕ̉","ĕ̃"],
-              i: ["ì","í","î","ï","ĩ","ī","ĭ","į","ǐ","ȉ","ȋ","ı","ị","ỉ","ᶖ","ȉ","ȋ","ỉ","ĩ","ĩ","í̆","ì̆","ĭ̉","ĭ̃","ị̆","ī́"],
+              i: ["ì","í","î","ï","ĩ","ī","ĭ","į","ǐ","ȉ","ȋ","ı","ị","ỉ","ᶖ","ḭ","ḯ","ɨ","ɪ","ᵻ","í̆","ì̆","ĭ̉","ĭ̃","ị̆","ī́"],
               o: ["ò","ó","ô","õ","ö","ø","ō","ŏ","ő","ǒ","ȍ","ȏ","ȯ","ǫ","ǭ","ǿ","ọ","ỏ","ố","ồ","ổ","ỗ","ộ","ớ","ờ","ở"],
               u: ["ù","ú","û","ü","ũ","ū","ŭ","ů","ű","ų","ǔ","ȕ","ȗ","ʉ","ǖ","ǘ","ǚ","ǜ","ụ","ủ","ứ","ừ","ử","ữ","ự","ū́"]
             };
@@ -188,18 +558,26 @@
             let selectedVowel = 'a';
             let maniacMode = false;
 
-            function buildMaps(vowel) {
-            const variants = vowelVariants[vowel];
             const letters = Array.from({length:26}, (_,i)=>String.fromCharCode(65+i));
-            const encodeMap = {};
-            const decodeMap = {};
-
-            letters.forEach((L,i)=> {
-            encodeMap[L] = variants[i];
-            decodeMap[variants[i]] = L;
+            
+            // Build a global universal decode map from all vowels to enable automatic seamless decoding
+            const globalDecodeMap = {};
+            Object.keys(vowelVariants).forEach(vowel => {
+                const variants = vowelVariants[vowel];
+                letters.forEach((L, i) => {
+                    globalDecodeMap[variants[i]] = L;
+                });
             });
 
-            return { encodeMap, decodeMap };
+            function buildMaps(vowel) {
+                const encodeMap = {};
+                if (vowel !== 'random') {
+                    const variants = vowelVariants[vowel];
+                    letters.forEach((L,i)=> {
+                        encodeMap[L] = variants[i];
+                    });
+                }
+                return { encodeMap, decodeMap: globalDecodeMap };
             }
 
             let maps = buildMaps(selectedVowel);
@@ -209,132 +587,201 @@
             const modal = document.getElementById("modal");
             const vowelSelect = document.getElementById("vowelSelect");
             const maniacModeCheckbox = document.getElementById("maniacMode");
+            const modeBadge = document.getElementById("modeBadge");
+            const counter = document.getElementById("counter");
+            const vowelPreview = document.getElementById("vowelPreview");
 
             function isEncoded(text) {
-            const allVariants = Object.values(vowelVariants).flat();
-            for (let ch of text) {
-            if (allVariants.includes(ch)) return true;
-            }
-            return false;
+                const allVariants = Object.values(vowelVariants).flat();
+                for (let ch of text) {
+                    if (allVariants.includes(ch)) return true;
+                }
+                return false;
             }
 
             function hasManiacMarker(text) {
-            if (!text || text.length === 0) return false;
-            const firstChar = text[0].toLowerCase();
-            return ['a', 'e', 'i', 'o', 'u'].includes(firstChar);
+                if (!text || text.length === 0) return false;
+                const firstChar = text[0].toLowerCase();
+                return ['a', 'e', 'i', 'o', 'u'].includes(firstChar);
             }
+
+            // Real-time counter and auto-detection badge updates
+            function updateMetaInfo() {
+                const text = src.value;
+                const charsCount = text.length;
+                const wordsCount = text.trim() ? text.trim().split(/\s+/).length : 0;
+                
+                counter.textContent = `${charsCount} char${charsCount !== 1 ? 's' : ''} | ${wordsCount} word${wordsCount !== 1 ? 's' : ''}`;
+                
+                if (charsCount === 0) {
+                    modeBadge.textContent = "Empty";
+                    modeBadge.className = "badge empty";
+                } else if (isEncoded(text)) {
+                    modeBadge.textContent = "Demon Text ➔ Decode";
+                    modeBadge.className = "badge decode";
+                } else {
+                    modeBadge.textContent = "Regular Text ➔ Encode";
+                    modeBadge.className = "badge";
+                }
+            }
+
+            src.addEventListener("input", updateMetaInfo);
+
+            // Vowel preview renderer
+            function updateVowelPreview() {
+                const vowel = vowelSelect.value;
+                if (vowel === 'random') {
+                    // Mix preview characters from all vowels dynamically
+                    const mixed = [];
+                    const vowels = ['a', 'e', 'i', 'o', 'u'];
+                    for (let i = 0; i < 26; i++) {
+                        const v = vowels[i % vowels.length];
+                        mixed.push(vowelVariants[v][i]);
+                    }
+                    vowelPreview.innerHTML = mixed.map(char => `<span class="preview-char">${char}</span>`).join('');
+                } else {
+                    const variants = vowelVariants[vowel];
+                    vowelPreview.innerHTML = variants.map(char => `<span class="preview-char">${char}</span>`).join('');
+                }
+            }
+
+            vowelSelect.addEventListener("change", updateVowelPreview);
 
             document.getElementById("convert").onclick = () => {
-            let input = src.value;
-            if (!input) return;
+                let input = src.value;
+                if (!input) return;
 
-            let output;
-            if (isEncoded(input)) {
-
-            output = decode(input);
-            } else {
-
-            output = encode(input);
-            }
-            res.value = output;
+                let output;
+                if (isEncoded(input)) {
+                    output = decode(input);
+                } else {
+                    output = encode(input);
+                }
+                res.value = output;
             };
 
             function encode(text) {
-            let processedText = text;
+                let processedText = text;
 
-            if (maniacMode) {
+                if (maniacMode) {
+                    processedText = processedText.replace(/[^\w\s\n]/g, '');
+                }
 
-            processedText = processedText.replace(/[^\w\s\n]/g, '');
-            }
+                processedText = processedText.toUpperCase();
+                let encoded = "";
+                const vowels = ['a', 'e', 'i', 'o', 'u'];
+                
+                for (let ch of processedText) {
+                    if (ch >= 'A' && ch <= 'Z') {
+                        if (selectedVowel === 'random') {
+                            const randomVowel = vowels[Math.floor(Math.random() * vowels.length)];
+                            const variantList = vowelVariants[randomVowel];
+                            const letterIndex = ch.charCodeAt(0) - 65;
+                            encoded += variantList[letterIndex];
+                        } else {
+                            if (maps.encodeMap[ch]) encoded += maps.encodeMap[ch];
+                            else encoded += ch;
+                        }
+                    } else {
+                        encoded += ch;
+                    }
+                }
 
-            processedText = processedText.toUpperCase();
-            let encoded = "";
-            for (let ch of processedText) {
-            if (maps.encodeMap[ch]) encoded += maps.encodeMap[ch];
-            else encoded += ch;
-            }
+                if (maniacMode) {
+                    const markerVowel = (selectedVowel === 'random') ? 'a' : selectedVowel.toLowerCase();
+                    encoded = encoded.replace(/\n/g, markerVowel + markerVowel);
+                    encoded = encoded.replace(/ /g, markerVowel);
+                    encoded = markerVowel + encoded;
+                }
 
-            if (maniacMode) {
-
-            const vowelChar = selectedVowel.toLowerCase();
-
-            encoded = encoded.replace(/\n/g, vowelChar + vowelChar);
-
-            encoded = encoded.replace(/ /g, vowelChar);
-
-            encoded = vowelChar + encoded;
-            }
-
-            return encoded;
+                return encoded;
             }
 
             function decode(text) {
-            let processedText = text;
-            let wasManiacMode = false;
-            let markerVowel = null;
+                let processedText = text;
+                let wasManiacMode = false;
+                let markerVowel = null;
 
-            if (hasManiacMarker(text)) {
-            wasManiacMode = true;
+                if (hasManiacMarker(text)) {
+                    wasManiacMode = true;
+                    markerVowel = text[0].toLowerCase();
+                    processedText = text.substring(1);
+                    const doubleVowel = markerVowel + markerVowel;
+                    processedText = processedText.split(doubleVowel).join('\x00NEWLINE\x00');
+                    processedText = processedText.split(markerVowel).join('\x00SPACE\x00');
+                }
 
-            markerVowel = text[0].toLowerCase();
+                let decoded = "";
+                for (let ch of processedText) {
+                    if (maps.decodeMap[ch]) decoded += maps.decodeMap[ch];
+                    else decoded += ch;
+                }
 
-            processedText = text.substring(1);
+                if (wasManiacMode) {
+                    decoded = decoded.replace(/\x00NEWLINE\x00/g, '\n');
+                    decoded = decoded.replace(/\x00SPACE\x00/g, ' ');
+                }
 
-            const doubleVowel = markerVowel + markerVowel;
-            processedText = processedText.split(doubleVowel).join('\x00NEWLINE\x00');
-
-            processedText = processedText.split(markerVowel).join('\x00SPACE\x00');
-            }
-
-            let decoded = "";
-            for (let ch of processedText) {
-            if (maps.decodeMap[ch]) decoded += maps.decodeMap[ch];
-            else decoded += ch;
-            }
-
-            if (wasManiacMode) {
-            decoded = decoded.replace(/\x00NEWLINE\x00/g, '\n');
-            decoded = decoded.replace(/\x00SPACE\x00/g, ' ');
-            }
-
-            return decoded;
+                return decoded;
             }
 
             document.getElementById("settingsBtn").onclick = () => {
-            modal.classList.add("show");
+                vowelSelect.value = selectedVowel;
+                maniacModeCheckbox.checked = maniacMode;
+                updateVowelPreview();
+                modal.classList.add("show");
             };
 
             document.getElementById("cancelSettings").onclick = () => {
-            modal.classList.remove("show");
+                modal.classList.remove("show");
             };
 
             document.getElementById("saveSettings").onclick = () => {
-            selectedVowel = vowelSelect.value;
-            maniacMode = maniacModeCheckbox.checked;
-            maps = buildMaps(selectedVowel);
-            modal.classList.remove("show");
+                selectedVowel = vowelSelect.value;
+                maniacMode = maniacModeCheckbox.checked;
+                maps = buildMaps(selectedVowel);
+                modal.classList.remove("show");
+                // Recalculate if there is input
+                if (src.value) {
+                    document.getElementById("convert").click();
+                }
             };
 
             modal.onclick = (e) => {
-            if (e.target === modal) {
-            modal.classList.remove("show");
-            }
+                if (e.target === modal) {
+                    modal.classList.remove("show");
+                }
             };
 
             document.getElementById("copy").onclick = async () => {
-            if (!res.value) return;
-            try {
-            await navigator.clipboard.writeText(res.value);
-            alert("Copied to clipboard!");
-            } catch(e) {
-            alert("Copy failed.");
-            }
+                if (!res.value) return;
+                const copyButton = document.getElementById("copy");
+                const originalText = copyButton.innerHTML;
+                
+                try {
+                    await navigator.clipboard.writeText(res.value);
+                    copyButton.classList.add("copied");
+                    copyButton.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        <span>Copied!</span>
+                    `;
+                    setTimeout(() => {
+                        copyButton.classList.remove("copied");
+                        copyButton.innerHTML = originalText;
+                    }, 1500);
+                } catch(e) {
+                    console.error("Copy failed", e);
+                }
             };
 
             document.getElementById("clear").onclick = () => {
-            src.value = "";
-            res.value = "";
+                src.value = "";
+                res.value = "";
+                updateMetaInfo();
             };
+
+            // Initial view setup
+            updateMetaInfo();
         </script>
     </body>
 </html>
