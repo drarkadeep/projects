@@ -2,504 +2,3282 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Character Punching Game</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Arcadeep Combat Protocol | Cyber Puncher</title>
+    <meta name="description" content="An addictive cyberpunk idle clicker combat game. Punch targets, earn credits, upgrade weapons, deploy drones, and conquer bosses.">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3Cfilter id='glow'%3E%3CfeGaussianBlur stdDeviation='3' result='coloredBlur'/%3E%3CfeMerge%3E%3CfeMergeNode in='coloredBlur'/%3E%3CfeMergeNode in='SourceGraphic'/%3E%3C/feMerge%3E%3C/filter%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='45' fill='%2305060b' stroke='%2300f3ff' stroke-width='4' filter='url(%23glow)'/%3E%3Ctext x='50' y='60' font-size='42' font-family='sans-serif' text-anchor='middle' dominant-baseline='middle'%3E👊%3C/text%3E%3C/svg%3E">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&family=Inter:wght@300;400;600;700&display=swap');
+
+        :root {
+            --primary: #00f3ff;
+            --primary-glow: rgba(0, 243, 255, 0.4);
+            --secondary: #ff007f;
+            --secondary-glow: rgba(255, 0, 127, 0.4);
+            --accent: #ffea00;
+            --accent-glow: rgba(255, 234, 0, 0.4);
+            --success: #39ff14;
+            --success-glow: rgba(57, 255, 20, 0.4);
+            --purple: #a855f7;
+            --purple-glow: rgba(168, 85, 247, 0.4);
+            --bg: #05060b;
+            --surface: rgba(13, 17, 32, 0.7);
+            --surface-border: rgba(0, 243, 255, 0.15);
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        html {
+            overflow-x: hidden;
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            background-color: var(--bg);
+            background-image:
+                linear-gradient(rgba(18, 24, 48, 0.3) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(18, 24, 48, 0.3) 1px, transparent 1px);
+            background-size: 50px 50px;
+            background-position: center top;
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            overflow-y: auto;
+            position: relative;
+            overscroll-behavior-x: none;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Scanlines Overlay */
+        body::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            z-index: 999;
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none;
+        }
+
+        /* Header */
+        header {
+            width: 100%;
+            max-width: 1200px;
+            padding: 1.2rem 1rem 0.8rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .logo-container h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 1.6rem;
+            letter-spacing: 2px;
+            color: #fff;
+            text-shadow: 0 0 10px var(--primary-glow);
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-container h1 span { color: var(--secondary); text-shadow: 0 0 10px var(--secondary-glow); }
+
+        .subtitle {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--primary);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-top: 0.2rem;
+            opacity: 0.8;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        button, select, .character-card, .classic-target-card, .classic-punch-btn, .big-punch-btn, .rage-btn {
+            touch-action: manipulation;
+        }
+
+        .header-btn {
+            background: var(--surface);
+            border: 1px solid var(--surface-border);
+            padding: 0.45rem 0.8rem;
+            border-radius: 8px;
+            color: var(--text);
+            cursor: pointer;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.8rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            white-space: nowrap;
+            min-height: 40px;
+        }
+
+        .header-btn:hover { border-color: var(--primary); box-shadow: 0 0 10px var(--primary-glow); color: var(--primary); }
+        .header-btn.active-mode { border-color: var(--accent); color: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
+
+        .prestige-badge {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--accent);
+            background: rgba(255, 234, 0, 0.1);
+            border: 1px solid rgba(255, 234, 0, 0.3);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            display: none;
+        }
+
+        /* ===== CLASSIC MODE ===== */
+        #classicMode {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 600px;
+            padding: 2rem 1rem;
+            flex-grow: 1;
+            z-index: 10;
+            gap: 1.5rem;
+        }
+
+        #classicMode.visible { display: flex; }
+
+        .classic-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--primary);
+            text-shadow: 0 0 15px var(--primary-glow);
+            text-align: center;
+            letter-spacing: 3px;
+        }
+
+        .classic-input-wrap {
+            width: 100%;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .classic-input {
+            width: 100%;
+            background: rgba(5,6,11,0.8);
+            border: 2px solid var(--surface-border);
+            color: #fff;
+            padding: 1rem 1.2rem;
+            border-radius: 12px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            outline: none;
+            text-align: center;
+            letter-spacing: 2px;
+            transition: border-color 0.3s;
+        }
+
+        .classic-input:focus { border-color: var(--primary); box-shadow: 0 0 20px var(--primary-glow); }
+        .classic-input::placeholder { color: var(--text-muted); font-weight: 400; letter-spacing: 1px; }
+
+        .classic-target-card {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: rgba(13, 25, 48, 0.35);
+            border: 3px solid var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            box-shadow: 0 0 40px rgba(255, 0, 127, 0.2), inset 0 0 30px rgba(255, 0, 127, 0.1);
+            animation: levitate 4s ease-in-out infinite;
+            transition: transform 0.1s ease;
+        }
+
+        .classic-target-card:active { transform: scale(0.88); }
+
+        .classic-target-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+            text-align: center;
+            word-break: break-word;
+            padding: 0.5rem;
+            max-width: 160px;
+        }
+
+        .classic-counter {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--accent);
+            text-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .classic-message {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1rem;
+            color: var(--secondary);
+            text-shadow: 0 0 8px var(--secondary-glow);
+            min-height: 1.5rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .classic-punch-btn {
+            width: 100%;
+            max-width: 300px;
+            background: linear-gradient(135deg, var(--secondary), #7c3aed);
+            border: none;
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            padding: 1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255, 0, 127, 0.3), 0 0 20px var(--secondary-glow);
+            transition: all 0.15s ease;
+            text-transform: uppercase;
+            min-height: 52px;
+        }
+
+        .classic-punch-btn:active { transform: scale(0.95); }
+
+        /* Particle canvas for classic mode */
+        .classic-arena-wrap {
+            position: relative;
+            width: 260px;
+            height: 260px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .classic-particle-canvas {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 6;
+        }
+
+        /* ===== ARCADE MODE ===== */
+        #arcadeMode {
+            display: none;
+            width: 100%;
+            max-width: 1200px;
+            flex-grow: 1;
+            z-index: 10;
+        }
+
+        #arcadeMode.visible { display: block; }
+
+        .app-container {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 1.5rem;
+            width: 100%;
+            padding: 1rem;
+            align-items: start;
+        }
+
+        /* Glass Panel */
+        .panel {
+            background: var(--surface);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--surface-border);
+            border-radius: 16px;
+            padding: 1.2rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(0, 243, 255, 0.02);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+        }
+
+        /* Arena Panel */
+        .arena {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .arena-header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 0.6rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .stage-indicator {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            color: var(--accent);
+            text-shadow: 0 0 8px var(--accent-glow);
+            font-size: 0.85rem;
+        }
+
+        .target-selector-wrapper select {
+            background: rgba(5, 6, 11, 0.8);
+            border: 1px solid var(--surface-border);
+            color: var(--text);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.8rem;
+            cursor: pointer;
+            outline: none;
+            min-height: 40px;
+        }
+
+        .target-selector-wrapper select:focus { border-color: var(--primary); }
+
+        /* Hologram Arena */
+        .holo-arena {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 0.5rem;
+        }
+
+        .holo-beam {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 230px;
+            background: linear-gradient(to top, rgba(0, 243, 255, 0.12) 0%, rgba(0, 243, 255, 0.02) 70%, transparent 100%);
+            clip-path: polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%);
+            pointer-events: none;
+            z-index: 1;
+            border-bottom: 2px solid var(--primary);
+            box-shadow: 0 5px 20px var(--primary-glow);
+            transition: all 0.5s;
+        }
+
+        .holo-beam.enraged {
+            background: linear-gradient(to top, rgba(255, 0, 127, 0.2) 0%, rgba(255, 0, 127, 0.05) 70%, transparent 100%);
+            border-bottom-color: var(--secondary);
+            box-shadow: 0 5px 20px var(--secondary-glow);
+        }
+
+        .holo-base {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 230px;
+            height: 22px;
+            background: radial-gradient(50% 50% at 50% 50%, rgba(0, 243, 255, 0.4) 0%, transparent 100%);
+            border-radius: 50%;
+            box-shadow: 0 -5px 15px var(--primary-glow);
+            z-index: 1;
+            animation: pulse-base 2s infinite alternate;
+        }
+
+        @keyframes pulse-base {
+            0% { transform: translateX(-50%) scale(0.9); opacity: 0.6; }
+            100% { transform: translateX(-50%) scale(1.1); opacity: 1; }
+        }
+
+        @keyframes levitate {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
+
+        /* Character Card */
+        .character-card {
+            background: rgba(13, 25, 48, 0.35);
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            width: 160px;
+            height: 160px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            background-color: #f0f0f0;
-            padding: 1rem;
-        }
-        h1 {
-            font-size: 1.8rem;
-            margin-bottom: 1.5rem;
-            text-align: center;
-        }
-        .name-input {
-            display: flex;
-            margin-bottom: 1.5rem;
-            width: 100%;
-            max-width: 400px;
-            border-bottom: 2px solid #3182ce;
-            padding: 0.5rem 0;
-        }
-        input {
-            flex-grow: 1;
-            background: transparent;
-            border: none;
-            outline: none;
-            font-size: 1rem;
-            padding: 0.25rem 0.5rem;
-            margin-right: 0.75rem;
-        }
-        .set-name-btn {
-            background-color: #3182ce;
-            color: white;
-            border: none;
-            padding: 0.25rem 0.75rem;
-            border-radius: 0.25rem;
             cursor: pointer;
-            font-weight: bold;
-        }
-        .set-name-btn:hover {
-            background-color: #2c5282;
-        }
-        .character-container {
+            z-index: 5;
             position: relative;
-            width: 16rem;
-            height: 16rem;
-            margin-bottom: 1.5rem;
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.15), inset 0 0 25px rgba(0, 243, 255, 0.1);
+            animation: levitate 4s ease-in-out infinite;
+            transition: transform 0.1s ease, border-color 0.2s ease, filter 0.3s;
         }
-        .character {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #fefcbf;
-            border-radius: 50%;
-            border: 4px solid #ecc94b;
+
+        .character-card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 35px rgba(255, 234, 0, 0.25), inset 0 0 25px rgba(255, 234, 0, 0.1);
         }
-        .character-content {
-            text-align: center;
+
+        .character-card:active { transform: scale(0.88) !important; }
+
+        .character-card.hit-recoil {
+            animation: recoil-wobble 0.3s ease-out;
         }
+
+        @keyframes recoil-wobble {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            20% { transform: translate(-8px, 4px) rotate(-4deg); }
+            40% { transform: translate(6px, -3px) rotate(3deg); }
+            60% { transform: translate(-4px, 2px) rotate(-2deg); }
+            80% { transform: translate(2px, -1px) rotate(1deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
+        }
+
+        .character-card.low-hp {
+            animation: levitate 4s ease-in-out infinite, glitch-distort 0.15s infinite;
+            border-color: var(--secondary);
+        }
+
+        @keyframes glitch-distort {
+            0% { filter: hue-rotate(0deg) brightness(1); }
+            25% { filter: hue-rotate(10deg) brightness(1.1); transform: translate(2px, -1px); }
+            50% { filter: hue-rotate(-5deg) brightness(0.9); transform: translate(-1px, 2px); }
+            75% { filter: hue-rotate(15deg) brightness(1.05); transform: translate(1px, 0px); }
+            100% { filter: hue-rotate(0deg) brightness(1); }
+        }
+
+        .character-card.enraged {
+            border-color: #ff0044;
+            box-shadow: 0 0 40px rgba(255, 0, 68, 0.4), inset 0 0 30px rgba(255, 0, 68, 0.2);
+        }
+
         .character-emoji {
-            font-size: 3rem;
-            margin-bottom: 0.5rem;
+            font-size: 4.5rem;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+            transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .character-name {
-            font-weight: bold;
-            font-size: 1.25rem;
+
+        .character-card:active .character-emoji { transform: scale(0.82) rotate(-5deg); }
+
+        .character-name-display {
+            position: absolute;
+            bottom: -32px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 0 8px rgba(255,255,255,0.4);
+            letter-spacing: 1px;
+            text-align: center;
+            white-space: nowrap;
         }
-        .punch-effect {
+
+        .boss-taunt {
+            position: absolute;
+            top: -30px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--secondary);
+            text-shadow: 0 0 5px var(--secondary-glow);
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .boss-taunt.visible { opacity: 1; }
+
+        /* Canvas */
+        .particle-canvas {
             position: absolute;
             inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             pointer-events: none;
+            z-index: 6;
         }
-        .punch-effect-emoji {
-            font-size: 4rem;
-        }
-        .text-effect {
+
+        /* Damage Text */
+        .dmg-text {
             position: absolute;
-            font-size: 2rem;
-            font-weight: bold;
-            color: #e53e3e;
-            text-shadow: 2px 2px 0 white, -2px -2px 0 white, 2px -2px 0 white, -2px 2px 0 white;
-            animation: textPop 0.8s ease-out forwards;
-            z-index: 10;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 1.5rem;
+            color: var(--primary);
+            text-shadow: 0 0 8px rgba(0,243,255,0.8), 2px 2px 0 #000;
             pointer-events: none;
+            z-index: 12;
+            animation: dmg-float 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards;
         }
-        @keyframes textPop {
-            0% { transform: scale(0.5); opacity: 0; }
-            20% { transform: scale(1.5); opacity: 1; }
-            80% { transform: scale(1.2) translateY(-20px); opacity: 1; }
-            100% { transform: scale(1) translateY(-40px); opacity: 0; }
+
+        .dmg-text.crit { color: var(--accent); font-size: 2rem; text-shadow: 0 0 12px rgba(255,234,0,0.8), 3px 3px 0 #000; }
+        .dmg-text.super-crit { color: #ff44cc; font-size: 2.6rem; text-shadow: 0 0 20px rgba(255, 68, 204, 1), 0 0 40px rgba(255, 68, 204, 0.5), 3px 3px 0 #000; }
+        .dmg-text.drone-dmg { color: var(--success); font-size: 1.1rem; text-shadow: 0 0 6px rgba(57,255,20,0.8), 1px 1px 0 #000; }
+        .dmg-text.rage-dmg { color: var(--secondary); font-size: 2rem; text-shadow: 0 0 10px rgba(255,0,127,0.8), 2px 2px 0 #000; }
+        .dmg-text.boss-atk { color: #ff4444; font-size: 1.3rem; text-shadow: 0 0 8px rgba(255,68,68,0.8); }
+
+        @keyframes dmg-float {
+            0% { transform: translate(-50%, -50%) scale(0.6); opacity: 0; }
+            15% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+            100% { transform: translate(-50%, -120px) scale(0.8); opacity: 0; }
         }
-        .health-bar-container {
+
+        /* Combo */
+        .combo-counter {
+            position: absolute;
+            left: 1rem;
+            top: 5rem;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: var(--secondary);
+            text-shadow: 0 0 8px var(--secondary-glow);
+            transform: rotate(-5deg);
+            opacity: 0;
+            transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: rgba(0,0,0,0.4);
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+            border-left: 3px solid var(--secondary);
+        }
+
+        .combo-counter.active { opacity: 1; transform: scale(1.1) rotate(-5deg); }
+
+        .combo-comment {
+            position: absolute;
+            right: 1rem;
+            top: 5rem;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 900;
+            color: var(--accent);
+            text-shadow: 0 0 8px var(--accent-glow);
+            transform: rotate(5deg);
+            background: rgba(0,0,0,0.4);
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+            border-right: 3px solid var(--accent);
+            animation: pulse-comment 0.5s ease infinite alternate;
+            display: none;
+        }
+
+        @keyframes pulse-comment {
+            0% { transform: scale(0.95) rotate(5deg); }
+            100% { transform: scale(1.05) rotate(5deg); }
+        }
+
+        .combo-dmg-bonus {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--success);
+            margin-top: 0.1rem;
+        }
+
+        /* Bars */
+        .bars-container {
             width: 100%;
-            max-width: 400px;
-            height: 1.5rem;
-            background-color: #cbd5e0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .bar-label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .bar-outer {
+            width: 100%;
+            height: 14px;
+            background: rgba(5, 6, 11, 0.8);
+            border: 1px solid rgba(255,255,255,0.08);
             border-radius: 9999px;
             overflow: hidden;
-            margin-bottom: 1rem;
+            position: relative;
         }
-        .health-bar {
+
+        .bar-fill {
             height: 100%;
-            background-color: #e53e3e;
             border-radius: 9999px;
-            transition: width 0.3s ease-out;
+            transition: width 0.1s ease-out;
         }
-        .stats {
-            margin-bottom: 1.5rem;
-            font-weight: bold;
+
+        .health-bar-lag {
+            position: absolute; top: 0; left: 0; height: 100%;
+            background-color: rgba(255, 0, 127, 0.5);
+            width: 100%;
+            transition: width 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+            border-radius: 9999px;
         }
-        .punch-btn {
-            background-color: #e53e3e;
-            color: white;
+
+        .health-bar-fill {
+            position: absolute; top: 0; left: 0;
+            background: linear-gradient(90deg, #00f3ff, #39ff14);
+            box-shadow: 0 0 10px rgba(57, 255, 20, 0.5);
+            width: 100%;
+            z-index: 2;
+        }
+
+        .shield-bar-fill {
+            background: linear-gradient(90deg, #6366f1, #a855f7);
+            box-shadow: 0 0 8px rgba(99, 102, 241, 0.5);
+            width: 100%;
+        }
+
+        .rage-bar-fill {
+            background: linear-gradient(90deg, #ff007f, #8b5cf6);
+            box-shadow: 0 0 10px rgba(255, 0, 127, 0.5);
+            width: 0%;
+        }
+
+        .enrage-timer-bar {
+            background: linear-gradient(90deg, #ff4444, #ff0044);
+            box-shadow: 0 0 8px rgba(255, 68, 68, 0.6);
+            width: 0%;
+        }
+
+        .rage-btn {
+            background: transparent;
+            border: 2px solid var(--secondary);
+            color: #fff;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-shadow: 0 0 5px var(--secondary-glow);
+            box-shadow: inset 0 0 5px var(--secondary-glow);
+            animation: pulse-rage-btn 1.5s infinite alternate;
+            display: none;
+            align-self: center;
+            min-height: 44px;
+        }
+
+        @keyframes pulse-rage-btn {
+            0% { box-shadow: 0 0 5px var(--secondary-glow), inset 0 0 5px var(--secondary-glow); }
+            100% { box-shadow: 0 0 20px var(--secondary), inset 0 0 15px var(--secondary); border-color: #fff; }
+        }
+
+        .rage-btn:active { transform: scale(0.95); }
+
+        /* Stun Overlay */
+        .stun-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            border-radius: 16px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .stun-overlay.active { opacity: 1; }
+
+        .stun-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            font-weight: 900;
+            color: #ff4444;
+            text-shadow: 0 0 20px rgba(255,68,68,0.8);
+            animation: stun-pulse 0.5s infinite alternate;
+        }
+
+        @keyframes stun-pulse {
+            0% { transform: scale(0.95); opacity: 0.7; }
+            100% { transform: scale(1.05); opacity: 1; }
+        }
+
+        /* Big Punch Btn */
+        .big-punch-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--secondary), #7c3aed);
             border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 9999px;
-            font-size: 1.25rem;
-            font-weight: bold;
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            padding: 1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255, 0, 127, 0.3), 0 0 20px var(--secondary-glow);
+            transition: all 0.15s ease;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            min-height: 52px;
+        }
+
+        .big-punch-btn:hover { box-shadow: 0 8px 25px rgba(255, 0, 127, 0.5), 0 0 30px var(--secondary); transform: translateY(-2px); }
+        .big-punch-btn:active { transform: translateY(1px); box-shadow: 0 2px 10px rgba(255, 0, 127, 0.4); }
+
+        .big-punch-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.15s;
+        }
+
+        .big-punch-btn:active::after { opacity: 1; }
+
+        /* Dashboard */
+        .dashboard-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .stats-hud {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.8rem;
+        }
+
+        .hud-card {
+            background: rgba(5, 6, 11, 0.6);
+            border: 1px solid var(--surface-border);
+            padding: 0.8rem;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .hud-label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.2rem;
+        }
+
+        .hud-val {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .hud-val.currency { color: var(--accent); text-shadow: 0 0 6px var(--accent-glow); }
+
+        /* Shop Tabs */
+        .shop-tabs {
+            display: flex;
+            gap: 0.3rem;
+            margin-bottom: 0.8rem;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding-bottom: 0.4rem;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 0.4rem 0.7rem;
+            transition: all 0.2s ease;
+            position: relative;
+            min-height: 40px;
+        }
+
+        .tab-btn.active { color: var(--primary); text-shadow: 0 0 5px var(--primary-glow); }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -6px; left: 0;
+            width: 100%; height: 2px;
+            background: var(--primary);
+            box-shadow: 0 0 8px var(--primary);
+        }
+
+        /* Shop Content */
+        .shop-content {
+            max-height: 350px;
+            overflow-y: auto;
+            padding-right: 0.3rem;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .shop-content::-webkit-scrollbar { width: 4px; }
+        .shop-content::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+        .shop-content::-webkit-scrollbar-thumb { background: var(--surface-border); border-radius: 2px; }
+        .shop-content::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+        .shop-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .shop-item {
+            background: rgba(5, 6, 11, 0.4);
+            border: 1px solid rgba(255,255,255,0.04);
+            border-radius: 10px;
+            padding: 0.6rem 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+            gap: 0.5rem;
+        }
+
+        .shop-item:hover { border-color: rgba(0, 243, 255, 0.15); background: rgba(13, 21, 44, 0.3); }
+        .shop-item.locked { opacity: 0.45; }
+
+        .item-info { display: flex; align-items: center; gap: 0.6rem; flex: 1; min-width: 0; }
+
+        .item-icon {
+            font-size: 1.6rem;
+            background: rgba(0,0,0,0.3);
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.05);
+            flex-shrink: 0;
+        }
+
+        .item-details h4 { font-size: 0.8rem; font-weight: 600; color: #fff; }
+        .item-details p { font-size: 0.7rem; color: var(--text-muted); font-family: 'Share Tech Mono', monospace; margin-top: 0.1rem; }
+        .item-details .passive-text { color: var(--purple); font-size: 0.65rem; }
+        .item-details .synergy-text { color: var(--success); font-size: 0.65rem; }
+
+        .item-actions { display: flex; gap: 0.3rem; flex-shrink: 0; }
+
+        .buy-btn {
+            background: var(--primary);
+            color: #000;
+            border: none;
+            padding: 0.45rem 0.8rem;
+            border-radius: 6px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 0 5px var(--primary-glow);
+            min-height: 36px;
+            white-space: nowrap;
+        }
+
+        .buy-btn:hover:not(:disabled) { box-shadow: 0 0 12px var(--primary); transform: scale(1.05); }
+        .buy-btn:disabled { background: #27272a; color: #71717a; box-shadow: none; cursor: not-allowed; }
+
+        .upgrade-btn {
+            background: var(--purple);
+            color: #fff;
+            border: none;
+            padding: 0.45rem 0.6rem;
+            border-radius: 6px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 0.65rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 0 5px var(--purple-glow);
+            min-height: 36px;
+        }
+
+        .upgrade-btn:hover:not(:disabled) { box-shadow: 0 0 12px var(--purple); }
+        .upgrade-btn:disabled { background: #27272a; color: #71717a; box-shadow: none; cursor: not-allowed; }
+
+        /* Custom Creator */
+        .creator-form {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            background: rgba(5, 6, 11, 0.4);
+            padding: 0.8rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.03);
+        }
+
+        .creator-form label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .form-row { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+
+        .form-input {
+            background: rgba(5,6,11,0.8);
+            border: 1px solid var(--surface-border);
+            color: #fff;
+            padding: 0.45rem;
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
+            outline: none;
+            flex-grow: 1;
+            min-height: 38px;
+        }
+
+        .form-input:focus { border-color: var(--primary); }
+        .form-input-short { width: 60px; flex-grow: 0; text-align: center; }
+
+        .form-select {
+            background: rgba(5,6,11,0.8);
+            border: 1px solid var(--surface-border);
+            color: #fff;
+            padding: 0.45rem;
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
+            outline: none;
+            min-height: 38px;
             cursor: pointer;
         }
-        .punch-btn:hover {
-            background-color: #c53030;
+
+        .form-select:focus { border-color: var(--primary); }
+
+        .creator-btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 6px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-height: 40px;
         }
-        .punch-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+
+        .creator-btn:hover { box-shadow: 0 0 10px var(--secondary); }
+
+        /* Boss Database */
+        .boss-db-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
         }
+
+        .boss-db-item {
+            background: rgba(5, 6, 11, 0.4);
+            border: 1px solid rgba(255,255,255,0.04);
+            border-radius: 8px;
+            padding: 0.5rem 0.7rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .boss-db-item .item-info { flex: 1; min-width: 0; }
+        .boss-db-actions { display: flex; gap: 0.3rem; }
+
+        .small-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-muted);
+            padding: 0.3rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-height: 30px;
+        }
+
+        .small-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .small-btn.danger:hover { border-color: #ff4444; color: #ff4444; }
+
+        .import-export-row {
+            display: flex;
+            gap: 0.4rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Modals */
         .modal-overlay {
             position: fixed;
             inset: 0;
-            background-color: rgba(0, 0, 0, 0.5);
+            background: rgba(5, 6, 11, 0.88);
+            backdrop-filter: blur(8px);
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 10;
-        }
-        .modal {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 0.5rem;
-            text-align: center;
-        }
-        .modal-title {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-bottom: 1rem;
-        }
-        .modal-text {
-            margin-bottom: 1rem;
-        }
-        .play-again-btn {
-            background-color: #3182ce;
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 0.25rem;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .play-again-btn:hover {
-            background-color: #2c5282;
-        }
-        .confetti-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
+            z-index: 1000;
+            opacity: 0;
             pointer-events: none;
-            z-index: 100;
+            transition: opacity 0.3s ease;
+            padding: 1rem;
         }
-        .confetti-piece {
-            position: absolute;
-            width: 10px;
-            height: 16px;
-            top: -20px;
-            animation: confetti-fall 4s ease-in-out forwards;
+
+        .modal-overlay.open { opacity: 1; pointer-events: auto; }
+
+        .modal {
+            background: var(--surface);
+            border: 2px solid var(--primary);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,243,255,0.2), inset 0 0 20px rgba(0,243,255,0.05);
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
         }
-        @keyframes confetti-fall {
-            0% { 
-                transform: translateY(0) rotate(0deg); 
-                opacity: 1;
-            }
-            50% {
-                transform: translateY(40vh) rotate(360deg);
-                opacity: 1;
-            }
-            100% { 
-                transform: translateY(100vh) rotate(720deg); 
-                opacity: 0;
-            }
+
+        .modal-glitch-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent-glow);
+            margin-bottom: 0.8rem;
         }
-        .fist-container {
-            position: absolute;
+
+        .modal-body {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-btn {
+            background: var(--primary);
+            color: #000;
+            border: none;
+            padding: 0.7rem 1.8rem;
+            border-radius: 9999px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--primary-glow);
+            transition: all 0.2s ease;
+            min-height: 44px;
+        }
+
+        .modal-btn:hover { box-shadow: 0 0 20px var(--primary); transform: scale(1.05); }
+
+        .modal-btn.prestige-btn {
+            background: linear-gradient(135deg, var(--accent), #ff6b00);
+            color: #000;
+            box-shadow: 0 0 15px var(--accent-glow);
+            margin-right: 0.5rem;
+        }
+
+        /* Achievement Toast */
+        .achievement-toast {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(13, 17, 32, 0.95);
+            border: 2px solid var(--accent);
+            border-radius: 12px;
+            padding: 0.8rem 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            z-index: 1100;
+            box-shadow: 0 0 20px var(--accent-glow);
+            transform: translateX(120%);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-width: 320px;
+        }
+
+        .achievement-toast.show { transform: translateX(0); }
+
+        .achievement-toast .toast-icon { font-size: 2rem; }
+        .achievement-toast .toast-info h4 { font-family: 'Orbitron', sans-serif; font-size: 0.75rem; color: var(--accent); font-weight: 700; }
+        .achievement-toast .toast-info p { font-size: 0.7rem; color: var(--text-muted); font-family: 'Share Tech Mono', monospace; }
+
+        /* Achievements Panel */
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 0.5rem;
+            max-height: 300px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .achievement-card {
+            background: rgba(5, 6, 11, 0.5);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 8px;
+            padding: 0.5rem 0.6rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            opacity: 0.4;
+            transition: all 0.3s;
+        }
+
+        .achievement-card.unlocked {
+            opacity: 1;
+            border-color: var(--accent);
+            box-shadow: 0 0 8px rgba(255, 234, 0, 0.1);
+        }
+
+        .achievement-card .ach-icon { font-size: 1.4rem; flex-shrink: 0; }
+        .achievement-card .ach-info h4 { font-size: 0.7rem; font-weight: 600; color: #fff; }
+        .achievement-card .ach-info p { font-size: 0.6rem; color: var(--text-muted); }
+
+        /* Screen effects */
+        .glitch-screen { animation: screen-shake 0.15s ease-out; }
+
+        @keyframes screen-shake {
+            0%, 100% { transform: translate(0, 0); }
+            20% { transform: translate(-8px, 6px); }
+            40% { transform: translate(8px, -6px); }
+            60% { transform: translate(-6px, -4px); }
+            80% { transform: translate(6px, 4px); }
+        }
+
+        .rage-flash-active {
+            position: fixed;
             inset: 0;
             pointer-events: none;
-            z-index: 5;
-            opacity: 0;
+            z-index: 998;
+            box-shadow: inset 0 0 80px rgba(255, 0, 127, 0.4);
+            border: 4px solid rgba(255, 0, 127, 0.3);
+            animation: flash-pulse 0.4s infinite alternate;
         }
-        .fist {
+
+        @keyframes flash-pulse {
+            0% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        .white-flash {
+            position: fixed;
+            inset: 0;
+            background: white;
+            z-index: 997;
+            pointer-events: none;
+            animation: white-flash-anim 0.4s ease-out forwards;
+        }
+
+        @keyframes white-flash-anim {
+            0% { opacity: 0.6; }
+            100% { opacity: 0; }
+        }
+
+        /* Footer */
+        footer {
+            width: 100%;
+            max-width: 1200px;
+            margin-top: auto;
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.6rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            z-index: 10;
+        }
+
+        .footer-tech-lines {
+            width: 80px; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            position: relative;
+            margin-bottom: 0.2rem;
+        }
+
+        .footer-tech-lines::before {
+            content: '';
             position: absolute;
-            bottom: -50px;
-            right: -50px;
-            font-size: 3rem;
-            transform: rotate(45deg);
+            top: -3px; left: 50%;
+            transform: translateX(-50%);
+            width: 8px; height: 8px;
+            background: var(--secondary);
+            border-radius: 50%;
+            box-shadow: 0 0 5px var(--secondary);
         }
-        .punch-animation .fist-container {
-            animation: punch 0.4s cubic-bezier(.36,.07,.19,.97) both;
+
+        .footer-link {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--primary);
+            text-decoration: none;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            text-shadow: 0 0 5px var(--primary-glow);
         }
-        .shake {
-            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+
+        .footer-link span { color: var(--secondary); text-shadow: 0 0 5px var(--secondary-glow); }
+        .footer-link:hover { color: #fff; text-shadow: 0 0 15px var(--primary); transform: scale(1.05); }
+        .footer-link:hover span { color: #fff; text-shadow: 0 0 15px var(--secondary); }
+
+        .footer-cr {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
         }
-        .character-damage {
-            animation: damage 0.5s ease both;
+
+        .footer-pulse-dot {
+            width: 6px; height: 6px;
+            background: var(--success);
+            border-radius: 50%;
+            box-shadow: 0 0 6px var(--success);
+            animation: pulse-dot 1.5s infinite;
         }
-        @keyframes punch {
-            0% { 
-                opacity: 1;
-                transform: translate(50px, 50px) scale(0.8); 
-            }
-            50% { 
-                opacity: 1;
-                transform: translate(-10px, -10px) scale(1.2); 
-            }
-            100% { 
-                opacity: 0;
-                transform: translate(-30px, -30px) scale(1); 
-            }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
         }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-10px) rotate(-5deg); }
-            20%, 40%, 60%, 80% { transform: translateX(10px) rotate(5deg); }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .app-container { grid-template-columns: 1fr; gap: 1rem; }
+            header { padding: 1rem 0.8rem 0.5rem 0.8rem; }
+            .logo-container h1 { font-size: 1.3rem; }
         }
-        @keyframes damage {
-            0% { filter: brightness(1); }
-            30% { filter: brightness(1.5) saturate(1.5); }
-            100% { filter: brightness(1); }
+
+        @media (max-width: 500px) {
+            .holo-arena { height: 240px; }
+            .character-card { width: 130px; height: 130px; }
+            .character-emoji { font-size: 3.5rem; }
+            .combo-counter, .combo-comment { top: 4rem; font-size: 0.9rem; }
+            .stats-hud { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+            .hud-val { font-size: 1rem; }
+            .header-btn { font-size: 0.7rem; padding: 0.35rem 0.6rem; }
+            .stage-indicator { font-size: 0.7rem; }
+            .modal { padding: 1.5rem; }
+            .modal-glitch-title { font-size: 1.4rem; }
+            .achievements-grid { grid-template-columns: 1fr; }
+            .classic-target-card { width: 170px; height: 170px; }
+            .classic-target-name { font-size: 1.1rem; }
+            .classic-counter { font-size: 2.5rem; }
         }
+
+        /* Hidden utility */
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
-    <h1>Character Punching Game</h1>
-    
-    <div class="name-input">
-        <input type="text" id="nameInput" placeholder="Enter character name">
-        <button id="setNameBtn" class="set-name-btn">Set Name</button>
-    </div>
-    
-    <div class="character-container">
-        <div id="character" class="character">
-            <div class="character-content">
-                <div id="characterEmoji" class="character-emoji">😀</div>
-                <div id="characterName" class="character-name">Punching Bag</div>
+
+    <header>
+        <div class="logo-container">
+            <h1>Arcadeep<span>.Combat</span></h1>
+            <div class="subtitle">Neural Combat Protocol v5.0</div>
+        </div>
+        <div class="header-controls">
+            <span class="prestige-badge" id="prestigeBadge">⭐ P0</span>
+            <button id="modeToggle" class="header-btn active-mode">🎮 ARCADE</button>
+            <button id="statsToggle" class="header-btn">📊 STATS</button>
+            <button id="achieveToggle" class="header-btn">🏆 FEATS</button>
+            <button id="audioToggle" class="header-btn">🔊 ON</button>
+        </div>
+    </header>
+
+    <!-- ===== CLASSIC MODE ===== -->
+    <div id="classicMode">
+        <div class="classic-title">TYPE. PUNCH. REPEAT.</div>
+        <div class="classic-input-wrap">
+            <input type="text" class="classic-input" id="classicNameInput" placeholder="Enter a name..." maxlength="20" autocomplete="off">
+        </div>
+        <div class="classic-arena-wrap">
+            <div class="classic-target-card" id="classicTargetCard">
+                <div class="classic-target-name" id="classicTargetName">???</div>
             </div>
+            <canvas class="classic-particle-canvas" id="classicCanvas"></canvas>
         </div>
-        
-        <div id="punchEffect" class="punch-effect" style="display: none;">
-            <div id="punchEffectEmoji" class="punch-effect-emoji">💥</div>
-        </div>
-        
-        <div id="fistContainer" class="fist-container">
-            <div id="fist" class="fist">👊</div>
-        </div>
+        <div class="classic-counter" id="classicCounter">0</div>
+        <div class="classic-message" id="classicMessage">&nbsp;</div>
+        <button class="classic-punch-btn" id="classicPunchBtn">👊 PUNCH</button>
     </div>
-    
-    <div class="health-bar-container">
-        <div id="healthBar" class="health-bar" style="width: 100%;"></div>
+
+    <!-- ===== ARCADE MODE ===== -->
+    <div id="arcadeMode" class="visible">
+        <main class="app-container">
+            <!-- ARENA (LEFT) -->
+            <section class="panel arena" id="arenaPanel">
+                <div class="stun-overlay" id="stunOverlay"><div class="stun-text">⚡ STUNNED ⚡</div></div>
+                <div class="arena-header">
+                    <div class="stage-indicator" id="stageDisplay">STAGE 1: COMBAT BASIC TRAINING</div>
+                    <div class="target-selector-wrapper">
+                        <select id="targetSelector">
+                            <option value="0">🥊 Punching Bag</option>
+                            <option value="1">🐛 Syntax Bug</option>
+                            <option value="2">😫 Screaming Karen</option>
+                            <option value="3">👿 Micromanaging Boss</option>
+                            <option value="4">🤖 Skynet AI Core</option>
+                            <option value="5">👾 Void Overlord</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="combo-counter" id="comboCounter">0x COMBO</div>
+                <div class="combo-comment" id="comboComment">SAVAGE!</div>
+
+                <div class="holo-arena">
+                    <div class="holo-beam" id="holoBeam"></div>
+                    <div class="holo-base"></div>
+                    <div class="character-card" id="characterCard">
+                        <div class="boss-taunt" id="bossTaunt"></div>
+                        <div class="character-emoji" id="characterEmoji">🥊</div>
+                        <div class="character-name-display" id="characterName">Punching Bag</div>
+                    </div>
+                    <canvas class="particle-canvas" id="particleCanvas"></canvas>
+                </div>
+
+                <div class="bars-container">
+                    <!-- HP -->
+                    <div class="bar-outer" style="height:18px;">
+                        <div class="health-bar-lag" id="healthBarLag"></div>
+                        <div class="bar-fill health-bar-fill" id="healthBarFill"></div>
+                    </div>
+                    <div class="bar-label">
+                        <span id="healthLabel">HP: 100/100</span>
+                        <span id="targetStatusText">Target Stable</span>
+                    </div>
+                    <!-- Shield -->
+                    <div class="bar-outer" style="height:10px;">
+                        <div class="bar-fill shield-bar-fill" id="shieldBarFill"></div>
+                    </div>
+                    <div class="bar-label">
+                        <span>🛡️ SHIELD</span>
+                        <span id="shieldLabel">100/100</span>
+                    </div>
+                    <!-- Enrage Timer -->
+                    <div class="bar-outer" style="height:6px;">
+                        <div class="bar-fill enrage-timer-bar" id="enrageTimerBar"></div>
+                    </div>
+                    <div class="bar-label">
+                        <span>⏱️ BOSS ENRAGE</span>
+                        <span id="enrageLabel">60s</span>
+                    </div>
+                    <!-- Rage -->
+                    <div class="bar-outer" style="height:10px;">
+                        <div class="bar-fill rage-bar-fill" id="rageBarFill"></div>
+                    </div>
+                    <div class="bar-label">
+                        <span>🔥 RAGE METER</span>
+                        <span id="ragePercentLabel">0%</span>
+                    </div>
+                    <button class="rage-btn" id="rageBtn">⚡ ACTIVATE RAGE (SPACE)</button>
+                </div>
+
+                <button class="big-punch-btn" id="punchBtn">👊 Execute Strike</button>
+            </section>
+
+            <!-- DASHBOARD (RIGHT) -->
+            <section class="panel dashboard-container">
+                <div class="stats-hud">
+                    <div class="hud-card">
+                        <div class="hud-label">Cyber-Credits</div>
+                        <div class="hud-val currency" id="coinDisplay">$0</div>
+                    </div>
+                    <div class="hud-card">
+                        <div class="hud-label">Auto DPS</div>
+                        <div class="hud-val" id="dpsDisplay">0</div>
+                    </div>
+                    <div class="hud-card">
+                        <div class="hud-label">Click DMG</div>
+                        <div class="hud-val" id="clickDmgDisplay">1</div>
+                    </div>
+                    <div class="hud-card">
+                        <div class="hud-label">Total Punches</div>
+                        <div class="hud-val" id="punchesDisplay">0</div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="shop-tabs">
+                        <button class="tab-btn active" id="weaponsTab" data-tab="weapons">⚔️ Gear</button>
+                        <button class="tab-btn" id="dronesTab" data-tab="drones">🛸 Drones</button>
+                        <button class="tab-btn" id="customTab" data-tab="custom">⚙️ Create</button>
+                        <button class="tab-btn" id="bossDbTab" data-tab="bossdb">📂 Bosses</button>
+                    </div>
+
+                    <div class="shop-content" id="shopScrollArea">
+                        <div class="shop-list" id="weaponsList"></div>
+                        <div class="shop-list hidden" id="dronesList"></div>
+                        <div id="creatorForm" class="hidden">
+                            <div class="creator-form">
+                                <label>🎯 Construct Custom Combat Boss</label>
+                                <div class="form-row">
+                                    <input type="text" class="form-input" id="customName" placeholder="Boss Name" maxlength="20" autocomplete="off">
+                                    <input type="text" class="form-input form-input-short" id="customEmoji" placeholder="😈" maxlength="2" value="👾">
+                                </div>
+                                <div class="form-row">
+                                    <input type="number" class="form-input" id="customHP" placeholder="HP Amount" value="5000" min="10">
+                                    <select class="form-select" id="customDifficulty">
+                                        <option value="easy">Easy</option>
+                                        <option value="medium" selected>Medium</option>
+                                        <option value="hard">Hard</option>
+                                        <option value="nightmare">Nightmare</option>
+                                    </select>
+                                </div>
+                                <input type="text" class="form-input" id="customTaunt" placeholder="Boss taunt (e.g. 'You can't defeat me!')" maxlength="40" autocomplete="off">
+                                <input type="text" class="form-input" id="customAttackName" placeholder="Special attack name (e.g. 'Karen Screech')" maxlength="30" autocomplete="off">
+                                <button class="creator-btn" id="btnCreateCustom">⚡ Compile Boss</button>
+                            </div>
+                        </div>
+                        <div id="bossDbPanel" class="hidden">
+                            <div class="boss-db-list" id="bossDbList">
+                                <p style="color:var(--text-muted); font-size:0.8rem; text-align:center;">No custom bosses saved yet.</p>
+                            </div>
+                            <div class="import-export-row">
+                                <button class="small-btn" id="btnExportBosses" style="flex:1;">📤 Export</button>
+                                <button class="small-btn" id="btnImportBosses" style="flex:1;">📥 Import</button>
+                                <input type="file" id="importFileInput" accept=".json" class="hidden">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
     </div>
-    
-    <div id="stats" class="stats">
-        Health: 100/100 | Punches: 0
-    </div>
-    
-    <button id="punchBtn" class="punch-btn">PUNCH!</button>
-    
-    <div id="gameOverModal" class="modal-overlay" style="display: none;">
+
+    <!-- MODALS -->
+    <div class="modal-overlay" id="victoryModal">
         <div class="modal">
-            <h2 class="modal-title">K.O.!</h2>
-            <p id="gameOverText" class="modal-text">You defeated Punching Bag with 0 punches!</p>
-            <button id="playAgainBtn" class="play-again-btn">Play Again</button>
+            <h2 class="modal-glitch-title">🎯 Target Neutralized</h2>
+            <div class="modal-body" id="victoryText">Standard training target completed.</div>
+            <div>
+                <button class="modal-btn" id="btnModalClose">Initialize Next Node</button>
+                <button class="modal-btn prestige-btn hidden" id="btnPrestige">⭐ PRESTIGE</button>
+            </div>
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // DOM elements
-            const nameInput = document.getElementById('nameInput');
-            const setNameBtn = document.getElementById('setNameBtn');
-            const characterNameElement = document.getElementById('characterName');
-            const character = document.getElementById('character');
-            const punchEffect = document.getElementById('punchEffect');
-            const healthBar = document.getElementById('healthBar');
-            const stats = document.getElementById('stats');
-            const punchBtn = document.getElementById('punchBtn');
-            const gameOverModal = document.getElementById('gameOverModal');
-            const gameOverText = document.getElementById('gameOverText');
-            const playAgainBtn = document.getElementById('playAgainBtn');
-            
-            // Game state
-            let characterName = 'Punching Bag';
-            let health = 100;
-            let punchCount = 0;
-            
-            // Health-based emojis
-            const healthEmojis = {
-                100: '😀', // Full health
-                80: '🙂',  // Slightly damaged
-                60: '😐',  // Concerned
-                40: '😣',  // Pained
-                20: '😫',  // Very hurt
-                0: '😵'    // Knocked out
-            };
-            
-            // Check URL parameters for name
-            function getURLParameters() {
-                const urlParams = new URLSearchParams(window.location.search);
-                const nameParam = urlParams.get('name');
-                
-                if (nameParam) {
-                    // Replace hyphens with spaces
-                    const formattedName = nameParam.replace(/-/g, ' ');
-                    nameInput.value = formattedName;
-                    characterName = formattedName;
-                    characterNameElement.textContent = formattedName;
-                }
+    <div class="modal-overlay" id="welcomeModal">
+        <div class="modal">
+            <h2 class="modal-glitch-title">⏰ Welcome Back!</h2>
+            <div class="modal-body" id="welcomeText">You earned offline credits!</div>
+            <button class="modal-btn" id="btnWelcomeClose">Resume Combat</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="statsModal">
+        <div class="modal">
+            <h2 class="modal-glitch-title">📊 Combat Statistics</h2>
+            <div class="modal-body" id="statsBody" style="text-align:left;"></div>
+            <button class="modal-btn" id="btnStatsClose">Close</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="achieveModal">
+        <div class="modal" style="max-width:550px;">
+            <h2 class="modal-glitch-title">🏆 Achievements</h2>
+            <div class="achievements-grid" id="achievementsGrid"></div>
+            <br>
+            <button class="modal-btn" id="btnAchieveClose">Close</button>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="achievement-toast" id="achieveToast">
+        <div class="toast-icon" id="toastIcon">🏆</div>
+        <div class="toast-info">
+            <h4 id="toastTitle">Achievement!</h4>
+            <p id="toastDesc">Description</p>
+        </div>
+    </div>
+
+    <!-- Rage Vignette -->
+    <div id="rageVignette"></div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-tech-lines"></div>
+        <a href="https://arkadeep.com" target="_blank" class="footer-link">Visit <span>Arkadeep.com</span></a>
+        <div class="footer-cr">
+            <div class="footer-pulse-dot"></div>
+            <span>System Online // © 2026 Arcadeep</span>
+        </div>
+    </footer>
+
+<script>
+// ============================================================
+// AUDIO SYNTHESIZER
+// ============================================================
+class AudioSynth {
+    constructor() { this.ctx = null; this.muted = false; }
+
+    init() {
+        if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+    }
+
+    play(type) {
+        if (this.muted) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        const dest = this.ctx.destination;
+
+        const makeOsc = (waveType, freq) => {
+            const o = this.ctx.createOscillator();
+            o.type = waveType;
+            o.frequency.setValueAtTime(freq, now);
+            return o;
+        };
+        const makeGain = (vol) => {
+            const g = this.ctx.createGain();
+            g.gain.setValueAtTime(vol, now);
+            return g;
+        };
+        const makeFilter = (fType, freq) => {
+            const f = this.ctx.createBiquadFilter();
+            f.type = fType;
+            f.frequency.setValueAtTime(freq, now);
+            return f;
+        };
+
+        switch(type) {
+            case 'fist': {
+                const o = makeOsc('triangle', 140), g = makeGain(0.7);
+                o.frequency.exponentialRampToValueAtTime(35, now + 0.12);
+                g.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+                o.connect(g).connect(dest); o.start(now); o.stop(now + 0.13);
+            } break;
+            case 'knuckles': {
+                const o = makeOsc('sawtooth', 110), g = makeGain(0.9), f = makeFilter('lowpass', 250);
+                f.frequency.exponentialRampToValueAtTime(50, now + 0.15);
+                o.frequency.linearRampToValueAtTime(30, now + 0.15);
+                g.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                o.connect(f).connect(g).connect(dest); o.start(now); o.stop(now + 0.16);
+            } break;
+            case 'blade': {
+                const o = makeOsc('sawtooth', 900), g = makeGain(0.4), f = makeFilter('bandpass', 1100);
+                o.frequency.exponentialRampToValueAtTime(120, now + 0.18);
+                f.Q.setValueAtTime(6, now);
+                f.frequency.exponentialRampToValueAtTime(150, now + 0.18);
+                g.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                o.connect(f).connect(g).connect(dest); o.start(now); o.stop(now + 0.2);
+            } break;
+            case 'mjolnir': {
+                const o = makeOsc('sine', 80), gO = makeGain(1.2);
+                o.frequency.linearRampToValueAtTime(20, now + 0.4);
+                gO.gain.exponentialRampToValueAtTime(0.01, now + 0.45);
+                const bufSz = this.ctx.sampleRate * 0.4;
+                const buf = this.ctx.createBuffer(1, bufSz, this.ctx.sampleRate);
+                const d = buf.getChannelData(0);
+                for (let i = 0; i < bufSz; i++) d[i] = Math.random() * 2 - 1;
+                const ns = this.ctx.createBufferSource(); ns.buffer = buf;
+                const f = makeFilter('lowpass', 160), gN = makeGain(0.7);
+                gN.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                o.connect(gO).connect(dest);
+                ns.connect(f).connect(gN).connect(dest);
+                o.start(now); o.stop(now + 0.4); ns.start(now); ns.stop(now + 0.4);
+            } break;
+            case 'disruptor': {
+                const o = makeOsc('sine', 45), g = makeGain(0.08);
+                o.frequency.linearRampToValueAtTime(280, now + 0.28);
+                o.frequency.linearRampToValueAtTime(25, now + 0.48);
+                g.gain.linearRampToValueAtTime(0.9, now + 0.22);
+                g.gain.exponentialRampToValueAtTime(0.01, now + 0.48);
+                o.connect(g).connect(dest); o.start(now); o.stop(now + 0.48);
+            } break;
+            case 'singularity': {
+                const o1 = makeOsc('sine', 90), o2 = makeOsc('sawtooth', 25);
+                const g1 = makeGain(1.1), g2 = makeGain(0.25);
+                const f = makeFilter('peaking', 500);
+                o1.frequency.exponentialRampToValueAtTime(15, now + 0.7);
+                o2.frequency.exponentialRampToValueAtTime(1400, now + 0.58);
+                g1.gain.exponentialRampToValueAtTime(0.01, now + 0.75);
+                g2.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+                o1.connect(g1).connect(dest);
+                o2.connect(f).connect(g2).connect(dest);
+                o1.start(now); o1.stop(now + 0.75); o2.start(now); o2.stop(now + 0.6);
+            } break;
+            case 'coin': {
+                const o = makeOsc('sine', 1046.5), g = makeGain(0.2);
+                o.frequency.setValueAtTime(1396.91, now + 0.07);
+                g.gain.exponentialRampToValueAtTime(0.01, now + 0.22);
+                o.connect(g).connect(dest); o.start(now); o.stop(now + 0.22);
+            } break;
+            case 'defeat': {
+                const o = makeOsc('triangle', 261.63), g = makeGain(0.5);
+                o.frequency.setValueAtTime(329.63, now + 0.1);
+                o.frequency.setValueAtTime(392.00, now + 0.2);
+                o.frequency.setValueAtTime(523.25, now + 0.3);
+                g.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                o.connect(g).connect(dest); o.start(now); o.stop(now + 0.5);
+            } break;
+            case 'rage-activate': {
+                const o = makeOsc('sawtooth', 180), g = makeGain(0.5);
+                o.frequency.linearRampToValueAtTime(700, now + 0.7);
+                const lfo = makeOsc('sine', 16), lG = makeGain(60);
+                lfo.connect(lG).connect(o.frequency);
+                g.gain.exponentialRampToValueAtTime(0.01, now + 0.75);
+                o.connect(g).connect(dest);
+                lfo.start(now); o.start(now); lfo.stop(now + 0.75); o.stop(now + 0.75);
+            } break;
+            case 'click': {
+                const o = makeOsc('sine', 550), g = makeGain(0.15);
+                o.frequency.exponentialRampToValueAtTime(280, now + 0.04);
+                g.gain.exponentialRampToValueAtTime(0.01, now + 0.04);
+                o.connect(g).connect(dest); o.start(now); o.stop(now + 0.05);
+            } break;
+            case 'shield-hit': {
+                const o = makeOsc('square', 200), g = makeGain(0.3);
+                o.frequency.exponentialRampToValueAtTime(80, now + 0.1);
+                g.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                o.connect(g).connect(dest); o.start(now); o.stop(now + 0.15);
+            } break;
+            case 'shield-break': {
+                const o = makeOsc('sawtooth', 400), g = makeGain(0.6);
+                o.frequency.exponentialRampToValueAtTime(50, now + 0.3);
+                g.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+                o.connect(g).connect(dest); o.start(now); o.stop(now + 0.35);
+            } break;
+            case 'super-crit': {
+                const o1 = makeOsc('sine', 523.25), o2 = makeOsc('sine', 659.25), o3 = makeOsc('sine', 783.99);
+                const g = makeGain(0.4);
+                g.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                o1.connect(g); o2.connect(g); o3.connect(g); g.connect(dest);
+                o1.start(now); o2.start(now); o3.start(now);
+                o1.stop(now + 0.5); o2.stop(now + 0.5); o3.stop(now + 0.5);
+            } break;
+            case 'achievement': {
+                const o = makeOsc('sine', 880), g = makeGain(0.25);
+                o.frequency.setValueAtTime(1108.73, now + 0.1);
+                o.frequency.setValueAtTime(1318.51, now + 0.2);
+                g.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                o.connect(g).connect(dest); o.start(now); o.stop(now + 0.4);
+            } break;
+            case 'prestige': {
+                const o1 = makeOsc('sine', 261.63), o2 = makeOsc('sine', 329.63);
+                const g = makeGain(0.35);
+                o1.frequency.setValueAtTime(392, now+0.15);
+                o1.frequency.setValueAtTime(523.25, now+0.3);
+                o1.frequency.setValueAtTime(659.25, now+0.45);
+                o2.frequency.setValueAtTime(523.25, now+0.15);
+                o2.frequency.setValueAtTime(659.25, now+0.3);
+                o2.frequency.setValueAtTime(783.99, now+0.45);
+                g.gain.exponentialRampToValueAtTime(0.01, now + 0.7);
+                o1.connect(g); o2.connect(g); g.connect(dest);
+                o1.start(now); o2.start(now); o1.stop(now+0.7); o2.stop(now+0.7);
+            } break;
+            case 'boss-attack': {
+                const o = makeOsc('square', 120), g = makeGain(0.25);
+                o.frequency.exponentialRampToValueAtTime(60, now + 0.2);
+                g.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                o.connect(g).connect(dest); o.start(now); o.stop(now + 0.22);
+            } break;
+            case 'enrage': {
+                const o = makeOsc('sawtooth', 100), g = makeGain(0.4);
+                o.frequency.linearRampToValueAtTime(500, now + 0.5);
+                o.frequency.linearRampToValueAtTime(100, now + 1.0);
+                g.gain.exponentialRampToValueAtTime(0.01, now + 1.0);
+                o.connect(g).connect(dest); o.start(now); o.stop(now + 1.0);
+            } break;
+        }
+    }
+}
+
+const synth = new AudioSynth();
+
+// ============================================================
+// GAME CONFIG
+// ============================================================
+const TARGETS = [
+    { name: "Punching Bag", emoji: "🥊", maxHp: 100, reward: 25, stage: "STAGE 1: COMBAT BASIC TRAINING", atkInterval: 0, atkDmg: 0, enrageTime: 999, special: null, taunt: "" },
+    { name: "Syntax Error Bug", emoji: "🐛", maxHp: 800, reward: 150, stage: "STAGE 2: PROTOCOL DEBUGGING", atkInterval: 5000, atkDmg: 5, enrageTime: 90, special: "spawn_bugs", taunt: "Segfault incoming!" },
+    { name: "Screaming Karen", emoji: "😫", maxHp: 4500, reward: 800, stage: "STAGE 3: SOCIAL DISRUPTION", atkInterval: 3500, atkDmg: 12, enrageTime: 75, special: "heal_self", taunt: "I WANT YOUR MANAGER!" },
+    { name: "Micromanaging Boss", emoji: "👿", maxHp: 22000, reward: 4500, stage: "STAGE 4: ENTERPRISE OVERLORD", atkInterval: 3000, atkDmg: 25, enrageTime: 65, special: "steal_credits", taunt: "Did you update the spreadsheet?" },
+    { name: "Skynet AI Core", emoji: "🤖", maxHp: 100000, reward: 20000, stage: "STAGE 5: SYNTHETIC THREAT", atkInterval: 2500, atkDmg: 50, enrageTime: 55, special: "disable_drones", taunt: "Resistance is futile." },
+    { name: "Void Overlord", emoji: "👾", maxHp: 500000, reward: 100000, stage: "STAGE 6: APEX SINGULARITY", atkInterval: 2000, atkDmg: 80, enrageTime: 45, special: "void_drain", taunt: "The void consumes all." }
+];
+
+const WEAPONS = [
+    { id:'fist', name:'Bare Fists', emoji:'👊', baseDmg:1, cost:0, sfx:'fist', passive:'Crit Rate +5%', passiveType:'crit_boost', passiveVal:0.05, level:1 },
+    { id:'knuckles', name:'Cyber Knuckles', emoji:'⚔️', baseDmg:8, cost:50, sfx:'knuckles', passive:'Combo Timer +30%', passiveType:'combo_extend', passiveVal:0.3, level:0 },
+    { id:'blade', name:'Plasma Katana', emoji:'⚡', baseDmg:45, cost:400, sfx:'blade', passive:'10% Double Strike', passiveType:'double_hit', passiveVal:0.1, level:0 },
+    { id:'mjolnir', name:'Mjolnir Hammer', emoji:'🔨', baseDmg:250, cost:2500, sfx:'mjolnir', passive:'Stuns Boss 0.5s', passiveType:'stun_boss', passiveVal:0.5, level:0 },
+    { id:'disruptor', name:'Gravity Disruptor', emoji:'🌀', baseDmg:1300, cost:16000, sfx:'disruptor', passive:'+2% Max HP Bonus', passiveType:'hp_bonus', passiveVal:0.02, level:0 },
+    { id:'singularity', name:'Singularity Core', emoji:'🌌', baseDmg:7000, cost:100000, sfx:'singularity', passive:'5% Deal 10x DMG', passiveType:'mega_hit', passiveVal:0.05, level:0 }
+];
+
+const DRONES = [
+    { id:'beetle', name:'Nano Beetle', emoji:'🐞', baseDps:1, baseCost:100, count:0 },
+    { id:'drone', name:'Attack Drone', emoji:'🛸', baseDps:10, baseCost:1000, count:0 },
+    { id:'goliath', name:'Goliath Mech', emoji:'🦾', baseDps:70, baseCost:7000, count:0 },
+    { id:'quantum', name:'Quantum CPU', emoji:'💾', baseDps:500, baseCost:50000, count:0 },
+    { id:'dreadnought', name:'Dreadnought', emoji:'🚀', baseDps:3500, baseCost:300000, count:0 },
+    { id:'antimatter', name:'Antimatter Swarm', emoji:'⚛️', baseDps:25000, baseCost:2000000, count:0 },
+    { id:'cosmic', name:'Cosmic Devourer', emoji:'🌑', baseDps:180000, baseCost:15000000, count:0 }
+];
+
+const ACHIEVEMENTS = [
+    { id:'first_blood', name:'First Blood', desc:'Defeat your first target', icon:'🩸', check: s => s.totalKills >= 1 },
+    { id:'combo_10', name:'Combo Starter', desc:'Reach a 10x combo', icon:'🔥', check: s => s.maxCombo >= 10 },
+    { id:'combo_50', name:'Combo Maniac', desc:'Reach a 50x combo', icon:'💥', check: s => s.maxCombo >= 50 },
+    { id:'combo_100', name:'Combo God', desc:'Reach a 100x combo', icon:'⚡', check: s => s.maxCombo >= 100 },
+    { id:'punches_100', name:'Hundred Fists', desc:'Throw 100 punches', icon:'👊', check: s => s.totalPunches >= 100 },
+    { id:'punches_1k', name:'Thousand Hands', desc:'Throw 1,000 punches', icon:'🤜', check: s => s.totalPunches >= 1000 },
+    { id:'punches_10k', name:'Ten Thousand Fists', desc:'Throw 10,000 punches', icon:'🌪️', check: s => s.totalPunches >= 10000 },
+    { id:'credits_10k', name:'Flush With Cash', desc:'Earn 10,000 total credits', icon:'💰', check: s => s.totalCreditsEarned >= 10000 },
+    { id:'credits_1m', name:'Millionaire', desc:'Earn 1,000,000 total credits', icon:'🤑', check: s => s.totalCreditsEarned >= 1000000 },
+    { id:'credits_1b', name:'Billionaire', desc:'Earn 1,000,000,000 total credits', icon:'💎', check: s => s.totalCreditsEarned >= 1000000000 },
+    { id:'rage_1', name:'Rage Quit', desc:'Activate rage mode once', icon:'😤', check: s => s.totalRages >= 1 },
+    { id:'rage_10', name:'Rage Addict', desc:'Activate rage mode 10 times', icon:'🔴', check: s => s.totalRages >= 10 },
+    { id:'kill_void', name:'Void Slayer', desc:'Defeat the Void Overlord', icon:'👾', check: s => s.bossesDefeated.includes('Void Overlord') },
+    { id:'prestige_1', name:'Ascension', desc:'Prestige for the first time', icon:'⭐', check: s => s.prestigeLevel >= 1 },
+    { id:'prestige_5', name:'Transcendence', desc:'Reach Prestige 5', icon:'🌟', check: s => s.prestigeLevel >= 5 },
+    { id:'custom_1', name:'Boss Creator', desc:'Create a custom boss', icon:'🛠️', check: s => s.customBossesCreated >= 1 },
+    { id:'custom_5', name:'Boss Factory', desc:'Create 5 custom bosses', icon:'🏭', check: s => s.customBossesCreated >= 5 },
+    { id:'speed_demon', name:'Speed Demon', desc:'Defeat any boss in under 10 seconds', icon:'⏱️', check: s => s.fastestKill <= 10 },
+    { id:'shield_break', name:'Shattered', desc:'Have your shield broken by a boss', icon:'🛡️', check: s => s.shieldBreaks >= 1 },
+    { id:'all_weapons', name:'Arsenal', desc:'Purchase all weapons', icon:'🗡️', check: s => s.weaponsPurchased >= 6 },
+    { id:'drone_army', name:'Drone Army', desc:'Own 50 total drones', icon:'🤖', check: s => s.totalDrones >= 50 },
+    { id:'super_crit', name:'Supernova', desc:'Land a Super Critical hit', icon:'✨', check: s => s.superCrits >= 1 },
+    { id:'classic_100', name:'Therapeutic', desc:'Punch 100 times in Classic Mode', icon:'🧘', check: s => s.classicPunches >= 100 },
+];
+
+// ============================================================
+// GAME STATE
+// ============================================================
+let credits = 0;
+let activeWeaponIdx = 0;
+let autoDps = 0;
+let activeTargetIdx = 0;
+let targetHp = 100;
+let targetMaxHp = 100;
+let totalPunches = 0;
+let comboCount = 0;
+let comboTimer = null;
+let rageMeter = 0;
+let isRageActive = false;
+let rageTimer = null;
+let rageDurationUpgrade = 0;
+let customBosses = [];
+let isStunned = false;
+let stunTimer = null;
+let playerShield = 100;
+let playerMaxShield = 100;
+let bossAttackTimer = null;
+let bossEnraged = false;
+let enrageStartTime = 0;
+let fightStartTime = 0;
+let enrageTimerInterval = null;
+let prestigeLevel = 0;
+let currentMode = 'arcade';
+let classicPunchCount = 0;
+let lastSaveTimestamp = Date.now();
+
+// Stats tracking
+let stats = {
+    totalPunches: 0, totalKills: 0, totalCreditsEarned: 0, totalRages: 0,
+    maxCombo: 0, fastestKill: Infinity, bossesDefeated: [], prestigeLevel: 0,
+    customBossesCreated: 0, shieldBreaks: 0, weaponsPurchased: 1, totalDrones: 0,
+    superCrits: 0, classicPunches: 0, totalDamageDealt: 0
+};
+
+let unlockedAchievements = new Set();
+
+// ============================================================
+// DOM REFS
+// ============================================================
+const $ = id => document.getElementById(id);
+
+const audioToggle = $('audioToggle');
+const modeToggle = $('modeToggle');
+const statsToggle = $('statsToggle');
+const achieveToggle = $('achieveToggle');
+const classicMode = $('classicMode');
+const arcadeMode = $('arcadeMode');
+const stageDisplay = $('stageDisplay');
+const targetSelector = $('targetSelector');
+const characterCard = $('characterCard');
+const characterEmoji = $('characterEmoji');
+const characterName = $('characterName');
+const bossTaunt = $('bossTaunt');
+const healthBarFill = $('healthBarFill');
+const healthBarLag = $('healthBarLag');
+const healthLabel = $('healthLabel');
+const targetStatusText = $('targetStatusText');
+const shieldBarFill = $('shieldBarFill');
+const shieldLabel = $('shieldLabel');
+const enrageTimerBar = $('enrageTimerBar');
+const enrageLabel = $('enrageLabel');
+const rageBarFill = $('rageBarFill');
+const ragePercentLabel = $('ragePercentLabel');
+const rageBtn = $('rageBtn');
+const punchBtn = $('punchBtn');
+const coinDisplay = $('coinDisplay');
+const dpsDisplay = $('dpsDisplay');
+const clickDmgDisplay = $('clickDmgDisplay');
+const punchesDisplay = $('punchesDisplay');
+const comboCounter = $('comboCounter');
+const arenaPanel = $('arenaPanel');
+const stunOverlay = $('stunOverlay');
+const holoBeam = $('holoBeam');
+const victoryModal = $('victoryModal');
+const victoryText = $('victoryText');
+const btnModalClose = $('btnModalClose');
+const btnPrestige = $('btnPrestige');
+const welcomeModal = $('welcomeModal');
+const welcomeText = $('welcomeText');
+const btnWelcomeClose = $('btnWelcomeClose');
+const statsModal = $('statsModal');
+const statsBody = $('statsBody');
+const btnStatsClose = $('btnStatsClose');
+const achieveModal = $('achieveModal');
+const achievementsGrid = $('achievementsGrid');
+const btnAchieveClose = $('btnAchieveClose');
+const achieveToast = $('achieveToast');
+const prestigeBadge = $('prestigeBadge');
+
+// Custom Boss inputs
+const customNameIn = $('customName');
+const customEmojiIn = $('customEmoji');
+const customHPIn = $('customHP');
+const customDiffIn = $('customDifficulty');
+const customTauntIn = $('customTaunt');
+const customAttackIn = $('customAttackName');
+const btnCreateCustom = $('btnCreateCustom');
+
+// Canvas
+const canvas = $('particleCanvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+
+const classicCanvas = $('classicCanvas');
+const classicCtx = classicCanvas.getContext('2d');
+let classicParticles = [];
+
+// ============================================================
+// UTILITY
+// ============================================================
+function formatNum(n) {
+    if (n >= 1e12) return (n/1e12).toFixed(1) + 'T';
+    if (n >= 1e9) return (n/1e9).toFixed(1) + 'B';
+    if (n >= 1e6) return (n/1e6).toFixed(1) + 'M';
+    if (n >= 1e3) return (n/1e3).toFixed(1) + 'K';
+    return Math.floor(n).toString();
+}
+
+function vibrate(pattern) {
+    if (navigator.vibrate) navigator.vibrate(pattern);
+}
+
+function getPrestigeMultiplier() {
+    return 1 + (prestigeLevel * 0.5);
+}
+
+function getWeaponDmg(wpnIdx) {
+    const w = WEAPONS[wpnIdx];
+    if (w.level <= 0) return 0;
+    return Math.floor(w.baseDmg * Math.pow(1.5, w.level - 1) * getPrestigeMultiplier());
+}
+
+function getWeaponUpgradeCost(wpnIdx) {
+    const w = WEAPONS[wpnIdx];
+    return Math.floor(w.cost * Math.pow(2.2, w.level));
+}
+
+function getDroneCost(droneIdx) {
+    const d = DRONES[droneIdx];
+    return Math.floor(d.baseCost * Math.pow(1.15, d.count));
+}
+
+function getDroneDps(droneIdx) {
+    const d = DRONES[droneIdx];
+    let dps = d.baseDps * d.count;
+    if (d.count >= 5) dps *= 1.25; // synergy bonus
+    return Math.floor(dps * getPrestigeMultiplier());
+}
+
+function recalcAutoDps() {
+    autoDps = DRONES.reduce((sum, d, i) => sum + getDroneDps(i), 0);
+}
+
+function getComboMultiplier() {
+    return 1 + Math.floor(comboCount / 10) * 0.1;
+}
+
+function getCurrentTarget() {
+    const val = targetSelector.value;
+    if (String(val).startsWith('custom-')) {
+        return customBosses[parseInt(val.split('-')[1])];
+    }
+    return TARGETS[parseInt(val)];
+}
+
+// ============================================================
+// CANVAS RESIZE
+// ============================================================
+function resizeCanvas() {
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    classicCanvas.width = classicCanvas.offsetWidth;
+    classicCanvas.height = classicCanvas.offsetHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+setTimeout(resizeCanvas, 200);
+
+// ============================================================
+// PARTICLE SYSTEM
+// ============================================================
+class Particle {
+    constructor(x, y, color, vx, vy) {
+        this.x = x; this.y = y; this.color = color;
+        this.vx = vx; this.vy = vy;
+        this.alpha = 1;
+        this.size = Math.random() * 3 + 1.5;
+        this.gravity = 0.2;
+    }
+    update() {
+        this.x += this.vx; this.y += this.vy;
+        this.vy += this.gravity; this.alpha -= 0.028;
+    }
+    draw(c) {
+        c.save();
+        c.globalAlpha = Math.max(0, this.alpha);
+        c.fillStyle = this.color;
+        c.beginPath();
+        c.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        c.fill();
+        c.restore();
+    }
+}
+
+function spawnParticles(x, y, type, targetArray) {
+    const colorSets = {
+        fist: ['#00f3ff'], knuckles: ['#ff007f','#fff'], blade: ['#00f3ff','#39ff14'],
+        mjolnir: ['#ffea00','#00f3ff','#a855f7'], disruptor: ['#a855f7','#6366f1','#fff'],
+        singularity: ['#000','#6366f1','#ff007f','#00f3ff'], drone: ['#39ff14','#fff'],
+        rage: ['#ff007f','#ffea00'], crit: ['#ffea00','#ff007f','#fff'],
+        'super-crit': ['#ff44cc','#ffea00','#fff','#00f3ff'],
+        victory: ['#ffea00','#39ff14','#00f3ff','#ff007f'],
+        classic: ['#ff007f','#a855f7','#ffea00']
+    };
+    const counts = {
+        fist:10, knuckles:14, blade:16, mjolnir:28, disruptor:22, singularity:40,
+        drone:5, rage:18, crit:22, 'super-crit':50, victory:45, classic:15
+    };
+    const colors = colorSets[type] || ['#00f3ff'];
+    const count = counts[type] || 12;
+
+    for (let i = 0; i < count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 5 + 2;
+        targetArray.push(new Particle(x, y, colors[Math.floor(Math.random() * colors.length)],
+            Math.cos(angle) * speed, Math.sin(angle) * speed - 1.5));
+    }
+}
+
+function animateParticles() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles = particles.filter(p => { p.update(); p.draw(ctx); return p.alpha > 0; });
+
+    classicCtx.clearRect(0, 0, classicCanvas.width, classicCanvas.height);
+    classicParticles = classicParticles.filter(p => { p.update(); p.draw(classicCtx); return p.alpha > 0; });
+
+    requestAnimationFrame(animateParticles);
+}
+requestAnimationFrame(animateParticles);
+
+// ============================================================
+// FLOATING DAMAGE TEXT
+// ============================================================
+function spawnFloatingDmg(amount, x, y, extraClass, container) {
+    const el = document.createElement('div');
+    el.className = `dmg-text ${extraClass}`;
+    el.textContent = extraClass === 'boss-atk' ? `-${amount} 🛡️` : `-${formatNum(amount)}`;
+    el.style.left = `${x + (Math.random() - 0.5) * 40}px`;
+    el.style.top = `${y}px`;
+    (container || document.querySelector('.holo-arena')).appendChild(el);
+    setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, 800);
+}
+
+// ============================================================
+// MODE SWITCHING
+// ============================================================
+function switchMode(mode) {
+    currentMode = mode;
+    if (mode === 'classic') {
+        classicMode.classList.add('visible');
+        arcadeMode.classList.remove('visible');
+        modeToggle.textContent = '🎮 ARCADE';
+    } else {
+        classicMode.classList.remove('visible');
+        arcadeMode.classList.add('visible');
+        modeToggle.textContent = '✊ CLASSIC';
+    }
+    synth.play('click');
+    resizeCanvas();
+}
+
+// ============================================================
+// CLASSIC MODE LOGIC
+// ============================================================
+const classicNameInput = $('classicNameInput');
+const classicTargetName = $('classicTargetName');
+const classicCounterDisplay = $('classicCounter');
+const classicMessage = $('classicMessage');
+const classicTargetCard = $('classicTargetCard');
+const classicPunchBtn = $('classicPunchBtn');
+
+const CLASSIC_MILESTONES = {
+    1: "First punch! 👊", 10: "Getting warmed up!", 25: "Feeling better?",
+    50: "That's therapeutic! 🧘", 75: "Can't stop won't stop!",
+    100: "CENTURION PUNCHER! 💯", 200: "This is getting personal...",
+    300: "They definitely felt that.", 500: "ABSOLUTE DEVASTATION! 🔥",
+    750: "Are you okay?? 😳", 1000: "ONE THOUSAND!! 🎆 Legend.",
+    2000: "Touch grass maybe? 🌿", 5000: "TRANSCENDENCE ACHIEVED ✨",
+    10000: "You have ascended. 🌌"
+};
+
+classicNameInput.addEventListener('input', () => {
+    const name = classicNameInput.value.trim();
+    classicTargetName.textContent = name || '???';
+    classicPunchCount = 0;
+    classicCounterDisplay.textContent = '0';
+    classicMessage.innerHTML = '&nbsp;';
+});
+
+function classicPunch(e) {
+    const name = classicNameInput.value.trim();
+    if (!name) {
+        classicMessage.textContent = 'Enter a name first!';
+        return;
+    }
+
+    classicPunchCount++;
+    stats.classicPunches++;
+    classicCounterDisplay.textContent = classicPunchCount;
+
+    // Particles
+    const cx = classicCanvas.width / 2;
+    const cy = classicCanvas.height / 2;
+    spawnParticles(cx, cy, 'classic', classicParticles);
+
+    // Card recoil
+    classicTargetCard.style.transform = 'scale(0.85)';
+    setTimeout(() => classicTargetCard.style.transform = '', 100);
+
+    // Sound
+    synth.play(['fist', 'knuckles', 'blade'][Math.floor(Math.random() * 3)]);
+    vibrate(40);
+
+    // Milestone check
+    if (CLASSIC_MILESTONES[classicPunchCount]) {
+        classicMessage.textContent = CLASSIC_MILESTONES[classicPunchCount];
+    }
+
+    checkAchievements();
+}
+
+classicTargetCard.addEventListener('mousedown', classicPunch);
+classicTargetCard.addEventListener('touchstart', (e) => { e.preventDefault(); classicPunch(e); }, { passive: false });
+classicPunchBtn.addEventListener('mousedown', classicPunch);
+classicPunchBtn.addEventListener('touchstart', (e) => { e.preventDefault(); classicPunch(e); }, { passive: false });
+
+// ============================================================
+// ARCADE MODE - INIT
+// ============================================================
+function init() {
+    loadState();
+    setTarget(targetSelector.value);
+    renderShopWeapons();
+    renderShopDrones();
+    updateHUD();
+    startIdleLoop();
+    updatePrestigeBadge();
+    renderBossDatabase();
+
+    // URL param custom target
+    const params = new URLSearchParams(window.location.search);
+    const nameParam = params.get('name');
+    if (nameParam) {
+        const node = {
+            name: nameParam.replace(/-/g, ' '),
+            emoji: params.get('emoji') || '👿',
+            maxHp: parseInt(params.get('hp')) || 500,
+            reward: Math.floor((parseInt(params.get('hp')) || 500) * 0.25),
+            stage: "PROTOCOL: URL INJECTED",
+            atkInterval: 3000, atkDmg: 10, enrageTime: 60,
+            special: null, taunt: params.get('taunt') || '',
+            difficulty: 'medium', attackName: ''
+        };
+        customBosses.push(node);
+        updateDropdownOptions();
+        targetSelector.value = `custom-${customBosses.length - 1}`;
+        setTarget(`custom-${customBosses.length - 1}`);
+        saveCustomBosses();
+    }
+
+    // Offline progress
+    checkOfflineProgress();
+}
+
+// ============================================================
+// TARGET MANAGEMENT
+// ============================================================
+function setTarget(idxKey) {
+    let targetObj;
+    if (String(idxKey).startsWith('custom-')) {
+        const cIdx = parseInt(String(idxKey).split('-')[1]);
+        targetObj = customBosses[cIdx];
+    } else {
+        activeTargetIdx = parseInt(idxKey);
+        targetObj = TARGETS[activeTargetIdx];
+    }
+    if (!targetObj) return;
+
+    characterEmoji.textContent = targetObj.emoji;
+    characterName.textContent = targetObj.name;
+    stageDisplay.textContent = targetObj.stage;
+    targetMaxHp = targetObj.maxHp;
+    targetHp = targetMaxHp;
+    playerShield = playerMaxShield;
+    bossEnraged = false;
+    fightStartTime = Date.now();
+    isStunned = false;
+    stunOverlay.classList.remove('active');
+
+    characterCard.classList.remove('low-hp', 'enraged');
+    holoBeam.classList.remove('enraged');
+
+    if (targetObj.taunt) {
+        bossTaunt.textContent = `"${targetObj.taunt}"`;
+        bossTaunt.classList.add('visible');
+        setTimeout(() => bossTaunt.classList.remove('visible'), 3000);
+    }
+
+    // Reset boss attack timer
+    clearInterval(bossAttackTimer);
+    clearInterval(enrageTimerInterval);
+    if (targetObj.atkInterval > 0) {
+        startBossAttacks(targetObj);
+        startEnrageTimer(targetObj);
+    } else {
+        enrageTimerBar.style.width = '0%';
+        enrageLabel.textContent = '—';
+    }
+
+    updateHealthBar();
+    updateShieldBar();
+    targetStatusText.textContent = "Target Active";
+    targetStatusText.style.color = 'var(--primary)';
+}
+
+// ============================================================
+// BOSS FIGHT-BACK SYSTEM
+// ============================================================
+function startBossAttacks(targetObj) {
+    bossAttackTimer = setInterval(() => {
+        if (targetHp <= 0 || isRageActive) return;
+        const dmg = bossEnraged ? targetObj.atkDmg * 2 : targetObj.atkDmg;
+        bossAttack(dmg, targetObj);
+    }, targetObj.atkInterval);
+}
+
+function bossAttack(dmg, targetObj) {
+    playerShield = Math.max(0, playerShield - dmg);
+    updateShieldBar();
+    synth.play('shield-hit');
+    vibrate(30);
+
+    // Show boss attack damage on arena
+    const cardRect = characterCard.getBoundingClientRect();
+    const canvasRect = canvas.getBoundingClientRect();
+    const x = (cardRect.left + cardRect.width / 2) - canvasRect.left;
+    const y = (cardRect.top + cardRect.height / 2) - canvasRect.top;
+    spawnFloatingDmg(dmg, x + 60, y + 30, 'boss-atk');
+
+    // Special attacks
+    if (targetObj.special && Math.random() < 0.25) {
+        executeBossSpecial(targetObj.special, targetObj);
+    }
+
+    if (playerShield <= 0) {
+        playerShield = 0;
+        stunPlayer();
+    }
+}
+
+function executeBossSpecial(type, boss) {
+    switch(type) {
+        case 'spawn_bugs':
+            // Steal some credits
+            const stolen = Math.floor(credits * 0.02);
+            credits = Math.max(0, credits - stolen);
+            if (stolen > 0) triggerComboComment(`BUG SWARM! -$${formatNum(stolen)}`);
+            break;
+        case 'heal_self':
+            const heal = Math.floor(targetMaxHp * 0.03);
+            targetHp = Math.min(targetMaxHp, targetHp + heal);
+            updateHealthBar();
+            triggerComboComment("MANAGER CALLED! +HP");
+            break;
+        case 'steal_credits':
+            const tax = Math.floor(credits * 0.05);
+            credits = Math.max(0, credits - tax);
+            if (tax > 0) triggerComboComment(`TAXED! -$${formatNum(tax)}`);
+            break;
+        case 'disable_drones':
+            // Temporarily halve DPS for 3 seconds
+            const savedDps = autoDps;
+            autoDps = Math.floor(autoDps / 2);
+            triggerComboComment("DRONES JAMMED!");
+            setTimeout(() => { recalcAutoDps(); }, 3000);
+            break;
+        case 'void_drain':
+            rageMeter = Math.max(0, rageMeter - 15);
+            rageBarFill.style.width = `${rageMeter}%`;
+            ragePercentLabel.textContent = `${Math.floor(rageMeter)}%`;
+            triggerComboComment("RAGE DRAINED!");
+            break;
+    }
+    synth.play('boss-attack');
+}
+
+function stunPlayer() {
+    if (isStunned) return;
+    isStunned = true;
+    stats.shieldBreaks++;
+    synth.play('shield-break');
+    vibrate([100, 50, 100]);
+    stunOverlay.classList.add('active');
+    triggerComboComment("💀 SHIELD BREAK!");
+    checkAchievements();
+
+    stunTimer = setTimeout(() => {
+        isStunned = false;
+        stunOverlay.classList.remove('active');
+        playerShield = Math.floor(playerMaxShield * 0.5);
+        updateShieldBar();
+    }, 3000);
+}
+
+function updateShieldBar() {
+    const pct = Math.max(0, (playerShield / playerMaxShield) * 100);
+    shieldBarFill.style.width = `${pct}%`;
+    shieldLabel.textContent = `${Math.floor(playerShield)}/${playerMaxShield}`;
+}
+
+// ============================================================
+// ENRAGE SYSTEM
+// ============================================================
+function startEnrageTimer(targetObj) {
+    const enrageTime = targetObj.enrageTime * 1000;
+    enrageStartTime = Date.now();
+    bossEnraged = false;
+
+    enrageTimerInterval = setInterval(() => {
+        if (targetHp <= 0) { clearInterval(enrageTimerInterval); return; }
+
+        const elapsed = Date.now() - enrageStartTime;
+        const pct = Math.min(100, (elapsed / enrageTime) * 100);
+        enrageTimerBar.style.width = `${pct}%`;
+        const remaining = Math.max(0, Math.ceil((enrageTime - elapsed) / 1000));
+        enrageLabel.textContent = bossEnraged ? '🔥 ENRAGED!' : `${remaining}s`;
+
+        if (elapsed >= enrageTime && !bossEnraged) {
+            bossEnraged = true;
+            enrageLabel.textContent = '🔥 ENRAGED!';
+            characterCard.classList.add('enraged');
+            holoBeam.classList.add('enraged');
+            synth.play('enrage');
+            triggerComboComment("⚠️ BOSS ENRAGED!");
+        }
+
+        // Boss regen while enraged
+        if (bossEnraged && targetHp > 0) {
+            targetHp = Math.min(targetMaxHp, targetHp + targetMaxHp * 0.001);
+            updateHealthBar();
+        }
+    }, 200);
+}
+
+// ============================================================
+// HEALTH BAR
+// ============================================================
+function updateHealthBar() {
+    const pct = Math.max(0, (targetHp / targetMaxHp) * 100);
+    healthBarFill.style.width = `${pct}%`;
+    healthLabel.textContent = `HP: ${formatNum(targetHp)}/${formatNum(targetMaxHp)}`;
+
+    setTimeout(() => { healthBarLag.style.width = `${pct}%`; }, 100);
+
+    if (pct < 25) {
+        healthBarFill.style.background = 'linear-gradient(90deg, #ff0055, #f43f5e)';
+        healthBarFill.style.boxShadow = '0 0 10px rgba(244,63,94,0.7)';
+        targetStatusText.textContent = "CRITICAL FAILURE IMMINENT";
+        targetStatusText.style.color = 'var(--secondary)';
+        characterCard.classList.add('low-hp');
+    } else if (pct < 60) {
+        healthBarFill.style.background = 'linear-gradient(90deg, #f59e0b, #eab308)';
+        healthBarFill.style.boxShadow = '0 0 10px rgba(234,179,8,0.7)';
+        targetStatusText.textContent = "INTEGRITY DEGRADED";
+        targetStatusText.style.color = 'var(--accent)';
+        characterCard.classList.remove('low-hp');
+    } else {
+        healthBarFill.style.background = 'linear-gradient(90deg, #00f3ff, #39ff14)';
+        healthBarFill.style.boxShadow = '0 0 10px rgba(57,255,20,0.7)';
+        targetStatusText.textContent = "Target Stable";
+        targetStatusText.style.color = 'var(--primary)';
+        characterCard.classList.remove('low-hp');
+    }
+}
+
+// ============================================================
+// PUNCH LOGIC
+// ============================================================
+function punchTarget(event) {
+    if (targetHp <= 0 || isStunned) return;
+    synth.init();
+
+    const currentWeapon = WEAPONS[activeWeaponIdx];
+    let dmg = getWeaponDmg(activeWeaponIdx);
+    let baseCritChance = 0.15;
+    let isCrit = false;
+    let isSuperCrit = false;
+
+    // Weapon passive: crit boost
+    if (currentWeapon.passiveType === 'crit_boost') baseCritChance += currentWeapon.passiveVal;
+
+    // Check super crit first (3%)
+    if (Math.random() < 0.03) {
+        isSuperCrit = true; isCrit = true;
+        dmg *= 5;
+        stats.superCrits++;
+    } else if (Math.random() < baseCritChance) {
+        isCrit = true;
+        dmg *= 2.5;
+    }
+
+    // Combo multiplier
+    dmg = Math.floor(dmg * getComboMultiplier());
+
+    // Rage mode
+    if (isRageActive) dmg = Math.floor(dmg * 2.5);
+
+    // Weapon passive: mega hit
+    if (currentWeapon.passiveType === 'mega_hit' && Math.random() < currentWeapon.passiveVal) {
+        dmg *= 10;
+        isSuperCrit = true;
+    }
+
+    // Weapon passive: HP bonus
+    if (currentWeapon.passiveType === 'hp_bonus') {
+        dmg += Math.floor(targetMaxHp * currentWeapon.passiveVal);
+    }
+
+    dmg = Math.max(1, Math.floor(dmg));
+    targetHp = Math.max(0, targetHp - dmg);
+    credits += dmg;
+    stats.totalCreditsEarned += dmg;
+    stats.totalDamageDealt += dmg;
+    totalPunches++;
+    stats.totalPunches = totalPunches;
+
+    increaseCombo();
+    chargeRage(isSuperCrit ? 10 : isCrit ? 6 : 2.5);
+    updateHUD();
+    updateHealthBar();
+
+    // Weapon passive: double hit
+    if (currentWeapon.passiveType === 'double_hit' && Math.random() < currentWeapon.passiveVal) {
+        let extraDmg = Math.max(1, Math.floor(getWeaponDmg(activeWeaponIdx) * getComboMultiplier()));
+        targetHp = Math.max(0, targetHp - extraDmg);
+        credits += extraDmg;
+        stats.totalCreditsEarned += extraDmg;
+        updateHealthBar();
+    }
+
+    // Weapon passive: stun boss
+    if (currentWeapon.passiveType === 'stun_boss') {
+        clearInterval(bossAttackTimer);
+        setTimeout(() => {
+            const t = getCurrentTarget();
+            if (t && t.atkInterval > 0) startBossAttacks(t);
+        }, currentWeapon.passiveVal * 1000);
+    }
+
+    // Visual feedback
+    if (isSuperCrit || isCrit || isRageActive) {
+        arenaPanel.classList.add('glitch-screen');
+        setTimeout(() => arenaPanel.classList.remove('glitch-screen'), 150);
+    }
+
+    // Character recoil
+    characterCard.classList.remove('hit-recoil');
+    void characterCard.offsetWidth;
+    characterCard.classList.add('hit-recoil');
+
+    // Particles
+    let clickX = canvas.width / 2, clickY = canvas.height / 2;
+    if (event) {
+        const rect = canvas.getBoundingClientRect();
+        const clientX = event.touches ? event.touches[0].clientX : event.clientX;
+        const clientY = event.touches ? event.touches[0].clientY : event.clientY;
+        clickX = clientX - rect.left;
+        clickY = clientY - rect.top;
+    }
+
+    spawnParticles(clickX, clickY, isSuperCrit ? 'super-crit' : isCrit ? 'crit' : currentWeapon.id, particles);
+
+    let dmgClass = '';
+    if (isSuperCrit) dmgClass = 'super-crit';
+    else if (isRageActive) dmgClass = 'rage-dmg';
+    else if (isCrit) dmgClass = 'crit';
+
+    spawnFloatingDmg(dmg, clickX, clickY, dmgClass);
+
+    if (isSuperCrit) { synth.play('super-crit'); vibrate([100, 30, 100, 30, 100]); }
+    else { synth.play(isRageActive ? 'rage-activate' : currentWeapon.sfx); vibrate(isCrit ? [80, 30, 80] : 40); }
+
+    if (targetHp <= 0) handleDefeat();
+    saveState();
+    checkAchievements();
+}
+
+// ============================================================
+// IDLE LOOP
+// ============================================================
+function startIdleLoop() {
+    setInterval(() => {
+        if (autoDps <= 0 || targetHp <= 0) return;
+        let dpsThisTick = autoDps / 10;
+        if (isRageActive) dpsThisTick *= 2;
+
+        targetHp = Math.max(0, targetHp - dpsThisTick);
+        credits += dpsThisTick;
+        stats.totalCreditsEarned += dpsThisTick;
+
+        updateHUD();
+        updateHealthBar();
+
+        if (Math.random() < 0.15) {
+            const cr = characterCard.getBoundingClientRect();
+            const cnr = canvas.getBoundingClientRect();
+            spawnParticles(
+                (cr.left + Math.random() * cr.width) - cnr.left,
+                (cr.top + Math.random() * cr.height) - cnr.top,
+                'drone', particles
+            );
+        }
+
+        if (targetHp <= 0) handleDefeat();
+    }, 100);
+
+    setInterval(saveState, 5000);
+}
+
+// ============================================================
+// DEFEAT & VICTORY
+// ============================================================
+function handleDefeat() {
+    const killTime = (Date.now() - fightStartTime) / 1000;
+    if (killTime < stats.fastestKill) stats.fastestKill = killTime;
+    stats.totalKills++;
+
+    synth.play('defeat');
+    clearInterval(bossAttackTimer);
+    clearInterval(enrageTimerInterval);
+
+    targetStatusText.textContent = "COGNITIVE NODE PURGED";
+    targetStatusText.style.color = 'var(--secondary)';
+
+    const currentTarget = getCurrentTarget();
+    const reward = currentTarget.reward;
+    credits += reward;
+    stats.totalCreditsEarned += reward;
+
+    if (!stats.bossesDefeated.includes(currentTarget.name)) {
+        stats.bossesDefeated.push(currentTarget.name);
+    }
+
+    // White flash
+    const flash = document.createElement('div');
+    flash.className = 'white-flash';
+    document.body.appendChild(flash);
+    setTimeout(() => { if (flash.parentNode) flash.parentNode.removeChild(flash); }, 400);
+
+    // Victory particles
+    for (let i = 0; i < 50; i++) {
+        particles.push(new Particle(canvas.width / 2, canvas.height / 2,
+            ['#ffea00','#39ff14','#00f3ff','#ff007f'][Math.floor(Math.random()*4)],
+            (Math.random()-0.5)*10, (Math.random()-0.5)*10 - 3));
+    }
+
+    victoryText.innerHTML = `
+        <p style="font-family:'Share Tech Mono',monospace; font-size:1rem; color:#fff; margin-bottom:0.8rem;">
+            NEUTRALIZED: <span style="color:var(--primary);">${currentTarget.name}</span>
+        </p>
+        <p>Kill time: <strong>${killTime.toFixed(1)}s</strong></p>
+        <p>Purge reward: <span style="color:var(--accent); font-weight:bold;">+$${formatNum(reward)}</span></p>
+    `;
+
+    // Show prestige button if Void Overlord defeated
+    if (currentTarget.name === 'Void Overlord') {
+        btnPrestige.classList.remove('hidden');
+    } else {
+        btnPrestige.classList.add('hidden');
+    }
+
+    victoryModal.classList.add('open');
+    updateHUD();
+    checkAchievements();
+    saveState();
+}
+
+function nextNode() {
+    victoryModal.classList.remove('open');
+    const val = targetSelector.value;
+    if (String(val).startsWith('custom-')) {
+        targetSelector.value = "0";
+        setTarget(0);
+    } else {
+        const nextIdx = (activeTargetIdx + 1) % TARGETS.length;
+        targetSelector.value = nextIdx;
+        setTarget(nextIdx);
+    }
+    saveState();
+}
+
+// ============================================================
+// PRESTIGE
+// ============================================================
+function doPrestige() {
+    prestigeLevel++;
+    stats.prestigeLevel = prestigeLevel;
+
+    // Reset progress but keep custom bosses and achievements
+    credits = 0;
+    activeWeaponIdx = 0;
+    WEAPONS.forEach(w => { w.level = (w.cost === 0) ? 1 : 0; });
+    DRONES.forEach(d => { d.count = 0; });
+    autoDps = 0;
+    activeTargetIdx = 0;
+    totalPunches = 0;
+    rageMeter = 0;
+    isRageActive = false;
+
+    synth.play('prestige');
+
+    updatePrestigeBadge();
+    targetSelector.value = 0;
+    setTarget(0);
+    renderShopWeapons();
+    renderShopDrones();
+    updateHUD();
+    victoryModal.classList.remove('open');
+    saveState();
+    checkAchievements();
+
+    // Big prestige flash
+    const flash = document.createElement('div');
+    flash.className = 'white-flash';
+    flash.style.background = 'linear-gradient(135deg, #ffea00, #ff6b00)';
+    document.body.appendChild(flash);
+    setTimeout(() => { if (flash.parentNode) flash.parentNode.removeChild(flash); }, 500);
+}
+
+function updatePrestigeBadge() {
+    if (prestigeLevel > 0) {
+        prestigeBadge.style.display = 'inline-block';
+        prestigeBadge.textContent = `⭐ P${prestigeLevel} (${getPrestigeMultiplier()}x)`;
+    }
+}
+
+// ============================================================
+// RAGE MODE
+// ============================================================
+function chargeRage(amount) {
+    if (isRageActive) return;
+    rageMeter = Math.min(100, rageMeter + amount);
+    rageBarFill.style.width = `${rageMeter}%`;
+    ragePercentLabel.textContent = `${Math.floor(rageMeter)}%`;
+    if (rageMeter >= 100) {
+        rageBtn.style.display = 'block';
+        ragePercentLabel.textContent = 'READY!';
+        ragePercentLabel.style.color = 'var(--secondary)';
+    }
+}
+
+function activateRageMode() {
+    if (rageMeter < 100 || isRageActive) return;
+    isRageActive = true;
+    rageMeter = 0;
+    rageBarFill.style.width = '0%';
+    ragePercentLabel.textContent = '0%';
+    ragePercentLabel.style.color = 'var(--text-muted)';
+    rageBtn.style.display = 'none';
+    stats.totalRages++;
+
+    const v = document.createElement('div');
+    v.className = 'rage-flash-active'; v.id = 'rageOverlay';
+    document.body.appendChild(v);
+    document.body.style.backgroundSize = "25px 25px";
+    synth.play('rage-activate');
+    vibrate([100, 50, 100, 50, 100]);
+    triggerComboComment("⚡ OVERDRIVE!");
+
+    const duration = 8000 + (rageDurationUpgrade * 1000);
+    let start = Date.now();
+    rageTimer = setInterval(() => {
+        let elapsed = Date.now() - start;
+        let pct = Math.max(0, 100 - (elapsed / duration) * 100);
+        rageBarFill.style.width = `${pct}%`;
+        ragePercentLabel.textContent = `OVERLOAD: ${Math.ceil(pct)}%`;
+        if (Math.random() < 0.4) spawnParticles(Math.random()*canvas.width, Math.random()*canvas.height, 'rage', particles);
+        if (elapsed >= duration) deactivateRageMode();
+    }, 50);
+
+    checkAchievements();
+}
+
+function deactivateRageMode() {
+    clearInterval(rageTimer);
+    isRageActive = false;
+    rageBarFill.style.width = '0%';
+    ragePercentLabel.textContent = '0%';
+    document.body.style.backgroundSize = "50px 50px";
+    const overlay = document.getElementById('rageOverlay');
+    if (overlay) overlay.parentNode.removeChild(overlay);
+}
+
+// ============================================================
+// COMBO SYSTEM
+// ============================================================
+function increaseCombo() {
+    clearTimeout(comboTimer);
+    comboCount++;
+    if (comboCount > stats.maxCombo) stats.maxCombo = comboCount;
+
+    const bonusPct = Math.floor((comboCount / 10)) * 10;
+    comboCounter.innerHTML = `${comboCount}x COMBO${bonusPct > 0 ? `<div class="combo-dmg-bonus">+${bonusPct}% DMG</div>` : ''}`;
+    comboCounter.classList.add('active');
+
+    if (comboCount === 5) triggerComboComment("DOUBLE TAP!");
+    else if (comboCount === 12) triggerComboComment("SAVAGE!");
+    else if (comboCount === 25) triggerComboComment("ULTRA COMBO!");
+    else if (comboCount === 50) triggerComboComment("GODLIKE! 🔥");
+    else if (comboCount === 100) triggerComboComment("💀 UNSTOPPABLE!");
+
+    const wpn = WEAPONS[activeWeaponIdx];
+    let timeout = 1500;
+    if (wpn.passiveType === 'combo_extend') timeout *= (1 + wpn.passiveVal);
+
+    comboTimer = setTimeout(() => {
+        comboCount = 0;
+        comboCounter.classList.remove('active');
+        $('comboComment').style.display = 'none';
+    }, timeout);
+}
+
+function triggerComboComment(text) {
+    const c = $('comboComment');
+    c.textContent = text; c.style.display = 'block';
+    c.style.animation = 'none';
+    void c.offsetHeight;
+    c.style.animation = 'pulse-comment 0.5s ease infinite alternate';
+}
+
+// ============================================================
+// SHOP RENDERING
+// ============================================================
+function renderShopWeapons() {
+    const list = $('weaponsList');
+    list.innerHTML = '';
+    WEAPONS.forEach((wpn, idx) => {
+        const isEquipped = idx === activeWeaponIdx;
+        const isOwned = wpn.level > 0;
+        const canBuy = credits >= wpn.cost && !isOwned;
+        const upgCost = getWeaponUpgradeCost(idx);
+        const canUpgrade = isOwned && credits >= upgCost;
+
+        const item = document.createElement('div');
+        item.className = `shop-item${!isOwned && !canBuy ? ' locked' : ''}`;
+        item.innerHTML = `
+            <div class="item-info">
+                <div class="item-icon">${wpn.emoji}</div>
+                <div class="item-details">
+                    <h4>${wpn.name} ${isOwned ? `Lv.${wpn.level}` : ''}</h4>
+                    <p>DMG: ${isOwned ? formatNum(getWeaponDmg(idx)) : wpn.baseDmg}${isEquipped ? ' // ACTIVE' : ''}</p>
+                    <p class="passive-text">✦ ${wpn.passive}</p>
+                </div>
+            </div>
+            <div class="item-actions">
+                ${!isOwned ? `<button class="buy-btn" onclick="buyWeapon(${idx})" ${canBuy?'':' disabled'}>$${formatNum(wpn.cost)}</button>` : ''}
+                ${isOwned && !isEquipped ? `<button class="buy-btn" onclick="equipWeapon(${idx})">EQUIP</button>` : ''}
+                ${isEquipped ? `<button class="buy-btn" disabled>ACTIVE</button>` : ''}
+                ${isOwned ? `<button class="upgrade-btn" onclick="upgradeWeapon(${idx})" ${canUpgrade?'':' disabled'}>⬆ $${formatNum(upgCost)}</button>` : ''}
+            </div>
+        `;
+        list.appendChild(item);
+    });
+}
+
+function renderShopDrones() {
+    const list = $('dronesList');
+    list.innerHTML = '';
+    DRONES.forEach((drone, idx) => {
+        const cost = getDroneCost(idx);
+        const canAfford = credits >= cost;
+        const dps = getDroneDps(idx);
+        const hasSynergy = drone.count >= 5;
+
+        const item = document.createElement('div');
+        item.className = `shop-item${drone.count === 0 && !canAfford ? ' locked' : ''}`;
+        item.innerHTML = `
+            <div class="item-info">
+                <div class="item-icon">${drone.emoji}</div>
+                <div class="item-details">
+                    <h4>${drone.name} [x${drone.count}]</h4>
+                    <p>Auto-DPS: +${formatNum(drone.baseDps * getPrestigeMultiplier())}/ea${dps > 0 ? ` (Total: ${formatNum(dps)})` : ''}</p>
+                    ${hasSynergy ? '<p class="synergy-text">★ SYNERGY: +25% DPS</p>' : `<p class="synergy-text" style="opacity:0.4">★ Synergy at 5+</p>`}
+                </div>
+            </div>
+            <button class="buy-btn" onclick="buyDrone(${idx})" ${canAfford?'':' disabled'}>$${formatNum(cost)}</button>
+        `;
+        list.appendChild(item);
+    });
+}
+
+function buyWeapon(idx) {
+    const w = WEAPONS[idx];
+    if (credits >= w.cost && w.level === 0) {
+        credits -= w.cost;
+        w.level = 1;
+        activeWeaponIdx = idx;
+        stats.weaponsPurchased = WEAPONS.filter(w => w.level > 0).length;
+        synth.play('coin');
+        renderShopWeapons(); updateHUD(); saveState(); checkAchievements();
+    }
+}
+
+function equipWeapon(idx) {
+    if (WEAPONS[idx].level > 0) {
+        activeWeaponIdx = idx;
+        synth.play('click');
+        renderShopWeapons(); updateHUD();
+    }
+}
+
+function upgradeWeapon(idx) {
+    const w = WEAPONS[idx];
+    const cost = getWeaponUpgradeCost(idx);
+    if (w.level > 0 && credits >= cost) {
+        credits -= cost;
+        w.level++;
+        synth.play('coin');
+        renderShopWeapons(); updateHUD(); saveState();
+    }
+}
+
+function buyDrone(idx) {
+    const cost = getDroneCost(idx);
+    if (credits >= cost) {
+        credits -= cost;
+        DRONES[idx].count++;
+        stats.totalDrones = DRONES.reduce((s,d) => s + d.count, 0);
+        recalcAutoDps();
+        synth.play('coin');
+        renderShopDrones(); updateHUD(); saveState(); checkAchievements();
+    }
+}
+
+function updateHUD() {
+    coinDisplay.textContent = `$${formatNum(credits)}`;
+    dpsDisplay.textContent = `${formatNum(autoDps)} DPS`;
+    clickDmgDisplay.textContent = formatNum(getWeaponDmg(activeWeaponIdx));
+    punchesDisplay.textContent = formatNum(totalPunches);
+}
+
+// ============================================================
+// CUSTOM BOSS CRUD
+// ============================================================
+function compileCustomBoss() {
+    const nameVal = customNameIn.value.trim();
+    const emojiVal = customEmojiIn.value.trim() || '👾';
+    const hpVal = parseInt(customHPIn.value);
+    const diff = customDiffIn.value;
+    const tauntVal = customTauntIn.value.trim();
+    const atkName = customAttackIn.value.trim();
+
+    if (!nameVal || isNaN(hpVal) || hpVal <= 0) {
+        triggerComboComment("⚠️ Invalid params!");
+        return;
+    }
+
+    const diffMods = {
+        easy:   { atkMul: 0.5, atkSpd: 6000, enrage: 120, rewardMul: 0.15 },
+        medium: { atkMul: 1.0, atkSpd: 3500, enrage: 60, rewardMul: 0.25 },
+        hard:   { atkMul: 2.0, atkSpd: 2500, enrage: 40, rewardMul: 0.40 },
+        nightmare: { atkMul: 3.5, atkSpd: 1500, enrage: 25, rewardMul: 0.60 }
+    };
+    const m = diffMods[diff];
+
+    const boss = {
+        name: nameVal, emoji: emojiVal, maxHp: hpVal,
+        reward: Math.floor(hpVal * m.rewardMul),
+        stage: `CUSTOM // ${diff.toUpperCase()}`,
+        atkInterval: m.atkSpd,
+        atkDmg: Math.max(1, Math.floor(hpVal * 0.005 * m.atkMul)),
+        enrageTime: m.enrage,
+        special: null, taunt: tauntVal,
+        difficulty: diff, attackName: atkName
+    };
+
+    customBosses.push(boss);
+    stats.customBossesCreated++;
+    customNameIn.value = '';
+    customTauntIn.value = '';
+    customAttackIn.value = '';
+    customHPIn.value = '5000';
+
+    updateDropdownOptions();
+    targetSelector.value = `custom-${customBosses.length - 1}`;
+    setTarget(`custom-${customBosses.length - 1}`);
+    renderBossDatabase();
+    synth.play('defeat');
+    saveCustomBosses();
+    saveState();
+    checkAchievements();
+}
+
+function deleteCustomBoss(idx) {
+    customBosses.splice(idx, 1);
+    updateDropdownOptions();
+    renderBossDatabase();
+    saveCustomBosses();
+    if (String(targetSelector.value).startsWith('custom-')) {
+        targetSelector.value = 0;
+        setTarget(0);
+    }
+}
+
+function fightCustomBoss(idx) {
+    targetSelector.value = `custom-${idx}`;
+    setTarget(`custom-${idx}`);
+    synth.play('click');
+}
+
+function updateDropdownOptions() {
+    targetSelector.querySelectorAll('option').forEach(opt => {
+        if (opt.value.startsWith('custom-')) opt.remove();
+    });
+    customBosses.forEach((tgt, idx) => {
+        const opt = document.createElement('option');
+        opt.value = `custom-${idx}`;
+        opt.textContent = `⚙️ ${tgt.name}`;
+        targetSelector.appendChild(opt);
+    });
+}
+
+function renderBossDatabase() {
+    const list = $('bossDbList');
+    if (customBosses.length === 0) {
+        list.innerHTML = '<p style="color:var(--text-muted); font-size:0.8rem; text-align:center;">No custom bosses saved yet.</p>';
+        return;
+    }
+    list.innerHTML = '';
+    customBosses.forEach((boss, idx) => {
+        const item = document.createElement('div');
+        item.className = 'boss-db-item';
+        item.innerHTML = `
+            <div class="item-info" style="display:flex; align-items:center; gap:0.5rem;">
+                <span style="font-size:1.4rem;">${boss.emoji}</span>
+                <div>
+                    <div style="font-size:0.8rem; font-weight:600; color:#fff;">${boss.name}</div>
+                    <div style="font-size:0.65rem; color:var(--text-muted);">${boss.difficulty?.toUpperCase() || 'MEDIUM'} // HP: ${formatNum(boss.maxHp)}</div>
+                </div>
+            </div>
+            <div class="boss-db-actions">
+                <button class="small-btn" onclick="fightCustomBoss(${idx})">⚔️</button>
+                <button class="small-btn" onclick="shareBoss(${idx})">🔗</button>
+                <button class="small-btn danger" onclick="deleteCustomBoss(${idx})">🗑️</button>
+            </div>
+        `;
+        list.appendChild(item);
+    });
+}
+
+function shareBoss(idx) {
+    const b = customBosses[idx];
+    const params = new URLSearchParams({
+        name: b.name.replace(/\s/g, '-'),
+        emoji: b.emoji,
+        hp: b.maxHp,
+        taunt: b.taunt || ''
+    });
+    const url = `${window.location.origin}${window.location.pathname}?${params}`;
+    navigator.clipboard.writeText(url).then(() => {
+        triggerComboComment("📋 URL Copied!");
+    }).catch(() => {
+        prompt('Share this URL:', url);
+    });
+}
+
+function exportBosses() {
+    const blob = new Blob([JSON.stringify(customBosses, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'cyber_puncher_bosses.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+}
+
+function importBosses(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const imported = JSON.parse(e.target.result);
+            if (Array.isArray(imported)) {
+                customBosses.push(...imported);
+                updateDropdownOptions();
+                renderBossDatabase();
+                saveCustomBosses();
+                triggerComboComment(`📥 Imported ${imported.length} bosses!`);
             }
-            
-            // Initialize game
-            function init() {
-                getURLParameters();
-                updateStats();
+        } catch(err) {
+            triggerComboComment("⚠️ Invalid JSON!");
+        }
+    };
+    reader.readAsText(file);
+}
+
+// ============================================================
+// TAB SWITCHING
+// ============================================================
+function switchTab(tabId) {
+    synth.play('click');
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    $(`${tabId}Tab`).classList.add('active');
+
+    $('weaponsList').classList.add('hidden');
+    $('dronesList').classList.add('hidden');
+    $('creatorForm').classList.add('hidden');
+    $('bossDbPanel').classList.add('hidden');
+
+    const panels = { weapons:'weaponsList', drones:'dronesList', custom:'creatorForm', bossDb:'bossDbPanel' };
+    if (panels[tabId]) $(panels[tabId]).classList.remove('hidden');
+}
+
+// ============================================================
+// ACHIEVEMENTS
+// ============================================================
+function checkAchievements() {
+    ACHIEVEMENTS.forEach(ach => {
+        if (!unlockedAchievements.has(ach.id) && ach.check(stats)) {
+            unlockedAchievements.add(ach.id);
+            showAchievementToast(ach);
+            saveState();
+        }
+    });
+}
+
+function showAchievementToast(ach) {
+    $('toastIcon').textContent = ach.icon;
+    $('toastTitle').textContent = ach.name;
+    $('toastDesc').textContent = ach.desc;
+    achieveToast.classList.add('show');
+    synth.play('achievement');
+    setTimeout(() => achieveToast.classList.remove('show'), 3000);
+}
+
+function renderAchievementsGrid() {
+    achievementsGrid.innerHTML = '';
+    ACHIEVEMENTS.forEach(ach => {
+        const unlocked = unlockedAchievements.has(ach.id);
+        const card = document.createElement('div');
+        card.className = `achievement-card${unlocked ? ' unlocked' : ''}`;
+        card.innerHTML = `
+            <div class="ach-icon">${unlocked ? ach.icon : '🔒'}</div>
+            <div class="ach-info">
+                <h4>${ach.name}</h4>
+                <p>${ach.desc}</p>
+            </div>
+        `;
+        achievementsGrid.appendChild(card);
+    });
+}
+
+// ============================================================
+// STATS MODAL
+// ============================================================
+function showStats() {
+    statsBody.innerHTML = `
+        <div style="font-family:'Share Tech Mono',monospace; font-size:0.85rem; line-height:2;">
+            <div>👊 Total Punches: <strong>${formatNum(stats.totalPunches)}</strong></div>
+            <div>💥 Total Damage: <strong>${formatNum(stats.totalDamageDealt)}</strong></div>
+            <div>💰 Total Credits Earned: <strong>$${formatNum(stats.totalCreditsEarned)}</strong></div>
+            <div>🎯 Targets Defeated: <strong>${stats.totalKills}</strong></div>
+            <div>⏱️ Fastest Kill: <strong>${stats.fastestKill === Infinity ? '—' : stats.fastestKill.toFixed(1) + 's'}</strong></div>
+            <div>🔥 Max Combo: <strong>${stats.maxCombo}x</strong></div>
+            <div>😤 Rage Activations: <strong>${stats.totalRages}</strong></div>
+            <div>✨ Super Crits: <strong>${stats.superCrits}</strong></div>
+            <div>🛡️ Shield Breaks: <strong>${stats.shieldBreaks}</strong></div>
+            <div>⭐ Prestige Level: <strong>${prestigeLevel}</strong> (${getPrestigeMultiplier()}x multiplier)</div>
+            <div>🏆 Achievements: <strong>${unlockedAchievements.size}/${ACHIEVEMENTS.length}</strong></div>
+            <div>⚙️ Custom Bosses Created: <strong>${stats.customBossesCreated}</strong></div>
+            <div>🧘 Classic Mode Punches: <strong>${stats.classicPunches}</strong></div>
+        </div>
+    `;
+    statsModal.classList.add('open');
+}
+
+// ============================================================
+// OFFLINE PROGRESS
+// ============================================================
+function checkOfflineProgress() {
+    if (lastSaveTimestamp && autoDps > 0) {
+        const elapsed = (Date.now() - lastSaveTimestamp) / 1000;
+        if (elapsed > 30) { // At least 30 seconds away
+            const maxOffline = 3600 * 8; // Cap at 8 hours
+            const effectiveTime = Math.min(elapsed, maxOffline);
+            const earned = Math.floor(autoDps * effectiveTime * 0.5); // 50% efficiency
+            if (earned > 0) {
+                credits += earned;
+                stats.totalCreditsEarned += earned;
+                welcomeText.innerHTML = `
+                    <p style="font-family:'Share Tech Mono',monospace; margin-bottom:0.5rem;">
+                        You were gone for <strong>${Math.floor(elapsed / 60)} minutes</strong>
+                    </p>
+                    <p>Your drones earned: <span style="color:var(--accent); font-weight:bold; font-size:1.2rem;">+$${formatNum(earned)}</span></p>
+                    <p style="font-size:0.75rem; color:var(--text-muted); margin-top:0.5rem;">(50% offline efficiency)</p>
+                `;
+                welcomeModal.classList.add('open');
+                updateHUD();
             }
-            
-            // Update health and punch stats
-            function updateStats() {
-                stats.textContent = `Health: ${health}/100 | Punches: ${punchCount}`;
-                healthBar.style.width = `${health}%`;
-                
-                // Update emoji based on health
-                const characterEmoji = document.getElementById('characterEmoji');
-                if (health <= 0) {
-                    characterEmoji.textContent = healthEmojis[0];
-                } else if (health <= 20) {
-                    characterEmoji.textContent = healthEmojis[20];
-                } else if (health <= 40) {
-                    characterEmoji.textContent = healthEmojis[40];
-                } else if (health <= 60) {
-                    characterEmoji.textContent = healthEmojis[60];
-                } else if (health <= 80) {
-                    characterEmoji.textContent = healthEmojis[80];
-                } else {
-                    characterEmoji.textContent = healthEmojis[100];
+        }
+    }
+}
+
+// ============================================================
+// AUDIO TOGGLE
+// ============================================================
+function toggleAudio() {
+    synth.muted = !synth.muted;
+    audioToggle.textContent = synth.muted ? '🔇 OFF' : '🔊 ON';
+    audioToggle.style.borderColor = synth.muted ? 'var(--secondary)' : 'var(--surface-border)';
+    if (!synth.muted) synth.init();
+}
+
+// ============================================================
+// SAVE / LOAD
+// ============================================================
+function saveState() {
+    lastSaveTimestamp = Date.now();
+    const state = {
+        credits, activeWeaponIdx, activeTargetIdx, targetHp, totalPunches,
+        weaponLevels: WEAPONS.map(w => w.level),
+        droneCounts: DRONES.map(d => d.count),
+        prestigeLevel, rageDurationUpgrade, rageMeter,
+        stats, unlockedAchievements: [...unlockedAchievements],
+        lastSaveTimestamp, classicPunchCount
+    };
+    localStorage.setItem('cyber_puncher_state_v3', JSON.stringify(state));
+}
+
+function saveCustomBosses() {
+    localStorage.setItem('cyber_puncher_custom_bosses_v3', JSON.stringify(customBosses));
+}
+
+function loadState() {
+    // Load custom bosses
+    try {
+        const cb = localStorage.getItem('cyber_puncher_custom_bosses_v3');
+        if (cb) customBosses = JSON.parse(cb);
+    } catch(e) {}
+
+    // Try v3 first
+    let str = localStorage.getItem('cyber_puncher_state_v3');
+
+    // Migration from v2
+    if (!str) {
+        str = localStorage.getItem('cyber_puncher_state_v2');
+        if (str) {
+            try {
+                const old = JSON.parse(str);
+                credits = old.credits || 0;
+                activeWeaponIdx = old.activeWeaponIdx || 0;
+                WEAPONS.forEach((w, i) => { w.level = i <= activeWeaponIdx ? 1 : 0; });
+                if (old.droneCounts) old.droneCounts.forEach((c, i) => { if (DRONES[i]) DRONES[i].count = c; });
+                activeTargetIdx = old.activeTargetIdx || 0;
+                targetHp = old.targetHp || 100;
+                totalPunches = old.totalPunches || 0;
+                if (old.customTargets) {
+                    old.customTargets.forEach(ct => {
+                        customBosses.push({
+                            ...ct, atkInterval: 3000, atkDmg: Math.floor(ct.maxHp * 0.005),
+                            enrageTime: 60, special: null, taunt: '', difficulty: 'medium', attackName: ''
+                        });
+                    });
                 }
-            }
-            
-            // Set character name
-            setNameBtn.addEventListener('click', function() {
-                const newName = nameInput.value.trim();
-                if (newName) {
-                    characterName = newName;
-                    characterNameElement.textContent = newName;
-                    nameInput.value = '';
-                }
-            });
-            
-            // Press Enter to set name
-            nameInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    const newName = nameInput.value.trim();
-                    if (newName) {
-                        characterName = newName;
-                        characterNameElement.textContent = newName;
-                        nameInput.value = '';
-                    }
-                }
-            });
-            
-            // Punch character
-            punchBtn.addEventListener('click', function() {
-                if (health <= 0) return;
-                
-                // Disable button during animation
-                punchBtn.disabled = true;
-                
-                // Create random punch variations
-                const punchSounds = ['POW!', 'BAM!', 'WHAM!', 'SMACK!', 'THWACK!', 'KAPOW!'];
-                const randomPunch = punchSounds[Math.floor(Math.random() * punchSounds.length)];
-                const punchEffectEmoji = document.getElementById('punchEffectEmoji');
-                
-                // Randomize punch effect position slightly
-                const offsetX = Math.random() * 40 - 20;
-                const offsetY = Math.random() * 40 - 20;
-                punchEffect.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
-                
-                // Choose random punch effect
-                const punchEffects = ['💥', '👊💥', '💪💥', '⚡'];
-                punchEffectEmoji.textContent = punchEffects[Math.floor(Math.random() * punchEffects.length)];
-                
-                // Add text effect with the punch sound
-                const textEffect = document.createElement('div');
-                textEffect.className = 'text-effect';
-                textEffect.textContent = randomPunch;
-                textEffect.style.left = `${Math.random() * 60 + 20}%`;
-                textEffect.style.top = `${Math.random() * 60 + 20}%`;
-                character.appendChild(textEffect);
-                
-                // Show punch animations
-                punchEffect.style.display = 'flex';
-                document.querySelector('.character-container').classList.add('punch-animation');
-                character.classList.add('shake');
-                character.classList.add('character-damage');
-                
-                // Play punch sound if browser supports it
-                try {
-                    const audio = new Audio('data:audio/mp3;base64,//uQxAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAAFAAAGhgCFhYWFhYWFhYWFhYWFhYWFhYWFvb29vb29vb29vb29vb29vb29vb3s7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs////////////8AAAA1RJREFUOE9tk09LVFEYxp9z73vnoitzJEzG6k4jJTJzETEu2rQvoOiuVYvmE0h9gLLaRL7iYhIXEi2KWrYoalPpQoL8Q2oJQduZqJHZ68ydO/eei3NHJzzw8Jz3d5/3vO95zhF0SDqdNgnzCOAZwBhB3QgRcaVSx1P/qnJB0Wnb+U8OIg5IQW7IoIKprsLj8Oj3OvDD/TGNnPTCl30Z8XPGCTkbjZeOHjTp2HQZrNUkIWMlYL6zMrkGJI+Xof4QQHs7QHwdBLpTZKvlhgA/CwAGCEQDHDZi1FtADDu79v4Vhoe9GdgdsBo/JbTN9taMDKy1gNi2OXFvsRRCnZcB6hOSJv8CXGVE0ZQTRhPWcWLr0tYAYts6ebCiQ4mQBJK0BTjOSIymrXvEUTc2B/5KgXlNkDRzQJAzojXzbpgXsdxDjm0/sLZSqW/gq0izhzQRQVvlCqeNPDlsEU3Qz/U9uRaIBYLnwICsMyfCTjDO1SsQO7aZHA/FDmQISFCfkHQEOElo5FY4rtV3kGPUt10l5F4w4IIgTdMQoBGBfymcNOxmzEFkXefkfOhAjkDSgQIB9ROGwbwJRdOruosd24wfMB88wICk3YDwbRgA7zWibPo9XO7Y5vb98XmC+jXlWLpOAL9YJsrW15AsPCB2GBnrn3sF8AQhlU7XOCMzDGPHNsYGwvFJAm8VoMUymGcnCPK7Sl36OPQ+fA15QOwsHGpfBxLFxSQFOUNQhbP3RlAGGKCi7TBL31U68WHoQ3jvtoBcXEicriKZRmL3QJBfYdY+q1TxYzDWVqSdxXytX4WJxWw2e8B1e15V56qHzSqQV5WQP9XofG0+fTNfT2StbJbK9nFdfp3Pl/p/XSwUJlCtnkKxOM4E5V0o9PJ2qXTGdf1eVdPlUkneVdX7DuAEcNoFLrpAqRY3c9kC8EMB+VrtXqfexOF+qiqeBIAvgKqFvf6qS1xEgOOAU7PqASztbHcEOFYAg7WR6dVZLO/tHfprXd0SaAv4BeA7gB8AXgNoetl/5A/nBn5NHJtvXQAAAABJRU5ErkJggg==');
-                    audio.volume = 0.5;
-                    audio.play();
-                } catch(e) {
-                    console.log("Audio not supported");
-                }
-                
-                // Reduce health and increase punch count
-                const damage = Math.floor(Math.random() * 10) + 5; // Random damage between 5-15
-                health = Math.max(0, health - damage);
-                punchCount++;
-                
-                // Update UI
-                updateStats();
-                
-                // Reset punch effect and check for game over
-                setTimeout(function() {
-                    punchEffect.style.display = 'none';
-                    document.querySelector('.character-container').classList.remove('punch-animation');
-                    character.classList.remove('shake');
-                    character.classList.remove('character-damage');
-                    
-                    // Remove text effect
-                    if (textEffect && textEffect.parentNode) {
-                        textEffect.parentNode.removeChild(textEffect);
-                    }
-                    
-                    // Re-enable button
-                    punchBtn.disabled = false;
-                    
-                    if (health <= 0) {
-                        setTimeout(function() {
-                            gameOverText.textContent = `You defeated ${characterName} with ${punchCount} punches!`;
-                            gameOverModal.style.display = 'flex';
-                        }, 500);
-                    }
-                }, 400);
-            });
-            
-            // Reset game
-            playAgainBtn.addEventListener('click', function() {
-                health = 100;
-                punchCount = 0;
-                updateStats();
-                gameOverModal.style.display = 'none';
-                
-                // Add celebration effects
-                const confetti = document.createElement('div');
-                confetti.className = 'confetti-container';
-                document.body.appendChild(confetti);
-                
-                // Create confetti pieces
-                for (let i = 0; i < 50; i++) {
-                    const piece = document.createElement('div');
-                    piece.className = 'confetti-piece';
-                    piece.style.left = Math.random() * 100 + 'vw';
-                    piece.style.backgroundColor = ['#f00', '#0f0', '#00f', '#ff0', '#0ff', '#f0f'][Math.floor(Math.random() * 6)];
-                    piece.style.animationDelay = Math.random() * 3 + 's';
-                    confetti.appendChild(piece);
-                }
-                
-                // Remove confetti after animation
-                setTimeout(() => {
-                    if (confetti && confetti.parentNode) {
-                        confetti.parentNode.removeChild(confetti);
-                    }
-                }, 4000);
-            });
-            
-            // Initialize the game
-            init();
-        });
-    </script>
+                recalcAutoDps();
+                stats.totalPunches = totalPunches;
+                updateDropdownOptions();
+                targetSelector.value = activeTargetIdx;
+                saveState();
+                saveCustomBosses();
+                return;
+            } catch(e) {}
+        }
+        return;
+    }
+
+    try {
+        const s = JSON.parse(str);
+        credits = s.credits || 0;
+        activeWeaponIdx = s.activeWeaponIdx || 0;
+        activeTargetIdx = s.activeTargetIdx || 0;
+        targetHp = s.targetHp || 100;
+        totalPunches = s.totalPunches || 0;
+        prestigeLevel = s.prestigeLevel || 0;
+        rageDurationUpgrade = s.rageDurationUpgrade || 0;
+        rageMeter = s.rageMeter || 0;
+        classicPunchCount = s.classicPunchCount || 0;
+        lastSaveTimestamp = s.lastSaveTimestamp || Date.now();
+
+        if (s.weaponLevels) s.weaponLevels.forEach((lv, i) => { if (WEAPONS[i]) WEAPONS[i].level = lv; });
+        if (s.droneCounts) s.droneCounts.forEach((c, i) => { if (DRONES[i]) DRONES[i].count = c; });
+        if (s.stats) stats = { ...stats, ...s.stats };
+        if (s.unlockedAchievements) unlockedAchievements = new Set(s.unlockedAchievements);
+
+        recalcAutoDps();
+        updateDropdownOptions();
+        targetSelector.value = activeTargetIdx;
+        rageBarFill.style.width = `${rageMeter}%`;
+        ragePercentLabel.textContent = `${Math.floor(rageMeter)}%`;
+    } catch(e) {
+        console.warn("Failed to load state.", e);
+    }
+}
+
+// ============================================================
+// EVENT BINDINGS
+// ============================================================
+
+// Punch - both mouse and touch
+characterCard.addEventListener('mousedown', e => punchTarget(e));
+characterCard.addEventListener('touchstart', e => { e.preventDefault(); punchTarget(e); }, { passive: false });
+
+punchBtn.addEventListener('mousedown', e => {
+    const cr = characterCard.getBoundingClientRect();
+    punchTarget({ clientX: cr.left + cr.width/2, clientY: cr.top + cr.height/2 });
+});
+punchBtn.addEventListener('touchstart', e => {
+    e.preventDefault();
+    const cr = characterCard.getBoundingClientRect();
+    punchTarget({ clientX: cr.left + cr.width/2, clientY: cr.top + cr.height/2 });
+}, { passive: false });
+
+// Target selector
+targetSelector.addEventListener('change', e => { synth.play('click'); setTarget(e.target.value); saveState(); });
+
+// Tab buttons
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
+
+// Custom boss
+btnCreateCustom.addEventListener('click', compileCustomBoss);
+
+// Import/Export
+$('btnExportBosses').addEventListener('click', exportBosses);
+$('btnImportBosses').addEventListener('click', () => $('importFileInput').click());
+$('importFileInput').addEventListener('change', e => { if (e.target.files[0]) importBosses(e.target.files[0]); e.target.value = ''; });
+
+// Rage
+rageBtn.addEventListener('click', activateRageMode);
+rageBtn.addEventListener('touchstart', e => { e.preventDefault(); activateRageMode(); }, { passive: false });
+
+// Keyboard shortcuts
+window.addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+
+    if (e.code === 'Space') { e.preventDefault(); activateRageMode(); }
+    else if (e.code === 'Enter') { e.preventDefault(); punchTarget(null); }
+    else if (e.key >= '1' && e.key <= '6') {
+        const idx = parseInt(e.key) - 1;
+        if (idx < TARGETS.length) { targetSelector.value = idx; setTarget(idx); }
+    }
+    else if (e.key === 'q' || e.key === 'Q') switchTab('weapons');
+    else if (e.key === 'w' || e.key === 'W') switchTab('drones');
+    else if (e.key === 'e' || e.key === 'E') switchTab('custom');
+    else if (e.key === 'r' || e.key === 'R') switchTab('bossDb');
+});
+
+// Mode toggle
+modeToggle.addEventListener('click', () => switchMode(currentMode === 'arcade' ? 'classic' : 'arcade'));
+
+// Audio
+audioToggle.addEventListener('click', toggleAudio);
+
+// Modals
+btnModalClose.addEventListener('click', nextNode);
+btnPrestige.addEventListener('click', doPrestige);
+btnWelcomeClose.addEventListener('click', () => welcomeModal.classList.remove('open'));
+btnStatsClose.addEventListener('click', () => statsModal.classList.remove('open'));
+btnAchieveClose.addEventListener('click', () => achieveModal.classList.remove('open'));
+statsToggle.addEventListener('click', () => { showStats(); });
+achieveToggle.addEventListener('click', () => { renderAchievementsGrid(); achieveModal.classList.add('open'); });
+
+// ============================================================
+// LAUNCH
+// ============================================================
+init();
+</script>
 </body>
 </html>

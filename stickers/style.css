@@ -112,6 +112,66 @@ body {
   margin-top: 0;
 }
 
+/* ─── SEARCH CONTAINER ─── */
+.search-container {
+  position: relative;
+  margin-top: 10px;
+  max-height: 40px;
+  opacity: 1;
+  overflow: hidden;
+  transition:
+    max-height 0.35s ease,
+    opacity 0.25s ease,
+    margin-top 0.35s ease;
+  display: flex;
+  align-items: center;
+}
+
+.site-header.collapsed .search-container {
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0;
+}
+
+#searchInput {
+  width: 100%;
+  padding: 6px 32px 6px 12px;
+  background: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 4px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.7rem;
+  outline: none;
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+#searchInput:focus {
+  border-color: #fff;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+.clear-search-btn {
+  position: absolute;
+  right: 8px;
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+.clear-search-btn:hover {
+  color: #fff;
+}
+
 @media (min-width: 480px) {
   .site-header .header-inner {
     padding: 20px 18px 14px;
@@ -161,14 +221,15 @@ body {
 }
 
 .gallery {
-  column-count: 2;
-  column-gap: 12px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
 }
 
 @media (min-width: 480px) {
   .gallery {
-    column-count: 3;
-    column-gap: 14px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
   }
   .gallery-wrap {
     padding: 16px;
@@ -177,8 +238,8 @@ body {
 
 @media (min-width: 768px) {
   .gallery {
-    column-count: 4;
-    column-gap: 16px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
   }
   .gallery-wrap {
     padding: 20px;
@@ -187,8 +248,8 @@ body {
 
 @media (min-width: 1024px) {
   .gallery {
-    column-count: 5;
-    column-gap: 18px;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 18px;
   }
   .gallery-wrap {
     padding: 24px;
@@ -197,8 +258,8 @@ body {
 
 @media (min-width: 1400px) {
   .gallery {
-    column-count: 6;
-    column-gap: 20px;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 20px;
   }
   .gallery-wrap {
     padding: 32px;
@@ -207,13 +268,16 @@ body {
 
 /* ─── STICKER CARD ─── */
 .sticker-card {
-  break-inside: avoid;
-  margin-bottom: 12px;
   position: relative;
   border-radius: 16px;
   overflow: hidden;
   background: #1e1e1e;
   cursor: pointer;
+  aspect-ratio: 1 / 1;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition:
     transform 0.3s ease,
     box-shadow 0.3s ease;
@@ -221,14 +285,12 @@ body {
 
 @media (min-width: 480px) {
   .sticker-card {
-    margin-bottom: 14px;
     border-radius: 18px;
   }
 }
 
 @media (min-width: 768px) {
   .sticker-card {
-    margin-bottom: 16px;
     border-radius: 20px;
   }
 }
@@ -263,25 +325,26 @@ body {
 }
 
 .starred-gallery {
-  column-count: 2;
-  column-gap: 12px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
 }
 
 @media (min-width: 480px) {
   .starred-section { padding: 0 16px; }
-  .starred-gallery { column-count: 3; column-gap: 14px; }
+  .starred-gallery { grid-template-columns: repeat(3, 1fr); gap: 14px; }
 }
 @media (min-width: 768px) {
   .starred-section { padding: 0 20px; }
-  .starred-gallery { column-count: 4; column-gap: 16px; }
+  .starred-gallery { grid-template-columns: repeat(4, 1fr); gap: 16px; }
 }
 @media (min-width: 1024px) {
   .starred-section { padding: 0 24px; }
-  .starred-gallery { column-count: 5; column-gap: 18px; }
+  .starred-gallery { grid-template-columns: repeat(5, 1fr); gap: 18px; }
 }
 @media (min-width: 1400px) {
   .starred-section { padding: 0 32px; }
-  .starred-gallery { column-count: 6; column-gap: 20px; }
+  .starred-gallery { grid-template-columns: repeat(6, 1fr); gap: 20px; }
 }
 
 /* Loading skeleton */
@@ -323,7 +386,8 @@ body {
 /* Sticker image */
 .sticker-img {
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: contain;
   display: block;
   opacity: 0;
   transition: opacity 0.4s ease;
@@ -331,35 +395,6 @@ body {
 
 .sticker-card.loaded .sticker-img {
   opacity: 1;
-}
-
-/* Aspect ratio placeholder */
-.sticker-card::before {
-  content: "";
-  display: block;
-  padding-top: var(--aspect-ratio, 100%);
-}
-
-.sticker-card .sticker-img,
-.sticker-card .loader {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.sticker-card.loaded::before {
-  display: none;
-}
-
-.sticker-card.loaded {
-  position: relative;
-}
-
-.sticker-card.loaded .sticker-img {
-  position: relative;
 }
 
 /* ─── FULLSCREEN MODAL ─── */

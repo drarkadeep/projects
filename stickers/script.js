@@ -129,7 +129,7 @@ let starredSet = getSet("stickers_starred");
 let hiddenSet = getSet("stickers_hidden");
 
 // ─── Gallery logic ───
-const TOTAL = 106;
+const TOTAL = 123;
 const allStickers = Array.from(
   { length: TOTAL },
   (_, i) => `assets/${i + 1}.webp`,
@@ -143,8 +143,6 @@ function shuffle(array) {
   }
   return arr;
 }
-
-const aspectRatios = ["80%", "100%", "120%", "90%", "110%", "95%", "105%"];
 
 const gallery = document.getElementById("gallery");
 const starredGallery = document.getElementById("starredGallery");
@@ -187,10 +185,6 @@ function createCard(src, index) {
   card.className = "sticker-card";
   card.dataset.src = src;
   const stickerNumber = src.match(/\d+/)?.[0] || "";
-  card.style.setProperty(
-    "--aspect-ratio",
-    aspectRatios[index % aspectRatios.length],
-  );
 
   card.innerHTML = `
     <div class="loader"><div class="loader-spinner"></div></div>
@@ -204,13 +198,22 @@ function createCard(src, index) {
 // Shuffled order (computed once)
 const shuffledStickers = shuffle(allStickers);
 
+let searchQuery = "";
+
 function renderGallery() {
   gallery.innerHTML = "";
   starredGallery.innerHTML = "";
 
+  const query = searchQuery.trim().toLowerCase();
+  const matchesQuery = (src) => {
+    if (!query) return true;
+    const desc = (stickerDescriptions[src] || "").toLowerCase();
+    return desc.includes(query);
+  };
+
   // Starred section
   const starredArr = shuffledStickers.filter(
-    (s) => starredSet.has(s) && !hiddenSet.has(s),
+    (s) => starredSet.has(s) && !hiddenSet.has(s) && matchesQuery(s),
   );
   if (starredArr.length > 0) {
     starredSection.classList.add("has-stars");
@@ -223,11 +226,24 @@ function renderGallery() {
 
   // Main gallery: exclude hidden AND starred
   const mainStickers = shuffledStickers.filter(
-    (s) => !hiddenSet.has(s) && !starredSet.has(s),
+    (s) => !hiddenSet.has(s) && !starredSet.has(s) && matchesQuery(s),
   );
   mainStickers.forEach((src, i) => {
     gallery.appendChild(createCard(src, i));
   });
+
+  // If no stickers match search
+  if (mainStickers.length === 0 && starredArr.length === 0 && query) {
+    const noResults = document.createElement("div");
+    noResults.className = "no-results";
+    noResults.textContent = "No stickers found matching that search.";
+    noResults.style.columnSpan = "all";
+    noResults.style.textAlign = "center";
+    noResults.style.padding = "40px 0";
+    noResults.style.color = "#666";
+    noResults.style.fontSize = "0.8rem";
+    gallery.appendChild(noResults);
+  }
 
   // Bottom action buttons
   bottomActions.innerHTML = "";
@@ -434,3 +450,29 @@ document.addEventListener("keydown", (e) => {
 modalImg.addEventListener("click", (e) => {
   e.stopPropagation();
 });
+
+// ─── Search input handling ───
+const searchInput = document.getElementById("searchInput");
+const clearSearchBtn = document.getElementById("clearSearchBtn");
+
+if (searchInput) {
+  searchInput.addEventListener("input", (e) => {
+    searchQuery = e.target.value;
+    if (clearSearchBtn) {
+      clearSearchBtn.style.display = searchQuery ? "flex" : "none";
+    }
+    renderGallery();
+  });
+}
+
+if (clearSearchBtn) {
+  clearSearchBtn.addEventListener("click", () => {
+    searchQuery = "";
+    if (searchInput) {
+      searchInput.value = "";
+      searchInput.focus();
+    }
+    clearSearchBtn.style.display = "none";
+    renderGallery();
+  });
+}
