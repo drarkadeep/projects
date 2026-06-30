@@ -9,37 +9,25 @@
   document.getElementById("headerTagline").textContent = desc;
 })();
 
-// ─── Collapse header on scroll (hysteresis, layout-shift-safe) ───
+// ─── Collapse header on scroll ───
 (function () {
   const header = document.getElementById("siteHeader");
-  const galleryWrap = document.querySelector(".gallery-wrap");
   let isCollapsed = false;
   let ticking = false;
   const COLLAPSE_AT = 80;
-  const EXPAND_AT = 30; // hysteresis: un-collapse well before 0
+  const EXPAND_AT = 30;
 
   window.addEventListener("scroll", () => {
     if (!ticking) {
       window.requestAnimationFrame(() => {
         const y = window.scrollY;
         if (!isCollapsed && y > COLLAPSE_AT) {
-          // Measure header height BEFORE collapsing
-          const heightBefore = header.offsetHeight;
           header.classList.add("collapsed");
-          // Measure header height AFTER collapsing
-          const heightAfter = header.offsetHeight;
-          const diff = heightBefore - heightAfter;
-          // Compensate so scrollY doesn't shift
-          if (diff > 0 && galleryWrap) {
-            galleryWrap.style.paddingTop = `${diff + 12}px`; // 12px is the original padding
-          }
+          console.log(`[COLLAPSED] scrollY=${y}`);
           isCollapsed = true;
         } else if (isCollapsed && y <= EXPAND_AT) {
-          // Remove compensation and un-collapse
-          if (galleryWrap) {
-            galleryWrap.style.paddingTop = "";
-          }
           header.classList.remove("collapsed");
+          console.log(`[EXPANDED] scrollY=${y}`);
           isCollapsed = false;
         }
         ticking = false;
