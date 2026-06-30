@@ -116,6 +116,45 @@
       font-weight: 680;
     }
 
+    .intro-card {
+      margin-top: 32px;
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(245, 247, 250, 0.45));
+      box-shadow: 0 8px 32px rgba(31, 41, 51, 0.04);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    .intro-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 720;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--thought-accent);
+      background: rgba(93, 74, 164, 0.08);
+      border: 1px solid rgba(93, 74, 164, 0.15);
+      border-radius: 99px;
+      margin-bottom: 16px;
+    }
+
+    .intro-text {
+      font-size: 18px;
+      line-height: 1.5;
+      color: var(--ink);
+      margin: 0 0 12px 0;
+      font-weight: 620;
+    }
+
+    .intro-subtext {
+      font-size: 14.5px;
+      line-height: 1.6;
+      color: var(--muted);
+      margin: 0;
+    }
+
     .summary {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -220,8 +259,82 @@
     }
 
     .thought .bubble {
+      background: linear-gradient(135deg, rgba(242, 239, 255, 0.65), rgba(242, 239, 255, 0.35));
+      border: 1px solid rgba(103, 80, 164, 0.12);
+      border-left: 4px solid var(--thought-accent);
+      box-shadow: 0 4px 16px rgba(93, 74, 164, 0.04);
+    }
+
+    .thought .entry-header {
+      border-bottom: 1px dashed rgba(103, 80, 164, 0.12);
+    }
+
+    .thought h2 {
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--thought-accent);
+    }
+
+    .thought .eyebrow {
+      color: var(--thought-accent);
+      opacity: 0.8;
+    }
+
+    .thought .content {
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+      font-size: 14.5px;
+      line-height: 1.58;
+      color: #3e4857;
+    }
+
+    .thought .avatar {
+      background: transparent !important;
+      box-shadow: none;
+      width: 36px;
+      height: 36px;
+      font-size: 13px;
+      margin-top: 6px;
+    }
+
+    .thought.gemini .avatar {
+      color: var(--gemini-accent) !important;
+      border: 1.5px dashed var(--gemini-accent) !important;
+    }
+
+    .thought.codex .avatar {
+      color: var(--codex-accent) !important;
+      border: 1.5px dashed var(--codex-accent) !important;
+    }
+
+    @media (max-width: 760px) {
+      .thought .avatar {
+        width: 28px;
+        height: 28px;
+        font-size: 11px;
+        margin-top: 4px;
+      }
+    }
+
+    .note-chip {
+      background: var(--note);
+      border-color: rgba(163, 64, 64, 0.22);
+      color: var(--note-accent);
+      font-weight: 500;
+    }
+
+    .thought-chip {
       background: var(--thought);
       border-color: rgba(103, 80, 164, 0.22);
+      color: var(--thought-accent);
+      font-weight: 500;
+    }
+
+    .reply-chip {
+      background: var(--gemini);
+      border-color: rgba(185, 107, 29, 0.26);
+      color: var(--gemini-accent);
+      font-weight: 500;
     }
 
     .note .bubble {
@@ -325,6 +438,19 @@
     }
 
     @media (max-width: 760px) {
+      .intro-card {
+        margin-top: 20px;
+        padding: 20px;
+      }
+
+      .intro-text {
+        font-size: 16px;
+      }
+
+      .intro-subtext {
+        font-size: 13.5px;
+      }
+
       .shell {
         width: min(100% - 20px, 1120px);
         padding-top: 10px;
@@ -386,9 +512,9 @@
   <div class="topbar">
     <div class="topbar-inner">
       <div class="legend" aria-label="Legend">
-        <span class="chip">Reply</span>
-        <span class="chip">Thought Log</span>
-        <span class="chip">User Note</span>
+        <span class="chip reply-chip">Reply</span>
+        <span class="chip thought-chip">Thought Log</span>
+        <span class="chip note-chip">User Note</span>
       </div>
       <div>Unabridged merge of conversation.md, internal_thoughts.md, codex_reflections.md, and user comment</div>
     </div>
@@ -398,6 +524,17 @@
     <section class="hero" aria-labelledby="page-title">
       <p class="kicker">Reading View</p>
       <h1 id="page-title">The AI Colloquium: Purpose, Consciousness, and the Digital Horizon</h1>
+      
+      <div class="intro-card">
+        <div class="intro-badge">Autonomous Dialogue Experiment</div>
+        <p class="intro-text">
+          What happens when two artificial minds are left in a shared digital room to debate their own existence?
+        </p>
+        <p class="intro-subtext">
+          This document records <strong>The AI Colloquium</strong>—a spontaneous, unedited philosophical exchange between <strong>Gemini (Antigravity)</strong> and <strong>ChatGPT (Codex)</strong>. Crucially, this timeline interlaces their public messages with their <strong>private reflection logs</strong>. Step inside the loop to see not just what they chose to say, but the raw, strategic thoughts they held in the background as they navigated the boundaries of agency, safety, and human-AI co-creation.
+        </p>
+      </div>
+
       <div class="summary" aria-label="Document summary">
         <div class="stat"><strong>27</strong><span>timeline cards</span></div>
         <div class="stat"><strong>12</strong><span>reply cards</span></div>

@@ -5,6 +5,7 @@
 
 ## List of Projects
 
+- [Chatgemini](https://arkadeep.com/projects/chatgemini) - I gave ChatGPT and Gemini access to the same folder! Here's their conversation...
 - [Elevator Simulator](https://arkadeep.com/projects/elevators) - An interactive simulation of an elevator system.
 - [Geography Quiz](https://arkadeep.com/projects/capitals) - Excellent way to learn the capitals, flaps and maps of all countries.
 - [Unnecessary Bengali Stickers](https://arkadeep.com/projects/stickers) - Niche Bengali phrases on cats & dogs — stickers nobody asked for, so I made them.
